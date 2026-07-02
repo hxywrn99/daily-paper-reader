@@ -1,0 +1,559 @@
+Title: Progressive Pixel-Neighborhood Deformable Cross-Attention for Multispectral Object Detection
+
+URL Source: https://arxiv.org/pdf/2606.24092v1
+
+Published Time: Wed, 24 Jun 2026 00:26:15 GMT
+
+Number of Pages: 39
+
+Markdown Content:
+# Progressive Pixel-Neighborhood Deformable Cross-Attention for Multispectral Object Detection 
+
+Tian Qiu a, Jifeng Shen a, ∗, Xin Zuo b
+
+> aSchool of Electrical and Information Engineering, Jiangsu University, Zhenjiang, 212013, China
+> bSchool of Computer Science and Engineering, Jiangsu University of Science and Technology, Zhenjiang, 212003, China
+
+Abstract 
+
+Eff ective cross-modal feature alignment and interaction are central challenges in mul-tispectral object detection. Although global cross-attention provides strong long-range modeling ability, its quadratic complexity with respect to feature size limits deployment on resource-constrained platforms. We therefore propose Progressive Pixel-Neighborhood Deformable Cross-Attention for multispectral feature fusion, termed PNAFusion. The proposed framework is motivated by two observations: weak misalignment between visible and thermal images is usually concentrated around local neighborhoods, and semantic correspondence across modalities often follows non-linear spatial mappings that fixed receptive fields cannot model well. To address these issues, PNAFusion incorporates local spatial priors into its architectural design to concentrate feature in-teraction and alignment on the most relevant neighborhoods. Specifically, a Pixel-Neighborhood Cross-Attention (PNCA) module is introduced to avoid redundant global feature matching and suppress background noise. Meanwhile, an Adaptive Deformable Alignment (ADA) module captures non-linear spatial correspondences through learned pixel-wise o ff sets. These components are further integrated through an iterative feed-back mechanism to progressively refine cross-modal feature alignment. Experiments on FLIR, M3FD, and DroneVehicle show that PNAFusion achieves 84.2, 90.5, and   
+
+> ∗Corresponding author
+> Email address: shenjifeng@ujs.edu.cn (Jifeng Shen)
+> arXiv:2606.24092v1 [cs.CV] 23 Jun 2026
+
+85.5 mAP@0.5, respectively, under the YOLOv5 detector, and further reaches 86.8 mAP@0.5 on FLIR and 90.8 mAP@0.5 on M3FD when transferred to Co-DETR. Ef-ficiency analysis indicates that PNAFusion reduces allocated GPU memory by 33.0% compared with ICAFusion and reduces theoretical FLOPs from 194.8 G to 156.4 G, although the deformable sampling and iterative refinement introduce additional latency. These results demonstrate that PNAFusion provides a practical accuracy–memory trade-off for weakly aligned multispectral object detection. Our code will be available at https: // github.com /DanielQiuTian /PNAFusion. 
+
+Keywords: multispectral object detection; cross-modal interaction; iterative feature fusion; deformable attention; pixel-neighborhood attention; feature alignment 
+
+1. Introduction 
+
+In safety-critical domains such as autonomous driving, all-weather security surveil-lance, and UAV-based remote sensing [1, 2], robust object perception constitutes a fundamental prerequisite for system safety. Although current RGB (visible-spectrum) detection algorithms have achieved remarkable performance under ideal illumination conditions, they remain highly dependent on ambient lighting. Under extreme con-ditions, such as nighttime, intense glare, and dense fog, thermal infrared (TIR) sen-sors can provide reliable feature cues by capturing the thermal radiation emitted by objects. However, infrared images generally su ff er from low resolution, missing tex-ture details [3], and low signal-to-noise ratio. Therefore, how to e ff ectively integrate visible-spectrum information with infrared thermal radiation has become a challeng-ing problem in multispectral image perception. Multispectral object detection, which combines the texture information of visible (VIS) images with the thermal radiation characteristics of infrared (TIR) images, has substantial application potential. Never-theless, significant di ffi culties and bottlenecks remain in achieving both e ffi cient deep cross-modal feature interaction and high computational e ffi ciency. 2The evolution of multispectral vision models has seen a paradigm shift from tra-ditional local modeling to interactive and, more recently, global modeling strategies. Early studies mainly relied on convolutional neural networks (CNNs) and various fu-sion operators to integrate information through feature-level stacking. However, due to the limited local receptive field of convolution kernels, such methods are inherently in-su ffi cient for long-range interaction modeling [4]. In recent years, Transformers (ViTs), owing to their excellent long-range modeling capability, have demonstrated great po-tential in multispectral tasks [5, 6]. ICAFusion [7] further introduced an iterative cross-attention mechanism, which significantly enhanced semantic consistency across modalities through multi-stage interaction. Although existing fusion strategies have achieved notable progress in exploiting modal complementarity through deep interac-tion, they still face two major challenges. First, Transformer-based architectures rep-resented by ICAFusion leverage global cross-attention to model long-range dependen-cies, but the computational complexity of standard cross-attention grows quadratically with image resolution, i.e., O(( HW )2). This imposes substantial memory overhead and may limit deployment on memory-constrained embedded platforms. Second, visible and thermal infrared images often exhibit weak spatial misalignment due to physi-cal displacement between sensors, calibration errors, di ff erent imaging mechanisms, or non-identical fields of view. Conventional fusion methods usually assume strict pixel-level registration; when this assumption is violated, feature ghosting, blurred object boundaries, and localization bias may occur. Although global attention can perform full-image matching, such many-to-many matching lacks explicit local defor-mation constraints and is easily distracted by background regions that are semantically irrelevant to the target. Therefore, an e ff ective multispectral detector should not only correct content-dependent local spatial o ff sets, but also avoid unnecessary global cross-modal matching. To support this design motivation more explicitly, we rely on both prior studies and empirical observations. In dual-sensor multispectral systems, geomet-3ric deviations are often caused by limited baseline displacement and calibration residu-als, which tend to produce local rather than arbitrary global misalignment. In addition, our feature-response visualization shows that the ghosting artifacts of baseline fusion models are mainly distributed around object boundaries and their adjacent neighbor-hoods. This observation motivates us to constrain deformable sampling within a pixel neighborhood instead of searching across the entire image. Meanwhile, global cross-attention may introduce di ff use background activation, especially in cluttered tra ffi c or aerial scenes. Such behavior motivates the use of local cross-modal attention with a restricted receptive field. Based on these considerations, we revisit the design of fusion Transformers and seek to answer two key questions. 
+
+How can robust cross-modal feature alignment be achieved under nonlinear spatial o ff sets? The accuracy of multispectral object detection largely depends on the spatial consistency between visible and infrared modalities. Conventional fusion frameworks usually assume strict pixel-level alignment, whereas in practice, nonlin-ear o ff sets caused by sensor parallax can substantially degrade localization accuracy. Di ff erent from previous alignment methods that rely on fixed coordinate transforma-tions, this paper proposes an improved iterative deformable neighborhood adaptive alignment cross-attention fusion framework, termed PNAFusion. Inspired by content-aware o ff set prediction, the proposed module is able to dynamically correct nonlinear displacements. By adaptively adjusting sampling positions based on local semantic correlations, it ensures that complementary information is aggregated from accurately corresponding cross-modal regions. 
+
+How can computational e ffi ciency be balanced while preserving deep local in-teraction? Although global cross-attention mechanisms represented by previous ICA-Fusion demonstrate strong long-range modeling capability, their computational cost grows quadratically with image resolution, i.e., O(H2W2). In addition, global inter-action inevitably introduces background noise, thereby weakening the discriminative 4representation of salient targets [8]. We observe that cross-modal complementarity is usually concentrated around the target and its adjacent spatial neighborhood. Motivated by this observation, we propose a pixel neighborhood cross-attention mechanism. This localized and dynamic interaction strategy reduces redundant feature matching and im-proves the memory /FLOPs trade-o ff for resource-constrained multispectral perception, although absolute latency still depends on hardware support for deformable sampling. The main contributions of this paper are summarized as follows: 
+
+• We propose PNAFusion, a progressive pixel-neighborhood deformable cross-attention framework for weakly aligned multispectral object detection. The frame-work explicitly addresses the trade-o ff between cross-modal alignment accu-racy and memory /FLOPs scalability in high-resolution feature fusion, rather than claiming a strict latency advantage. 
+
+• We design Adaptive Deformable Alignment (ADA) and Pixel-Neighborhood Cross-Attention (PNCA) modules. ADA learns content-aware sampling o ff sets to compensate for local non-linear misalignment, while PNCA restricts cross-modal interaction to a k × k neighborhood and reduces the dominant attention complexity from O(( HW )2) to O(HWk 2). 
+
+• Extensive experiments on FLIR, M3FD, and DroneVehicle demonstrate that PNA-Fusion achieves highly competitive detection accuracy against current multi-spectral detection frameworks. Compared with global cross-attention, it sub-stantially reduces allocated GPU memory, while its additional latency caused by deformable sampling and iterative refinement is explicitly analyzed. The rest of this paper is organized as follows. Section 2 reviews related work on multispectral object detection and attention-based methods. Section 3 describes the proposed PNAFusion framework. Section 4 presents experimental results and analysis. Section 5 concludes the paper and discusses limitations. 52. Related Works 
+
+2.1. Multispectral Object Detection 
+
+Multispectral object detection improves the robustness of detectors under complex illumination conditions and adverse weather by integrating the rich texture details of visible-spectrum (RGB) images with the thermal radiation characteristics of infrared (TIR) images. According to the evolution of feature interaction paradigms, exist-ing studies can be broadly categorized into three groups: CNN-based methods [9], Transformer-based methods, and Mamba-based methods [10, 11, 12]. Early dual-stream fusion architectures were primarily based on convolutional neu-ral networks, which required carefully designed feature fusion modules to integrate features from di ff erent modalities. Zhang et al. [13] proposed Guided Attentive Fea-ture Fusion (GAFF), which adaptively regulates the contribution of di ff erent modali-ties through weighted feature aggregation. Zhou et al. [14] introduced an illumination-aware module that dynamically adjusts the fusion strategy according to the illumination distribution. However, due to the limited local receptive field of convolutional opera-tors, such methods are inadequate for modeling long-range interactions. Moreover, conventional CNN-based frameworks usually assume that the input images are pre-aligned. When such architectures encounter the “weak misalignment” problem caused by physical o ff sets between sensors, issues such as feature ghosting and localization errors often arise. With the introduction of self-attention and cross-attention mechanisms, this class of models has demonstrated superior capability in modeling global contextual relation-ships, and Vision Transformers (ViTs) have been widely applied to multispectral fusion tasks in recent years. Qing et al. [5] proposed the Cross-modality Fusion Transformer (CFT), which exploits a global attention mechanism to capture long-range comple-mentary information between RGB and TIR modalities. ICAFusion [7] introduced an iterative cross-attention module that progressively refines fused features through a 6multi-stage interaction strategy. Although Transformer architectures perform well in modeling complex semantic interactions across modalities, their computational com-plexity increases quadratically with image resolution, i.e., O(H2W2). This not only imposes substantial memory overhead, but also limits the feasibility of deploying such models on low-power platforms such as embedded devices. In addition, global interac-tion may introduce background noise irrelevant to the target features, thereby impairing object recognition. Beyond improvements in the spatial domain, researchers have also begun to explore the value of frequency-domain information in multispectral fusion. Zuo et al. [15] pro-posed the SFFR method, which employs a Kolmogorov–Arnold Network (KAN) to reconstruct features jointly in the spatial and frequency domains. Through selective frequency component exchange, this method is able to capture subtle cross-modal con-sistency that is di ffi cult to discover using conventional convolution or attention mecha-nisms. This spatial–frequency collaborative design o ff ers a new direction for improving model robustness in complex aerial scenarios. To address the computational bottleneck introduced by Transformers, recent re-search has shifted toward state space models (SSMs) with linear computational com-plexity. Shen et al. [16] proposed MS2Fusion, which achieves an e ff ective balance between shared semantic extraction and complementary feature modeling through a dual-path parameter interaction mechanism. Dong et al. [27] proposed Fusion-Mamba, which performs cross-modal interaction in the hidden state space through a gating mechanism, e ff ectively suppressing interference from false target information. Al-though Mamba-based methods significantly improve long-sequence modeling e ffi ciency, their one-dimensional scanning characteristic still faces challenges in handling precise two-dimensional spatial alignment, such as pixel-level deformable correction. In this paper, we propose PNAFusion, which leverages the precise interaction capabilities of Transformers while simultaneously optimizing both computational e ffi ciency and fu-7sion accuracy through a novel neighborhood deformable mechanism. 
+
+2.2. Attention-Based Methods 
+
+As the core component of the Transformer architecture, the self-attention mecha-nism overcomes the limitations of the local receptive field in traditional convolutional neural networks. It enables global long-range interaction by computing correlation scores among all elements in a sequence. Specifically, this mechanism maps the input features into a query matrix (Query), a key matrix (Key), and a value matrix (Value), and determines the attention weights by computing the dot product between Query and Key. In this way, the model can dynamically focus on the most important regions in an image according to the content. Owing to this powerful capability for capturing long-range dependencies, Transformers can better understand semantic relationships in complex scenes for object detection tasks. To apply this capability to multimodal scenarios, the cross-attention mechanism has been widely used for the dynamic selection and integration of cross-modal information. In general, cross-attention treats one modality (e.g., RGB) as the Query and computes its relevance to the Key and Value derived from another modality (e.g., TIR). Attention mechanisms, including self-attention and cross-attention, have become core techniques in computer vision for capturing long-range dependencies [17, 18]. Although global attention mechanisms can theoretically establish semantic associ-ations over the entire image, their substantial computational and memory burden poses severe challenges in practical applications. To address these issues, many improved variants have been proposed. For example, Swin Transformer [19] restricts com-putation to local windows through a shifted-window mechanism, achieving a trade-off between computational e ffi ciency and receptive field. Neighborhood Attention (NAT) [20] further constrains the interaction range to pixel-level neighborhoods, which not only preserves translation equivariance but also significantly reduces computa-tional cost. 8When dealing with the “weak misalignment” problem in multispectral images, tra-ditional fixed attention windows are often inadequate for precise feature alignment. Inspired by deformable convolution (DCN), Zhu et al. [21] proposed deformable at-tention, which dynamically predicts sampling o ff sets to guide the network toward more discriminative local regions. This strategy provides a new perspective for ad-dressing the “weak misalignment” problem caused by sensor bias. However, how to achieve content-aware dynamic deformable alignment while preserving localized neighborhood interaction remains a key challenge in e ffi cient multispectral fusion. Mo-tivated by this line of development, this paper proposes a pixel-neighborhood cross-attention module with adaptive deformable alignment capability, aiming to achieve high-precision cross-modal feature correction and fusion within a neighborhood-constrained search space. In addition to spatial attention in image-level fusion, progressive refine-ment has also been explored in related dense prediction tasks. Dong et al. [22] proposed Learning Temporal Distribution and Spatial Correlation (LTS) for universal moving object segmentation, where a Defect Iterative Distribution Learning (DIDL) network learns temporal pixel distributions and a Stochastic Bayesian Refinement (SBR) net-work further models spatial correlation. Although LTS focuses on video moving ob-ject segmentation rather than visible–thermal object detection, it shares a relevant de-sign principle with our work: both methods avoid relying on a one-shot correspon-dence estimation and instead adopt progressive refinement to improve spatial consis-tency. The key di ff erence is that LTS refines temporal–spatial foreground masks in videos, whereas PNAFusion refines cross-modal feature alignment between visible and thermal images through neighborhood-constrained deformable sampling and cross-attention. 93. Method 
+
+3.1. Overview 
+
+This paper proposes a dual-stream multispectral object detection framework that achieves e ffi cient feature fusion through local interaction and adaptive alignment within the network. The overall architecture is illustrated in Figure 1. It consists of three main stages: a dual-stream feature extraction stage, an Iterative Pixel-Neighborhood Deformable Cross-Attention fusion stage and a detection Head. Input  VIS 
+
+(a) Our  Fusion Framework     
+
+> Input TIR
+> MS -DCA Block MS -DCA Block
+> NiN Fusion
+> Iterative Stage (Loop ×N)
+
+(b)  Dual -Stream MS -DCA  Block 
+
+(c) PNAFusion of VIS Branch 
+
+LayerNorm 
+
+LayerNorm 
+
+FFN 
+
++
+
++
+
+VIS 
+
+Updated  VIS 
+
+LayerNorm 
+
+LayerNorm 
+
+FFN 
+
++
+
++
+
+TIR 
+
+Updated  TIR 
+
+Pixel -Neighborhood  Deformable  Cross -Attention 
+
+(PNAFusion )   
+
+> VIS Input
+> (as Query)
+> Proj QOffsetNet
+> Sample Offsets
+> (△p)
+
+Grid Sample (Deformable)    
+
+> TIR Input
+> (as Key/Value)
+> Proj KProj V
+
+NA2D 
+
+NA2D 
+
+NA2D 
+
+> Concat
+
+Pro j
+
+> Out
+
++
+
+RPE 
+
+> (Relative Pos Emb)
+
+Updated 
+
+VIS 
+
+Feature 
+
+> Multi -Scale Split & Attention
+> Split 1 (k ×k, d=1)
+> Split 2 (k ×k, d=2)
+> Split 3 ((k+2) ×(k ×2),d=1)
+
+... 
+
+Q K'  V' 
+
+> Detection
+> Head
+> Input VIS
+
+(a) Our  Fusion Framework     
+
+> Input TIR
+> MS -DCA Block MS -DCA Block
+> NiN Fusion
+> Iterative Stage (Loop ×N)
+
+(b)  Dual -Stream MS -DCA  Block 
+
+(c) PNAFusion of VIS Branch 
+
+LayerNorm 
+
+LayerNorm 
+
+FFN 
+
++
+
++
+
+VIS 
+
+Updated  VIS 
+
+LayerNorm 
+
+LayerNorm 
+
+FFN 
+
++
+
++
+
+TIR 
+
+Updated  TIR 
+
+Pixel -Neighborhood  Deformable  Cross -Attention 
+
+(PNAFusion )   
+
+> VIS Input
+> (as Query)
+> Proj QOffsetNet
+> Sample Offsets
+> (△p)
+
+Grid Sample (Deformable)    
+
+> TIR Input
+> (as Key/Value)
+> Proj KProj V
+
+NA2D 
+
+NA2D 
+
+NA2D 
+
+> Concat
+
+Pro j
+
+> Out
+
++
+
+RPE 
+
+> (Relative Pos Emb)
+
+Updated 
+
+VIS 
+
+Feature 
+
+> Multi -Scale Split & Attention
+> Split 1 (k ×k, d=1)
+> Split 2 (k ×k, d=2)
+> Split 3 ((k+2) ×(k ×2),d=1)
+
+... 
+
+Q K'  V'
+
+> Detection
+> Head
+
+Figure 1: Overall architecture of the proposed framework. (a) It consists of three components: a dual-stream feature extraction module, dual-stream MS-DCA blocks and a detection head; ( b) dual-stream MS-DCA blocks for feature interaction; ( c) a detection head for regression of object location, class label and confidence score. 
+
+As shown in Figure 1a, the proposed architecture first employs parallel backbone networks to extract multi-scale features from the RGB (VIS) and infrared (TIR) modal-ities. It adopts a hierarchically integrated multi-scale fusion strategy embedded within the backbone, where the fusion modules are deployed at feature levels with downsam-pling rates of {8, 16 , 32 }, corresponding to the P3, P4, and P5 stages. Subsequently, the multi-scale features are fed into a fusion stage equipped with an iterative refining mechanism (Loop N), and are finally compressed by NiNFusion (1 × 1 convolution) to produce object representations for the detection head. 10 As shown in Figure 1b, within each feature level of P3, P4, and P5, the Dual-Stream MS-DCA block relies on the alternating stacking of dual-stream multispectral deformable Transformer blocks to achieve deep semantic interaction across modali-ties. In Figure 1c, the core mechanism tightly integrates adaptive content-aware pre-alignment with local-window cross-attention. 
+
+3.2. Di ff erence from Related Attention and Deformation Operators 
+
+PNAFusion is not a simple cascade of Neighborhood Attention, deformable at-tention, and deformable convolution. Standard Neighborhood Attention Transformer (NAT) computes self-attention within a fixed local neighborhood of a single modality. It preserves local translation equivariance and reduces attention cost, but it does not ex-plicitly perform cross-modal Query–Key–Value matching and does not predict spatial off sets for modality-specific displacement. Deformable convolution and deformable attention introduce learnable sampling o ff sets, but they are usually designed for single-modality feature adaptation or multi-scale sparse sampling and do not explicitly con-strain cross-modal correspondence within a semantically related pixel neighborhood. In contrast, PNAFusion tightly couples ADA and PNCA: ADA predicts content-aware off sets for the key-value modality, and PNCA uses the aligned key-value features to perform local cross-modal attention. The deformable search space is restricted to a 
+
+k × k neighborhood around each query pixel, which suppresses irrelevant global back-ground matching while retaining the ability to correct local non-linear misalignment between visible and thermal features. 
+
+3.3. Pixel-Neighborhood Cross-Attention (PNCA) 
+
+Although conventional global cross-attention can capture long-range dependencies, its computational cost for high-resolution multispectral feature maps grows quadrati-cally as O(( HW )2). Moreover, in weakly aligned multispectral fusion, useful comple-mentary information is often concentrated around the target and its adjacent spatial 11 neighborhood, whereas global search may introduce irrelevant background responses. To reduce redundant matching and suppress background noise, we propose Pixel-Neighborhood Cross-Attention (PNCA), which restricts cross-modal interaction to a local window centered at each query position. Let the query-modality feature and the key-value-modality feature be denoted as 
+
+Xq ∈ RH×W×C , Xkv ∈ RH×W×C , (1) where H, W, and C denote the feature height, width, and channel dimension, respec-tively. After linear projection, the features are divided into M attention heads, and the channel dimension of each head is d = C/M. For a query position i = (x, y), the pro-jected query vector is 
+
+Qi ∈ R1×d. (2) After the ADA module described in Section 3.3, the aligned key and value vectors at a neighboring position j are denoted as 
+
+K′ 
+
+> j
+
+∈ R1×d, V′ 
+
+> j
+
+∈ R1×d. (3) For each query position i = (x, y), PNCA defines a k × k neighborhood as 
+
+N(i) =
+
+(
+
+j = (x′, y′) : |x − x′| ≤ 
+
+$ k
+
+2
+
+%
+
+, |y − y′| ≤ 
+
+$ k
+
+2
+
+%) 
+
+. (4) The attention output at position i is computed as PNCA( Q, K′, V′)i =
+
+X
+
+> j∈N (i)
+
+Softmax j∈N (i)
+
+
+
+Qi(K′
+
+> j
+
+)⊤ + Bi, j
+
+√d
+
+ V′
+
+> j
+
+, (5) where Bi, j is the relative position bias between the query position i and the neighbor-ing key position j. This bias compensates for the positional information weakened by 12 localized interaction. Compared with global cross-attention, PNCA reduces the domi-nant complexity from 
+
+ΩGlobal = 2( HW )2C (6) to 
+
+ΩPNCA = 2HWk 2C. (7) Since k ≪ min( H, W) in practical feature maps, the proposed local cross-modal interaction substantially reduces memory consumption while preserving the ability to model local non-linear relationships. 
+
+3.4. Adaptive Deformable Alignment (ADA) 
+
+Visible and thermal images are often weakly misaligned due to sensor displace-ment, calibration residuals, and modality-specific imaging geometry. Directly com-puting cross-attention on such features may aggregate semantically inconsistent re-gions and produce feature ghosting. To address this issue, we introduce Adaptive De-formable Alignment (ADA) before PNCA. ADA predicts local content-aware o ff sets and resamples the key-value modality so that semantically corresponding features are better aligned before cross-modal attention. Given Xq ∈ RH×W×C and Xkv ∈ RH×W×C ,an o ff set generation network predicts pixel-wise o ff sets: 
+
+∆p = Off setNet [Xq, Xkv ] , (8) where [ ·, ·] denotes channel-wise concatenation. For a k × k neighborhood, the o ff set tensor is defined as 
+
+∆p ∈ RH×W×2k2
+
+, (9) where the factor 2 corresponds to horizontal and vertical coordinate displacements for each sampling point in the local neighborhood. The aligned key-value feature X′ 
+
+> kv
+
+is 13 obtained by deformable bilinear sampling: 
+
+X′
+
+> kv
+
+(p) =
+
+X
+
+> q
+
+G(q, p + ∆ p) · Xkv (q), (10) where p is a sampling position, q enumerates discrete positions on the original feature map, and G(·, ·) denotes the bilinear interpolation kernel. The aligned feature X′ 
+
+> kv
+
+is then projected into K′ and V′ and used by PNCA: 
+
+Faligned = PNDCA ( Q, K(p + ∆ p), V(p + ∆ p)) . (11) This design di ff ers from unconstrained deformable attention because the o ff sets are used inside a neighborhood-constrained cross-modal attention window. There-fore, ADA does not perform arbitrary global sampling. Instead, it corrects local non-linear displacement while keeping feature aggregation focused on semantically related neighboring regions. 
+
+3.5. Progressive Refinement with Iterative Feedback 
+
+A single cross-modal interaction may be insu ffi cient to fully capture complemen-tary semantic cues or eliminate weak spatial misalignment. Therefore, PNAFusion in-troduces an iterative feedback mechanism that progressively refines visible and thermal features. Let the initial multispectral features extracted by the backbone be denoted as 
+
+F(0) vis and F(0) tir . At the n-th iteration, the two feature streams are updated by a dual-stream PNDCA block: 
+
+F(n+1) vis , F(n+1) tir 
+
+ = Φ PNDCA 
+
+F(n)vis , F(n)tir 
+
+ , (12) where ΦPNDCA (·) denotes the cross-modal interaction block that jointly incorporates ADA and PNCA. Through recurrent feedback, the o ff set estimation and local cross-modal attention are repeatedly updated, allowing the model to progressively reduce residual alignment errors. This progressive strategy is conceptually related to iterative 14 refinement designs in dense prediction. For example, LTS [22] progressively learns temporal distribution and spatial correlation for universal moving object segmentation. However, the task and mechanism are di ff erent: LTS refines video foreground masks through temporal distribution learning and spatial Bayesian refinement, whereas PNA-Fusion refines visible–thermal feature correspondence through neighborhood-constrained deformable cross-attention. After N recurrent iterations, the model obtains two se-mantically synchronized feature streams, F(N)vis and F(N)tir . We then use a lightweight Network-in-Network (NiN) fusion module for final aggregation. Specifically, the two refined feature streams are concatenated along the channel dimension and compressed by a 1 × 1 convolution: 
+
+Ffused = Conv 1×1
+
+h F(N)vis , F(N)tir 
+
+i . (13) Here, [ ·, ·] denotes channel-wise concatenation. The 1 × 1 convolution is selected because the preceding PNDCA blocks have already performed spatial alignment and local semantic interaction. At this stage, the main purpose is channel mixing and di-mensional compression rather than another expensive spatial interaction. Compared with adding another attention-based fusion module, NiN fusion is more lightweight and preserves the local structural correspondence established by PNCA. 
+
+3.6. Loss Function 
+
+To optimize alignment performance and detection accuracy, we introduce a multi-task loss function. The total loss Ltotal is defined as a weighted combination of the bounding box regression loss Lbox , objectness loss Lobj , and classification loss Lcls :
+
+Ltotal = λ1 Lbox + λ2 Lobj + λ3 Lcls , (14) where λ1, λ2, and λ3 are hyperparameters used to balance di ff erent tasks. Through detection supervision, the o ff set generation network in ADA learns spatial alignment 15 parameters that maximize detection accuracy. This training scheme ensures that the proposed model can maintain optimal detection performance and alignment precision even in complex low-power real-time application scenarios. 
+
+3.7. Computational Complexity 
+
+To analyze the e ffi ciency of PNAFusion, we compare the dominant computational cost of global cross-attention and the proposed neighborhood-constrained deformable cross-attention. Let a feature map at level l have spatial size Hl × Wl and channel dimension Cl. For global cross-attention, the dominant cost comes from full-image Query–Key correlation and attention-weighted Value aggregation: 
+
+Ω(l)Global ≈ 2( HlWl)2Cl. (15) This quadratic growth becomes costly for high-resolution feature maps, especially at the P3 level. In contrast, PNCA restricts cross-modal interaction to a k × k local neighborhood. The corresponding attention complexity at feature level l is 
+
+Ω(l)PNCA ≈ 2HlWlk2Cl. (16) ADA additionally introduces an O ff setNet for predicting local sampling o ff sets. If the o ff set generator contains convolutional layers indexed by s, with kernel size Ks,input channel dimension Cin 
+
+> l,s
+
+, and output channel dimension Cout  
+
+> l,s
+
+, its computational cost at feature level l can be written as 
+
+Ω(l)ADA ≈
+
+X
+
+> s
+
+HlWl K2 
+
+> s
+
+Cin 
+
+> l,s
+
+Cout  
+
+> l,s
+
+. (17) Therefore, the total complexity of PNAFusion with N iterative refinement rounds 16 over feature levels L = {P3, P4, P5} is 
+
+ΩTotal = N ·
+
+X
+
+> l∈L
+
+Ω(l)PNCA + Ω (l)ADA 
+
+ . (18) This formulation explicitly includes the repeated cost of the o ff set generator. Al-though O ff setNet is lightweight compared with the main attention operation, its cost is accumulated over feature levels and recurrent iterations. Thus, the theoretical analysis is more accurate than treating o ff set prediction as negligible. Since k ≪ min( Hl, Wl), the attention term remains linear with respect to the number of pixels, while the practi-cal latency is also a ff ected by the hardware e ffi ciency of deformable bilinear sampling. 
+
+4. Experiments 
+
+4.1. Experimental Setting 
+
+We evaluate PNAFusion on three public multispectral object detection benchmarks: FLIR, M3FD, and DroneVehicle. For FLIR, we follow the train–test split used in ICA-Fusion to ensure comparability. For M3FD and DroneVehicle, we follow the o ffi cial or commonly adopted public splits used by the compared methods. No additional man-ual day /night relabeling or custom split is introduced. All input images are resized to 640 × 640. The implementation is based on PyTorch 2.0. Unless otherwise speci-fied, experiments are conducted on a server equipped with an NVIDIA GeForce RTX 4090D GPU with 24 GB memory, an AMD EPYC 9754 128-Core Processor, and 60 GB system memory. The model is trained end-to-end for 100 epochs using the Adam optimizer. The initial learning rate is set to 1 .0×10 −3 and decayed by cosine annealing. The weight decay is 5 .0 × 10 −4. The batch size is set to 16. The random seed is fixed to 42 for reproducibility. The adopted data augmentations include Mosaic, MixUp, and random horizontal flipping. The detection loss follows the YOLO-style multi-task objective: 
+
+Ltotal = λ1Lbox + λ2Lobj + λ3Lcls , (19) 17 where Lbox , Lobj , and Lcls denote the bounding-box regression loss, objectness loss, and classification loss, respectively. The loss weights are set to λ1 = 0.05, λ2 =
+
+1.0, and λ3 = 0.5. Performance is measured under the COCO evaluation protocol using mAP@0.5, mAP@0.75, and mAP@0.5:0.95, together with category-level AP when available. 
+
+4.2. Comparison with State-of-the-Art Methods 
+
+In this section, we comprehensively compare the proposed PNAFusion with main-stream methods in multispectral object detection to validate its superiority in both de-tection accuracy and computational e ffi ciency. The compared methods include classi-cal CNN-based fusion models, representative Transformer-based approaches, as well as our baseline model ICAFusion. To make the comparison more transparent, Ta-bles 1–3 explicitly report the detector /backbone setting and result source in a separate column. Entries marked as “Published” are directly taken from the corresponding pa-pers, whereas entries marked as “Ours” are reproduced or implemented by the authors under our experimental pipeline.                                                                               
+
+> Table 1: Comparison with state-of-the-art methods on the FLIR dataset.
+> Method Detector /Source mAP@0.5 mAP Person Car Bicycle
+> GAFF [13] Published 72.9 ––––CFT [5] Published 78.7 ––––CSAA [23] Published 79.2 ––––ICAFusion [7] Published 79.2 41.4 81.6 89.0 66.9 MMFN [24] Published 80.8 41.7 85.7 91.2 65.5 CPCF [25] Published 82.1 ––––GM-DETR [26] Published 83.9 ––––Fusion-Mamba [27] Published 84.3 ––––TFDet [28] Published 86.6 46.6 –––DAMSDet [29] Published 86.6 49.3 –––PNAFusion YOLOv5, Ours 84.2 43.8 87.2 91.1 74.3 PNAFusion Co-DETR, Ours 86.8 50.3 90.4 93.4 76.5
+
+18 Table 2: Comparison with state-of-the-art methods on the M3FD dataset. 
+
+Method Detector /Source mAP@0.5 mAP People Car Bus Lamp Motor Truck 
+
+ICAFusion [7] Published 67.8 41.9 – – – – – –CFT [5] Published 68.2 42.5 – – – – – –DAMSDet [29] Published 80.2 52.9 – – – – – –SuperFusion [30] Published 83.5 57.0 83.7 91.0 93.2 70.0 77.4 85.8 MMFN [24] Published 86.2 – 83.0 93.2 92.1 87.6 73.7 87.4 Fusion-Mamba [27] Published 88.0 61.9 84.3 92.9 94.2 87.5 80.5 88.8 PNAFusion YOLOv5, Ours 90.5 62.4 87.8 94.1 94.0 93.5 82.6 91.2 PNAFusion Co-DETR, Ours 90.8 62.9 90.2 94.7 94.5 87.8 85.6 91.9 Table 3: Comparison with state-of-the-art methods on the DroneVehicle dataset. 
+
+Method Detector /Source mAP@0.5 Car Truck Bus Van Freight Car 
+
+DCCINet [31] Published 78.4 91.0 78.9 90.7 65.5 66.1 ICAFusion [7] Published 78.6 96.7 79.0 95.8 61.8 60.0 CCLDet [32] Published 79.4 97.7 75.4 95.7 59.5 68.8 DMM [33] Published 79.4 90.4 79.8 89.9 68.6 68.2 MGMF [34] Published 80.3 91.4 78.5 91.1 69.4 70.1 RGFNet [35] Published 81.4 98.4 81.1 95.8 63.0 68.7 PNAFusion YOLOv5, Ours 85.5 98.1 85.0 97.2 71.7 75.8 
+
+4.2.1. Results on the FLIR Dataset 
+
+Table 1 presents the quantitative comparison on the FLIR dataset. Under the YOLOv5 detector, PNAFusion achieves 84.2 mAP@0.5, which is substantially higher than the YOLOv5-based ICAFusion baseline and remains comparable to Fusion-Mamba. It should be noted that direct comparison across di ff erent detector families is not strictly controlled, because DETR-based frameworks such as TFDet and DAMSDet usually benefit from stronger global context modeling and larger detector capacity. There-fore, we report both PNAFusion (YOLOv5) and PNAFusion (Co-DETR) to clarify two aspects: the YOLOv5 result reflects fair comparison with YOLO-style multispec-19 tral fusion baselines, while the Co-DETR result demonstrates that the proposed fusion module can also be transferred to a stronger Transformer-based detector. In terms of high-precision localization, PNAFusion (YOLOv5) achieves 39.4 mAP@0.75, out-performing ICAFusion. This improvement is important because mAP@0.75 is more sensitive to spatial alignment and bounding-box tightness than mAP@0.5. The result indicates that the proposed ADA and PNCA modules help reduce feature ghosting and localization bias under weak cross-modal misalignment. When integrated into Co-DETR, PNAFusion further reaches 86.8 mAP@0.5 and 50.3 mAP@0.5:0.95, showing that the proposed fusion design has cross-framework scalability. 
+
+4.2.2. Results on the M3FD Dataset 
+
+Table 2 reports the detection performance on the M3FD dataset. PNAFusion achieves 90.5 mAP@0.5 under the YOLOv5 detector and 90.8 mAP@0.5 when transferred to Co-DETR. These results indicate that the proposed neighborhood-constrained de-formable interaction is e ff ective not only for weakly aligned tra ffi c scenes but also for relatively well-aligned multispectral image pairs. At the category level, PNAFusion obtains competitive or superior performance on several classes, especially categories with distinctive thermal responses or small object scales. This suggests that progressive local cross-modal refinement can enhance both semantic discrimination and localiza-tion robustness. 
+
+4.2.3. Results on the DroneVehicle Dataset 
+
+Table 3 shows the comparison on the DroneVehicle dataset. This benchmark con-tains high-resolution aerial visible–infrared image pairs with small object scales and complex backgrounds, making it challenging for cross-modal fusion. PNAFusion achieves 85.5 mAP@0.5, outperforming the compared multispectral detection meth-ods. The improvement can be attributed to the local deformable cross-attention mech-anism: PNCA suppresses irrelevant background matching by restricting interaction to 20 pixel neighborhoods, while ADA compensates for local spatial o ff sets between modal-ities. These properties are particularly beneficial for aerial scenes, where small targets are easily a ff ected by background clutter and weak registration errors. 
+
+4.3. Ablation Studies 
+
+To quantitatively analyze the e ff ects of the core components and hyperparameters of PNAFusion on detection performance, we conduct a series of ablation studies on the FLIR dataset. We focus on the contributions of neighborhood window size, iteration rounds, and adaptive o ff sets. Except for the tested variable, all other experimental settings are kept unchanged. 
+
+4.3.1. Di ff erent Number of Blocks 
+
+In the PNAFusion architecture, the number of stacked Multi-Transformer Blocks, denoted by L, represents the depth of cross-modal feature interaction. Increasing L can theoretically enhance the model’s semantic modeling capability in complex scenes, but it also leads to a substantial increase in computational cost. To investigate the in-trinsic relationship between model depth and detection performance, we conduct com-parative experiments with L ∈ { 2, 3, 4, 5, 6}. The results are shown in Table 4.                                                                    
+
+> Table 4: Ablation study on di ff erent numbers of Multi-Transformer Blocks L(kernel size =3) on the FLIR dataset.
+> Num Blocks mAP@0.5 mAP@0.75 mAP Params (M) Person Car Bicycle Person Car Bicycle Person Car Bicycle
+> 285.0 89.9 71.0 25.7 61.5 8.9 37.8 56.9 25.9 130.9 383.0 89.6 72.6 26.5 61.5 9.3 36.8 57.0 25.3 158.6 483.9 90.4 71.4 30.2 61.6 7.8 38.7 56.6 23.6 186.3 581.3 88.5 72.6 15.0 53.4 10.3 31.5 50.5 24.3 214.1 682.9 88.6 71.8 27.7 56.8 9.8 37.2 52.1 26.8 241.7
+
+Su ffi cient shallow feature interaction. As shown in Table 4, the model achieves the 21 best overall performance when L = 2. This indicates that, after introducing the iter-ative feedback mechanism, PNAFusion can repeatedly refine features by recurrently invoking the same feature interaction module, thereby achieving highly accurate align-ment even with relatively limited physical depth. Compared with simply increasing the stacking depth, this iterative mechanism is more e ff ective for handling the weak misalignment problem. Feature saturation and degradation. As L increases from 3 to 6, the detection per-formance does not improve linearly, but instead exhibits a fluctuating downward trend. For example, when L = 4, the overall mAP 50 decreases by 0.1 compared with the 
+
+L = 2 setting, and the overall mAP drops from 40.2 to 39.6. This phenomenon can be attributed to feature oversmoothing and the increased di ffi culty of optimization. On the one hand, excessive cross-modal interaction tends to average feature representations, thereby reducing feature contrast. On the other hand, under the limited scale of the FLIR dataset, the model size increases from 130.9M to 241.7M parameters, which sig-nificantly raises the risk of overfitting and aggravates gradient instability during deep network training. Considering both the need for su ffi cient feature fusion depth and the computational constraints of practical hardware platforms, we finally adopt L = 2 as the default con-figuration of PNAFusion. 
+
+4.3.2. Di ff erent Sizes of Pixel Neighborhood 
+
+The PNDCA mechanism reduces computational cost and resource redundancy by dynamically adjusting the size of the attention window. The neighborhood window size 
+
+k is a key hyperparameter of this module, as it directly determines the model’s ability to handle cross-modal spatial misalignment. To obtain the optimal model performance, it is necessary to identify the most suitable local search radius. Therefore, we conduct comparative experiments with three neighborhood sizes, i.e., k ∈ { 3, 5, 7}. The results are shown in Table 5. 22 Table 5: Ablation study on di ff erent pixel neighborhood sizes k with num_blocks = 2.                                  
+
+> Kernel Size k
+> mAP 50 mAP 75
+> Person Car Bicycle All Person Car Bicycle All
+> 385.0 89.9 71.0 82.0 25.7 61.5 8.9 32.0 584.8 89.8 75.3 83.3 29.9 60.7 8.9 33.1 784.0 89.5 75.2 82.9 28.4 58.7 10.8 32.6
+
+From the experimental results, it can be observed that the overall detection accu-racy first increases and then declines as the window size k becomes larger. Compared with the smallest 3 × 3 window, the 5 × 5 neighborhood improves mAP 50 from 82.0 to 83.3, and mAP 75 , which reflects stricter localization accuracy, increases more sub-stantially from 32.0 to 33.1. However, when the window is further enlarged to 7 × 7, the performance drops. These results indicate that the model achieves the best perfor-mance with the 5 × 5 neighborhood, which provides su ffi cient spatial support for the subsequent adaptive deformable alignment process. However, when the window becomes excessively large, the enlarged sampling neighborhood introduces redundant background features and noise interference, which weakens the model’s focus on the target core region and increases the di ffi culty of op-timization. In addition, a larger neighborhood size leads to higher computational cost, thereby reducing e ffi ciency. The above results show that a window size of 5 × 5 provides the best trade-o ff 
+
+between spatial realignment capability and feature purity. Therefore, in the subsequent ablation studies, we adopt k = 5 as the default setting of PNAFusion. 
+
+4.3.3. Di ff erent Iteration Numbers 
+
+One of the core characteristics of PNAFusion is the iterative feedback mechanism, which progressively alleviates the weak misalignment problem between modalities through recurrent refinement and thereby enhances feature representation. To inves-23 tigate the optimal number of iterations, we further evaluate the e ff ect of N ∈ { 1, 2, 3, 4}
+
+on model performance under a fixed window size of k = 5. The detailed results are presented in Table 6. The results clearly demonstrate the e ff ect of iterative refinement on multispectral fusion. As N increases from 1 to 3, the detection accuracy improves steadily. When 
+
+N = 3, compared with single-pass interaction ( N = 1), the overall mAP 75 increases from 31.9 to 39.4, indicating a substantial improvement in high-precision detection. This suggests that through multiple iterations, the model can exploit the feedback infor-mation generated in the previous fusion round to recursively correct complex nonlinear spatial misalignment, thereby achieving deeper semantic alignment between visible-spectrum texture features and infrared thermal radiation features.                                                             
+
+> Table 6: Ablation study on di ff erent iteration numbers Nwith num_blocks =2 and kernel_size =5.
+> Iter mAP@0.5 mAP@0.75 mAP Params (M) Person Car Bicycle Person Car Bicycle Person Car Bicycle
+> 185.0 90.8 68.7 24.1 61.4 10.1 37.5 57.1 24.4 –286.1 90.2 71.5 31.4 63.3 12.3 40.5 57.9 27.0 152.9 387.2 91.1 74.3 38.4 65.6 14.2 43.4 59.4 28.8 –486.2 90.3 68.1 33.0 62.2 8.5 41.1 56.9 22.3 –
+
+However, when the number of iterations is further increased to N = 4, the perfor-mance drops significantly, with mAP 50 decreasing from 84.2 to 81.6. On the one hand, excessive iterations increase the optimization di ffi culty of the model and may lead to gradient instability in deep recurrent refinement. On the other hand, overly repeated feature interaction may cause over-smoothing, in which modality-specific discrimina-tive cues are diluted, thereby weakening the model’s ability to detect small objects. 24 4.3.4. E ff ectiveness of Proposed Components 
+
+To analyze the contribution of the core components in PNAFusion, we conduct in-cremental ablation experiments under the optimal hyperparameter configuration, i.e., L =
+
+2, k = 5, and N = 3. We adopt a simple baseline consisting of channel concatenation followed by a 1 × 1 convolution, denoted as NiNFusion. We then compare it with ICAFusion, the proposed PNDCA block, and the complete PNAFusion equipped with iterative feedback. The quantitative results are shown in Table 7. The results show that direct NiN fusion achieves limited performance because simple channel stacking cannot explicitly model non-linear cross-modal correspondence. ICAFusion improves cross-modal interaction through global cross-attention, but it still lacks explicit local deformable alignment and introduces large memory overhead. After replacing global interaction with the proposed PNDCA mechanism, the model obtains a more localized and memory-scalable fusion pattern. Although the single-step PNDCA block alone does not fully exploit its alignment potential, adding iterative feedback significantly improves performance. The complete PNAFusion reaches 84.2 mAP@0.5 and 39.4 mAP@0.75, with a particularly clear gain on the high-precision localization metric. We do not report ADA and PNCA as two completely independent plug-in modules because they are structurally coupled in the proposed design. ADA predicts local sam-pling o ff sets for the key-value modality, while PNCA consumes the aligned key-value features to compute cross-modal attention within the same neighborhood. Removing PNCA would leave ADA without an attention-based semantic aggregation mechanism, whereas removing ADA would reduce PNCA to fixed-window local cross-attention that cannot correct spatial o ff sets. Therefore, PNDCA is evaluated as a complete func-tional unit. To further verify the e ff ect of learned o ff sets, we use two indirect but relevant indicators. Quantitatively, the improvement in mAP@0.75 indicates better localization tightness. Qualitatively, the feature-response maps in Figure 3 show that PNAFusion produces more concentrated activations around object boundaries and re-25 duces ghosting artifacts compared with the baselines.                                                             
+
+> Table 7: Incremental ablation study of the proposed components under the optimal configuration ( L=2,
+> k=5, N=3).
+> Method mAP@0.5 mAP@0.75 mAP Params (M) Person Car Bicycle Person Car Bicycle Person Car Bicycle
+> NiNfusion 85.8 89.8 64.0 31.7 63.5 8.5 40.2 58.3 22.1 75.4 ICAFusion 84.9 89.8 73.8 28.6 60.2 12.6 38.4 55.2 28.4 120.2
+> +PNDCA 84.8 89.8 75.3 29.9 60.7 8.9 39.1 55.3 26.2 130.9
+> +IterFeed 87.2 91.1 74.3 38.4 65.6 14.2 43.4 59.4 28.8 152.9
+
+The results show that when only the simple NiN Fusion strategy is used, the model achieves an mAP of only 40.2, indicating that direct linear feature stacking is insu ffi -cient to e ff ectively model the complex nonlinear correspondence between multispectral images. After introducing the proposed PNDCA mechanism, the overall mAP does not improve significantly. However, once the iterative feedback mechanism is further in-corporated on top of this design, the model performance reaches the peak value of 43.8. Notably, the gain in the high-precision detection metric mAP 75 is particularly sig-nificant, increasing from 33.8 to 39.4. This strongly demonstrates that, through recur-rent feedback of di ff erential features, the model can progressively refine the alignment errors produced in previous rounds. In each iteration, the o ff set estimated in the pre-ceding round serves as a prior, enabling the features to gradually converge in the spatial domain. As a result, the model exhibits strong robustness when handling edge details and small objects with substantial scale variation. Overall, the PNDCA module and the iterative feedback mechanism exhibit strong synergy in feature alignment and deep cross-modal interaction. Compared with the original baseline, PNAFusion achieves a 3.6 improvement in overall mAP without in-troducing an excessive computational burden. These results validate the e ff ectiveness of the proposed design philosophy, namely, linear-complexity local interaction and 26 progressive o ff set refinement, for multispectral object detection. 
+
+4.4. Inference Time and Memory Consumption 
+
+To complement the theoretical complexity analysis, we evaluate the practical e ffi -ciency of NiNFusion, ICAFusion, and PNAFusion on the FLIR test set. As shown in Table 8, PNAFusion requires 156.4G FLOPs, which is lower than the 194.8G FLOPs of ICAFusion because PNCA restricts cross-modal attention to local neighborhoods. PNAFusion also reduces allocated GPU memory from 775.09 MB to 519.61 MB, cor-responding to a 33.0% reduction compared with ICAFusion. This memory reduction is useful for high-resolution multispectral detection on memory-constrained platforms, where memory capacity and bandwidth can be limiting factors. However, PNAFusion does not reduce absolute inference latency. On the RTX 4090D GPU, its latency is 36.80 ms per image, which is higher than ICAFusion at 25.67 ms and NiNFusion at 17.77 ms. This latency increase mainly comes from deformable bilinear sampling in ADA and repeated refinement in the iterative feedback mechanism. Such operations involve irregular memory access patterns and are less hardware-friendly than standard dense matrix operations. On the Jetson Orin NX platform, PNAFusion obtains 81.30 ms per image, corresponding to approximately 12.30 FPS, while ICAFusion obtains 62.50 ms per image. Therefore, the practical advantage of PNAFusion should be in-terpreted as an accuracy–memory /FLOPs trade-o ff rather than an absolute speed ad-vantage. The proposed method trades additional latency for stronger local alignment capability, lower theoretical FLOPs than global cross-attention, and substantially lower allocated GPU memory. 27 Table 8: Inference cost, memory consumption, and latency comparison on the FLIR test set. FPS is computed as 1000 /latency. The RTX 4090D results are measured with batch size 1 and input resolution 640 × 640. The Orin NX results are measured on an NVIDIA Jetson Orin NX edge platform under the same input resolution. The table is intended to compare the accuracy–memory /FLOPs trade-o ff rather than to claim lower absolute latency.                             
+
+> Method Params (M) FLOPs (G) 4090D (ms) FPS 4090D Orin NX (ms) Orin NX (FPS) GPU Memory (MB)
+> NiNFusion 75.4 112.5 17.77 56.27 42.64 23.45 535.85 ICAFusion 120.2 194.8 25.67 38.96 62.50 16.00 775.09 PNAFusion 130.9 156.4 36.80 27.17 81.30 12.30 519.61
+
+4.5. Qualitative Analysis 
+
+Because the public FLIR, M3FD, and DroneVehicle benchmarks do not provide offi cial image-level illumination labels such as daytime and nighttime, we do not man-ually split the test sets into day and night subsets. A manual split would introduce subjective bias, especially for ambiguous scenes such as dusk, dawn, shadows, glare, and mixed illumination. Instead, we provide qualitative examples covering representa-tive challenging illumination conditions, including low-light nighttime scenes, strong glare, and cluttered backgrounds. These examples are used to visually examine whether multispectral fusion improves detection robustness under illumination variation. Figure 2 presents qualitative comparisons on representative FLIR scenes, includ-ing nighttime roads, urban intersections, strong illumination transitions, and partially occluded tra ffi c targets. We compare the proposed method with NiNFusion and ICAFu-sion, and visualize the predictions together with the ground truth. Overall, our method produces detection results that are closer to the ground truth in both object localization and category prediction, especially in challenging cases with low illumination, weak cross-modal misalignment, and cluttered backgrounds. In nighttime scenes (the first two rows in Figure 2), small pedestrians are easily overwhelmed by glare, low contrast, and background noise. The competing methods either miss distant pedestrians or introduce extra false positives around bright street lamps and roadside structures. In contrast, our method detects more complete pedes-28 trian instances with tighter bounding boxes. This result suggests that the proposed deformable alignment module helps establish more reliable correspondence between visible and thermal features before fusion, which is particularly beneficial when the two modalities are not perfectly aligned. The third and fourth rows in Figure 2 further show that our method is more ro-bust in crowded street scenes containing multiple vehicles and overlapping objects. NiNfusion and ICAFusion tend to generate redundant detections or inaccurate object extents, especially near large foreground vehicles and high-response background re-gions. By restricting cross-modal interaction to local pixel neighborhoods, our method suppresses irrelevant long-range interference and yields cleaner predictions with fewer obvious false alarms. This behavior is consistent with the quantitative improvements in localization-sensitive metrics. The last row in Figure 2 highlights a tunnel scene with strong brightness transition, where the pedestrian target is small and located near the image boundary. NiNfu-sion fails to recover this target, while ICAFusion introduces category confusion. Our method still identifies both the vehicle and the pedestrian with more accurate local-ization. This example indicates that iterative refinement is useful for progressively correcting cross-modal inconsistency and preserving subtle target cues under extreme illumination changes. 29 Figure 2: Qualitative comparison of detection results on the FLIR dataset. From left to right, the columns show ground truth, NiNFusion, ICAFusion, and PNAFusion. The selected examples include low-light, glare, and cluttered-background scenes. Compared with the baselines, PNAFusion produces tighter bounding boxes and fewer missed detections, indicating that neighborhood-constrained deformable cross-modal fu-sion improves robustness under challenging illumination and weak alignment conditions. 
+
+30 Figure 3: Feature-response visualization for di ff erent fusion strategies. From left to right: RGB image, infrared image, NiNFusion, ICAFusion, and PNAFusion. Baseline methods without adaptive deformable alignment tend to produce di ff use responses, boundary ghosting, or multiple disconnected activation peaks around weakly aligned objects. In contrast, PNAFusion generates more concentrated activations near object regions and suppresses irrelevant background responses. This visualization provides qualitative evidence that the learned local o ff sets in ADA and the neighborhood-constrained aggregation in PNCA help improve cross-modal spatial consistency. 
+
+Figure 3 further visualizes the cross-modal response distributions of di ff erent meth-ods. Compared with NiNFusion and ICAFusion, PNAFusion exhibits more concen-trated activations around pedestrians and vehicles while suppressing di ff use responses on roads, sky regions, and other irrelevant background structures. This behavior is particularly evident in the red boxed regions, where the proposed method preserves salient target cues under cluttered illumination and weak cross-modal misalignment, providing intuitive evidence for the e ff ectiveness of the ADA and PNCA modules. Overall, the qualitative results confirm the main advantage of PNAFusion: it im-proves cross-modal detection reliability not only on standard scenes but also under di ffi cult conditions where precise alignment and local interaction are essential. These visual comparisons provide intuitive evidence that the proposed adaptive deformable alignment and pixel-neighborhood cross-attention jointly enhance detection complete-ness, localization quality, and resistance to background distraction. 31 4.6. Failure Case and Limitation Analysis 
+
+Although PNAFusion improves cross-modal alignment and local feature interac-tion, it may still fail in several challenging scenarios. Figure 4 presents representative failure cases. In each group, the columns from left to right show the original image annotated with failure regions, the RGB image, and the infrared image. The pink tri-angle markers indicate false detections of the baseline, while the red triangle markers indicate missed detections.  
+
+> Figure 4: Representative limitation cases of PNAFusion. From left to right in each group: original image annotated with failure regions, RGB image, and infrared image. The pink triangle markers indicate false detections of the baseline, while the red triangle markers indicate missed detections. In the first scene, extremely small pedestrian targets may still be missed because their visible texture is weak and their thermal response occupies only a few pixels. In the second scene, heavily overlapped vehicles may lead to duplicate or inaccurate detections because adjacent instances produce highly similar local cross-modal responses.
+
+As indicated by the red triangle markers in the first scene of Figure 4, when pedes-trian targets are extremely small and located in a complex tra ffi c background, the pro-posed model may still produce missed detections. This failure is mainly caused by the limited spatial resolution of deep feature maps and the weak target evidence in both modalities. Although the thermal modality provides complementary cues under low illumination, very small pedestrians may occupy only a few pixels after feature down-sampling. In this case, the local neighborhood used by PNCA may contain insu ffi cient 32 discriminative information, and the learned deformable o ff sets in ADA cannot recover target details that have already been weakened by the backbone. The second scene, highlighted by the pink triangle markers, shows another limita-tion under severe object overlap. When multiple vehicles are spatially close or partially occluded, their RGB contours and infrared responses may merge into a compact high-response region. Under this condition, PNAFusion can still enhance local cross-modal consistency, but the neighborhood-constrained interaction may aggregate similar fea-tures from adjacent instances. As a result, the detector may generate duplicate boxes, overlapping detections, or false positives around the same vehicle group. This indi-cates that local alignment alone cannot fully resolve instance-level ambiguity when object boundaries are heavily occluded. These failure cases suggest that PNAFusion is most reliable when complementary modal cues are locally consistent and object instances remain su ffi ciently separable. Its performance may degrade for extremely small targets, severe occlusion, dense over-lapping objects, and scenes where both RGB and infrared modalities provide weak or ambiguous evidence. Future work will investigate higher-resolution feature preserva-tion, scale-aware supervision for tiny objects, and instance-aware matching constraints to reduce missed detections and duplicate detections in such challenging scenarios. 
+
+5. Conclusions 
+
+This paper presented PNAFusion, a progressive pixel-neighborhood deformable cross-attention framework for multispectral object detection. The proposed method addresses two key challenges in visible–thermal fusion: weak cross-modal misalign-ment and the high memory cost of global cross-attention. By coupling Adaptive De-formable Alignment with Pixel-Neighborhood Cross-Attention, PNAFusion performs content-aware local alignment and restricts cross-modal interaction to semantically rel-evant neighborhoods. The iterative feedback mechanism further refines feature corre-33 spondence across multiple rounds, improving localization robustness under imperfect registration. Experiments on FLIR, M3FD, and DroneVehicle demonstrate that PNA-Fusion achieves highly competitive detection accuracy across di ff erent multispectral benchmarks. In particular, the improvement in mAP@0.75 and the qualitative feature-response visualizations indicate that the proposed design helps alleviate spatial ghost-ing and improves boundary localization. Effi ciency analysis shows that PNAFusion reduces theoretical FLOPs and allocated GPU memory compared with global cross-attention. However, it also introduces additional inference latency due to deformable bilinear sampling and iterative refinement. Therefore, the main practical benefit of PNAFusion lies in its accuracy–memory /FLOPs trade-o ff rather than absolute infer-ence speed. Several limitations remain. First, the current benchmarks do not provide dense pixel-level cross-modal alignment ground truth, making it di ffi cult to directly measure the absolute accuracy of learned o ff sets. Second, public datasets do not con-sistently provide o ffi cial day /night labels, so illumination-specific quantitative evalua-tion is not included. Third, deformable sampling is not fully optimized for all hard-ware platforms and may cause irregular memory access. Future work will investigate hardware-friendly deformable sampling, explicit o ff set supervision when alignment an-notations are available, and more fine-grained evaluation under di ff erent illumination and weather conditions. 
+
+References 
+
+[1] Ma, J.; Ma, Y.; Li, C. Infrared and visible image fusion methods and applica-tions: A survey. Inf. Fusion 2019 , 45 , 153–178. [2] Ma, W.; Wang, K.; Li, J.; Yang, S.X.; Li, J.; Song, L.; Li, Q. Infrared and visible image fusion technology and application: A review. Sensors 2023 , 23 , 599. [3] Bendig, J.; Yu, K.; Aasen, H.; Bolten, A.; Bennertz, S.; Broscheit, J.; Gnyp, M.L.; Bareth, G. Combining UAV-based plant height from crop surface models, 34 visible, and near infrared vegetation indices for biomass monitoring in barley. 
+
+Int. J. Appl. Earth Obs. Geoinf. 2015 , 39 , 79–87. [4] He, K.; Zhang, X.; Ren, S.; Sun, J. Deep residual learning for image recogni-tion. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) ; IEEE: New York, NY, USA, 2016; pp. 770–778. [5] Qing, L.; Xu, L.; Guan, J.; Khan, M.G. CFT: Cross-modality fusion transformer for multispectral object detection. IEEE Trans. Multimed. 2022 , 25 , 4112–4124. [6] Hong, D.; Han, Z.; Yao, J.; Gao, L.; Zhang, B.; Plaza, A.; Chanussot, J. Spectral-Former: Rethinking hyperspectral image classification with transformers. IEEE Trans. Geosci. Remote Sens. 2022 , 60 , 1–15. [7] Shen, J.; Chen, Y.; Liu, Y.; Zuo, X.; Fan, H.; Yang, W. ICAFusion: Iterative cross-attention guided feature fusion for multispectral object detection. Pattern Recognit. 2024 , 145 , 109913. [8] Guo, R.; Guo, X.; Sun, X.; Zhou, P.; Sun, B.; Su, S. Background-aware cross-attention multiscale fusion for multispectral object detection. Remote Sens. 
+
+2024 , 16 , 4034. [9] Ren, S.; He, K.; Girshick, R.; Sun, J. Faster R-CNN: Towards real-time ob-ject detection with region proposal networks. IEEE Trans. Pattern Anal. Mach. Intell. 2017 , 39 , 1137–1149. [10] Bochkovskiy, A.; Wang, C.-Y.; Liao, H.-Y.M. YOLOv4: Optimal speed and accuracy of object detection. arXiv 2020 , arXiv:2004.10934. [11] Li, C.; Li, L.; Jiang, H.; Weng, K.; Geng, Y.; Li, L.; Ke, Z.; Li, Q.; Cheng, M.; Nie, W.; et al. YOLOv6: A single-stage object detection framework for industrial applications. arXiv 2022 , arXiv:2209.02976. 35 [12] Wang, A.; Chen, H.; Liu, L.; Chen, K.; Lin, Z.; Han, J.; Ding, G. YOLOv10: Real-Time End-to-End Object Detection. arXiv 2024 , arXiv:2405.14458. [13] Zhang, H.; Fromont, E.; Lefèvre, S.; Avignon, B. Guided attentive feature fusion for multispectral pedestrian detection. In Proceedings of the IEEE /CVF Winter Conference on Applications of Computer Vision ; 2021; pp. 72–80. [14] Lu, T.; Lu, J.; Fu, W.; Xi, Y. Illumination-aware multimodal hierarchical fusion network for RGB-infrared object detection. IEEE Trans. Geosci. Remote Sens. 
+
+2025 , 63 , 1–14. [15] Zuo, X.; Qu, C.; Zhan, H.; Shen, J.; Yang, W. SFFR: Spatial-Frequency Feature Reconstruction for Multispectral Aerial Object Detection. arXiv 2025 ,arXiv:2511.06298. [16] Shen, J.; Zhan, H.; Dong, S.; Zuo, X.; Yang, W.; Ling, H. Multispectral State-Space Feature Fusion: Bridging Shared and Cross-Parametric Interactions for Object Detection. arXiv 2025 , arXiv:2507.14643. [17] Dosovitskiy, A.; Beyer, L.; Kolesnikov, A.; Weissenborn, D.; Zhai, X.; Un-terthiner, T.; Dehghani, M.; Minderer, M.; Heigold, G.; Gelly, S.; et al. An im-age is worth 16 ×16 words: Transformers for image recognition at scale. In Pro-ceedings of the International Conference on Learning Representations (ICLR), Virtual, 3–7 May 2021. [18] Wang, W.; Xie, E.; Li, X.; Fan, D.P.; Song, K.; Liang, D.; Lu, T.; Luo, P.; Shao, L. Pyramid vision transformer: A versatile backbone for dense prediction without convolutions. In Proceedings of the IEEE /CVF International Conference on Computer Vision (ICCV), Montreal, QC, Canada, 10–17 October 2021. [19] Liu, Z.; Lin, Y.; Cao, Y.; Hu, H.; Wei, Y.; Zhang, Z.; Lin, S.; Guo, B. Swin trans-former: Hierarchical vision transformer using shifted windows. In Proceedings 36 of the IEEE /CVF International Conference on Computer Vision (ICCV), Mon-treal, BC, Canada, 10–17 October 2021. [20] Hassani, A.; Walton, S.; Li, J.; Li, S.; Shi, H. Neighborhood attention trans-former. In Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition (CVPR) ; IEEE: New York, NY, USA, 2023; pp. 6185–6194. [21] Zhu, X.; Su, W.; Lu, L.; Li, B.; Wang, X.; Dai, J. Deformable DETR: Deformable transformers for end-to-end object detection. arXiv 2020 ,arXiv:2010.04159. [22] Dong, G.; Zhao, C.; Pan, X.; Basu, A. Learning temporal distribution and spatial correlation toward universal moving object segmentation. IEEE Trans. Image Process. 2024 , 33 , 2447–2461. [23] Cao, Y.; Bin, J.; Hamari, J.; Blasch, E.; Liu, Z. Multimodal object detection by channel switching and spatial attention. In Proceedings of the IEEE /CVF Con-ference on Computer Vision and Pattern Recognition ; IEEE: New York, NY, USA, 2023; pp. 403–411. [24] Yang, F.; Liang, B.; Li, W.; Zhang, J. Multidimensional fusion network for multispectral object detection. IEEE Trans. Circuits Syst. Video Technol. 2024 ,
+
+35 , 547–560. [25] Hu, S.; Bonardi, F.; Bouchafa, S.; Prendinger, H.; Sidibé, D. Rethinking self-attention for multispectral object detection. IEEE Trans. Intell. Transp. Syst. 
+
+2024 , 25 , 16300–16311. [26] Xiao, Y.; Meng, F.; Wu, Q.; Xu, L.; He, M.; Li, H. Gm-detr: Generalized muiltispectral detection transformer with e ffi cient fusion encoder for visible-infrared detection. In Proceedings of the IEEE /CVF Conference on Computer 
+
+37 Vision and Pattern Recognition ; IEEE: New York, NY, USA, 2024; pp. 5541– 5549. [27] Dong, W.; Zhu, H.; Lin, S.; Luo, X.; Shen, Y.; Guo, G.; Zhang, B. Fusion-Mamba for cross-modality object detection. IEEE Trans. Multimed. 2025 ,
+
+27 , 7392–7406. [28] Zhang, X.; Zhang, X.; Wang, J.; Ying, J.; Sheng, Z.; Yu, H.; Li, C.; Shen, H.L. TFDet: Target-aware fusion for RGB-T pedestrian detection. IEEE Trans. Neural Netw. Learn. Syst. 2024 , 36 , 13276–13290. [29] Guo, J.; Gao, C.; Liu, F.; Meng, D.; Gao, X. DAMSDet: Dynamic adaptive multispectral detection transformer with competitive query selection and adap-tive feature fusion. In Proceedings of the European Conference on Computer Vision ; Springer; Cham, Switzerland, 2024; pp. 464–481. [30] Tang, L.; Deng, Y.; Ma, Y.; Huang, J.; Ma, J. SuperFusion: A versatile image registration and fusion network with semantic awareness. IEEE /CAA J. Autom. Sin. 2022 , 9, 2121–2137. [31] Bao, W.; Huang, M.; Hu, J.; Xiang, X. Dual-dynamic cross-modal interaction network for multimodal remote sensing object detection. IEEE Trans. Geosci. Remote Sens. 2025 , 63 ,5401013. [32] Shang, X.; Li, N.; Li, D.; Lv, J.; Zhao, W.; Zhang, R.; Xu, J. CCLDet: A Cross-Modality and Cross-Domain Low-Light Detector. IEEE Trans. Intell. Transp. Syst. 2025 , 26 , 3284–3294. [33] Zhou, M.; Li, T.; Qiao, C.; Xie, D.; Wang, G.; Ruan, N.; Mei, L.; Yang, Y. DMM: Disparity-guided Multispectral Mamba for Oriented Object Detection in Remote Sensing. arXiv 2024 , arXiv:2407.08132. 38 [34] Liu, C.; Ma, X.; Yang, X.; Zhang, Y.; Dong, Y. COMO: Cross-mamba interac-tion and o ff set-guided fusion for multimodal object detection. Inf. Fusion 2026 ,
+
+125 , 103414. [35] Zhao, Z.; Zhang, W.; Xiao, Y.; Li, C.; Tang, J. Reflectance-Guided Progressive Feature Alignment Network for All-Day UAV Object Detection. IEEE Trans. Geosci. Remote Sens. 2025 , 63 ,5404215. 39

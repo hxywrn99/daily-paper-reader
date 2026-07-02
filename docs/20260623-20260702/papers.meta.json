@@ -1,8 +1,69 @@
 {
   "label": "2026-06-23 ~ 2026-07-02",
   "date": "2026-06-23 ~ 2026-07-02",
-  "generated_at": "2026-07-02T03:42:16",
-  "count": 0,
-  "papers": [],
+  "generated_at": "2026-07-02T09:48:10",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "20260623-20260702/2606.24092v1-progressive-pixel-neighborhood-deformable-cross-attention-for-multispectral-object-detection",
+      "section": "deep",
+      "title_en": "Progressive Pixel-Neighborhood Deformable Cross-Attention for Multispectral Object Detection",
+      "authors": "Tian Qiu, Jifeng Shen, Xin Zuo",
+      "date": "2026-06-23",
+      "pdf": "https://arxiv.org/pdf/2606.24092v1",
+      "score": "9.0",
+      "evidence": "多光谱特征融合用于目标检测",
+      "tldr": "多光谱目标检测中，全局交叉注意力计算量大且难以处理局部弱不对齐和非线性空间映射。本文提出渐进像素邻域可变形交叉注意力（PNAFusion），通过像素邻域交叉注意力聚焦局部相关区域，自适应可变形对齐捕捉非线性对应，并利用迭代反馈机制逐步精炼对齐。在FLIR、M3FD和DroneVehicle上分别达到84.2、90.5和85.5 mAP@0.5，且内存和FLOPs显著降低。",
+      "tags": "query:image-fusion",
+      "abstract_en": "Effective cross-modal feature alignment and interaction are central challenges in multispectral object detection. Although global cross-attention provides strong long-range modeling ability, its quadratic complexity with respect to feature size limits deployment on resource-constrained platforms. We therefore propose Progressive Pixel-Neighborhood Deformable Cross-Attention for multispectral feature fusion, termed PNAFusion. The proposed framework is motivated by two observations: weak misalignment between visible and thermal images is usually concentrated around local neighborhoods, and semantic correspondence across modalities often follows non-linear spatial mappings that fixed receptive fields cannot model well. To address these issues, PNAFusion incorporates local spatial priors into its architectural design to concentrate feature interaction and alignment on the most relevant neighborhoods. Specifically, a Pixel-Neighborhood Cross-Attention (PNCA) module is introduced to avoid redundant global feature matching and suppress background noise. Meanwhile, an Adaptive Deformable Alignment (ADA) module captures non-linear spatial correspondences through learned pixel-wise offsets. These components are further integrated through an iterative feedback mechanism to progressively refine cross-modal feature alignment. Experiments on FLIR, M3FD, and DroneVehicle show that PNAFusion achieves 84.2, 90.5, and 85.5 mAP@0.5, respectively, under the YOLOv5 detector, and further reaches 86.8 mAP@0.5 on FLIR and 90.8 mAP@0.5 on M3FD when transferred to Co-DETR. Efficiency analysis indicates that PNAFusion reduces allocated GPU memory by 33.0\\% compared with ICAFusion and reduces theoretical FLOPs from 194.8 G to 156.4 G, although the deformable sampling and iterative refinement introduce additional latency. Our code will be available at https://github.com/DanielQiuTian/PNAFusion.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "20260623-20260702/2607.00746v1-gaussianfusion-unified-3d-gaussian-representation-for-multi-modal-fusion-perception",
+      "section": "deep",
+      "title_en": "GaussianFusion: Unified 3D Gaussian Representation for Multi-Modal Fusion Perception",
+      "authors": "Xiao Zhao, Chang Liu, Mingxu Zhu, Zheyuan Zhang, Linna Song, Qingliang Luo, Chufan Guo, Kuifeng Su",
+      "date": "2026-07-01",
+      "pdf": "https://arxiv.org/pdf/2607.00746v1",
+      "score": "9.0",
+      "evidence": "统一3D高斯表示的多模态融合感知",
+      "tldr": "针对鸟瞰图离散网格导致细节丢失与跨模态对齐困难的问题，提出基于3D高斯表示的统一多模态融合框架GaussianFusion。通过前向投影初始化高斯属性，并设计共享跨模态编码器以注意力机制迭代优化，自然统一多模态特征。在nuScenes上，3D检测NDS提升2.6，语义占用mIoU提升1.55且速度提升450%。该任务无关框架为多模态感知提供了高效新范式。",
+      "tags": "query:image-fusion",
+      "abstract_en": "The bird's-eye view (BEV) representation enables multi-sensor features to be fused within a unified space, serving as the primary approach for achieving comprehensive 3D perception. However, the discrete grid representation of BEV leads to significant detail loss and limits feature alignment and cross-modal information interaction in multimodal fusion perception. In this work, we break from the conventional BEV paradigm and propose a new universal framework for multi-modal fusion based on 3D Gaussian representation. This approach naturally unifies multi-modal features within a shared and continuous 3D Gaussian space, effectively preserving edge and fine texture details. To achieve this, we design a novel forward-projection-based multi-modal Gaussian initialization module and a shared cross-modal Gaussian encoder that iteratively updates Gaussian properties based on an attention mechanism. GaussianFusion is inherently a task-agnostic model, with its unified Gaussian representation naturally supporting various 3D perception tasks. Extensive experiments demonstrate the generality and robustness of GaussianFusion. On the nuScenes dataset, it outperforms the 3D object detection baseline BEVFusion by 2.6 NDS. Its variant surpasses GaussFormer on 3D semantic occupancy with 1.55 mIoU improvement while using only 30% of the Gaussians and achieving a 450% speedup.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "20260623-20260702/2606.30027v1-cross-modal-iteration-distillation-for-robust-ihd-screening-the-idnet-framework-and-a-new-benchmark",
+      "section": "deep",
+      "title_en": "Cross-Modal Iteration Distillation for Robust IHD Screening: The IDNet Framework and A New Benchmark",
+      "authors": "Yongchang Gao, Junjie Pang, Shuaiyu Yang, Yusheng Yang, Xichao Jia, Shaojie Li, Hongfei Zhang, Jia Mu",
+      "date": "2026-06-29",
+      "pdf": "https://arxiv.org/pdf/2606.30027v1",
+      "score": "8.0",
+      "evidence": "跨模态蒸馏聚合器整合视网膜图像与临床数据，类似于多模态图像融合",
+      "tldr": "针对缺血性心脏病筛查中缺乏公共基准且眼底图像与稀疏临床变量融合低效的问题，提出IDNet框架，采用跨模态蒸馏聚合器，通过可学习查询逐步整合左右眼和临床特征。在自建含50410张图像的UK Biobank基准上，IDNet优于多种基线，且CDA作为即插即用模块持续提升视觉编码器性能。该工作提供了可复现的基准和高效的多模态融合方案。",
+      "tags": "query:image-fusion",
+      "abstract_en": "Color Fundus Photography (CFP) offers a low-cost and non-invasive route for ischemic heart disease (IHD) screening, but current studies are limited by scarce public benchmarks and ineffective fusion of retinal images with sparse clinical variables. We propose IDNet, a multimodal framework with a Cross-Modal Distillation Aggregator (CDA) that uses learnable queries to sequentially integrate left-eye, right-eye, and clinical features, mitigating the imbalance between high-dimensional visual features and low-dimensional tabular inputs. We also construct a reproducible UK Biobank benchmark with open-source curation and quality-control pipelines, yielding 50,410 images from 25,205 subjects. On this benchmark, IDNet outperforms image-only, clinical-only, and several multimodal baselines, and CDA consistently improves multiple visual encoders as a plug-in fusion module.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "20260623-20260702/2606.31077v1-anymatch-supercharging-universal-multi-modal-image-matching-with-large-scale-single-view-images",
+      "section": "quick",
+      "title_en": "AnyMatch: Supercharging Universal Multi-Modal Image Matching with Large-Scale Single-View Images",
+      "authors": "Meng Yang, Zizhuo Li, Linfeng Tang, Fan Fan, Jiayi Ma",
+      "date": "2026-06-30",
+      "pdf": "https://arxiv.org/pdf/2606.31077v1",
+      "score": "6.0",
+      "evidence": "使用深度学习的多模态图像匹配",
+      "tldr": "多模态图像匹配受限于大规模精确几何标注数据稀缺，现有数据成本高且存在误差。AnyMatch框架利用海量单视图图像，结合单目深度估计、3D重投影、扩散补全及跨模态翻译，合成多视图多模态图像对，显式保证3D几何一致性，避免误差累积。由此构建的Any-syn数据集通过可调参数实现场景多样性和难度可控。在Any-syn上微调的LoFTR、EDM、RoMa等网络在多模态匹配基准上取得大幅提升，泛化性和鲁棒性显著优于现有方法。该工作提供了低成本、高可扩展的数据生成范例。",
+      "tags": "query:image-fusion",
+      "abstract_en": "Multi-modal image matching is essential for visual localization and multi-sensor fusion, but it is hindered by the scarcity of large-scale training data with precise geometric annotations. Existing real-world datasets suffer from prohibitive costs, limited scene diversity, and errors in SfM-MVS pipelines, while synthetic methods struggle to maintain 3D geometric consistency or achieve photorealistic appearance. To address this, we propose AnyMatch, a novel framework that leverages abundant, easily accessible single-view images at minimal cost to generate rich multi-modal training data. AnyMatch integrates monocular depth estimation, 3D reprojection, diffusion-based inpainting, and crossmodal image translation to synthesize multi-view, multi-modal image pairs with 3D geometric fidelity. Crucially, our method provides annotations that strictly adhere to 3D geometric consistency through explicit 3D reprojection, avoiding SfM-MVS error accumulation. Furthermore, AnyMatch offers strong scalability, enabling controllable scene diversity and annotation difficulty via adjustable input and camera parameters. We construct Any-syn, a large-scale synthetic multi-modal dataset using AnyMatch. Experimental results show that matching networks (e.g., LoFTR, EDM, RoMa) fine-tuned on Any-syn achieve substantial performance gains on multi-modal benchmarks, exhibiting superior generalization and robustness compared to models trained on existing data.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
   "errors": []
 }

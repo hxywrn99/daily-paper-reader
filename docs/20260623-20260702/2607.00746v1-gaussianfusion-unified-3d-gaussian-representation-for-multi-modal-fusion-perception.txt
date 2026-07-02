@@ -1,0 +1,300 @@
+Title: GaussianFusion: Unified 3D Gaussian Representation for Multi-Modal Fusion Perception
+
+URL Source: https://arxiv.org/pdf/2607.00746v1
+
+Published Time: Thu, 02 Jul 2026 00:51:57 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+Published as a conference paper at ICLR 2026 
+
+# GAUSSIAN FUSION : UNIFIED 3D G AUSSIAN REPRE -
+
+# SENTATION FOR MULTI -M ODAL FUSION PERCEPTION 
+
+Xiao Zhao ∗
+
+, Chang Liu ∗
+
+, Mingxu Zhu, Zheyuan Zhang, Linna Song, Qingliang Luo, Chufan Guo & Kuifeng Su 
+
+Tencent, Autonomous Driving Lab Beijing, 100000, CN 
+
+{shawzhao,changeliu }@tencent.com 
+
+## ABSTRACT 
+
+The bird’s-eye view (BEV) representation enables multi-sensor features to be fused within a unified space, serving as the primary approach for achieving com-prehensive 3D perception. However, the discrete grid representation of BEV leads to significant detail loss and limits feature alignment and cross-modal information interaction in multimodal fusion perception. In this work, we break from the conventional BEV paradigm and propose a new universal framework for multi-modal fusion based on 3D Gaussian representation. This approach naturally uni-fies multi-modal features within a shared and continuous 3D Gaussian space, ef-fectively preserving edge and fine texture details. To achieve this, we design a novel forward-projection-based multi-modal Gaussian initialization module and a shared cross-modal Gaussian encoder that iteratively updates Gaussian properties based on an attention mechanism. GaussianFusion is inherently a task-agnostic model, with its unified Gaussian representation naturally supporting various 3D perception tasks. Extensive experiments demonstrate the generality and robust-ness of GaussianFusion. On the nuScenes dataset, it outperforms the 3D object detection baseline BEVFusion by 2.6 NDS. Its variant surpasses GaussFormer on 3D semantic occupancy with 1.55 mIoU improvement while using only 30% of the Gaussians and achieving a 450% speedup. 
+
+## 1 INTRODUCTION 
+
+Fusing complementary signals captured by different sensors is essential for autonomous driving perception systems. Leveraging the distinct characteristics of each sensor helps reduce prediction uncertainty, leading to more accurate and robust perception outcomes (Liu et al., 2023b; Bai et al., 2022; Yan et al., 2023). Since different sensors present data in varying formats, such as cameras providing perspective semantic data and Lidar capturing 3D spatial information, multi-modal fusion faces significant challenges due to these view discrepancies. To address this, some methods (Vora et al., 2020; Bai et al., 2022; Li et al., 2024; Wang et al., 2024b) achieve multi-modal 3D object detection through point-level fusion. However, point-level fusion strategies are generally unsuitable for semantics-oriented 3D perception tasks like 3D semantic occupancy prediction. Consequently, recent approaches aim to construct unified representations for multi-modal feature fusion. Table 1: Impact of BEV size on model performance Method BEV size Grid size Memory ↓ NDS ↑                   
+
+> BEVFusion 100×100 1.008m 3228 M70.5 200×200 0.504m 5140 M 71.4 400×400 0.252m 20560 M 72.7 GaussianFusion 100×100 1.008m 3576 M 73.1 200×200 0.504m 5418 M 74.0 400×400 0.252m 6151 M 74.4
+
+Recently, the shared Bird’s Eye View (BEV) space has emerged as a promis-ing direction for fusing cross-modal features to enable task-agnostic learn-ing. Several existing fusion methods (Liu et al., 2023b; Wang et al., 2023a), such as BEVFusion (Liu et al., 2023b), integrate multimodal information via CNNs and feature concatenation, while MetaBEV (Ge et al., 2023) mitigates 
+
+> ∗
+
+Equal contribution. 
+
+1
+
+> arXiv:2607.00746v1 [cs.CV] 1 Jul 2026
+
+Published as a conference paper at ICLR 2026 cross-modal feature misalignment by in-troducing meta-BEV queries. However, despite its widespread adoption in multimodal 3D percep-tion, the BEV representation inherently suffers from limitations in information expression. B!       
+
+> Gaussian Encoder
+> (a) BEV -based Fusion (b) Gaussian -based Fusion
+> BEV Encoder
+> Voxel Gaussian
+> B"
+> 𝒢 !
+> 𝒢 #
+> B#B#
+> Camera Lidar Camera Lidar
+> 𝒢 "
+
+Figure 1: Comparison of the discrete BEV repre-sentation fusion paradigm (Liu et al., 2023b) and our proposed continuous Gaussian representation fusion paradigm. B, G, C, L, and F denote BEV, Gaussian, Camera, Lidar, and Fusion. BEV directly discretizes and quantizes data, leading to inevitable information loss. Dur-ing feature extraction, perception data are pro-jected onto a fixed-resolution BEV grid, which compresses spatial information. This issue be-comes particularly severe when the BEV res-olution is low, as it directly impacts model performance by failing to adequately preserve fine-grained scene structures. While increas-ing the BEV resolution will bring unacceptable computational overhead, as shown in Table 1. Additionally, BEV fusion strategies often rely on simple feature concatenation or weighted summation, which are insufficient for effective cross-modal feature interaction and alignment, ultimately leading to suboptimal fusion perfor-mance, as illustrated in Fig. 1(a). To address these challenges, we introduce a fu-sion approach based on 3D Gaussian Splatting (3DGS) (Kerbl et al., 2023) to achieve more fine-grained information modeling and more natural multimodal alignment. As shown in Fig. 1(b), 3DGS employs continuous Gaussian distributions to represent the scene, preserv-ing rich geometric and semantic information in the Gaussian stage and preventing the early quantization-induced information loss seen in BEV-based methods. Unlike direct BEV quantization, 3DGS aggregates information before its final projection onto the BEV grid, allowing cross-modal features to interact at a higher-dimensional level and capturing finer spatial structures prior to quantization, Table 1 shows the effectiveness of this strategy. Moreover, the covariance matrices of Gaussians enable adaptive modeling of uncertainty, enhancing the representation of object shapes and boundaries. Specifically, inspired by (Philion & Fidler, 2020), we propose a forward projection Gaussian initial-ization strategy to better initialize camera Gaussian representations in 3D space rather than using random initialization (H et al., 2024). To further achieve continuous alignment and cross-modal fea-ture enhancement, we construct a shared Gaussian encoder. The shared Gaussian encoder supports cross-feature learning of 3D Gaussian features from different modalities, where the covariance ma-trix of each 3D Gaussian adaptively captures feature differences between modalities and iteratively updates the Gaussian parameters. Camera and LiDAR Gaussians are naturally fused via a Gaussian mixture model, and a high-performance Gaussian-to-voxel fusion module aggregates surrounding Gaussians to generate voxel features, enabling task-agnostic 3D perception. We conduct extensive experiments on BEV object detection and 3D occupancy prediction tasks to validate the generality of the GaussianFusion. Main contributions are as follows: • We propose the first unified 3D Gaussian representation multi-modal fusion framework, where cross-view and cross-modal Gaussian representations are naturally aggregated through the Gaussian mixture model. • A progressive update strategy is designed to optimize the multi-modal 3D Gaussian prop-erties iteratively. • The shared 3D Gaussian encoder enables alignment and complementary enhancement of cross-modal features, allowing Gaussian representations from both modalities to achieve consistent uncertainty within a unified space. 2Published as a conference paper at ICLR 2026 • Our GaussianFusion achieves state-of-the-art benchmarks in task-agnostic methods on var-ious 3D perception tasks within the nuScenes dataset. 
+
+## 2 RELATED WORK 
+
+2.1 MULTIMODAL 3D P ERCEPTION 
+
+We categorize current multimodal fusion methods into object-centric methods and dense BEV meth-ods. Object-centric methods (Vora et al., 2020; Chen et al., 2023; Zhou & T, 2023; Yin et al., 2024; Li et al., 2024; Wang et al., 2024b) are specifically designed for tasks such as 3D object detection or tracking. Advanced object-centric (Li et al., 2024; Wang et al., 2024b) methods typically use 2D detection results on camera to enhance multi-modal fusion 3D detection. Additionally, some works (Yang et al., 2022; Yan et al., 2023) use query-based 3D detection decoders to learn features from perspective images and Lidar BEV features directly. However, these object-centric methods cannot easily generalize to dense semantic tasks such as BEV map segmentation and 3D occupancy predic-tion. Dense BEV methods (Li et al., 2022a; Liu et al., 2023b; Liang et al., 2022; Chen et al., 2022; Zhao et al., 2024b; Ge et al., 2023; Jiao et al., 2023; Wang et al., 2023a) naturally adapt to various tasks. Both BEVFusion (Liu et al., 2023b) and UniTR(Wang et al., 2023a) achieve multi-modal BEV fusion perception through CNN and feature concatenation in the BEV space. In addition, MetaBEV (Ge et al., 2023) proposed a learnable cross-attention mechanism to generate unified BEV features. BEV or 3D voxel also provides a unified representation for 3D occupancy prediction. Some meth-ods design fusion modules (Pan et al., 2024; Wang et al., 2023c; Ming et al., 2024) based on voxel, such as adaptive fusion (Wang et al., 2023c), etc. for multi-modal 3D occupancy prediction. There are also many camera-only methods (Zhao et al., 2024a; Wang et al., 2024a; Li et al., 2023; Lu et al., 2023; Tian et al., 2024; Li et al., 2025; Ma et al., 2024b; Cao et al., 2024; Liu et al., 2024; Ma et al., 2024a) for 3D semantic occupancy prediction based on voxel representation. However, discrete voxel representations may result in significant detail loss and hinder effective multimodal complementary fusion. 2.2 3D G AUSSIAN SPLATTING 
+
+3D Gaussian Splatting (3DGS) (Kerbl et al., 2023) combines the advantages of implicit neural radi-ance fields (Mildenhall et al., 2021) and voxel-based explicit radiance fields (Fridovich-Keil et al., 2022; M¨ uller et al., 2022) and is widely applied in 3D reconstruction of 2D image. 3DGS uses a set of Gaussian functions to capture the geometric shapes and semantic of different objects or regions within a scene, effectively representing the scene. Based on this, some works (Ye et al., 2025; Hu et al., 2024) leverage 3DGS’s multi-view synthesis capabilities to achieve 3D scene segmentation. Recent studies (Gan et al., 2024; Chabot et al., 2024; H et al., 2024; Zuo et al., 2024; Liu et al., 2025) have applied 3DGS to vision-only 3D semantic occupancy prediction, BEV segmentation, and end-to-end autonomous driving. However, these methods rely on randomly initialized Gaussians. For example, GaussianFormer (H et al., 2024) randomly initializes and re-predicts Gaussian parameters in each iteration, making fine-tuning difficult and limiting accurate scene representation. Moreover, these methods do not fully exploit the advantages of Gaussian Mixture Models (GMM) for seamless multimodal Gaussian fusion. In contrast, we propose a forward-projection-based 3DGS parameter initialization and a shared optimization model, leveraging GMM to fuse multi-view camera and LiDAR features within a shared space, ultimately enabling dense semantic understanding and object-centric multitask perception. 
+
+## 3 METHODS 
+
+3.1 OVERALL ARCHITECTURE 
+
+The overall pipeline of GaussianFusion is illustrated in Fig. 2, with the goal of fusing multimodal features through 3D Gaussian representations, which naturally preserve both geometric and semantic information. We first initialize separate 3D Gaussian representations for camera and Lidar, denoted as Gc ∼ Qc and GL ∼ QL, within a unified space. Then, the multimodal Gaussian sets are processed through a shared Gaussian Encoder, enabling the integration of semantic and geometric information 3Published as a conference paper at ICLR 2026 3D Detection                         
+
+> 3D Occupancy
+> Initial 𝒢 !
+> (a) Gaussian
+> Initialization
+> Lidar BEV Features 𝒢 !&𝑄 !
+> 𝒢 "&𝑄 #
+> Multi -Camera Features
+> $𝒢 "&%𝑄 "
+> Gaussian Encoder
+> Conv Net
+> Camera
+> Encoder
+> Lidar
+> Encoder
+> Initial 𝒢 "
+> LSS
+> Context
+> Net
+> 𝑄 "
+> (c) Gaussian -to -Voxel Pooling
+> Sort
+> Mean
+> Gaussian -to -
+> Voxel Pooling
+> $𝒢 !&%𝑄 !
+> Fusion
+> ×4
+> Gaussian Updating
+> Deformable Attention w. Gaussian
+> Gaussian
+> Initialization
+> Multimodal backbone
+> ⋯
+> Task -Specific
+> Perception
+> PE
+> Properties
+> Projection
+> (b) Deformable Attention w. Gaussian
+> 6 Cameras Lidar
+> 𝐵 $
+> 𝑄 $
+> %𝑄 $
+> 𝑄 !
+> (x,y,z )
+
+Figure 2: Overview of the GaussianFusion framework. Initial Gaussians are refined by a shared encoder and fused in Gaussian space, followed by task-specific heads for 3D perception. from both modalities. Finally, the learned 3D Gaussian sets ˆGc ∼ ˆQc and ˆGL ∼ ˆQL are fused within the unified Gaussian space and fed into task-specific heads to perform 3D perception. 3.2 GAUSSIAN INITIALIZATION 
+
+BEVFusion (Liu et al., 2023b) projects multimodal features into discrete BEV space for fusion. In contrast, inspired by the Gaussian mixture model paradigm of 3DGS (Kerbl et al., 2023) for modeling scene geometry and semantics, we utilize two Gaussian sets, Gc and GL, within a shared space to represent surround-view camera and Lidar information, respectively, to achieve a seamless multimodal fusion. 
+
+Camera Gaussian Initialization with Forward Projection. The properties of every single 3D Gaussian function are defined by a mean μ ∈ R3, scale s ∈ R3, and rotation vectors r ∈ R4.Given N surround camera view, each camera’s view can be represented by a set of 3D Gaussian distributions Gc,i ∈ RDg ×Dc×Hc×Wc |i = 1 , 2, · · · , N , where Dg = μ + s + r, Dc denotes the number of discrete depths for camera, as shown in Fig. 2(a), a Gaussian function is assigned to a depth point. It is worth noting that this is completely different from GausianFormer (H et al., 2024), which randomly initializes a set of Gaussians in space, which makes model optimization more difficult. Specifically, inspired by (Huang & Huang, 2022b;a; Liu et al., 2023b; Philion & Fidler, 2020), given surround camera input features Fc,i ∈ RC×Hc×Wc , i = 1 , 2, · · · , N , where 
+
+C, Hc and Wc represent the channel, height, and width of the camera features. Fc,i is fed to LSS (Philion & Fidler, 2020) to obtain the depth distribution Di ∈ RDc×Hc×Wc , i = 1 , 2, · · · , N , Di
+
+are then used as the initial mean μ of the Gaussian, which is the location of every single Gaussian center. For s and r, we initialize them randomly. And Gc = {Gc,i }, Gc ∈ RN ×Dg ×Dc×Hc×Wc .The image features Fc,i are processed through a context network composed of multiple convolu-tional layers to obtain the semantic features F ′
+
+> c,i
+
+. Next, an inner product is computed between 
+
+Di and F ′ 
+
+> c,i
+
+to derive the features at each depth point in 3D space, denoted as initial query fea-tures Qc = {Qc,i ∈ RC×Dc×Hc×Wc |i = 1 , 2, · · · , N }. Then, Qc are associated with Gaussian 
+
+(Gc ∼ Qc). For a given Gaussian set (gc ∼ qc, g c ∈ G c, q c ∈ Qc), the feature at a point p = ( x, y, z )
+
+within its elliptical space are: 
+
+gc(p; μ, s, r) = exp   − 12 (p − μ)T Σ−1(p − μ)qc, (1) where Σ = RSS T RT , S = diag( s), and R = q2r( r). Σ, diag( ·), and q2r( ·) represent the covariance matrix, the function that constructs a diagonal matrix from a vector, and the function that transforms a quaternion into a rotation matrix, respectively. 4Published as a conference paper at ICLR 2026 
+
+Lidar Gaussian initialization. Lidar’s BEV space naturally provides an initialization for the Gaus-sian mean μ. And, s and r are initialized randomly. The Gaussian initialization for Lidar is for-mulated as GL ∈ RC×HL×WL . Since directly extracting information from the massive raw lidar point clouds to construct 3D Gaussian representations is both difficult and computationally inten-sive, grid-based representations offer an effective approach to alleviate these challenges. For query, given the Lidar features BL ∈ RC×HL×WL , where C, H L, and WL represent the channel, height, and width of the BEV features, respectively. Then, we fed the BEV feature BL into a multilayer perceptron (MLP) to obtain Lidar query QL, which is associated with the initial query features for each Gaussian function (GL ∼ QL).Each voxel in Lidar BEV grid is centered at a 3D location μ ∈ R3, and a Gaussian is initialized at 
+
+μ with learnable scale s and rotation r. For a Gaussian (GL ∼ QL) associated with LiDAR feature 
+
+QL ∈ R3, the feature response at a 3D point p = ( x, y, z ) within its support is computed as: 
+
+gL(p; μ, s, r) = exp   − 12 (p − μ)T Σ−1(p − μ)qL, (2) 3.3 GAUSSIAN ENCODER 
+
+The 3D Gaussian distribution effectively represents the scene, and we have designed a Gaussian encoder to optimize both the properties and query features. This encoder includes a deformable attention with Gaussian module and a Gaussian Updating module. The Gaussian encoder is stacked multiple times to update the Gaussian properties in an iterative refinement paradigm. Additionally, to better fuse multi-modal information, we employ a shared Gaussian encoder to simultaneously pro-cess the Gaussian distributions Gc and GL, as the two modalities are ultimately intended to converge towards similar Gaussian distributions. Specifically, we merge Gc and GL into the batch dimension. 
+
+Deformable Attention with Gaussian. As shown in Fig. 2(b), after obtaining the Gaussian distri-bution sets and corresponding query features ( Gc ∼ Qc, GL ∼ QL, we first encode Gi ∼ Qi, i = c, L ,
+
+into a new query ˆQ. Specifically, to capture the position and geometric information of the Gaussian functions within the feature maps, we employ an MLP to encode the Gaussian properties. The new query ˆQ is then obtained by adding the encoded properties Pq to the original query Qi:
+
+ˆQi = MLP (G) + Qi, i = c, L , (3) where the MLP as the position embedding (PE) transforms the dimensions from RDg to RC . We obtain sets Gi ∼ ˆQi.Projection        
+
+> Mean 𝜇
+> Offset points
+> (a) Deformable Attention w. Gaussian (b) Vanilla Deformable Attention
+
+Figure 3: Comparison of the vanilla deformable attention (Zhu et al., 2020) and our proposed deformable attention with Gaussian. Furthermore, we adopt deformable attention with Gaussian (Zhu et al., 2020; H et al., 2024) to extract fea-tures, as shown in Fig.3. Vanilla de-formable attention (Fig.3(b)) initial-izes sampling locations with an ap-proximately ”square/kernel-like” re-gion and learns offsets to cover the re-gions of interest. However, this initial distribution lacks inherent geometric priors about object shape. In con-trast, our deformable attention with Gaussian (Fig.3(a)) directly inherits and leverages the shape properties of Gaussians: by projecting the 3D Gaussian distributions onto the BEV feature map (projection in Figure 2b), we obtain a prior sampling distribu-tion that encodes orientation, scale, and covariance structure. In other words, the initial sampling points are not uniformly spaced on a grid, but 5Published as a conference paper at ICLR 2026 instead follow a Gaussian distribution aligned with the underlying object geometry—such as aspect ratio, orientation, and spatial uncertainty. This Gaussian prior enables better alignment of cross-modal features to the ”likely object extent,” thereby enhancing fusion effectiveness—a capability absent in conventional square-shaped initialization. Evidently, the properties of the Gaussian functions effectively describe the shape of the potential objects or regions. For each Gaussian function g, we calculate a set of offsets ∆μ = (∆ x, ∆y, ∆z)
+
+based on the covariance matrix. These offsets, combined with the mean μ, yield the corresponding reference points μ + ∆ μ. We then project the 3D reference points onto the BEV feature map, where each Gaussian query qi ∈ Qi is updated through deformable attention, expressed as: 
+
+DeformAtt( qi, B i) = 
+
+> K
+
+X
+
+> k=1
+
+Ak · WkBi(μ + ∆ μ), (4) where Bi is the camera BEV feature Bc or Lidar BEV feature BL, Wk is the weights obtained by linear layer, Ak is the attention weights and Ak ∈ [0 , 1] , K is the number of sampling points, 
+
+B(μ + ∆ μ) are the sampled features. 
+
+Gaussian Updating. To update the Gaussian properties, we propose an iterative optimization strat-egy of predicting offsets instead of predicting a set of new Gaussian distributions as adopted in GaussianFormer (H et al., 2024). In Lidar and camera fusion perception, incrementally updating the Gaussian parameters allows for better handling of the discrepancies caused by different modalities when perceiving the same object. This approach is particularly effective in handling fusion uncer-tainties caused by such as signal attenuation, depth prediction uncertainties, or multi-modal signal discrepancies, as demonstrated by the ablation experiments. Incremental updates across layers allow the model to gradually reduce the disparity between modalities, improving fusion accuracy. Specif-ically, by predicting the offsets ∆μ, ∆s, and ∆r for the Gaussian mean μ, scale s, and rotation r
+
+using an MLP, we refine the Gaussian distribution without having to predict a completely new set of properties. The updated Gaussian ˆGi as follows: 
+
+ˆGi = MLP ( ˆQ) + Gi = (∆ μ + μ, ∆s + s, ∆r + r). (5) 3.4 MULTI -S ENSOR FUSION 
+
+By the Gaussian Encoder model, we obtain the multimodal 3D Gaussian representations ˆGc and ˆGL
+
+within the shared 3D space, respectively. We merge ˆGc and ˆGL into a unified set ˆG, and we can easily fuse them. Although the 3D Gaussian distributions can effectively represent the scene, to handle the irregular distribution of Gaussian points, we need to voxelize these Gaussian distributions to achieve task-independent 3D perception. Specifically, given the unified Gaussian sets ˆG ∼ ˆQ, we divide the Gaussian space into a voxel grid 
+
+H ×W . For a non-empty voxel V that contains M Gaussian means μ, the Gaussian set for that voxel is V = {(ˆ g1, ˆg2, · · · , ˆgM ) ∼ (ˆ q1, ˆq2, · · · , ˆqM )}. To ensure real-time performance and the receptive field of the voxel, we use MeanVFE (Zhou & Tuzel, 2018) to downsample the Gaussian within the voxel, as illustrated in Fig. 2(c). After Gaussian pooling, each voxel contains one Gaussian distribution (ˆ g ∼ ˆq):
+
+ˆg = 1
+
+M [X μm, X sm, X rm], ˆq = 1
+
+M
+
+X ˆqm. (6) Furthermore, the Gaussian mixture model (Kerbl et al., 2023) can naturally aggregate multiple Gaus-sian distributions into a finer-grained distribution, unifying multi-modal Gaussian representations and elegantly capturing the complexity of autonomous driving scenes. Thus, if the total number of Gaussian distributions covering point p in the entire scene is J, the feature f (p) at point p is composed of the cumulative contributions of each individual Gaussian: 
+
+f (p) = 
+
+> J
+
+X
+
+> i=1
+
+ˆgi(p; μ, s, r)ˆ qi. (7) Since each voxel may be associated with multiple 3D Gaussian distributions, following the strategy in (H et al., 2024), we calculate the neighborhood radius based on the scale property of each Gaus-sian. The indices of the Gaussians and the voxels within their neighborhood are paired as tuples 6Published as a conference paper at ICLR 2026 and appended to a list. This list is then sorted by voxel indices, determining which 3D Gaussians each voxel should focus on. Furthermore, for each voxel using 7, we can get the fused feature BF.Finally, a simple convolutional network is used to further optimize BF.3.5 PERCEPTION TASK SETUP 
+
+Without loss of generality, we follow BEVFusion (Liu et al., 2023b), GaussianFusion can be applied to most 3D perception tasks based on BF. We evaluate the performance of GaussianFusion on 3D object detection and 3D semantic occupancy prediction tasks. We adopt the same Transformer-based detection head as BEVFusion (Bai et al., 2022; Liu et al., 2023b) and the occupancy head consistent with BEVDet (Huang & Huang, 2022a). We also constructed a camera-only version, GaussianFusion-C, containing only the camera branch shown in Fig. 2. 
+
+## 4 EXPERIMENTS 
+
+4.1 DATASET 
+
+The nuScenes dataset (Caesar et al., 2020) provides annotation data for tasks such as semantic seg-mentation, object detection, and 3D occupancy (Occ) prediction. It is a large-scale multimodal dataset officially split into 700/150/150 scenes for training, validation, and testing, respectively. Each scene includes annotated Lidar point cloud data captured by a 32-beam scanner, along with 6 perspective camera views, offering comprehensive 360-degree coverage at each timestamp. We evaluate our method on the 3D object detection and Occ. In our task, we down-sample the input camera images to 704 × 256 and voxelize the point cloud to 0.075m for detection, following BEV-Fusion (Liu et al., 2023b) and UniTR (Wang et al., 2023a). For 3D object detection, the perception range of the point cloud is set to [−51 .2m, 51 .2m] along the X and Y axes, and [−5m, 3m] along the Z axis. For 3D Occ, we evaluate within the region of [−50 m, 50 m] × [−50 m, 50 m] around the ego vehicle, following (Liu et al., 2023b; Wang et al., 2023a; Wei et al., 2023). 4.2 IMPLEMENTATION DETAILS 
+
+We adopt VoxelNet (Zhou & Tuzel, 2018) and Swin-T (Liu et al., 2021) as the Lidar and camera backbone to extract the multimodal features following BEVFusion (Liu et al., 2023b). The dimen-sions of Lidar features, image features, and 3D Gaussian query features are all set to 128. Depth of image Dc=41. Image feature Fc,i dimensions: 8 ×22 ×6. We set Gaussian Encoder blocks to 4, see the Appendix for experiments. The BEV size H × W is set to 200 × 200 .During training, we follow BEVFusion to adapt the aligned multimodal data augmentation strategy and the class-balanced sampling strategy from CBGS (Zhu et al., 2019). GaussianFusion is trained on 8 NVIDIA A800 GPUs. We use AdamW (Loshchilov & Hutter, 2017) optimizer with a weight decay 0.01. We adopt the one-cycle learning rate policy (Smith, 2017) with a maximum learning rate of 2e−4. Both BEV object detection and 3D semantic occupancy prediction are trained for 20 epochs, following the same settings as BEVFusion and GaussianFormer (H et al., 2024), respec-tively. 4.3 3D O BJECT DETECTION 
+
+Setting. We utilize the official evaluation metric nuScenes Detection Score (NDS) and mean Aver-age Precision (mAP) for 3D detection. 
+
+Results. To highlight the effect of Gaussian representation, we only compare the BEV-based method. As shown in Table 2, GaussianFusion achieves SOTA results compared to previous dis-crete BEV representation multimodal fusion methods(Liu et al., 2023b; Ge et al., 2023; Wang et al., 2023a; Hu et al., 2023b) on nuScenes dataset, achieving 74.0 NDS and 71.7 mAP on the val split. Specifically, compared with BEVFusion (Liu et al., 2023b), our GaussianFusion achieves +2.6 NDS and +3.2 mAP on val split by exploring a more natural continuous Gaussian cross-modal comple-mentary fusion. In addition, compared with recent SOTA fusion works, such as UniTR (Wang et al., 2023a), EA-LSS (Hu et al., 2023b), and FusionFormer-S (Hu et al., 2023a), GaussianFusion shows superior performance, outperforming them by 1.2, 0.5, and 1.7 respectively in mAP. 7Published as a conference paper at ICLR 2026 Table 2: Comparisons with state-of-the-art 3D object detection methods on nuScenes dataset. Cdenote Camera, L denote Lidar. All methods construct BEV-based feature maps instead of object-centric fusion based on proposals, which means these methods can also be naturally used for seman-tic tasks. UniTR uses a unified backbone for both the camera and Lidar. Methods Modality Resolution Backbone validation set test set 
+
+Camera Lidar NDS mAP NDS mAP BEVFormer (Li et al., 2022b) C 1600 ×900 ResNet-101 - 51.7 41.6 56.9 48.1 PETRv2 (Liu et al., 2023a) C 1600 ×640 VoV-99 - - - 59.1 50.8 FB-BEV (Li et al., 2023) C 1600 ×640 VoV-99 - - - 62.4 53.7 AutoAlignV2 (Chen et al., 2022) C+L 1600 ×640 CSPNet VoxelNet 71.2 67.1 72.4 68.4 BEVFusion(M) (Liu et al., 2023b) C+L 704 ×256 Swin-T VoxelNet 71.4 68.5 72.9 70.2 MetaBEV (Ge et al., 2023) C+L 704 ×256 Swin-T VoxelNet 71.5 68.0 - -MSMDFusion (Jiao et al., 2023) C+L 800 ×448 ResNet-50 VoxelNet 72.1 69.3 74.0 71.5 FusionFormer-S (Hu et al., 2023a) C+L 1600 ×640 VoV-99 VoxelNet 73.2 70.0 - -EA-LSS (Hu et al., 2023b) C+L 704 ×256 Swin-T VoxelNet 73.1 71.2 74.4 72.2 UniTR (Wang et al., 2023a) C+L 704 ×256 - - 73.3 70.5 74.5 70.9 
+
+GaussianFusion(Ours) C+L 704 ×256 Swin-T VoxelNet 74.0 71.7 74.9 72.4 
+
+Table 3: Latency and performance on nuScenes val. set. Method Latency ↓ Memory ↓ NDS ↑ mAP ↑
+
+BEVFusion 156 ms 5140 M 71.4 68.5 GaussianFusion 132 ms 4271 M 74.0 71.7 
+
+Additionally, we provide a comparison with other open-source state-of-the-art (SOTA) methods in inference latency and performance accuracy in Table 3. Benefiting from the unified architecture, it achieves an excellent performance of 71.7 mAP while maintaining lower inference latency (132 ms) and memory consumption (4271 MB) compared to BEVFusion. Table 4: Comparison with temporal methods. Method NDS ↑ mAP ↑
+
+BEVFusion4D (Liu et al., 2023b) 73.5 72.0 FusionFormer (Hu et al., 2023a) 74.1 71.4 SparseLIF-T (Zhang et al., 2024a) 77.5 74.7 GaussianFusion-T 77.6 75.0 
+
+Here, we design a simple temporal extension, termed GaussianFusion-T: historical Gaussian representations are warped to the current timestamp and then fused via Equations (5) and (6). In Equation (5), the mean μm, scale sm,rotation rm, and query qm encompass not only the multi-modal (image and Li-DAR) Gaussians and queries, but also those from history frames. Experimen-tal results show that, compared to BEV-Fusion4D (Liu et al., 2023b), our temporal variant GaussianFusion-T achieves significant improve-ments. Moreover, even without sophisticated temporal modeling, GaussianFusion-T achieves com-petitive NDS against advanced temporal fusion methods such as SparseLIF-T (Zhang et al., 2024a). Table 5: Semantic scene completion results on nuScenes (Wei et al., 2023; Caesar et al., 2020) val set. † represents trained on nuScenes. For Camera-only and C+L, the top performance is indicated in bold black and bold blue , respectively.                                                                              
+
+> Method Modality IoU mIoU barrier bicycle bus car const. veh. motorcycle pedestrian traffic cone trailer truck drive. suf. other flat sidewalk terrain manmade vegetation BEVFormer (Li et al., 2022b) C30.50 16.75 14.22 6.58 23.46 28.28 8.66 10.77 6.64 4.05 11.20 17.78 37.28 18.00 22.88 22.17 13.80 22.21 TPVFormer (H et al., 2023) C30.86 17.10 15.96 5.31 23.86 27.32 9.79 8.74 7.09 5.20 10.97 19.22 38.87 21.25 24.26 23.15 11.73 20.81 FB-Occ(1f) (Li et al., 2023) C31.55 20.17 20.31 12.29 26.33 31.07 10.78 15.95 13.31 11.14 13.24 22.13 39.56 22.26 25.14 23.59 13.92 21.64 SurroundOcc (Wei et al., 2023) C31.49 20.30 20.59 11.68 28.06 30.86 10.70 15.14 14.09 12.06 14.38 22.26 37.29 23.70 24.49 22.77 14.89 21.86 GaussianFormer (H et al., 2024) C29.83 19.10 19.52 11.26 26.11 29.78 10.47 13.83 12.58 8.67 12.74 21.57 39.63 23.28 24.46 22.99 9.59 19.12
+> GaussianFusion-C C32.48 20.65 21.09 10.95 29.01 31.65 10.03 15.64 14.31 12.56 13.82 23.19 40.06 22.49 25.80 23.49 14.36 22.14
+> BEVFusion †(Liu et al., 2023b) C+L 39.11 24.65 23.78 12.29 30.67 34.95 14.62 17.23 20.76 15.75 19.83 26.3 40.01 23.34 25.47 26.41 25.15 37.92 M-CONet (Wang et al., 2023c) C+L 39.20 24.70 24.80 13.00 31.60 34.80 14.60 18.00 20.00 14.70 20.00 26.60 39.20 22.80 26.10 26.00 26.00 37.10 CO-Occ (Pan et al., 2024) C+L 41.10 27.10 28.10 16.10 34.00 37.20 17.00 21.60 20.80 15.90 21.90 28.70 42.30 25.40 29.10 28.60 28.20 38.00 OccFusion (Ming et al., 2024) C+L 43.53 27.55 25.15 19.87 34.75 36.21 20.03 23.11 25.25 17.50 22.70 30.06 39.47 23.26 25.68 27.57 29.54 40.60 GaussianFusion C+L 44.75 28.65 28.92 18.31 34.87 37.43 19.45 23.53 26.71 17.96 23.38 29.89 43.32 25.96 30.51 28.35 30.32 39.67
+
+8Published as a conference paper at ICLR 2026 
+
+Waymo Open Dataset Result. We further conduct experiments on the Waymo Open Dataset (Sun et al., 2020) to evaluate the generalization capability of our approach. GaussianFusion adopts the same heatmap-based detection head as BEVFusion for a fair comparison. Table 6 shows that the Gaussian representation outperforms the BEV representation, achieving higher detection accuracy, which demonstrates its greater potential for 3D perception. Table 6: Waymo Open Dataset Result. Model mAP-L1 mAPH-L1 mAP-L2 mAPH-L2 BEVFusion (Liu et al., 2023b) 82.72 81.35 77.65 76.33 GaussianFusion(ours) 86.23 84.65 81.47 80.75 4.4 3D S EMANTIC OCCUPANCY PREDICTION 
+
+Setting. We report the Intersection-over-Union (IoU) of occupied voxels as the evaluation metric of the class-agnostic scene completion task and the mIoU of all semantic classes for the Occ task following SurroundOcc (Wei et al., 2023). Table 7: Comprehensive comparison with Gaussian-Former on nuScenes val set. Method Num. Gaussians mIoU ↑ Latency ↓      
+
+> GaussianFormer 140,000 19.10 475 ms GaussianFusion-C 43,296 20.65 105 ms
+
+Results. As shown in Table 5, our GaussianFusion achieves SOTA perfor-mance at 28.65 mIoU among all single-frame models. GaussianFusion outper-forms the multi-modal SOTA method OccFusion (Ming et al., 2024), which is based on multi-scale voxel fusion, by +1.11 mIoU and significantly surpasses camera-only methods (H et al., 2023; Wei et al., 2023; Li et al., 2023). More importantly, benefiting from our proposed Gaussian ini-tialization strategy and iterative update mechanism, GaussianFusion-C achieves a 1.55 mIoU im-provement and nearly 4.5× computational efficiency compared to GaussianFormer, while using only 30% of the Gaussians, as shown in Table 7. GaussianFormer randomly initializes a set of Gaussians in 3D space and predicts new Gaussian parameters for these Gaussians in an update. Extensive experiments demonstrate the effectiveness of our 3D Gaussian representation across multiple tasks, including both object-centric and dense semantic perception. Table 8: Ablation of Gaussian initializa-tion strategy. Gaussian Initialization NDS mAP Random Initialization 71.2 68.3 Backward Projection 72.4 70.0 Lidar Projection 73.6 71.1 
+
+Forward Projection 74.0 71.7 
+
+Table 9: Ablation of the proposed Gaussian Encoder. DA.G means Deformable Attention with Gaussian. Share Separate DA.G PE Offset NDS mAP                       
+
+> ✓✓✓✓74.0 71.7
+> ✓✓✓73.6 71.1
+> ✓✓✓✓73.4 71.0
+> ✓✓✓73.6 71.2
+> ✓✓✓73.2 70.8
+
+4.5 ABLATION STUDIES 
+
+Effect of Gaussian Initialization. Table 8 provides a detailed analysis of the performance im-pact of different Gaussian initialization strategies, including the classic random initialization, our proposed forward projection strategy, the backward projection BEVFormer-based strategy(Li et al., 2023; 2022b), and the strategy of projecting Lidar points onto the image. The initialization details and corresponding Gaussian encoder for the latter two projection strategies are in Appendix. The forward projection and Lidar projection strategies show comparable performance (74.0 NDS v.s 
+
+73.6 NDS), both outperforming the backward projection method (72.4 NDS). Notably, the forward projection strategy brings a significant improvement of +2.8 NDS over random initialization. 
+
+Effect of Gaussian Encoder. In Table 9, we first compare the shared and separate Gaussian En-coders. We find that the shared Gaussian Encoder provides a performance improvement of +0.7 9Published as a conference paper at ICLR 2026 mAP. We attribute this to the unified Gaussian space, which helps the model learn uncertain cross-modal complementary features. And the sharing strategy makes the model leaner. We then con-duct an ablation study on the deformable attention module. Results show that deformable attention with Gaussian priors outperforms the vanilla variant by +0.4 NDS, demonstrating that the shape prior encoded by Gaussians facilitates model convergence and enhances detection accuracy. For the deformable attention-based query updating module, the results show that encoding the Gaussian properties as PE into the query leads to a gain of +0.5 mAP. For the Gaussian updating module, predicting the offsets of the properties, rather than the properties themselves, improves multimodal fusion perception by +0.9 mAP. This validates the effectiveness of the Gaussian encoder. 4.6 VISUALIZATIONS 
+
+As shown in Fig. 4, in BEV object detection, compared to previous BEV-based SOTA methods like UniTR (Wang et al., 2023a) and BEVFusion(Liu et al., 2023b), GaussianFusion achieve higher accuracy for distant or small objects (white marks). Furthermore, UniTR exhibits significant object yaw errors (yellow marks). For Occ, GaussianFusion-C produces sharper object boundaries (red marks) and better class separation (yellow marks) compared to GaussianFormer. See Appendix for more visualizations. Ground Truth GaussianFusion BEVFusion Lidar Scan                     
+
+> GaussianFusion -CGround Truth SurroundOcc GaussianFormer Multi -Camera images
+> driveable surface car bus truck terrain vegetation sidewalk other flat pedestrian
+> manmade motorcycle barrier construction vehicle trailer traffic cone bicycle
+> UniTR
+
+Figure 4: Qualitative results on object detection and 3D semantic occupancy prediction. 4.7 LIMITATIONS 
+
+Several approaches—covering both detection (Wang et al., 2023b) and Occ (Zhang et al., 2024b)—employ carefully designed temporal fusion modules to enhance performance. While our method naturally extends to multi-frame settings through simple temporal alignment and already achieves performance comparable to such multi-frame methods, this is likely suboptimal. A promis-ing direction for future work is to explore motion-aware Gaussian updates, for instance by predicting velocity-guided offsets, enabling more coherent 4D scene modeling over time. 
+
+## 5 CONCLUSION 
+
+We present GaussianFusion, a novel multi-modal fusion perception framework grounded in a unified 3D Gaussian representation that seamlessly integrates camera and LiDAR features in a continuous spatial domain, effectively preserving fine-grained scene details. A shared Gaussian encoder is introduced to facilitate adaptive cross-modal interaction and alignment, with Gaussian properties it-eratively refined through optimization. To support task-agnostic applications, we design an efficient Gaussian-to-voxel transformation module incorporating Gaussian pooling and aggregation mecha-nisms. Extensive experiments across multiple 3D perception tasks on the nuScenes dataset validate the effectiveness of GaussianFusion, achieving state-of-the-art performance among task-agnostic baselines. Although it may slightly lag behind certain task-specialized approaches, our work rep-resents a meaningful step toward generalizable and principled multi-modal fusion. We believe that the proposed Gaussian representation paradigm offers a promising direction for future research in multimodal 3D perception. 10 Published as a conference paper at ICLR 2026 
+
+## REFERENCES 
+
+Xuyang Bai, Zeyu Hu, Xinge Zhu, Qingqiu Huang, Yilun Chen, Hongbo Fu, and Chiew-Lan Tai. Transfusion: Robust lidar-camera fusion for 3d object detection with transformers. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 1090–1099, 2022. Holger Caesar, Varun Bankiti, Alex H Lang, Sourabh Vora, Venice Erin Liong, Qiang Xu, Anush Krishnan, Yu Pan, Giancarlo Baldan, and Oscar Beijbom. nuscenes: A multimodal dataset for autonomous driving. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 11621–11631, 2020. Anh-Quan Cao, Angela Dai, and Raoul de Charette. Pasco: Urban 3d panoptic scene completion with uncertainty awareness. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 14554–14564, 2024. Florian Chabot, Nicolas Granger, and Guillaume Lapouge. Gaussianbev: 3d gaussian representation meets perception models for bev segmentation. arXiv preprint arXiv:2407.14108 , 2024. Yilun Chen, Zhiding Yu, Yukang Chen, Shiyi Lan, Anima Anandkumar, Jiaya Jia, and Jose M Alvarez. Focalformer3d: focusing on hard instance for 3d object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 8394–8405, 2023. Zehui Chen, Zhenyu Li, Shiquan Zhang, Liangji Fang, Qinhong Jiang, and Feng Zhao. Deformable feature aggregation for dynamic multi-modal 3d object detection. In European conference on computer vision , pp. 628–644. Springer, 2022. Sara Fridovich-Keil, Alex Yu, Matthew Tancik, Qinhong Chen, Benjamin Recht, and Angjoo Kanazawa. Plenoxels: Radiance fields without neural networks. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 5501–5510, 2022. Wanshui Gan, Fang Liu, Hongbin Xu, Ningkai Mo, and Naoto Yokoya. Gaussianocc: Fully self-supervised and efficient 3d occupancy estimation with gaussian splatting. arXiv preprint arXiv:2408.11447 , 2024. Chongjian Ge, Junsong Chen, Enze Xie, Zhongdao Wang, Lanqing Hong, Huchuan Lu, Zhenguo Li, and Ping Luo. Metabev: Solving sensor failures for 3d detection and map segmentation. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 8721–8731, 2023. Yuanhui H, Wenzhao Zheng, Yunpeng Zhang, Jie Zhou, and Jiwen Lu. Tri-perspective view for vision-based 3d semantic occupancy prediction. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 9223–9232, 2023. Yuanhui H, Wenzhao Zheng, Yunpeng Zhang, Jie Zhou, and Jiwen Lu. Gaussianformer: Scene as gaussians for vision-based 3d semantic occupancy prediction. arXiv preprint arXiv:2405.17429 ,2024. Chunyong Hu, Hang Zheng, Kun Li, Jianyun Xu, Weibo Mao, Maochun Luo, Lingxuan Wang, Mingxia Chen, Kaixuan Liu, Yiru Zhao, et al. Fusionformer: A multi-sensory fusion in bird’s-eye-view and temporal consistent transformer for 3d objection. arXiv preprint arXiv:2309.05257 ,2023a. Haotian Hu, Fanyi Wang, Jingwen Su, Yaonong Wang, Laifeng Hu, Weiye Fang, Jingwei Xu, and Zhiwang Zhang. Ea-lss: Edge-aware lift-splat-shot framework for 3d bev object detection. arXiv preprint arXiv:2303.17895 , 2023b. Xu Hu, Yuxi Wang, Lue Fan, Junsong Fan, Junran Peng, Zhen Lei, Qing Li, and Zhaoxiang Zhang. Semantic anything in 3d gaussians. arXiv preprint arXiv:2401.17857 , 2024. Junjie Huang and Guan Huang. Bevdet4d: Exploit temporal cues in multi-camera 3d object detec-tion. arXiv preprint arXiv:2203.17054 , 2022a. Junjie Huang and Guan Huang. Bevpoolv2: A cutting-edge implementation of bevdet toward de-ployment. arXiv preprint arXiv:2211.17111 , 2022b. 11 Published as a conference paper at ICLR 2026 Yang Jiao, Zequn Jie, Shaoxiang Chen, Jingjing Chen, Lin Ma, and Yu-Gang Jiang. Msmdfusion: Fusing lidar and camera at multiple scales with multi-depth seeds for 3d object detection. In 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 21643– 21652, 2023. Bernhard Kerbl, Georgios Kopanas, Thomas Leimk¨ uhler, and George Drettakis. 3d gaussian splat-ting for real-time radiance field rendering. ACM Trans. Graph. , 42(4):139–1, 2023. Jinke Li, Xiao He, Chonghua Zhou, Xiaoqiang Cheng, Yang Wen, and Dan Zhang. Viewformer: Ex-ploring spatiotemporal modeling for multi-view 3d occupancy perception via view-guided trans-formers. In European Conference on Computer Vision , pp. 90–106. Springer, 2025. Yanwei Li, Yilun Chen, Xiaojuan Qi, Zeming Li, Jian Sun, and Jiaya Jia. Unifying voxel-based rep-resentation with transformer for 3d object detection. Advances in Neural Information Processing Systems , 35:18442–18455, 2022a. Yingyan Li, Lue Fan, Yang Liu, Zehao Huang, Yuntao Chen, Naiyan Wang, and Zhaoxiang Zhang. Fully sparse fusion for 3d object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2024. Zhiqi Li, Wenhai Wang, Hongyang Li, Enze Xie, Chonghao Sima, Tong Lu, Yu Qiao, and Jifeng Dai. Bevformer: Learning bird’s-eye-view representation from multi-camera images via spatiotempo-ral transformers. In European conference on computer vision , pp. 1–18. Springer, 2022b. Zhiqi Li, Zhiding Yu, Wenhai Wang, Anima Anandkumar, Tong Lu, and Jose M Alvarez. Fb-bev: Bev representation from forward-backward view transformations. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 6919–6928, 2023. Tingting Liang, Hongwei Xie, Kaicheng Yu, Zhongyu Xia, Zhiwei Lin, Yongtao Wang, Tao Tang, Bing Wang, and Zhi Tang. Bevfusion: A simple and robust lidar-camera fusion framework. 
+
+Advances in Neural Information Processing Systems , 35:10421–10434, 2022. Haisong Liu, Yang Chen, Haiguang Wang, Zetong Yang, Tianyu Li, Jia Zeng, Li Chen, Hongyang Li, and Limin Wang. Fully sparse 3d occupancy prediction. arXiv preprint arXiv:2312.17118 ,2024. Shuai Liu, Quanmin Liang, Zefeng Li, Boyang Li, and Kai Huang. Gaussianfusion: Gaussian-based multi-sensor fusion for end-to-end autonomous driving. arXiv preprint arXiv:2506.00034 , 2025. Yingfei Liu, Junjie Yan, Fan Jia, Shuailin Li, Aqi Gao, Tiancai Wang, and Xiangyu Zhang. Petrv2: A unified framework for 3d perception from multi-camera images. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 3262–3272, 2023a. Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In Proceedings of the IEEE/CVF international conference on computer vision , pp. 10012–10022, 2021. Zhijian Liu, Haotian Tang, Alexander Amini, Xinyu Yang, Huizi Mao, Daniela L Rus, and Song Han. Bevfusion: Multi-task multi-sensor fusion with unified bird’s-eye view representation. In 
+
+2023 IEEE international conference on robotics and automation (ICRA) , pp. 2774–2781. IEEE, 2023b. Ilya Loshchilov and Frank Hutter. Decoupled weight decay regularization. arXiv preprint arXiv:1711.05101 , 2017. Yuhang Lu, Xinge Zhu, Tai Wang, and Yuexin Ma. Octreeocc: Efficient and multi-granularity occupancy prediction using octree queries. arXiv preprint arXiv:2312.03774 , 2023. Junyi Ma, Xieyuanli Chen, Jiawei Huang, Jingyi Xu, Zhen Luo, Jintao Xu, Weihao Gu, Rui Ai, and Hesheng Wang. Cam4docc: Benchmark for camera-only 4d occupancy forecasting in au-tonomous driving applications. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 21486–21495, 2024a. 12 Published as a conference paper at ICLR 2026 Qihang Ma, Xin Tan, Yanyun Qu, Lizhuang Ma, Zhizhong Zhang, and Yuan Xie. Cotr: Compact oc-cupancy transformer for vision-based 3d occupancy prediction. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 19936–19945, 2024b. Ben Mildenhall, Pratul P Srinivasan, Matthew Tancik, Jonathan T Barron, Ravi Ramamoorthi, and Ren Ng. Nerf: Representing scenes as neural radiance fields for view synthesis. Communications of the ACM , 65(1):99–106, 2021. Zhenxing Ming, Julie Stephany Berrio, Mao Shan, and Stewart Worrall. Occfusion: A straightfor-ward and effective multi-sensor fusion framework for 3d occupancy prediction. arXiv e-prints ,pp. arXiv–2403, 2024. Thomas M¨ uller, Alex Evans, Christoph Schied, and Alexander Keller. Instant neural graphics prim-itives with a multiresolution hash encoding. ACM transactions on graphics (TOG) , 41(4):1–15, 2022. Jingyi Pan, Zipeng Wang, and Lin Wang. Co-occ: Coupling explicit feature fusion with volume rendering regularization for multi-modal 3d semantic occupancy prediction. IEEE Robotics and Automation Letters , 2024. Jonah Philion and Sanja Fidler. Lift, splat, shoot: Encoding images from arbitrary camera rigs by implicitly unprojecting to 3d. In Computer Vision–ECCV 2020: 16th European Conference, Glasgow, UK, August 23–28, 2020, Proceedings, Part XIV 16 , pp. 194–210. Springer, 2020. Leslie N Smith. Cyclical learning rates for training neural networks. In 2017 IEEE winter conference on applications of computer vision (WACV) , pp. 464–472. IEEE, 2017. Pei Sun, Henrik Kretzschmar, Xerxes Dotiwalla, Aurelien Chouard, Vijaysai Patnaik, Paul Tsui, James Guo, Yin Zhou, Yuning Chai, Benjamin Caine, et al. Scalability in perception for au-tonomous driving: Waymo open dataset. In Proceedings of the IEEE/CVF conference on com-puter vision and pattern recognition , pp. 2446–2454, 2020. Xiaoyu Tian, Tao Jiang, Longfei Yun, Yucheng Mao, Huitong Yang, Yue Wang, Yilun Wang, and Hang Zhao. Occ3d: A large-scale 3d occupancy prediction benchmark for autonomous driving. 
+
+Advances in Neural Information Processing Systems , 36, 2024. Sourabh Vora, Alex H Lang, Bassam Helou, and Oscar Beijbom. Pointpainting: Sequential fusion for 3d object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 4604–4612, 2020. Haiyang Wang, Hao Tang, Shaoshuai Shi, Aoxue Li, Zhenguo Li, Bernt Schiele, and Liwei Wang. Unitr: A unified and efficient multi-modal transformer for bird’s-eye-view representation. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 6792–6802, 2023a. Shihao Wang, Yingfei Liu, Tiancai Wang, Ying Li, and Xiangyu Zhang. Exploring object-centric temporal modeling for efficient multi-view 3d object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 3621–3631, 2023b. Xiaofeng Wang, Zheng Zhu, Wenbo Xu, Yunpeng Zhang, Yi Wei, Xu Chi, Yun Ye, Dalong Du, Ji-wen Lu, and Xingang Wang. Openoccupancy: A large scale benchmark for surrounding semantic occupancy perception. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 17850–17859, 2023c. Yuqi Wang, Yuntao Chen, Xingyu Liao, Lue Fan, and Zhaoxiang Zhang. Panoocc: Unified occupancy representation for camera-based 3d panoptic segmentation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 17158–17168, 2024a. Zitian Wang, Zehao Huang, Yulu Gao, Naiyan Wang, and Si Liu. Mv2dfusion: Leveraging modality-specific object semantics for multi-modal 3d detection. arXiv preprint arXiv:2408.05945 , 2024b. Yi Wei, Linqing Zhao, Wenzhao Zheng, Zheng Zhu, Jie Zhou, and Jiwen Lu. Surroundocc: Multi-camera 3d occupancy prediction for autonomous driving. In Proceedings of the IEEE/CVF Inter-national Conference on Computer Vision , pp. 21729–21740, 2023. 13 Published as a conference paper at ICLR 2026 Junjie Yan, Yingfei Liu, Jianjian Sun, Fan Jia, Shuailin Li, Tiancai Wang, and Xiangyu Zhang. Cross modal transformer: Towards fast and robust 3d object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 18268–18278, 2023. Zeyu Yang, Jiaqi Chen, Zhenwei Miao, Wei Li, Xiatian Zhu, and Li Zhang. Deepinteraction: 3d object detection via modality interaction. Advances in Neural Information Processing Systems ,35:1992–2005, 2022. Mingqiao Ye, Martin Danelljan, Fisher Yu, and Lei Ke. Gaussian grouping: Segment and edit anything in 3d scenes. In European Conference on Computer Vision , pp. 162–179. Springer, 2025. Junbo Yin, Jianbing Shen, Runnan Chen, Wei Li, Ruigang Yang, Pascal Frossard, and Wenguan Wang. Is-fusion: Instance-scene collaborative fusion for multimodal 3d object detection. arXiv preprint arXiv:2403.15241 , 2024. Hongcheng Zhang, Liu Liang, Pengxin Zeng, Xiao Song, and Zhe Wang. Sparselif: High-performance sparse lidar-camera fusion for 3d object detection. In European Conference on Computer Vision , pp. 109–128. Springer, 2024a. Shuo Zhang, Yupeng Zhai, Jilin Mei, and Yu Hu. Fusionocc: Multi-modal fusion for 3d occupancy prediction. In Proceedings of the 32nd ACM International Conference on Multimedia , pp. 787– 796, 2024b. Xiao Zhao, Bo Chen, Mingyang Sun, Dingkang Yang, Youxing Wang, Xukun Zhang, Mingcheng Li, Dongliang Kou, Xiaoyi Wei, and Lihua Zhang. Hybridocc: Nerf enhanced transformer-based multi-camera 3d occupancy prediction. IEEE Robotics and Automation Letters , 2024a. Xiao Zhao, Xukun Zhang, Dingkang Yang, Mingyang Sun, Mingcheng Li, Shunli Wang, and Lihua Zhang. Maskbev: Towards a unified framework for bev detection and map segmentation. arXiv preprint arXiv:2408.09122 , 2024b. Yin Zhou and Oncel Tuzel. Voxelnet: End-to-end learning for point cloud based 3d object detection. In Proceedings of the IEEE conference on computer vision and pattern recognition , pp. 4490– 4499, 2018. Zhizhuo Zhou and Shubham T. Sparsefusion: Distilling view-conditioned diffusion for 3d recon-struction. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recog-nition , pp. 12588–12597, 2023. Benjin Zhu, Zhengkai Jiang, Xiangxin Zhou, Zeming Li, and Gang Yu. Class-balanced grouping and sampling for point cloud 3d object detection. arXiv preprint arXiv:1908.09492 , 2019. Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiaogang Wang, and Jifeng Dai. Deformable detr: Deformable transformers for end-to-end object detection. arXiv preprint arXiv:2010.04159 , 2020. Sicheng Zuo, Wenzhao Zheng, Yuanhui Huang, Jie Zhou, and Jiwen Lu. Gaussianworld: Gaussian world model for streaming 3d occupancy prediction. arXiv preprint arXiv:2412.10373 , 2024. 14
