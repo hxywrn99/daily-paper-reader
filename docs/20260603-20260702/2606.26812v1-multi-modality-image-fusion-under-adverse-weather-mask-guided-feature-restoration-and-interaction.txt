@@ -1,0 +1,454 @@
+Title: Multi-modality Image Fusion under Adverse Weather: Mask-Guided Feature Restoration and Interaction
+
+URL Source: https://arxiv.org/pdf/2606.26812v1
+
+Published Time: Fri, 26 Jun 2026 00:46:21 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+# Multi-modality Image Fusion under Adverse Weather: Mask-Guided Feature Restoration and Interaction 
+
+Xilai Li 1, Xiaosong Li 1,†, Haishu Tan 1, Tao Ye 2, Huafeng Li 3, and Hongbin Wang 3 
+
+> 1
+
+Foshan University, Foshan, China 
+
+20210300236@stu.fosu.edu.cn , lixiaosong@buaa.edu.cn  
+
+> 2
+
+China University of Mining and Technology, Beijing, China  
+
+> 3
+
+Kunming University of Science and Technology, Kunming, China 
+
+Abstract. Multi-modality image fusion (MMIF) enhances scene rep-resentation by exploiting complementary cues from different modalities. Adverse weather, however, causes significant image degradation, disrupt-ing feature representation and requiring simultaneous feature restora-tion and cross-modal complementarity. Existing methods often strug-gle with effective representation learning under such conditions, limiting their practical performance. To address these challenges, we propose a mask-guided MMIF method that integrates feature restoration and inter-action. We first introduce "Pseudo Ground Truth" to simplify training, promoting faster and more effective feature learning. Then, we design a mask generation mechanism based on the mapping relationship between the fused result and the source images, quantifying the relative con-tribution of each modality during the fusion process. By incorporating the proposed mask-guided cross-modal cross-attention mechanism, the network is encouraged to selectively attend to informative features dur-ing modality interaction, mitigating the risk of overfitting to the static distribution of the "Pseudo Ground Truth". Additionally, we propose a mask-guided learning strategy and a task-coupled degradation-aware learning strategy to balance feature restoration and interaction. Exten-sive experiments on synthetic and real-world datasets demonstrate that our method surpasses state-of-the-art approaches in visual quality, quan-titative metrics, and downstream tasks. The source code is available at https://github.com/ixilai/AMG-Fuse. 
+
+Keywords: Image fusion · Adverse weather · Feature restoration · Fea-ture interaction 
+
+1 Introduction 
+
+Multi-modality image fusion (MMIF) [8, 22, 23, 36, 44, 45] combines complemen-tary information from multiple modalities to produce richer scene representa-tions. For instance, in infrared and visible image fusion (IVIF), visible images  
+
+> †
+
+Corresponding author. 
+
+> arXiv:2606.26812v1 [cs.CV] 25 Jun 2026
+
+2 X. Li et al. Source Images         
+
+> Supervised by Clean Source Images
+> Supervised by “Pseudo Ground Truth ”
+> Color Distortion
+> Epoch = 30 Epoch = 50 Epoch = 70 Epoch = 100
+> Infrared Image
+> Visible Image
+> Infrared Image
+> Visible Image
+
+Fig. 1: Comparison of optimization behavior under clean-source-image and "Pseudo Ground Truth" supervision. 
+
+capture texture details critical for semantic interpretation, while infrared im-ages highlight salient targets via thermal radiation [46]. By integrating these modalities, IVIF enhances downstream tasks like object detection [34], semantic segmentation [25], and depth estimation [27]. Existing studies [12, 13, 47] have extensively investigated IVIF architectures, mainly focusing on ideal scenarios. Given a pair of registered infrared ( IR ) and visible ( V I ) images, the fusion task typically generates fused outputs by minimiz-ing an L1-norm-based loss function. The optimization objective for conventional IVIF can be expressed as: 
+
+θ∗ = arg min  
+
+> θ
+
+(λ1 ∥f (V I, IR ; θ) − V I ∥1 + λ2 ∥f (V I, IR ; θ) − IR ∥1) (1) Here, f (·) represents the fusion network, θ denotes the network parameters, and 
+
+λ1, λ2 are weights balancing the contributions of both modalities. This objective enables the network to extract meaningful information from multiple modalities effectively. Some methods [12, 46] augment this with additional loss functions to further optimize fusion performance. However, real-world complexities like noise [6, 14], adverse weather [18], and motion blur [2] pose significant challenges to IVIF adaptability. Recent works [18,31,43] addressing these conditions can be categorized into two types. The first follows a “restoration + fusion” paradigm, where each modality is first processed by a restoration network before being input into a fusion network. Nevertheless, this two-stage design introduces several issues: (1) Restoration focuses on intra-modal recovery, while fusion targets inter-modal complementarity, leading to unstable optimization. (2) Error accumulation: Artifacts from the restoration stage may propagate into the fusion process, amplifying degraded features and impairing reconstruction. To address these issues, some studies [9, 26, 30, 38, 40] adopt a second strat-egy by using "Pseudo Ground Truth" as supervision. Specifically, the "Pseudo Ground Truth" refers to fusion results obtained by existing methods using clean 
+
+V I and IR images as supervision targets. The optimization objective of this Multi-modality Image Fusion under Adverse Weather 3Infrared Image    
+
+> Visible Image
+> Infrared Image
+> Visible Image
+> Constrained by “Pseudo Ground Truth ”Constrained by Clean Source Images Source Images
+
+Fig. 2: Visualization of modality bias caused by "Pseudo Ground Truth" supervision in clean scenes. 
+
+second strategy can be formulated as follows: 
+
+θ∗ = arg min  
+
+> θ
+
+∥f (V I, IR ; θ) − GT Pse ∥1 (2) where GT Pse denotes the "Pseudo Ground Truth". As shown in Figure 1, source-image supervision makes the network struggle with joint feature extraction and degradation removal, often leaving rain streaks and color distortions. In contrast, “Pseudo Ground Truth” supervision simplifies optimization and helps preserve global structures and fine details. However, although this approach reduces optimization complexity, it cannot fully resolve fusion challenges in complex scenarios, since “Pseudo Ground Truth” generated from clean images by existing methods still carries information loss and modality bias. Moreover, networks trained with “Pseudo Ground Truth” may overlook complementary multi-modal cues, weakening generalization. As shown in Figure 2, such models underutilize infrared thermal information in clean scenes, causing the loss of critical target regions. This highlights a key limitation: the strategy fits static distributions of pseudo targets rather than learning the dynamic mechanisms of IVIF. This raises a crucial question: Can we harness the advantages of "Pseudo Ground Truth" while enabling the network to dynamically mine cross-modal information and remain degradation-aware? 
+
+To address these issues, we propose a mask-guided adverse-weather image fusion framework (AMG-Fuse). We first analyze the relationship between source images and fusion results and derive a mask representation to decouple modality-specific components in the fused image. This mask separates multi-modal fea-tures in the “Pseudo Ground Truth” and serves as an external prior for ex-plicit cross-modal interaction modeling during training, encouraging the net-work to learn a dynamic fusion process. We further design a Mask-Guided Feature Extraction Module (MFEM) that uses the mask to restore degraded features and enhance cross-modal interaction. During training, the proposed Mask-Guided Learning Strategy (MGLS) and Task-Coupled Degradation-Aware Learning Strategy (TDAS) collaboratively supervise the fusion network, facili-tating the learning of clearer and more complementary feature representations. Our main contributions are as follows: 4 X. Li et al. 
+
+– We propose a unified multi-modality image fusion method for complex sce-narios, enabling simultaneous feature restoration and modality interaction within a unified network. 
+
+– We propose a mask-guided feature extraction module that effectively reconstructs the fusion features. Additionally, we design a mask-guided net-work learning strategy to address the lack of dynamic cross-modal interaction modeling. 
+
+– We propose a task-coupled degradation-aware learning strategy that leverages the restoration task as a meaningful supervisory signal to enhance degradation perception and guide the feature fusion process. 
+
+– We conduct extensive experiments under three adverse weather conditions to validate the effectiveness of the proposed method, and demonstrate its potential for real-world applications through downstream tasks. 
+
+2 Related Works 
+
+2.1 Learning based IVIF Methods 
+
+Recent advances in deep learning have greatly promoted IVIF algorithms [3, 28, 48]. Existing studies under ideal conditions mainly focus on cross-modal informa-tion interaction [12,21,28,46], unified fusion framework design [4,19,37,49], and task-driven optimization [1, 20, 32, 35, 39]. Cross-modal interaction typically uses feature extractors, such as convolution or self-attention, to distinguish shared and modality-specific cues for effective fusion. For example, Zhao et al. [46] designed a correlation-driven dual-branch Transformer-CNN to separate global and local features and preserve salient details. With larger datasets and stronger computation, unified and downstream-oriented fusion frameworks have received increasing attention, such as Wu et al. [35] distilling the Segment Anything Model into the fusion network. 
+
+2.2 IVIF Methods for Complex Scenes 
+
+The complexity of real-world environments presents great challenges for IVIF algorithms in practical applications. Beyond fusion tasks in ideal conditions, researchers [10,15–18] have shifted their focus to image fusion in complex condi-tions such as noise, overexposure, and adverse weather. The primary challenge in complex scenes is not only achieving cross-modal interaction, but also accurately distinguishing useful features from degradations and ensuring effective restora-tion. For example, Yi et al. [41] proposed a degradation-aware interactive fusion algorithm guided by semantic text, using textual information as an external prior to help the network focus on existing degradations. Li et al. [18] combined phys-ical models and introduced an all-weather IVIF algorithm, incorporating various priors into the student model through distillation learning. Although the above methods [18, 31, 41] have advanced fusion research in complex scenarios, they mainly focus on feature restoration and do not sufficiently explore the paradigm gap between complex and ideal fusion. Multi-modality Image Fusion under Adverse Weather 5Matrix Multiplication    
+
+> Element -wise Multiplication
+> C
+> Element -wise Addition
+> Concatenation
+> GAP Global Average Pooling
+> HTB Histogram Transformer Block
+> DWConv Depth -Wise Convolution
+
+MFEM: Mask Guided Feature Extraction Module  
+
+> RSB
+> Conv Conv
+> RSB
+> VI
+> IR
+> Fuse
+> RSB HTB RSB
+> VI
+> IR
+> Fuse
+> MFEM
+> Fused Image
+> VI IR
+> MCCA
+> (Mask Guided Cross -Modal
+> Cross -Attention )
+
+Fuse IR 
+
+Mask VI IR Fuse 
+
+−
+
+= − +Fuse IR 
+
+Mask VI IR Fuse 
+
+−
+
+= − +
+
+> Mask Generation
+
+MCCA: Mask Guided Cross -Modal C ross -Attention 
+
+> QVI
+> QIR
+> Multi Heads
+> Multi Heads
+> C
+> Sigmoid Sigmoid
+> GAP
+> Sigmoid
+> RSB
+> Split VI
+
+IR 
+
+                
+
+> DWConv
+> DWConv
+> IR
+> Mask
+> VI
+> Fuse KV
+> IR
+> VI
+> Fuse
+> Mask Generation
+> Mask Generation Fuse IR
+> Mask VI IR Fuse
+> −
+> =−+Fuse IR
+> Mask VI IR Fuse
+> −
+> =−+
+> VI_Deg
+> Loss
+> RSB: Residual Block
+> Conv
+> ReLU
+> Conv
+
+MGLS: Mask -Guided Learning Strategy 
+
+TDAS               
+
+> MGLS Mask -Guided Learning Strategy
+> TDAS Task -Coupled Degradation -Aware
+> Learning Strategy
+> IR_Deg
+> Fused Image
+> VI (Clean)
+> IR (Clean)
+> Pseudo Ground Truth
+> Already trained on clean
+> multi -modal images
+> Mask
+> Visible Image
+> (VI )
+> Infrared Image
+> (IR )
+> Fused Image Fuse IR
+> Mask VI IR Fuse
+> −
+> =−+Fuse IR
+> Mask VI IR Fuse
+> −
+> =−+
+> Mask_Deg N
+> VI VI IR IR
+> VI_F VI_F
+
+Fig. 3: The flowchart of the proposed method. 
+
+3 Proposed Method 
+
+The workflow of the proposed algorithm is illustrated in Figure 3. First, con-volutional and residual blocks are employed to enhance the feature representa-tion of the input image. The extracted multi-modal features are then combined to generate initial fused features. Subsequently, residual blocks further refine modality-specific features, while the fused features are processed by the His-togram Transformer Block (HTB) [29] to extract prominent information. HTB segments spatial features according to pixel intensity and applies self-attention to different intensity ranges, enabling it to capture similar degradation patterns across long spatial distances [29]. Finally, the multi-modal and fused features are jointly refined by the Mask-Guided Cross-Modal Cross-Attention (MCCA) module to produce the final fused image. 
+
+3.1 Mask Construction from Fusion Formulation 
+
+Although the introduction of "Pseudo Ground Truth" can ease the training process, it may also lead the network to directly replicate its features rather than learning the underlying modality allocation knowledge it conveys. To overcome this limitation, we decouple it by introducing the Mask. The core objective of the IVIF task is to suppress cross-modal redundancy and effectively extract complementary information. Disregarding feature enhancement and reduction, the fusion result ( F use ) can be expressed as: 
+
+F use = M × V I + (1 − M ) × IR + ε (3) Here, M denotes the mask for modality-specific weight allocation, and ε repre-sents the error and noise term. Given that F use , V I , and IR are known, the 6 X. Li et al. Mask Fused Image            
+
+> Infrared Image
+> Visible Image
+> Mask = (Fuse -IR ) / (VI
+> –IR + Fuse )
+> Visible Feature
+> Infrared Feature
+> Visible Feature = M × VI
+> Infrared Feature = (1-M)×IR
+
+Fig. 4: Visualization of Modality-Contribution Mask and Feature Decomposition. 
+
+expression for M can be derived as: 
+
+M = F use − IR V I − IR + εM (4) In real-world scenarios, directly subtracting infrared images from visible images can lead to misleading or unstable behaviour. Under haze or snow, visible im-ages often exhibit excessive or locally overexposed brightness, whereas infrared images show reduced contrast and lower pixel values. After network optimisation and degradation removal, the fused output enhances the structural and target information from the infrared component, resulting in a more stable ( F use −IR )distribution that better reflects the true scene brightness. However, because the brightness bias in the denominator of Equation 4 is driven by degradation factors from the visible image rather than semantic content, degraded information dom-inates the weighting, violating the decoupling principle of mask and preventing it from capturing the actual modal distribution. Conversely, in night-time scenes, visible images contain minimal effective texture due to insufficient illumination, while infrared images remain relatively stable and may present stronger bright-ness cues. This causes ( V I − IR ) to be negative or near zero over large regions, making Equation 4 numerically unstable when generating the mask. To address this issue, we rewrite the expression of M as follows: 
+
+M = F use − IR V I − IR + F use + εM (5) Incorporating the F use information into the denominator effectively prevents the brightness bias of the visible image from erroneously amplifying the mask and avoids extreme numerical instability in the denominator. Finally, with M ,we can then access the representation of different fusion algorithms for different modal information. As illustrated in Figure 4, we visualize the constructed mask and the decoupled multi-modal features. By guiding the network to learn the distribution pattern of multi-modal information in the "Pseudo Ground Truth", our method dynamically models the contribution of each modality, avoiding superficial fitting to the overall scene. Multi-modality Image Fusion under Adverse Weather 7
+
+3.2 Mask Guided Feature Extraction Module 
+
+Training directly on pseudo targets can lead the network to replicate their in-herent biases, emphasizing superficial feature reproduction over effective cross-modal interactions. To address this, we propose the Mask-Guided Feature Ex-traction Module (MFEM). The MFEM is designed based on Equation 3 and Equation 5. Firstly, multi-modality features are fed into the Residual Block (RSB), while the fused features are passed to the Histogram Transformer Block (HTB) for optimization. The re-sulting outputs are then used to compute the mask M . The MCCA module is proposed to enable the network to learn the multi-modal interaction patterns of the "Pseudo Ground Truth". The MCCA employs a cross-attention mecha-nism, where multi-modal features serve as queries guided by the mask, while the fused features act as keys and values. To improve local information modeling, depthwise separable convolutions are introduced in both the query and key-value branches to expand the local receptive field. The mask is then used to weight the queries QV I and QIR , guiding the network to focus on the significant features in each modality. This enables decoupling and recombination of multi-modal features within the fusion space. 
+
+3.3 Mask Guided Learning Strategy 
+
+To better leverage "Pseudo Ground Truth" for learning multi-modal interaction features, we propose a Mask Guided Learning Strategy (MGLS). Specifically, the mask MPse is computed based on the "Pseudo Ground Truth" ( GT Pse ) and the clean multi-modality source images V I C and IR C, as shown in Equation 5. This mask is then used to decouple the multi-modality features FV I and FIR in the "Pseudo Ground Truth". 
+
+FV I = MPse × V I C, FIR = (1 − MPse ) × IR C (6) Here,  FV I  and  FIR  are the modality allocation maps in  GT Pse . Then, we compute the L1 loss for the corresponding multi-modal features to constrain the network in learning the multi-modal information distribution pattern in the "Pseudo Ground Truth". Given the network output the multi-modal features as  ˆFV I  and 
+
+ˆFIR , the proposed MGLS loss ( LM GLS  ) is computed as follows: 
+
+LM GLS = 1
+
+HW 
+
+
+
+∥ ˆFV I − FV I ∥1 + ∥ ˆFIR − FIR ∥1
+
+
+
+(7) where H and W represent the height and width of the image respectively. 
+
+3.4 Task-Coupled Degradation-Aware Learning Strategy 
+
+Equation 3 defines the synthesis paradigm of conventional image fusion. There-fore, after determining the mask, the allocation strategies of the existing methods for different modal information can be indirectly obtained. In complex scenes, 8 X. Li et al. Masks Fused Image ( In Clean )Visible Images Infrared Images Visible Image × Mask 
+
+Fig. 5: Visualization of Mask-Guided Degradation Suppression in Visible Feature Reweighting. 
+
+the two input images ( V I Deg and IR Deg ) are often degraded. At this point, the goal of the fusion network is to output a clear fusion result that contains complementary multi-modal features. This process can be modeled analogously using Equation 3. 
+
+F use = MDeg × V I Deg + (1 − MDeg ) × IR Deg + ε (8) Since F use is a non-degraded image, the visible modal information obtained by 
+
+MDeg × V I Deg in Equation 8 should be degradation-free. Thus, the mask can effectively capture the distribution of the degraded area. This is demonstrated in Figure 5, which shows that most of the rain streaks have been successfully suppressed or removed. Based on the above observation results, we propose the Task-Coupled Degradation-Aware Learning Strategy (TDAS), aiming to guide the fusion network to prioritize processing clearer and more prominent regions. For the restoration task, when the input image is degradation-free, the restora-tion network tends to generate an output that closely resembles the original image. Therefore, we define the TDAS loss as follows: 
+
+LTDAS = 1
+
+H × W ∥V I F − R (V I F )∥1 (9) where R(·) represents the restoration model [42], and V I F = MDeg × V I Deg .When V I F is similar enough to the output R(V I F ) of the restoration network, it means that the fusion network has effectively restored the clear features. 
+
+3.5 Loss Functions 
+
+During training, in addition to MGLS and TDAS, source image supervision is further introduced to enhance the ability of the model to capture multi-modal distributions by imposing constraints on the fusion output. Specifically, we adopt a gradient loss and a color consistency loss to preserve structural details and color distribution consistency, respectively. The gradient loss is defined as follows: 
+
+Lgrad = 1
+
+H × W ∥∇ F use − max ( |∇ V I C |, |∇ IR C |)∥1 (10) Multi-modality Image Fusion under Adverse Weather 9
+
+The color consistency loss [41] is expressed as follows, 
+
+Lcolor = 1
+
+H × W ∥FCbCr (F use ) − FCbCr (V I C )∥1 (11) where FCbCr represents the function of transferring the image space to the CbCr color space. The total loss function is expressed as follows, 
+
+Ltotal = λ × L MGLS + LTDAS + Lcolor + Lgrad  (12) where λ is the decay coefficient, which gradually decreases as the number of training epochs increases. All loss terms except LMGLS are assigned a weight of 1, ensuring balanced contributions from gradient and color consistency constraints without requiring careful hyperparameter tuning. 
+
+4 Experiments 
+
+4.1 Experimental Setups Datasets: Our experiments are conducted in two scenarios: adverse weather and ideal environments. For the adverse weather experiments, we selected 1,000 images from each of the three distinct weather conditions (Snow, Rain, Haze) in the AWMM-100k dataset [18] for training, and 150 images for testing. In addition, we evaluated our method on real degraded images from AWMM-100k to further validate its performance under authentic degradation. For the ideal environment experiments, we utilized three public datasets: M3FD [20], MSRS [33], and LLVIP [7]. 
+
+Comparative Methods: We adopted the "restoration + fusion" scheme for performance comparison. The adaptive image restoration network (AdaIR) [5] was employed as the restoration module and retrained on the AWMM-100k dataset. The fusion methods include LRRNet [11], Text-DiFuse [43], EMMA [47], Text-IF [41], GIFNet [4], SAGE [35], and AWFusion [18]. Among these, only Text-DiFuse, Text-IF and AWFusion are specifically designed for complex scenes. However, as Text-DiFuse and Text-IF lack the capability to handle adverse weather conditions, they are categorized as standard fusion methods. 
+
+Metrics: We evaluated the performance of different image fusion methods from multiple perspectives using five types of metrics: (1) Information Theory-Based: Normalized Mutual Information ( QM I ); (2) Feature-Based: Gradient-Based Fusion Performance ( QG) and Multiscale Image Fusion Metric ( QM ); (3) Structural Similarity-Based: Structural Similarity Index Measure ( SSIM ); (4) Human Perception Inspired: Chen-Blum Metric ( QCB ) and Visual Information Fidelity ( V IF ); and (5) Other Comprehensive Metrics: Normalized Weighted Performance Metric ( QAB/F ) [24]. For all metrics, a higher value indicates better image quality. 
+
+Training details: During the training process, we randomly cropped images from the AWMM-100k training set into 168 × 168 patches and trained the model for 200 epochs. The Adam optimizer was used with an initial learning rate of 10 X. Li et al. Visible Image (Snow) Infrared Image (Clean) AdaIR ( Snow Removed ) LRRNet                                         
+
+> Text -DiFuse EMMA Text -IF GIFNet SAGE
+> Visible Image (Clean)
+> Visible Image (Snow) Infrared Image (Degraded) AWFusion AMG -Fuse (In Clean)
+> Input Images
+> AMG -Fuse
+> Input Images
+> Visible Image (Clean) Visible Image (Rain) Infrared Image (Clean) AdaIR (Rain Removed )LRRNet
+> Text -DiFuse EMMA Text -IF GIFNet SAGE
+> Visible Image (Rain) Infrared Image (Degraded) AWFusion AMG -Fuse AMG -Fuse (In Clean)
+> Visible Image (Clean)
+> Infrared Image (Degraded)
+> Visible Image (Haze) AdaIR (Haze Removed )Infrared Image (Clean) LRRNet
+> Text -DiFuse EMMA Text -IF GIFNet
+> Visible Image (Haze) AWFusion
+> SAGE
+> AMG -Fuse AMG -Fuse (In Clean)
+> Input Images
+> Input Images
+> Input Images
+> Input Images
+> Text -DiFuse GIFNet SAGE AMG -Fuse
+> Source Images
+> Source Images
+> Text -DiFuse GIFNet SAGE AMG -Fuse
+> Source Images Text -DiFuse GIFNet SAGE AMG -Fuse
+> Fusion in Snow Fusion in Rain
+> Fusion in Haze Fusion in Clean
+
+Fig. 6: Qualitative comparison results of all methods in the four scenarios. 
+
+1×10 −3 and a batch size of 2. All the experiments were conducted in the PyTorch 2.1.1 environment, and the server was equipped with four GeForce RTX 3090 GPUs. 
+
+4.2 Qualitative Comparison 
+
+Figure 6 presents fusion results under three types of adverse weather conditions. For most fusion methods, the visible input is first restored by AdaIR before fusion. AMG-Fuse (In Clean) represents the fusion result obtained using clean source images as input, serving as an upper-bound reference. 
+
+Snow Weather: While AdaIR effectively removes snow interference, it causes significant detail loss, resulting in blurred output for LRRNet, Text-IF, and SAGE. In contrast, our method (AMG-Fuse) effectively eliminates degradation artifacts, preserves key details, and fully exploits the complementary information between modalities. 
+
+Rain Weather: AdaIR removes rain streaks but oversmooths textures, lead-ing to diminished scene details. LRRNet and GIFNet fail to sufficiently highlight infrared cues, while EMMA, Text-IF, and SAGE enhance occluded visible tar-gets but fail to capture fine infrared textures. AMG-Fuse, however, maintains a strong balance between multi-modal interaction and subtle visible details. 
+
+Haze Weather: Haze introduces depth-dependent degradation, complicat-ing feature extraction. LRRNet, Text-DiFuse, and SAGE exhibit significant con-trast loss, while EMMA and Text-IF produce outputs that diverge from per-ceptual expectations. AWFusion introduces color distortions, further degrading visual fidelity. In contrast, AMG-Fuse effectively suppresses haze artifacts, gen-erating visually natural and structurally rich fused images. Multi-modality Image Fusion under Adverse Weather 11 
+
+Table 1: Quantitative comparison of all methods in three adverse weather scenarios. The marked red indicates the best score and the marked green indicates the second-best score.                                                                                                                                                                                                                  
+
+> Source Methods Pub. Restoration QM I ↑QG↑QM↑V IF ↑QCB ↑SSIM ↑QAB/F ↑
+> Snow LRRNet PAMI 23 AdaIR 0.4403 0.2849 0.3779 0.2588 0.3661 0.1566 0.3970 Text-DiFuse NeurIPS 24 0.4087 0.3047 0.3633 0.2433 0.4264 0.2821 0.4130 EMMA CVPR 24 0.5335 0.4235 0.5353 0.3252 0.5011 0.4096 0.5470 Text-IF CVPR 24 0.4399 0.4199 0.5942 0.3300 0.4929 0.4298 0.5419 GIFNet CVPR 25 0.3388 0.3282 0.3305 0.2732 0.4854 0.3722 0.3882 SAGE CVPR 25 0.4693 0.3149 0.4752 0.3819 0.4421 0.3474 0.4585 AWFusion INFFus 26 ×0.4668 0.3552 0.5535 0.3024 0.4798 0.3734 0.4937
+> AMG-Fuse –0.4960 0.4240 0.6408 0.3463 0.5062 0.4302 0.5519 Rain LRRNet PAMI 23 AdaIR 0.4002 0.2306 0.4119 0.2287 0.3335 0.0453 0.3334 Text-DiFuse NeurIPS 24 0.3546 0.2442 0.3645 0.2320 0.3909 0.1962 0.3329 EMMA CVPR 24 0.4536 0.3745 0.5871 0.3384 0.4785 0.3700 0.4866 Text-IF CVPR 24 0.3717 0.4085 0.6375 0.3489 0.4824 0.4046 0.5149 GIFNet CVPR 25 0.2886 0.2975 0.3686 0.3091 0.4834 0.3474 0.3544 SAGE CVPR 25 0.3994 0.2286 0.5086 0.3478 0.3964 0.2734 0.3670 AWFusion INFFus 26 ×0.3509 0.3334 0.6428 0.2997 0.4691 0.3528 0.4618
+> AMG-Fuse –0.4084 0.4163 0.6940 0.3582 0.4879 0.4080 0.5184 Haze LRRNet PAMI 23 AdaIR 0.2411 0.3044 0.3531 0.2496 0.4306 0.2031 0.3701 Text-DiFuse NeurIPS 24 0.2304 0.3137 0.3463 0.2234 0.4391 0.3035 0.4021 EMMA CVPR 24 0.2345 0.3553 0.4149 0.2559 0.4567 0.3296 0.4617 Text-IF CVPR 24 0.2312 0.3999 0.4418 0.2779 0.4646 0.3443 0.4883 GIFNet CVPR 25 0.2451 0.3124 0.3181 0.2401 0.4784 0.3463 0.3478 SAGE CVPR 25 0.2312 0.3416 0.3948 0.2850 0.4553 0.3316 0.4336 AWFusion INFFus 26 ×0.2639 0.4283 0.5471 0.3433 0.4610 0.3901 0.5322
+> AMG-Fuse –0.3096 0.4376 0.5438 0.3445 0.4864 0.4083 0.5414
+
+Fusion in Clean Scene As shown in Figure 6, we compare AMG-Fuse with three representative fusion methods in clean environments. Despite being de-signed for degraded scenarios, AMG-Fuse demonstrates robust multi-modality feature extraction and produces competitive results in ideal conditions, show-casing its adaptability and generalization capability. 
+
+4.3 Quantitative Comparison 
+
+Table 1 presents the quantitative results of AMG-Fuse and competing methods under the three adverse weather conditions. AMG-Fuse consistently ranks in the top two across all metrics and scenarios, outperforming other methods in sev-eral key metrics. Specifically, AMG-Fuse improves 3.67%, 3.86% and 3.56% over the sub-optimal method in snow, rain, and haze scenes, respectively. To further validate the applicability of the proposed algorithm on real-world data, we con-ducted experiments on the real haze dataset, with quantitative results shown in Table 2. The proposed method achieves top-two scores across all metrics, demonstrating the effectiveness of the mask-guided learning strategy. 
+
+4.4 Ablation Studies Analysis of Task-Coupled Degradation-Aware Learning Strategy: As shown in Figure 7(a) and Table 3, removing TDAS (AMG-Fuse w/o TDAS) clearly degrades the fusion performance, especially under severe degradation 12 X. Li et al. 
+
+Table 2: Quantitative comparison of all methods in real-world scenarios. The marked red indicates the best score and the marked green indicates the second-best score. 
+
+Methods Pub. QM I ↑ QG ↑ QM ↑ V IF ↑ QCB ↑ SSIM ↑ QAB/F ↑
+
+LRRNet PAMI 23 0.5429 0.3944 0.9170 0.4079 0.4694 0.4174 0.4773 Text-DiFuse NeurIPS 24 0.5174 0.3325 0.9384 0.3850 0.4108 0.3848 0.4657 EMMA CVPR 24 0.5497 0.3884 0.8056 0.3264 0.4470 0.4342 0.5301 Text-IF CVPR 24 0.5258 0.5748 1.0852 0.3566 0.4936 0.4972 0.6800 GIFNet CVPR 25 0.5085 0.3673 0.8833 0.3021 0.4250 0.4489 0.4605 SAGE CVPR 25 0.5200 0.4786 1.0538 0.3647 0.4298 0.4816 0.5314 AWFusion INFFus 26 0.5032 0.4547 1.0028 0.3523 0.4649 0.5036 0.5860 
+
+AMG-Fuse – 0.7234 0.5114 1.1022 0.4373 0.4786 0.5202 0.5957 (a) Analysis of Task -Coupled Degradation -Aware Learning Strategy (b) Ablation Analysis of Mask Guided Learning Strategy        
+
+> (c) Ablation Analysis of Mask Guided Cross -Modal Cross -Attention.
+> AMG -Fuse (w/o TDAS) Source Images AMG -Fuse AMG -Fuse (w/o MGLS) Source Images AMG -Fuse
+> AMG -Fuse (w/o MCCA) Source Images AMG -Fuse AMG -Fuse (w/o MCCA) Source Images AMG -Fuse
+
+Fig. 7: Visual analysis of ablation studies: (a) TDAS component ablation; (b) MGLS component ablation; (c) MCCA component ablation. 
+
+where structural details are difficult to recover. Without the task-coupled degradation-aware constraint, the network relies mainly on multimodal feature extraction and lacks explicit guidance from the restoration model to preserve clean image characteristics. Consequently, the fused results show weakened structures and lower perceptual quality. The decline across all metrics further demonstrates the importance of TDAS in improving robustness against degraded visible inputs. 
+
+Analysis of Mask Guided Learning Strategy: As shown in Figure 7(b), removing MGLS (AMG-Fuse w/o MGLS) makes the fusion network depend more heavily on the static pixel distribution of the “Pseudo Ground Truth”. Without mask-guided learning, the model lacks sufficient guidance for adaptive modal-ity assignment in degraded regions, resulting in reduced flexibility in complex scenes. The quantitative results in Table 3 further support this observation. Al-though the drops in human-vision-related metrics such as V IF and QCB are relatively moderate, structure-sensitive metrics such as QG and QM decrease more obviously, with an average metric drop of 3.34%. Multi-modality Image Fusion under Adverse Weather 13 
+
+Table 3: Ablation studies of the proposed components in three adverse weather sce-narios. The cells highlighted in red denote the best results.                                                             
+
+> Source Methods QM I ↑QG↑QM↑V IF ↑QCB ↑SSIM ↑QAB/F ↑
+> Snow w/o TDAS 0.4620 0.3951 0.5097 0.3268 0.4878 0.3961 0.5012
+> AMG-Fuse 0.4960 0.4240 0.6408 0.3463 0.5062 0.4302 0.5519 Rain w/o MGLS 0.3919 0.3910 0.6782 0.3531 0.4762 0.3928 0.4982
+> AMG-Fuse 0.4084 0.4163 0.6940 0.3582 0.4879 0.4080 0.5184 Haze w/o MCCA 0.2803 0.4178 0.5012 0.3184 0.4587 0.3616 0.5217
+> AMG-Fuse 0.3096 0.4376 0.5438 0.3445 0.4864 0.4083 0.5414
+
+Table 4: Detection accuracy (mAP) comparison on the M3FD dataset. The marked red indicates the best score and the marked green indicates the second-best score.                                                                                  
+
+> Methods Pub. People Car Bus Lamp Motor Truck mAP@0.5 mAP@0.5:0.95
+> LRRNet PAMI 23 0.785 0.909 0.912 0.764 0.721 0.808 0.817 0.484 Text-DiFuse NeurIPS 24 0.790 0.910 0.927 0.793 0.690 0.795 0.817 0.520 EMMA CVPR 24 0.784 0.904 0.890 0.722 0.690 0.780 0.795 0.501 Text-IF CVPR 24 0.812 0.920 0.923 0.806 0.744 0.811 0.836 0.535 GIFNet CVPR 25 0.806 0.906 0.919 0.777 0.671 0.779 0.810 0.506 SAGE CVPR 25 0.814 0.919 0.921 0.815 0.698 0.830 0.833 0.534 AWFusion INFFus 26 0.791 0.922 0.931 0.804 0.726 0.821 0.832 0.534
+> AMG-Fuse –0.837 0.931 0.934 0.816 0.728 0.813 0.843 0.541
+
+Analysis of Mask Guided Cross-Modal Cross-Attention: As shown in Figure 7(c), removing MCCA (AMG-Fuse w/o MCCA) weakens cross-modal interaction and turns the network into a more unidirectional recovery struc-ture. This limits the complementary information exchange between infrared and visible modalities, leading to inferior detail restoration and degraded-region re-covery. Consistently, Table 3 shows that all metrics decrease after removing MCCA, with an average performance drop of about 6.9%. These results verify that MCCA is essential for enhancing multi-modal synergy and improving the overall fusion quality of AMG-Fuse. 
+
+4.5 Downstream Task Experiment 
+
+To assess the practicality of AMG-Fuse in downstream tasks, we conduct ob-ject detection on the M3FD dataset using YOLOv7 [34]. As shown in Table 4, our method ranks among the top two in five of six categories and achieves the best mAP@0.5 and mAP@[0.5:0.95]. Figure 8 further demonstrates that our re-sults offer higher accuracy in object detection. Overall, AMG-Fuse improves the usefulness of fused images for downstream tasks. 
+
+4.6 The Discussion and Generation of “Pseudo Ground Truth” 
+
+“Pseudo Ground Truth” is introduced as a guidance signal to help the model learn modality allocation. Two concerns naturally arise: (1) whether it may limit the performance upper bound of the proposed method, and (2) whether it may introduce modality bias into the fusion process. To clarify these issues, we provide the following analysis: 14 X. Li et al. Visible Image Infrared Image LRRNet Text -DiFuse EMMA            
+
+> Text -IF GIFNet SAGE AWFusion AMG -Fuse
+> Error
+> Traffic Light 0.63 Traffic Light 0.61 Traffic Light 0.68 Traffic Light 0.63
+> Traffic Light 0.62 Traffic Light 0.52 Traffic Light 0.59 Traffic Light 0.60 Traffic Light 0.74
+
+Fig. 8: Qualitative comparison of all methods on object detection tasks. 
+
+Table 5: Quantitative comparison between the proposed method and the “Pseudo Ground Truth” generator EMMA on three datasets.                                                                    
+
+> Source Methods Pub. QM I ↑QG↑QM↑V IF ↑QCB ↑SSIM ↑QAB/F ↑
+> MSRS EMMA CVPR 24 0.6697 0.5624 0.7291 0.4165 0.5394 0.4746 0.6500
+> AMG-Fuse –0.7594 0.5952 1.5051 0.4706 0.5809 0.5044 0.6749 M3FD EMMA CVPR 24 0.5646 0.4827 0.5595 0.3829 0.4880 0.4787 0.6032
+> AMG-Fuse –0.7010 0.5376 1.2994 0.4713 0.4979 0.5069 0.6384 LLVIP EMMA CVPR 24 0.4437 0.5005 0.2314 0.3301 0.4559 0.4339 0.5969
+> AMG-Fuse –0.4684 0.6228 0.7938 0.3952 0.4479 0.4574 0.6907
+
+– The proposed method does not depend on “Pseudo Ground Truth” alone. It is used as a soft guidance signal, while clean source images provide the main supervision for learning modality allocation. 
+
+– “Pseudo Ground Truth” is generated from clean images and thus preserves more reliable structure and texture than weather-degraded inputs. Even with potential bias, it mainly helps stabilize early training rather than limiting the final performance. 
+
+– The loss weight of MGLS decays over training: it is larger early on to improve stability and convergence, and becomes smaller later so the model relies more on clean-image supervision. This makes “Pseudo Ground Truth” an early guide without constraining later learning. To empirically verify that “Pseudo Ground Truth” does not bound our model, we generate pseudo targets with EMMA from clean multi-modal images and compare EMMA with AMG-Fuse under the same inputs. If EMMA-derived guidance were an upper bound, EMMA would outperform our model. However, Table 5 shows that AMG-Fuse outperforms EMMA on most metrics across three standard datasets, demonstrating that our model is not constrained by pseudo targets and learns stronger overall fusion representations. In summary, “Pseudo Ground Truth” is mainly used to stabilize early training and guide optimization. EMMA is adopted to provide a reliable prior for faster convergence rather than an optimal reference. We fine-tune EMMA on the clean subset of AWMM-100k (1,000 images), initialized from its original pretrained weights. Multi-modality Image Fusion under Adverse Weather 15 
+
+4.7 Limitation and Future Work 
+
+Our experiments show that the Histogram Transformer in the Mask-Guided Feature Extraction Module increases computational cost. For an input of 224 ×
+
+224 , our method requires 242 .03 G FLOPs and 59 .74 M parameters. In future work, we will improve efficiency to better support real-world applications. 
+
+5 Conclusion 
+
+In this paper, we present AMG-Fuse, a mask-guided multi-modality image fu-sion framework for both adverse weather and clean conditions. To ease op-timization while avoiding overfitting to pseudo targets, we introduce “Pseudo Ground Truth” and derive a modality-contribution mask from the mapping be-tween source images and fused outputs. This mask guides cross-modal interac-tion, while the mask-guided and task-coupled degradation-aware learning strate-gies jointly enhance feature restoration and modality interaction under complex degradation. Extensive experiments demonstrate that AMG-Fuse consistently outperforms state-of-the-art methods across diverse scenarios. 
+
+Acknowledgement 
+
+This work was supported in part by the Basic and Applied Basic Research of Guangdong Province under Grant 2023A1515140077, in part by the Natural Science Foundation of Guangdong Province under Grant 2024A1515011880, in part by the National Natural Science Foundation of China under Grant 52374166 and 62201149, in part by the Research Fund of Guangdong-Hong Kong-Macao Joint Laboratory for Intelligent MicroNano Optoelectronic Technology under Grant 2020B1212030010, and in part by the Yunnan Fundamental Research Projects under Grant 202301AV070004 and Grant 202501AS070123. 
+
+References  
+
+> 1. Bai, H., Zhang, J., Zhao, Z., Wu, Y., Deng, L., Cui, Y., Feng, T., Xu, S.: Task-driven image fusion with learnable fusion loss. In: Proceedings of the Computer Vision and Pattern Recognition Conference. pp. 7457–7468 (2025) 2. Chen, J., Yu, W., Tian, X., Huang, J., Ma, J.: Mdbfusion: A visible and infrared image fusion framework capable for motion deblurring. In: 2024 IEEE International Conference on Image Processing (ICIP). pp. 1019–1025. IEEE (2024) 3. Chen, X., Xu, S., Hu, S., Ma, X.: Acfnet: An adaptive cross-fusion network for infrared and visible image fusion. Pattern Recognition 159 , 111098 (2025) 4. Cheng, C., Xu, T., Feng, Z., Wu, X., Tang, Z., Li, H., Zhang, Z., Atito, S., Awais, M., Kittler, J.: One model for all: Low-level task interaction is a key to task-agnostic image fusion. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 28102–28112 (2025)
+
+16 X. Li et al. 5. Cui, Y., Zamir, S.W., Khan, S., Knoll, A., Shah, M., Khan, F.S.: AdaIR: Adap-tive all-in-one image restoration via frequency mining and modulation. In: The Thirteenth International Conference on Learning Representations (2025) 6. Huang, J., Li, X., Tan, H., Yang, L., Wang, G., Yi, P.: Dednet: Infrared and visible image fusion with noise removal by decomposition-driven network. Measurement p. 115092 (2024) 7. Jia, X., Zhu, C., Li, M., Tang, W., Zhou, W.: Llvip: A visible-infrared paired dataset for low-light vision. In: Proceedings of the IEEE/CVF international con-ference on computer vision. pp. 3496–3504 (2021) 8. Jie, Y., Li, X., Zhou, F., Tan, H., et al.: Medical image fusion based on ex-tended difference-of-gaussians and edge-preserving. Expert Systems with Appli-cations 227 , 120301 (2023) 9. Jie, Y., Xu, Y., Li, X., Zhou, F., Lv, J., Li, H.: Fs-diff: Semantic guidance and clarity-aware simultaneous multimodal image fusion and super-resolution. Infor-mation Fusion 121 , 103146 (2025) 10. Li, H., Yang, Z., Zhang, Y., Jia, W., Yu, Z., Liu, Y.: Mulfs-cap: Multimodal fusion-supervised cross-modality alignment perception for unregistered infrared-visible image fusion. IEEE Transactions on Pattern Analysis and Machine Intelligence (2025) 11. Li, H., Xu, T., Wu, X.J., Lu, J., Kittler, J.: Lrrnet: A novel representation learning guided fusion network for infrared and visible images. IEEE transactions on pattern analysis and machine intelligence (2023) 12. Li, J., Chen, J., Liu, J., Ma, H.: Learning a graph neural network with cross modal-ity interaction for image fusion. In: Proceedings of the 31st ACM International Conference on Multimedia. pp. 4471–4479 (2023) 13. Li, J., Jiang, J., Liang, P., Ma, J., Nie, L.: Maefuse: Transferring omni features with pretrained masked autoencoders for infrared and visible image fusion via guided training. IEEE Transactions on Image Processing (2025) 14. Li, X., Zhou, F., Tan, H.: Joint image fusion and denoising via three-layer decom-position and sparse representation. Knowledge-Based Systems 224 , 107087 (2021) 15. Li, X., Li, X., Tan, T., Li, H., Ye, T.: Umcfuse: A unified multiple complex scenes infrared and visible image fusion framework. IEEE Transactions on Image Process-ing 34 , 6231–6245 (2025) 16. Li, X., Li, X., Ye, T., Cheng, X., Liu, W., Tan, H.: Bridging the gap between multi-focus and multi-modal: a focused integration framework for multi-modal image fusion. In: Proceedings of the IEEE/CVF winter conference on applications of computer vision. pp. 1628–1637 (2024) 17. Li, X., Liu, H., Li, X., Ye, T., Kuang, Z., Li, H.: Awm-fuse: multi-modality image fusion for adverse weather via global and local text perception. IEEE Transactions on Image Processing 35 , 5151–5164 (2026) 18. Li, X., Liu, W., Li, X., Zhou, F., Li, H., Nie, F.: All-weather multi-modality im-age fusion: Unified framework and 100k benchmark. Information Fusion p. 104130 (2026) 19. Liang, P., Jiang, J., Liu, X., Ma, J.: Fusion from decomposition: A self-supervised decomposition approach for image fusion. In: European Conference on Computer Vision. pp. 719–735. Springer (2022) 20. Liu, J., Fan, X., Huang, Z., Wu, G., Liu, R., Zhong, W., Luo, Z.: Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection. In: Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition. pp. 5802–5811 (2022) Multi-modality Image Fusion under Adverse Weather 17 21. Liu, J., Lin, R., Wu, G., Liu, R., Luo, Z., Fan, X.: Coconet: Coupled contrastive learning network with multi-level feature ensemble for multi-modality image fusion. International Journal of Computer Vision 132 (5), 1748–1775 (2024) 22. Liu, J., Wu, G., Liu, Z., Wang, D., Jiang, Z., Ma, L., Zhong, W., Fan, X.: In-frared and visible image fusion: From data compatibility to task adaption. IEEE Transactions on Pattern Analysis and Machine Intelligence (2024) 23. Liu, R., Liu, Z., Liu, J., Fan, X., Luo, Z.: A task-guided, implicitly-searched and metainitialized deep model for image fusion. IEEE Transactions on Pattern Anal-ysis and Machine Intelligence (2024) 24. Liu, Z., Blasch, E., Xue, Z., Zhao, J., Laganiere, R., Wu, W.: Objective assess-ment of multiresolution image fusion algorithms for context enhancement in night vision: a comparative study. IEEE transactions on pattern analysis and machine intelligence 34 (1), 94–109 (2011) 25. Liu, Z., Liu, J., Zhang, B., Ma, L., Fan, X., Liu, R.: Paif: Perception-aware infrared-visible image fusion for attack-tolerant semantic segmentation. In: Proceedings of the 31st ACM International Conference on Multimedia. pp. 3706–3714 (2023) 26. Rajasekaran, G., Abitha, V., Vaishnavi, S.: Image dehazing algorithm based on artificial multi-exposure image fusion. Multimedia tools and applications 82 (26), 41241–41251 (2023) 27. Ranftl, R., Lasinger, K., Hafner, D., Schindler, K., Koltun, V.: Towards robust monocular depth estimation: Mixing datasets for zero-shot cross-dataset transfer. IEEE transactions on pattern analysis and machine intelligence 44 (3), 1623–1637 (2020) 28. Shi, Y., Shi, C., Weng, Z., Tian, Y., Xian, X., Lin, L.: Crossfuse: Learning infrared and visible image fusion by cross-sensor top-k vision alignment and beyond. IEEE Transactions on Circuits and Systems for Video Technology (2025) 29. Sun, S., Ren, W., Gao, X., Wang, R., Cao, X.: Restoring images in adverse weather conditions via histogram transformer. In: European Conference on Computer Vi-sion. pp. 111–129. Springer (2024) 30. Sun, S., Ren, W., Wang, T., Cao, X.: Rethinking image restoration for object de-tection. Advances in Neural Information Processing Systems 35 , 4461–4474 (2022) 31. Tang, L., Deng, Y., Yi, X., Yan, Q., Yuan, Y., Ma, J.: Drmf: Degradation-robust multi-modal image fusion via composable diffusion prior. In: Proceedings of the 32nd ACM International Conference on Multimedia. pp. 8546–8555 (2024) 32. Tang, L., Yuan, J., Ma, J.: Image fusion in the loop of high-level vision tasks: A semantic-aware real-time infrared and visible image fusion network. Information Fusion 82 , 28–42 (2022) 33. Tang, L., Yuan, J., Zhang, H., Jiang, X., Ma, J.: Piafusion: A progressive infrared and visible image fusion network based on illumination aware. Information Fusion 
+
+83 , 79–92 (2022) 34. Wang, C.Y., Bochkovskiy, A., Liao, H.Y.M.: Yolov7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 7464–7475 (2023) 35. Wu, G., Liu, H., Fu, H., Peng, Y., Liu, J., Fan, X., Liu, R.: Every sam drop counts: Embracing semantic priors for multi-modality image fusion and beyond. In: Proceedings of the Computer Vision and Pattern Recognition Conference. pp. 17882–17891 (2025) 36. Xian, Y., Xu, Y., He, Y., Yang, Y.: From 2d grids to 1d tokens: Reforming shared representations for multimodal image fusion. arXiv preprint arXiv:2606.12303 (2026) 18 X. Li et al. 37. Xu, H., Ma, J., Jiang, J., Guo, X., Ling, H.: U2fusion: A unified unsupervised image fusion network. IEEE Transactions on Pattern Analysis and Machine Intelligence 
+
+44 (1), 502–518 (2020) 38. Xu, Y., Li, X., Jie, Y., Tan, H.: Simultaneous tri-modal medical image fusion and super-resolution using conditional diffusion model. In: International Conference on Medical Image Computing and Computer-Assisted Intervention. pp. 635–645. Springer (2024) 39. Yang, Z., Zhang, Y., Li, H., Liu, Y.: Instruction-driven fusion of infrared–visible images: Tailoring for diverse downstream tasks. Information Fusion 121 , 103148 (2025) 40. Yi, X., Tang, L., Zhang, H., Xu, H., Ma, J.: Diff-if: Multi-modality image fusion via diffusion model with fusion knowledge prior. Information Fusion 110 , 102450 (2024) 41. Yi, X., Xu, H., Zhang, H., Tang, L., Ma, J.: Text-if: Leveraging semantic text guidance for degradation-aware and interactive image fusion. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 27026– 27035 (2024) 42. Zamir, S.W., Arora, A., Khan, S., Hayat, M., Khan, F.S., Yang, M.H.: Restormer: Efficient transformer for high-resolution image restoration. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 5728–5739 (2022) 43. Zhang, H., Cao, L., Ma, J.: Text-difuse: An interactive multi-modal image fusion framework based on text-modulated diffusion model. Advances in Neural Informa-tion Processing Systems 37 , 39552–39572 (2024) 44. Zhang, H., Xu, H., Tian, X., Jiang, J., Ma, J.: Image fusion meets deep learning: A survey and perspective. Information Fusion 76 , 323–336 (2021) 45. Zhang, X., Demiris, Y.: Visible and infrared image fusion using deep learning. IEEE Transactions on Pattern Analysis and Machine Intelligence (2023) 46. Zhao, Z., Bai, H., Zhang, J., Zhang, Y., Xu, S., Lin, Z., Timofte, R., Van Gool, L.: Cddfuse: Correlation-driven dual-branch feature decomposition for multi-modality image fusion. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 5906–5916 (2023) 47. Zhao, Z., Bai, H., Zhang, J., Zhang, Y., Zhang, K., Xu, S., Chen, D., Timofte, R., Van Gool, L.: Equivariant multi-modality image fusion. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 25912– 25921 (2024) 48. Zhao, Z., Bai, H., Zhu, Y., Zhang, J., Xu, S., Zhang, Y., Zhang, K., Meng, D., Tim-ofte, R., Van Gool, L.: Ddfm: denoising diffusion model for multi-modality image fusion. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 8082–8093 (2023) 49. Zhu, P., Sun, Y., Cao, B., Hu, Q.: Task-customized mixture of adapters for general image fusion. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 7099–7108 (2024)

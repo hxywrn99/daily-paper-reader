@@ -1,0 +1,184 @@
+Title: Data Efficient Complex Feature Fusion Network For Hyperspectral Image Classification
+
+URL Source: https://arxiv.org/pdf/2606.04710v1
+
+Published Time: Thu, 04 Jun 2026 01:11:08 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# Data Efficient Complex Feature Fusion Network For Hyperspectral Image Classification 
+
+Maitreya Shelare, Atharva Satam, Poonam Sonar, and Sneha Burnase 
+
+Department of Electronics and Telecommunication, Rajiv Gandhi Institute of Technology, University of Mumbai, India 
+
+maitreya.cse@gmail.com , atharvajsatam17@gmail.com ,
+
+poonam.sonar@mctrgit.ac.in , sneharburnase@gmail.com 
+
+Abstract. This work presents a data-efficient variant of the Attention-Based Dual-Branch Complex Feature Fusion Network (CFFN) for hyper-spectral image classification. The proposed model, termed DE-CFFN, re-tains the original two-stream structure: the Real-Valued Neural Network (RVNN) processes standard hyperspectral patches, while the Complex-Valued Neural Network (CVNN) handles their Fourier-transformed coun-terparts. The main contribution of this work lies in the feature extrac-tion process and architectural enhancement. Factor Analysis is used for dimensionality reduction, offering improved latent feature representa-tion over Principal Component Analysis. Additionally, both the RVNN and CVNN streams are structurally modified by successively halving the number of filters in the 3D convolutional layers to reduce complexity. The outputs of both branches are concatenated and passed through a Squeeze and Excitation (SE) block to enhance joint feature representa-tion. Evaluated on the Pavia University and Salinas datasets, DE-CFFN achieves classification performance comparable to CFFN, while signifi-cantly reducing model size, memory consumption, and inference latency, making it suitable for real-time hyperspectral imaging applications. 
+
+Keywords: Hyperspectral Image Classification · Fourier Transform ·
+
+Convolutional Neural Networks 
+
+## 1 Introduction 
+
+Hyperspectral imaging has revolutionized remote sensing by capturing detailed spatial structures along with high-resolution spectral information. Each pixel contains a rich spectral signature spanning numerous narrow, contiguous bands, enabling precise tasks such as land cover classification and environmental moni-toring [1]. However, the resulting high data dimensionality introduces significant computational and modeling challenges, commonly referred to as the Hughes phenomenon [2]. Conventional machine learning algorithms, while offering interpretability, of-ten fall short in modeling the complex spatial and spectral correlations inherent in hyperspectral image data. Their performance further deteriorates in low-label  
+
+> arXiv:2606.04710v1 [cs.CV] 3 Jun 2026 2M. Shelare et al.
+
+scenarios due to overfitting [3, 4]. In contrast, deep learning models address these limitations by automatically learning hierarchical feature representations from raw data, enabling improved generalization and robustness. Among these, Convolutional Neural Networks (CNNs) have demonstrated strong performance in HSI classification by effectively extracting both spatial and spectral features in an end-to-end manner [5]. CNN-based models are typi-cally categorized as 1D, 2D, or 3D depending on the dimensionality of the con-volutions used. 1D models analyze spectral vectors for each pixel independently, capturing spectral dependencies but ignoring spatial context [6]. In contrast, 2D models treat HSI as standard images, extracting spatial patterns while over-looking spectral continuity [7]. 3D models apply volumetric convolutions over spatial-spectral patches, enabling joint feature learning across both domains at the cost of increased computational complexity [8]. To balance accuracy and computational efficiency, several hybrid architec-tures have been proposed. Yu et al. [9] combined 2D convolutions for spatial encoding with lightweight 3D modules for spectral refinement. Roy et al. pro-posed HybridSN [10], which employs 3D convolutions in the initial layers followed by 2D convolutions, achieving improved performance with reduced complexity. Li et al. [11] introduced a complex-valued CNN that integrates both 2D and 3D convolutions to more effectively capture spectral-spatial relationships. Peker et al. [12] developed a classification framework combining CNN-based feature extraction with the complex-valued wavelet neural network classifier. Alkhatib et al. [13] proposed an attention-based deep learning model, which we term the Complex Feature Fusion Network (CFFN). The model integrates real-valued and complex-valued 3D convolutional streams in parallel to effec-tively capture spatial and spectral features from hyperspectral images. Although CFFN achieves strong classification performance, we aim to make it more effi-cient to improve its suitability for real-time hyperspectral applications. To this end, we propose DE-CFFN, a more data efficient variant designed to maintain high classification accuracy while substantially reducing computational demands. The main contributions of this work are as follows: 1. We replace Principal Component Analysis with Factor Analysis for dimen-sionality reduction, enabling the extraction of more discriminative latent features and enhancing the overall quality of representation. 2. We introduce a progressive reduction in the number of filters across the 3D convolutional layers in both the real-valued and complex-valued processing streams, substantially lowering the overall computational complexity. 3. We demonstrate that DE-CFFN achieves up to 72% reduction in model pa-rameters, 75% reduction in memory usage, and 14% reduction in inference time, while preserving classification accuracy across most evaluation scenar-ios. Data Efficient Complex Feature Fusion Network for HSI Classification 3
+
+## 2 Proposed Method 
+
+The Data Efficient Complex Feature Fusion Network (DE-CFFN), shown in Fig. 1, is a dual-stream model designed for hyperspectral image classification. It jointly captures spatial, spectral, and frequency-domain features while main-taining computational efficiency. To reduce spectral redundancy, Factor Analysis (FA) is applied to the input hyperspectral cube, producing a low-dimensional, discriminative representation. This is divided into overlapping patches of size 15 ×15 ×d, where d is the number of retained spectral bands (empirically, d = 11 ). Each patch is simultaneously fed into a Real-Valued Neural Network (RVNN) and a Complex-Valued Neural Network (CVNN), forming the model’s two parallel streams. FFT  C 
+
+> RVNN
+> CVNN
+> FA
+> Real
+> Patch
+> Complex
+> Patch
+> SE
+> Classification Map
+> Conv3D
+> ComplexConv3D
+> ComplexDense
+> ComplexDropout
+> Hyperspectral
+> Data Cube
+> Concatenation C
+> Fully Connected Layers
+> SE Squeeze & Excite
+
+Fig. 1. Architecture of Data-Efficient Complex Feature Fusion Network (DE-CFFN) 
+
+The RVNN processes the real-valued patches using three successive 3D con-volutional layers with decreasing filter sizes (32, 16, 8), each with kernel size 
+
+3 × 3 × 3, stride 1, and ReLU activation. In parallel, the CVNN operates on the frequency-domain representation of the input, obtained via band-wise Fast Fourier Transform (FFT). It follows the same 3D convolutional structure but uses complex-valued convolutions and activation functions tailored to handle both magnitude and phase information. After feature extraction, the RVNN output is cast to the complex domain and concatenated with the CVNN output along the channel dimension. This fused complex-valued feature map is then passed through seven stacked complex-valued Squeeze-and-Excitation (SE) blocks, each with a channel reduction ratio of 8. These attention modules adaptively recalibrate channel-wise dependencies, enhancing informative features while suppressing less relevant ones. The refined tensor is flattened in the complex domain and passed through two fully connected complex-valued layers with 128 and 64 units, respectively, followed by dropout layers (0.3 and 0.1). Finally, classification is performed using a complex-valued dense layer with a real-valued softmax activation applied on the magnitudes of the outputs, yielding a pixel-wise classification map. 4 M. Shelare et al. 
+
+2.1 RVNN Stream 
+
+The RVNN stream operates on FA-reduced real-valued patches and leverages 3D convolutions to jointly capture spatial and spectral correlations, unlike 2D CNNs that treat spectral bands independently [14]. Its architecture consists of three layers with decreasing filters (32 → 16 → 8), ReLU activations, and kernel size 3 × 3 × 3. This configuration balances expressive power and computational efficiency. The resulting features are cast to the complex domain for fusion with the CVNN stream. 
+
+2.2 CVNN Stream 
+
+The CVNN stream operates on frequency domain representations obtained via FFT along the spectral axis, producing complex-valued inputs that encode both amplitude and phase information. CVNNs effectively capture phase and ampli-tude relationships, which are crucial for hyperspectral image analysis [15, 16]. This stream follows a structure similar to the RVNN, but utilizes complex convolutions and complex-specific activation functions such as Cartesian ReLU. This allows it to extract hierarchical features across the spectral, spatial, and frequency domains. When combined with the RVNN stream, the model bene-fits from complementary strengths, drawing spatial detail from the RVNN and frequency sensitivity from the CVNN [13]. 
+
+2.3 Squeeze-and-Excitation Attention Mechanism 3D Global Average  
+
+> Pooling
+> FC
+> ReLU
+> FC
+> Sigmoid
+> C
+> Squeeze
+> Excitation
+> H
+> W
+> C
+> Scaling
+> W
+> H
+> X
+> Fig. 2. Squeeze-and-Excitation (SE) Block.
+
+The Squeeze-and-Excitation (SE) mechanism [17] is a lightweight attention module that explicitly models inter-channel dependencies to recalibrate feature responses adaptively. It enhances the representational capacity of the network by allowing it to focus on the most informative channels while suppressing less useful ones. Within the DE-CFFN model, the SE mechanism is extended to the complex domain and is applied to the fused complex-valued feature maps obtained after combining the outputs from the RVNN and CVNN branches. Data Efficient Complex Feature Fusion Network for HSI Classification 5
+
+Let U ∈ RH×W ×C denote the intermediate feature map, where H and W are the spatial dimensions and C is the number of channels. The squeeze step aggre-gates global spatial information for each channel using global average pooling: 
+
+zc = 1
+
+H × W
+
+> H
+
+X
+
+> i=1
+> W
+
+X
+
+> j=1
+
+uc(i, j ), (1) resulting in a compact channel descriptor z ∈ RC that summarizes the spatial context. Next, the excitation step captures non-linear channel-wise dependencies using a bottleneck of two fully connected layers interleaved with a ReLU activation: 
+
+s = σ(W2 · ReLU( W1z)) , (2) where W1 ∈ R Cr ×C and W2 ∈ RC× Cr are learnable weight matrices and r is the channel reduction ratio (typically set to 8). The sigmoid activation σ ensures that the resulting excitation vector s ∈ RC scales each channel adaptively in the range [0, 1]. Finally, the recalibrated output euc is obtained by reweighting each input channel uc with its corresponding excitation value sc:
+
+euc = sc · uc. (3) This channel-wise modulation allows the network to emphasize relevant fea-tures while downplaying noisy or redundant information. 
+
+## 3 Results 
+
+We evaluate the DE-CFFN model on two widely used benchmark datasets, Pavia University and Salinas, to ensure a standardized assessment of its performance. 
+
+3.1 Dataset Description 
+
+The Pavia University (PU) dataset was acquired over an urban area in northern Italy using the ROSIS sensor. It offers a spatial resolution of 1.3 meters per pixel and includes ground truth annotations for nine land cover classes, predominantly covering urban structures and vegetation. The image spans approximately 793 
+
+× 441 meters. The Salinas (SA) dataset was collected by the AVIRIS sensor over California’s Salinas Valley, a region known for agricultural diversity. With a spatial resolution of 3.7 meters per pixel, the scene includes sixteen annotated classes representing various crops and soil types. After removing 20 water absorption bands, 204 spectral bands were retained for analysis. A summary of the datasets is provided in Table 1, and Figure 3 displays RGB composites of both scenes along with their respective ground truth maps. 6 M. Shelare et al.                
+
+> Fig. 3. Hyperspectral datasets: (a) Pavia University scene; (b) Salinas scene.
+> Table 1. Summary of Datasets Dataset Spatial Dimensions Wavelength Range Spectral Bands Classes Pavia University (PU) 610 ×340 pixels 430–860 nm 103 9Salinas (SA) 512 ×217 pixels 360–2500 nm 224 †16
+> †20 water absorption bands removed for analysis.
+
+3.2 Implementation Details 
+
+We conducted experiments on both datasets using a 1% training split, with the remaining 99% reserved for testing. Patches were randomly sampled from the hyperspectral cubes. Based on preliminary tuning, optimal patch sizes of 9 × 9
+
+for PU and 15 × 15 for SA were selected to balance contextual information with computational efficiency. To ensure a fair comparison, all training hyperparameters were aligned with the original CFFN implementation by Alkhatib et al. [13]. Factor Analysis was used for dimensionality reduction, retaining 11 latent spectral components across both datasets. The same preprocessed input pipeline was used for all baseline models to eliminate variations due to data handling. The model was trained using the Adam optimizer with a learning rate of 0.001 and categorical cross-entropy loss. Training proceeded for up to 100 epochs with a batch size of 16, and early stopping based on validation loss was applied to mitigate overfitting. All models were evaluated using the same train–test splits across multiple runs to ensure statistical reliability. All experiments were implemented in Python using the Keras API with a Ten-sorFlow backend. Training and evaluation were conducted on a system equipped with an Intel Core i7-11800H CPU, 16 GB DDR4 RAM, and an NVIDIA GeForce RTX 3050 Ti GPU. Data Efficient Complex Feature Fusion Network for HSI Classification 7
+
+Table 2. Classification accuracy of each class for the Pavia University dataset obtained by SpectralNET [18], HybridSN [10], CFFN [13], and proposed DE-CFFN. Class SpectralNET HybridSN CFFN DE-CFFN 
+
+No SE With SE No SE With SE Asphalt 94.58 99.53 98.43 98.89 98.16 98.95 Meadows 94.23 99.65 95.94 97.29 98.39 97.93 Gravel 95.05 89.46 98.22 98.30 97.95 98.43 Trees 94.71 89.12 98.86 99.28 98.81 98.78 Metal Sheet 95.00 99.00 99.98 99.99 99.98 99.99 
+
+Bare Soil 94.01 98.21 96.77 97.76 98.51 98.77 
+
+Bitumen 94.87 99.63 99.46 99.68 99.30 99.51 Brick 94.55 98.00 97.36 97.88 97.62 98.13 
+
+Shadow 94.23 94.02 99.83 99.67 99.53 99.90 OA (%) 94.15 95.62 92.39 94.35 94.11 95.17 
+
+AA (%) 94.80 93.28 90.14 91.01 91.07 92.32 Kappa ×100 93.94 94.17 89.74 92.43 92.15 93.54 
+
+Table 3. Classification accuracy of each class for the Salinas dataset obtained by SpectralNET [18], HybridSN [10], CFFN [13], and the proposed DE-CFFN. Class SpectralNET HybridSN CFFN DE-CFFN                                                                                                                   
+
+> No SE With SE No SE With SE Brocoli-green-weeds-1 94.40 99.00 99.99 100.00 99.93 99.96 Brocoli-green-weeds-2 95.00 98.86 100.00 100.00 99.98 100.00
+> Fallow 94.90 99.29 99.83 99.92 99.93 99.92
+> Fallow-rough-plow 93.99 100.00 99.85 99.98 99.93 99.92 Fallow-smooth 94.83 99.02 99.79 99.93 99.89 99.89 Stubble 95.00 99.00 100.00 100.00 99.99 99.99 Celery 94.60 99.92 99.99 100.00 99.97 99.92 Grapes-untrained 94.48 99.04 97.23 97.68 96.93 96.83 Soil-vinyard-develop 95.00 98.00 99.96 99.93 99.88 99.98 Corn-senesced-green-weeds 94.50 100.00 99.67 99.78 99.80 99.87 Lettuce-romaine-4wk 94.39 99.50 99.83 99.96 99.84 99.76 Lettuce-romaine-5wk 94.48 99.00 99.88 99.95 99.90 99.90 Lettuce-romaine-6wk 94.57 98.81 99.78 99.86 99.84 99.95
+> Lettuce-romaine-7wk 94.34 97.02 99.85 99.86 99.87 99.98
+> Vinyard-untrained 93.85 98.83 97.24 97.66 96.97 96.87 Vinyard-vertical-trellis 95.02 99.10 99.99 100.00 99.96 99.93 OA (%) 94.83 96.05 96.42 97.25 96.31 96.34 AA (%) 96.80 97.05 97.15 98.25 97.48 97.67 Kappa ×100 94.24 95.60 96.01 96.94 95.89 95.93
+
+3.3 Experimental Results 
+
+The proposed DE-CFFN model was evaluated on the Pavia University and Sali-nas datasets against established HSI classification models, including Spectral-NET [18], HybridSN [10], and CFFN [13]. To assess the impact of the Squeeze-and-Excitation (SE) block, both CFFN and DE-CFFN were tested with and without SE. Evaluation metrics include Overall Accuracy (OA), Average Accuracy (AA), and the Kappa coefficient ( κ). OA reflects the overall pixel-level classification accuracy, AA measures the average accuracy across all classes, and κ accounts for agreement occurring by chance. Higher values across these metrics indicate better performance, with bold highlighting the best results. 8 M. Shelare et al. 
+
+As reported in Tables 2 and 3, DE-CFFN consistently outperforms Spectral-NET and HybridSN on both datasets. On the Pavia University dataset, DE-CFFN with SE achieves the highest performance, with 95.17% OA, 92.32% AA, and a Kappa score of 93.54. For the Salinas dataset, it reaches 96.34% OA, 97.67% AA, and a Kappa score of 95.93, closely aligning with the top-performing CFFN variant. The inclusion of SE generally improves classification accuracy, particularly for spectrally similar or minority classes. Notably, DE-CFFN without SE also demonstrates strong performance, underscoring the effectiveness of the dual-branch design. 
+
+3.4 Complexity Analysis 
+
+For real-world applications, hyperspectral classifiers must balance predictive per-formance with computational efficiency. To evaluate this trade-off, we compare DE-CFFN and CFFN in terms of model complexity (parameter count, memory usage, inference time) and classification metrics (OA, AA, and κ) across the PU and SA datasets.                                 
+
+> Table 4. Comparison of CFFN [13] and DE-CFFN on PU and SA datasets. Bold indicates better OA, AA, κ, and lower complexity (parameters, memory, time). Dataset Model OA (%) AA (%) Kappa (κ×100 )Parameters (M) Memory (MB) Inference Time (ms) PU CFFN 94.35 92.88 92.7 0.924 3.52 11.72
+> DE-CFFN 95.17 92.32 93.54 0.257 0.98 12.15 SA CFFN 97.25 96.71 97.1 6.823 26.03 35.06 DE-CFFN 96.34 97.67 95.93 1.732 6.61 30.27
+
+As summarized in Table 4, on the PU dataset, DE-CFFN achieves an OA of 95.17% and κ of 93.54, outperforming CFFN by 0.82% and 0.84 points, respec-tively. Despite this improvement, DE-CFFN reduces the number of parameters by 72.2% (from 0.924M to 0.257M) and memory usage by 72.2% (from 3.52 MB to 0.98 MB). The inference time remains nearly identical, increasing only slightly from 11.72 ms to 12.15 ms. Although average accuracy (AA) drops marginally by 0.56%, the model still achieves competitive class-wise performance, suggesting effective generalization even under reduced complexity. On the SA dataset, DE-CFFN achieves an AA of 97.67%, which is 0.96% higher than CFFN. While its OA and κ decrease by 0.91% and 1.17 points respectively, DE-CFFN offers considerable computational advantages, reducing parameters by 74.6% (from 6.823M to 1.732M), memory usage by 74.6% (from 26.03 MB to 6.61 MB), and inference time by 13.6% (from 35.06 ms to 30.27 ms). Data Efficient Complex Feature Fusion Network for HSI Classification 9
+
+3.5 Ablation Study 
+
+To assess the impact of the dimensionality reduction technique on classification performance, an ablation study was performed on the DE-CFFN model with SE using Factor Analysis (FA) and Principal Component Analysis (PCA), each retaining 11 components for parity.                    
+
+> Table 5. Ablation study on DE-CFFN with SE: Comparison of Factor Analysis (FA) and Principal Component Analysis (PCA) on PU and SA datasets. Bold indicates superior results. Method PU SA OA (%) AA (%) Kappa (κ×100 )OA (%) AA (%) Kappa (κ×100 )PCA 93.83 89.75 91.75 94.23 91.37 93.56 FA 95.17 92.32 93.54 96.34 97.67 95.93
+
+As shown in Table 5, FA consistently outperforms PCA on both the Pavia University (PU) and Salinas (SA) datasets. On PU, it improves OA by 1.34%, AA by 2.57%, and Kappa by 1.79. On SA, the gains are even more pronounced, with respective increases of 2.11%, 6.30%, and 2.37. These results indicate that FA better captures latent spectral dependencies and reduces inter-band redundancy, enabling the model to learn more compact and discriminative features for hyperspectral image classification. 
+
+## 4 Conclusion 
+
+This paper introduced DE-CFFN, a data-efficient dual-branch model designed for real-time hyperspectral image (HSI) classification. The model combines a real-valued neural network (RVNN) for learning spatial-spectral features with a complex-valued neural network (CVNN) that processes frequency-domain infor-mation via Fourier transforms. To improve feature compactness, Factor Analysis (FA) is used for dimensionality reduction, while a Squeeze-and-Excitation (SE) block helps the network focus on more informative channels. Experiments on the Pavia University and Salinas datasets show that DE-CFFN delivers strong classification performance with up to 75% fewer parameters and lower memory usage. This efficiency makes it ideal for real-time applications, such as onboard processing in UAVs or satellites, where fast and accurate inference matters more than resource constraints. In the future, we plan to scale the model to larger datasets, explore integration with temporal data, and test its usefulness across other remote sensing tasks. 10 M. Shelare et al. 
+
+## References 
+
+(1) Tao, L.; Mughees, A., Deep Learning for Hyperspectral Image Analysis and Clas-sification ; Springer Singapore: 2021. (2) Kanthi, M.; Sarma, T. H.; Bindu, C. S. 2020 IEEE India Geoscience and Remote Sensing Symposium (InGARSS) 2020 , 229–232. (3) Ahmad, M.; Shabbir, S.; Roy, S. K.; Hong, D.; Wu, X.; Yao, J.; Khan, A.; Mazzara, M.; Distefano, S.; Chanussot, J. IEEE journal of selected topics in applied earth observations and remote sensing , 15 , 968–999. (4) Li, S.; Song, W.; Fang, L.; Chen, Y.; Ghamisi, P.; Benediktsson, J. A. IEEE transactions on geoscience and remote sensing 2019 , 57 , 6690–6709. (5) Chen, Y.; Jiang, H.; Li, C.; Jia, X.; Ghamisi, P. IEEE Transactions on Geo-science and Remote Sensing 2016 , 54 , 6232–6251. (6) Mou, L.; Ghamisi, P.; Zhu, X. X. IEEE transactions on geoscience and remote sensing 2017 , 55 , 3639–3655. (7) Fang, L.; Liu, G.; Li, S.; Ghamisi, P.; Benediktsson, J. A. IEEE transactions on geoscience and remote sensing 2019 , 57 , 1291–1301. (8) Feng, J.; Hyeong-Keun, Y.; Wang, L.; Cao, X.; Zhang, X.; Jiao, L. IEEE trans-actions on geoscience and remote sensing 2019 , 57 , 5329–5343. (9) Yu, C.; Han, R.; Song, M.; Liu, C.; Chang, C. IEEE journal of selected topics in applied earth observations and remote sensing 2020 , 13 , 2485–2501. (10) Roy, S. K.; Krishna, G.; Dubey, S. R.; Chaudhuri, B. B. IEEE geoscience and remote sensing letters 2020 , 17 , 277–281. (11) Li, W.; Xia, H.; Zhang, J.; Wang, Y.; Jia, Y.; He, Y. Remote Sensing 2024 , 16 ,DOI: 10.3390/rs16162908 .(12) Peker, M. Expert Syst. Appl. 2021 , 173 , 114708. (13) Alkhatib, M. Q.; Al-Saad, M.; Aburaed, N.; Zitouni, M. S.; Al-Ahmad, H. 2023 13th Workshop on Hyperspectral Imaging and Signal Processing: Evolution in Remote Sensing (WHISPERS) 2023 , DOI: 10 . 1109 / whispers61460 . 2023 . 10431224 .(14) Aburaed, N.; Alkhatib, M. Q.; Marshall, S.; Zabalza, J.; Al Ahmad, H. In 2021 4th International Conference on Signal Processing and Information Security (ICSPIS) , 2021, pp 9–12. (15) Acar, Y. E.; Ceylan, M.; Yaldiz, E. 2018 International Conference on Artificial Intelligence and Data Processing (IDAP) 2018 , 1–5. (16) Hirose, A., Complex-Valued neural networks , 2012. (17) Hu, J.; Shen, L.; Albanie, S.; Sun, G.; Wu, E. IEEE transactions on pattern analysis and machine intelligence 2020 , 42 , 2011–2023. (18) Chakraborty, T.; Trehan, U. SpectralNET: Exploring Spatial-Spectral WaveletCNN for Hyperspectral Image Classification, 2021.

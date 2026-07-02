@@ -1,0 +1,507 @@
+Title: Active Adversarial Perturbation-driven Associative Memory Retrieval for RGB-Event Visual Object Tracking
+
+URL Source: https://arxiv.org/pdf/2606.26455v1
+
+Published Time: Fri, 26 Jun 2026 00:18:56 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+> IEEE TRANSACTIONS ON ***, 2026 1
+
+# Active Adversarial Perturbation-driven Associative Memory Retrieval for RGB-Event Visual Object Tracking 
+
+Xiao Wang, Member, IEEE , Xufeng Lou, Zikang Yan, Lan Chen*, Sibao Chen, Yaowei Wang, Member, IEEE ,Yonghong Tian, Fellow, IEEE , Jin Tang 
+
+Abstract —RGB-Event tracking improves localization robust-ness by fusing RGB appearance textures and dense tempo-ral motion cues from event sensors. While this multi-modal scheme broadens tracking applicability, real-world scenes suffer diverse structured signal degradations that hinder traditional multi-modal fusion. In harsh environments, either modality can lose reliability drastically, and targets frequently appear incomplete due to occlusion, edge truncation and foreground clutter. To tackle the above challenges, we present a hierarchical perturbation and retrieval framework tailored for RGB-Event tracking with robustness against partial target missing and modal degradation, termed APRTrack. To mimic real-world signal corruption, APRTrack constructs structured degradation via two adversarial perturbation branches at the modality and spatial levels, which separately simulate full-modal failure and localized target region absence. A hierarchical routing mechanism is designed to disentangle the training pipelines of the two pertur-bation types, effectively eliminating feature collapse induced by superimposed degradation constraints. Furthermore, we devise Footprint-guided Channel-calibrated Hopfield Retrieval (FCHR) for reliable historical information compensation. This module evaluates retrieval confidence based on association footprints between queries and memory banks, and calibrates the retrieval metric space prior to Hopfield matching, realizing controllable historical feature compensation bounded to target regions. Ex-tensive experiments on FE108, COESOT, VisEvent, and FELT datasets demonstrate the effectiveness of our proposed strategies for the RGB-Event visual object tracking. The source code and pre-trained models will be released on https://github.com/ Event-AHU/OpenEvTracking. 
+
+Index Terms —RGB-Event Visual Tracking; Adversarial Hi-erarchical Perturbation; Associative Memory; Modern Hopfield Networks 
+
+I. I NTRODUCTION 
+
+# SINGLE Object Tracking (SOT) aims to predict the bound-ing box of a specified target in subsequent video frames given its initial annotated state. As a foundational research 
+
+• Xiao Wang, Xufeng Lou, Zikang Yan, Sibao Chen, and Jin Tang are with the School of Computer Science and Technology, Anhui University, Hefei 230601, China. (email: {xiaowang, sbchen, tangjin}@ahu.edu.cn, loux-ufeng@stu.ahu.edu.cn, e24201056@stu.ahu.edu.cn) 
+
+• Lan Chen is with the School of Electronic and Information Engineering, Anhui University, Hefei 230601, China. (email: chenlan@ahu.edu.cn) 
+
+• Yaowei Wang is with Peng Cheng Laboratory, Shenzhen, China; Harbin Institute of Technology, Shenzhen, China (email: wangyw@pcl.ac.cn) 
+
+• Yonghong Tian is with Peng Cheng Laboratory, Shenzhen, China; School of Computer Science, Peking University, China; School of Electronic and Computer Engineering, Shenzhen Graduate School, Peking University, China (email: yhtian@pku.edu.cn) * Corresponding Author: Lan Chen 
+
+Fig. 1. Representative modality-level and spatial-level missing issues in RGB-Event tracking. 
+
+task in computer vision, SOT has been widely deployed in intelligent surveillance, autonomous driving, robotic percep-tion, and unmanned intelligent systems. Benefiting from the booming development of deep learning, modern deep track-ers, particularly Transformer-based tracking architectures [1]– [4], have achieved advanced target feature representation and long-range temporal dependency modeling, yielding promising performance against common challenges including scale vari-ation, arbitrary pose transformation, and complex background clutter. Nevertheless, pure RGB-based tracking still suffers from inherent limitations in harsh imaging conditions: low ambient illumination, camera overexposure, severe motion blur, and full/partial occlusion will greatly degrade target appearance discriminability and impair long-term localization stability. To mitigate the above drawbacks, event cameras have emerged as a complementary bio-inspired sensing modality for visual tracking. Different from standard frame-based cameras that capture integral RGB frames at fixed sampling rates, event cameras fire asynchronous pixel-level events triggered by loga-rithmic luminance changes, featuring ultra-high temporal reso- 
+
+> arXiv:2606.26455v1 [cs.CV] 24 Jun 2026 IEEE TRANSACTIONS ON ***, 2026 2
+
+lution, wide dynamic range, and low redundant data output [5], [6]. Such asynchronous event streams can capture fine-grained motion dynamics that are invisible for RGB frames under fast camera movement, drastic illumination fluctuation and dim light scenarios. However, event data has inherent defects as well: event generation relies heavily on luminance variation, which provides extremely sparse semantic information for static or slowly moving targets, and lacks color perception and detailed textural features. Given the inherent complementary characteristics between RGB and event modalities, RGB-Event cross-modal collaborative learning has evolved into a mainstream research direction for robust visual tracking [7]– [10]. Existing RGB-Event trackers mainly focus on cross-modal feature fusion, unified representation learning, and temporal cue modeling [9]–[16], aiming to better exploit the comple-mentarity between RGB and Event modalities. These studies have shown the potential of joint RGB-Event modeling and moved the field from simple modality concatenation toward finer interaction. However, most of them still assume intact inputs and pay limited attention to the structure of input degra-dation. In real scenarios, modality-level missing can arise from two common sources: direct sensor failure or severe modality degradation that leaves one stream largely uninformative. For example, RGB observations may fail over large regions under low light or overexposure, while event streams may provide weak or noisy responses under low motion or heavy noise. Meanwhile, the target may be only locally missing because of occlusion or truncation, rather than entirely unavailable. These cases correspond to modality-level missing and local target missing, and require different robustness mechanisms, as shown in Fig. 1. To address the aforementioned issues, this paper proposes APRTrack, an active adversarial hierarchical perturbation and associative memory retrieval framework for missing-robust RGB-Event visual object tracking. APRTrack decomposes real-world structured degradations into hierarchical training constraints, generates hard target-missing samples via adver-sarial perturbation sampling, and adopts regulated associative memory compensation to recover missing target features. Specifically, APRTrack builds dual perturbation branches af-ter patch embedding: modality-level perturbation simulates full failure of RGB or Event modality, while spatial-level perturbation models local occlusion and structural target absence. The former applies adversarial mutually exclusive modality gating to select challenging modal missing cases, enabling the tracker to localize targets with only one avail-able sensor stream; the latter utilizes adversarial spatial scor-ing to sample target-limited continuous occlusion regions, ensuring simulated degradation fits real occlusion patterns rather than random token dropout. A hierarchical routing strategy is proposed to decouple the training pipelines of the two perturbations, avoiding feature collapse caused by combined modal failure and spatial missing. Besides, we design Footprint-guided Channel-calibrated Hopfield Retrieval (FCHR) for cross-modal historical compensation. Guided by target soft masks, FCHR stores historical target features in memory banks and obtains complementary features via Hopfield associative matching [17]. To avoid false memory matching, FCHR conducts constrained retrieval: it estimates retrieval reliability from query-memory association footprints, which record how the current query distributes its matches over historical memory, generates channel calibration weights to optimize query metric space, and retrieves target-biased historical features fused into current features as gated resid-uals. Accordingly, historical features act as reliability-aware compensation cues, rather than directly replacing original observations. An overview of our proposed APRTrack can be found in Fig. 2. To sum up, the main contributions of this work can be summarized as follows: 
+
+• We propose a modality-missing-aware RGB-Event object tracking framework named APRTrack. To the best of our knowledge, this is the first tracking approach to explore the effects of multi-level modality missing on multi-modal fusion tracking algorithms, including spatial-level and modality-level missing. 
+
+• We develop an associative memory enhancement module driven by active adversarial perturbations. It can realistically reproduce modality loss and spatial layout information loss occurring in real-world scenes and enhance the robustness and accuracy significantly. 
+
+• Extensive experiments on four large-scale benchmark tracking datasets, including FE108 [7], COESOT [9], VisEv-ent [8], and FELT [10], demonstrate the effectiveness of our proposed tracker. II. R ELATED WORKS 
+
+In this section, we review related works on RGB-Event Object tracking, Missing Modality Learning, and Memory-based Retrieval Networks. More details can be found in the following surveys [5] and paper list 1.
+
+A. RGB-Event Object Tracking 
+
+RGB-Event tracking benefits from the complementary sens-ing properties of frame and event cameras. Existing studies have advanced this field from early task formulation and benchmark construction, including FE108 [7], VisEvent [8], COESOT [9], FELT [10] and high-resolution EventVOT [18], to more effective cross-modal representation learning. Typical designs include frame-event alignment and fusion [11], uni-fied Transformer modeling [9], high-rank cross-modal inter-action [12], prompt-based multi-modal adaptation [13], and event modeling for distractor suppression and motion per-ception [14], [15]. Beyond task-specific RGB-Event trackers, unified RGB-X tracking frameworks have also been explored, including UnTrack [19], SUTrack [20], SDSTrack [21], and XTrack [22]. Recent works further exploit long-term temporal cues, such as AMTTrack [10] with the FELT benchmark, MamTrack [16] with Mamba-based historical modeling, and Mamba-FETrack V2 [23] with state space modeling. However, these methods mainly focus on exploiting available multi-modal cues, while the structured missing patterns in RGB-Event tracking remain less explored. Different from these  
+
+> 1https://github.com/wangxiao5791509/Single_Object_Tracking_Paper_List IEEE TRANSACTIONS ON ***, 2026 3
+
+works, APRTrack targets structured missing robustness by combining hierarchical perturbation with historical compen-sation based on associative memory retrieval. 
+
+B. Missing Modality Learning 
+
+Missing modality learning aims to maintain robust multi-modal inference when part of the input modalities is unavail-able, unreliable, or corrupted by sensor failure. Early studies such as MMIN [24] and SMIL [25] address uncertain or severely missing modalities by reconstructing missing cues or learning shared multimodal representations. Recent methods further explore different forms of modality recovery and adap-tation, including prompt learning for missing modalities [26], shared and specific feature modeling [27], coherent affective pattern recovery for multimodal sentiment analysis [28], data level modality completion with retrieval augmented genera-tion [29], low rank adaptation for visual recognition with missing modalities [30], robust multi modality ReID under missing inputs [31], and dynamic modality selection during inference for incomplete classification [32]. These methods mainly focus on recovering or selecting useful modality infor-mation for recognition tasks. In contrast, APRTrack separates whole modality degradation and local target corruption in RGB-Event tracking, and models them through hierarchical perturbation and controlled historical retrieval. 
+
+C. Memory-based Retrieval Networks 
+
+Memory mechanisms have been widely used in visual track-ing to exploit historical target information beyond the current frame. Existing trackers improve robustness by modeling tem-poral context, maintaining target candidates, updating dynamic templates, or retrieving historical prompts and tokens [33]– [38]. In RGB-Event tracking, AMTTrack [10] introduces as-sociative memory for long-term frame-event tracking, while MamTrack [16] and Mamba-FETrack V2 [23] exploit long-range temporal modeling with state space models. Beyond tracking, Modern Hopfield Networks [17] connect continuous associative memory with attention, enabling memory retrieval to be viewed as associating current states with stored patterns. Recent studies further revisit Hopfield retrieval from more general or adaptive perspectives, such as Universal Hopfield Networks [39] and Adaptive Hopfield Networks [40]. Most tracking methods use memory mainly for temporal aggregation or template adaptation, while retrieval reliability under locally corrupted observations remains less explored. FCHR instead retrieves historical target cues for local compensation by estimating retrieval reliability in the association process. III. O UR PROPOSED APPROACH 
+
+A. Overview 
+
+As illustrated in Fig. 2, APRTrack adopts a unified RGB-Event tracking pipeline, which is constructed upon the canon-ical Transformer-based single-object tracker proposed in prior works [3], [9]. Given RGB and Event template-search inputs, the model first maps the four image regions into token rep-resentations through shared patch embedding. The adversarial hierarchical perturbation and historical retrieval modules are inserted between patch embedding and the Transformer back-bone [41], and operate mainly on search tokens to improve ro-bustness to structured missing without changing the backbone tracking pipeline. The processed search tokens are then fed into the shared Transformer backbone together with template tokens for relation modeling. The dual modality fusion module produces the search region features, from which the tracking head predicts classification responses and bounding boxes. At inference time, the perturbation modules are disabled, while historical memory update and FCHR retrieval remain active to use historical target cues for more stable current frame localization. 
+
+B. Preliminary: Modern Hopfield Network 
+
+Modern Hopfield Networks [17] 2 formulate associative memory as a continuous state update process, where an input state converges to a stable state by minimizing an energy function defined over stored patterns. Given stored patterns 
+
+{yi}Ni=1 and an input state pattern r, the energy function is written as 
+
+E(r) = − 1
+
+β log 
+
+> N
+
+X
+
+> i=1
+
+exp( βy⊤ 
+
+> i
+
+r) + 12 ∥r∥2 + C, (1) where β denotes the inverse temperature parameter, yi is the 
+
+i-th stored pattern, N is the number of stored patterns, and C
+
+is a constant term independent of r. This energy form leads to an associative update according to the similarity between the input state and the stored patterns. Let Y = ( y1, . . . , yN )⊤
+
+denote the memory bank. The Modern Hopfield update can be written in an attention-like form as 
+
+r(t+1) = Y ⊤Softmax 
+
+
+
+βY r (t)
+
+, (2) where r(t) and r(t+1) denote the state patterns before and after the update. The softmax weights measure the association strength between the current state and each stored pattern, while β controls the sharpness of the softmax distribution. In deep networks, state patterns and stored patterns are usually projected into a learnable association space. Given query tokens Q ∈ RNq ×D , memory keys K ∈ RNm×D ,and memory values V ∈ RNm×D , the standard Hopfield association used in this work is defined as 
+
+H(Q, K, V ) = Softmax  βQK ⊤ V. (3) Here, Q initiates memory access, K determines the association distribution over stored patterns, and V provides the memory content to be aggregated. To introduce target priors during historical retrieval, APRTrack extends this association with a bias term: 
+
+H(Q, K, V ; B) = Softmax  βQK ⊤ + B V. (4) The current frame tokens are treated as state patterns, while historical RGB and Event tokens serve as stored patterns, al-lowing the model to retrieve target-related cues from previous frames for cross-temporal compensation.  
+
+> 2https://github.com/Event-AHU/Awesome_Modern_Hopfield_Networks IEEE TRANSACTIONS ON ***, 2026 4
+> Fig. 2. An overview of the proposed APRTrack framework for missing-robust RGB-Event tracking. APRTrack first maps RGB and Event template-search inputs into token representations, then applies adversarial hierarchical perturbation and footprint-guided channel-calibrated Hopfield retrieval before the Transformer backbone to model structured degradation and introduce controlled historical compensation. The fused search representation is finally fed into the tracking head for target localization.
+
+Building upon this network, some researchers have im-proved model performance on pre-trained large models [42]– [44], as well as in nuclear fusion [45] and time series analy-sis [46], [47]. Motivated by its associative retrieval capability, we adapt the biased Hopfield association to RGB-Event track-ing and introduce Footprint-guided Channel-calibrated Hop-field Retrieval (FCHR) for reliable and controlled historical compensation. 
+
+C. Input Representation 
+
+The input of APRTrack consists of template and search images from RGB and Event modalities. Let the RGB template and search images be denoted as Irz ∈ RC×Hz ×Wz and 
+
+Irx ∈ RC×Hx×Wx , and the Event template and search images as Iez ∈ RC×Hz ×Wz and Iex ∈ RC×Hx×Wx , respectively. The Event images are generated by stacking event streams within a fixed temporal interval, where each event is represented as ej = (xj , y j , t j , p j ) with spatial coordinates (xj , y j ), timestamp tj , and polarity pj . After shared patch embedding and positional encoding, the four inputs are mapped into RGB/Event template tokens and search tokens: 
+
+T = {Zr , Z e}, X = {Xr , X e}. (5) For each modality m ∈ { r, e }, the template and search tokens satisfy Zm ∈ RNz ×D and Xm ∈ RNx×D , respectively, where 
+
+D denotes the token dimension, Nz = Hz Wz  
+
+> P2
+
+and Nx = HxWx 
+
+> P2
+
+denote the numbers of template and search tokens, and P
+
+denotes the patch size. This representation serves as input to the following modules, where hierarchical perturbation and retrieval operate primarily on the search tokens X .
+
+D. Adversarial Hierarchical Perturbation Module 
+
+The adversarial hierarchical perturbation module explicitly simulates two categories of structured degradation in RGB-Event tracking: modality-level missing and spatial-level miss-ing. The former denotes the complete loss of valid observa-tions from either RGB or Event in the current frame, while the latter denotes occlusion, truncation, or contamination that affects only local target regions. Since these two degradation types impose different robustness requirements, APRTrack does not rely on a unified random noise perturbation. Instead, it separately constructs modality-wise and spatial-wise per-turbations to simulate full modality dropout and local target occlusion scenarios. Its adversarial property stems from the it-erative optimization interplay between the perturbation branch and tracking backbone. Guided by gradient reversal [48], the perturbation branch generates harder missing-state samples, whereas the tracking backbone is forced to learn discriminative and robust feature representations against such corruptions. This hierarchical design matches the simulated degradation patterns with real-world missing-modality semantics, while also delineating explicit module partitions to facilitate the hierarchical routing strategy introduced afterwards. 
+
+• Global Modality-level Adversarial Perturbation. The modality-level perturbation models whole modality absence. Let the patch-embedded RGB and Event search tokens be denoted as Xr and Xe, respectively. To simulate the case where one modality fails while the other remains available, we define the mutually exclusive modality perturbation operator 
+
+Pmod as 
+
+Pmod (Xr , X e) = ( αr Xr , α eXe). (6) Here, (αr , α e) ∈ { (1 , 1) , (0 , 1) , (1 , 0) }, where (1 , 1) denotes dual modality preservation, (0 , 1) denotes RGB missing, and 
+
+(1 , 0) denotes Event missing. This mutual exclusion constraint prevents both inputs from being removed simultaneously, keeping the training difficulty within a learnable range and encouraging the model to reduce its reliance on complete dual modality observations. Unlike modality dropout with fixed probabilities, this perturbation does not enumerate missing patterns in advance. It adaptively selects the perturbation form through a learnable adversarial mutually exclusive gate conditioned on the current dual modality state. The modality selection vector is predicted by a gating function with gradient IEEE TRANSACTIONS ON ***, 2026 5
+
+reversal: 
+
+α = Ψ mod 
+
+ GRL( ρ(Xr , X e)) , (7) where α = ( αr , α e), ρ(·) denotes the dual modality context aggregation function, and Ψmod denotes the mutually exclu-sive modality gate. The Gradient Reversal Layer (GRL) drives the gate to generate more challenging modality-missing states for the current tracking representation, forcing the backbone to learn robust features when only one modality is available. In other words, this branch does not simply create incomplete inputs; it encourages the model to maintain target localiza-tion capability under incomplete modality conditions. During training, hard Gumbel-Softmax [49], [50] is used for discrete selection. A lightweight balance regularization is applied dur-ing adversarial training to prevent the gate from collapsing to a single modality state or always avoiding perturbation. 
+
+• Local Spatial-level Adversarial Continuous Pertur-bation. The spatial-level perturbation models local target absence. For the spatial grid of a search token set X, we define the spatial perturbation operator Pspa , which abstracts local target incompleteness as more realistic continuous region occlusion through adversarial spatial selection: 
+
+Pspa (X; s) = (1 − Ss) ⊙ X, (8) where Ss denotes the continuous occlusion mask induced by the candidate window s. The key observation is that local target absence usually appears as spatially continuous struc-tural damage related to the target position, rather than irregular scattered token dropout. Therefore, spatial perturbation should corrupt local observations while keeping the occlusion pattern consistent with real scenes, enabling the model to preserve structural awareness and localization stability when the target is partially missing. Window selection depends on both the spatial response of current tokens and target region constraints. Specifically, the window is determined by a spatial scoring function with gradient reversal: 
+
+s = Ψ spa 
+
+ GRL( η(X)) , G , (9) where η(·) denotes token-level spatial scoring and G denotes the soft target mask generated from the target bounding box. To avoid spatial perturbations degenerating into semantically meaningless large-scale erasure of the target object, we impose a target overlap constraint on the candidate window scores, where candidate windows with excessive target overlap are penalized during adversarial spatial selection and thus receive lower selection scores. For training, hard Gumbel-Softmax is adopted to sample continuous rectangular windows, and a retention mask is built via straight-through estimation. This design yields explicit hard occlusion masks in the forward pass while preserving differentiable soft selection gradients for backpropagation. Consequently, the generated spatial per-turbations align closely with realistic semantic patterns of target occlusion or local cropping, instead of devolving into unstructured random token dropout. 
+
+E. Footprint-guided Channel-calibrated Hopfield Retrieval 
+
+In scenarios with local target absence, cross-temporal his-tory often retains cues related to the current target, mak-ing historical retrieval potentially useful. However, historical  
+
+> Fig. 3. Detailed architecture of (1) query-memory association footprint esti-mation, (2) footprint-guided channel calibration, and (3) ROI-biased Hopfield retrieval with gated residual fusion.
+
+information is not inherently reliable. Without target region constraints and retrieval reliability assessment, retrieval may introduce background clutter, outdated appearances, or false matches. Motivated by this observation, we propose Footprint-guided Channel-calibrated Hopfield Retrieval (FCHR), which aims to provide limited and trustworthy historical compen-sation under local degradation, rather than unconstrainedly completing the current representation with historical features. Instead of using the raw association response as the retrieved feature, FCHR first computes a lightweight query-memory association map, which we refer to as the association footprint because it records how the current query distributes its matches over historical memory. This footprint is then summarized to assess retrieval reliability and calibrate the query channels before Hopfield association. Toward this goal, FCHR consists of three components: target-constrained historical memory, footprint-guided channel calibration, and gated residual fusion. 
+
+• Target-Constrained Historical Memory. FCHR first organizes historical information into target-constrained mem-ory representations, rather than treating historical features as an unstructured feature pool. For historical frames, the module stores RGB tokens, Event tokens, and soft target masks generated from target bounding boxes. The historical memory before frame t is written as 
+
+Mt = {(Krτ , K eτ , G τ )}τ <t , (10) where Krτ and Keτ denote historical RGB and Event tokens, and Gτ denotes the soft target mask. During retrieval, multi-frame historical tokens are concatenated along the token IEEE TRANSACTIONS ON ***, 2026 6
+
+dimension to form the memory, and a region-of-interest (ROI) bias is constructed from the soft target masks: 
+
+Broi = γ(G − 1), (11) where biases near target regions approach zero, while back-ground regions receive negative values. The ROI bias is added to the Hopfield association logits, suppressing background memory tokens and encouraging retrieval to focus on target-related historical regions. In this way, the memory organization imposes a target prior on the retrieval scope. Based on this memory, FCHR employs cross-modal retrieval to generate historical compensation. To complete the RGB representation, the current Event query locates historical target patterns in the Event memory and retrieves the corresponding RGB memory values; conversely, to complete the Event rep-resentation, the current RGB query locates historical target patterns in the RGB memory and retrieves the Event memory values. This process is uniformly written as 
+
+ˆXr = H(Q = Xe, K = Ke, V = Kr ; Broi ),
+
+ˆXe = H(Q = Xr , K = Kr , V = Ke; Broi ), (12) where H denotes Hopfield association [17] with ROI bias. This cross-modal retrieval mechanism leverages the complementary properties of RGB and event streams. The modality with higher instantaneous reliability retrieves target-correlated his-torical features, while its paired historical counterpart delivers cross-temporal supplementary information to the other branch. 
+
+• Footprint-Guided Channel Calibration. Target-constrained memory alone is insufficient to guarantee reliable retrieval, as the current query under local occlusion or con-tamination may have deviated from the true target pattern. To address this, FCHR introduces footprint-guided channel calibration before Hopfield retrieval. It first estimates retrieval reliability from the query-memory association state, and then adjusts the retrieval metric space of the query. Given query 
+
+Q and memory key K, the module computes a lightweight query-memory association footprint: 
+
+Af = Softmax (QW fq )( KW fk )⊤
+
+√d
+
+!
+
+. (13) This footprint is not used as the final retrieval result, but as an intermediate descriptor of retrieval reliability. Specifically, FCHR extracts normalized entropy and maximum matching probability from Af to form the footprint descriptor: 
+
+ϕ(Q, K ) = E(Af ); M(Af ), (14) where E(·) denotes normalized entropy, measuring the dis-persion of the association distribution, and M(·) denotes the maximum association probability, measuring the strongest his-torical match. The channel calibration function then generates reliability weights from this descriptor and reshapes the query metric space before Hopfield association: 
+
+Γ( Q, K ) = g(ϕ(Q, K )) , ˜Q = Γ( Q, K ) ⊙ Q. (15) The calibrated query then enters the Hopfield association with ROI bias: 
+
+ˆX = H( ˜Q, K, V ; Broi ) = Softmax 
+
+
+
+β ˜QK ⊤ + Broi 
+
+
+
+V. 
+
+(16) Thus, FCHR models historical compensation as a degradation-aware associative memory access process. Historical target memories serve as stored patterns that preserve cross-temporal target representations, the current query affected by local absence acts as the state pattern that initiates retrieval, and cross-modal values generate compensation for the current representation through pattern projection. Footprint-guided channel calibration adjusts the metric space of the state pat-tern before association, making it more sensitive to channel responses consistent with reliable historical target patterns and reducing associations between contaminated queries and erroneous historical patterns. In this process, target-constrained memory bias restricts the effective access scope of stored patterns, footprint-guided calibration improves the retrieval reliability of the state pattern, and gated residual fusion further controls the injection strength of pattern projection. Together, these components form the controlled historical compensation mechanism of FCHR. 
+
+• Gated Residual Fusion. After target-constrained retrieval and footprint-guided channel calibration, FCHR further con-trols how historical compensation is fused with the current representation. Historical retrieval results are not used to overwrite current tokens directly, but are injected as reliability conditioned compensatory signals. Let the retrieval compen-sation be denoted as ˆX and the current token as X. FCHR adopts the following gated residual fusion form: 
+
+Y = X + Ω( X, ˆX) ⊙ ( ˆX − X), (17) where Ω( ·) denotes the reliability gating function, which adaptively controls the injection strength of historical in-formation according to the consistency between the current representation and the retrieval compensation. In practice, the gating function estimates a token-wise gate from the current token, the retrieval residual, and their interaction terms. When historical retrieval is consistent with the current target state, the gate amplifies effective compensation; when the retrieval result is unreliable, the gate suppresses historical information at each token and prevents erroneous memories from overwriting current observations. 
+
+F. Hierarchical Routing Training Strategy 
+
+Although modality-level and spatial-level perturbations cor-respond to whole modality failure and local target absence, respectively, directly applying both to the same sample would excessively weaken the effective information in the current frame. In particular, when one modality has already failed while the target also suffers local occlusion, the model may face an irrecoverable information gap, making robust learning unstable. To address this issue, APRTrack adopts a hierarchical routing training strategy that decouples different degradation pressures at the sample level, rather than applying multiple degradations to the same sample. During training, each search sample is assigned to one of three branches: clean, modality, and spatial. Let the routing IEEE TRANSACTIONS ON ***, 2026 7
+
+variable be bi ∈ { clean , mod , spa }. Given bi, the processing form of the search token set Xi is defined as 
+
+P(Xi; bi) = 
+
+
+
+Xi, bi = clean ,
+
+Pmod (Xi), bi = mod ,
+
+Pspa (Xi), bi = spa .
+
+(18) The clean branch keeps the original search representation unchanged, providing an unperturbed anchor for normal track-ing. The modality and spatial branches expose the model to whole modality missing and local target missing, respectively. This routing design preserves clean representation learning while avoiding the compounded destruction caused by directly superimposing the two degradation types. Beyond the perturbation itself, historical compensation is also constrained by the routing state. This design assigns clear responsibilities to the three branches: the clean branch maintains a stable current frame representation anchor, the modality branch preserves the single modality robustness objective, and the spatial branch learns to use historical cues for compensation under local target missing. By constraining the scope of historical retrieval through routing, the model avoids using history to buffer whole modality missing pressure while learning controlled compensation under local missing conditions. Furthermore, to alleviate the impact of early-stage modality-level missing on backbone optimization during joint training, APRTrack adopts a progressive modality perturbation intensity schedule in the modality branch. This schedule is used only to stabilize joint training: optimization starts with milder modality-missing pressure and gradually restores the full perturbation intensity, allowing modality-level perturbation, spatial-level perturbation, and historical retrieval to coexist stably. 
+
+G. Tracking Head and Loss Function 
+
+The fused search tokens from the Transformer backbone are fed into the tracking head for target localization. The tracking head follows the standard prediction paradigm of OSTrack [3], producing target classification responses and bounding box coordinates. During training, the overall objective for each sample consists of bounding box regression and classification losses: 
+
+L = λL1 L1 + λGIoU LGIoU + λf ocal Lf ocal , (19) where L1 constrains box regression, LGIoU [51] measures the geometric overlap between predicted and ground-truth boxes, and Lf ocal [52] optimizes target response classification. We set λL1 = 5 .0, λGIoU = 2 .0, and λf ocal = 1 .0.IV. E XPERIMENTS 
+
+A. Datasets and Evaluation Metric 
+
+To validate the effectiveness of the proposed method, we conduct experiments on four RGB-Event single object tracking benchmarks: FE108 [7], COESOT [9], VisEvent [8], and 
+
+FELT [10]. These datasets cover short and long tracking scenarios, and include challenging factors such as illumination variation, fast motion, occlusion, and out-of-view motion. They therefore provide a reliable evaluation of RGB-Event tracking performance under different degradation conditions. For evaluation, we adopt three standard tracking metrics: 
+
+Success Rate (SR) , Precision Rate (PR) , and Normalized Precision Rate (NPR) . Specifically, SR measures the overlap quality between predicted and ground-truth bounding boxes, PR reflects target center localization accuracy, and NPR further normalizes center point errors across different target scales. 
+
+B. Implementation Details 
+
+For fair comparison, APRTrack is trained separately using the training split of each benchmark dataset and evaluated on its corresponding test split. In the training phase, the basic optimization settings follow OSTrack [3], and the model is trained with the AdamW optimizer [53]. The learning rate is set to 1e-4, the weight decay is set to 1e-4, and the batch size is set to 16. The model is trained for 50 epochs, and the learning rate is decayed by a factor of 0.1 at epoch 40. We adopt HiViT-B [54] as the Transformer encoder, with template and search input sizes of 128 ×128 and 256 ×256 , respectively. The backbone is initialized from a pretrained MAE-HiViT-B model, while the newly introduced modules are randomly initialized. The hierarchical perturbation and FCHR modules are inserted between the patch embedding and the Transformer backbone. Hierarchical perturbation and routing are enabled during training; at inference time, perturbation modules are disabled, while FCHR and historical memory updates remain active for current frame compensation. All experiments are conducted on a computing server equipped with an NVIDIA GeForce RTX 4090 GPU. FPS is consistently evaluated on an NVIDIA GeForce RTX 2080 Ti GPU. More details can be found in our source code. 
+
+C. Comparison on Public Benchmark Datasets 
+
+• Results on FE108 Dataset. FE108 [7] contains 108 videos with 208,672 frames in total, averaging about 1,932 frames per sequence, and covers 21 target categories with four challenging factors. As shown in Table I, APRTrack achieves the best PR score of 97.0 among all compared methods and obtains a competitive SR of 65.1. Compared with AMTTrack [10], APRTrack improves PR from 95.9 to 97.0 while maintaining comparable SR. Although its SR is slightly lower than the best result of 66.4 achieved by MamTrack [16], APRTrack provides the most accurate target center localization. These results show that APRTrack main-tains strong robustness in long tracking scenarios on FE108 while achieving the highest localization precision among the compared trackers. 
+
+• Results on COESOT Dataset. COESOT [9] is alarge-scale RGB-Event tracking benchmark with 1,354 video sequences, 478,721 frames, and 90 target categories, covering diverse scenes such as indoor environments, streets, and zoos. As shown in Table II, APRTrack achieves the best PR score of 84.0, outperforming AMTTrack [10] with 82.9 and ViPT [13] with 81.0. It also obtains an SR score of 68.3, close to the best result of 68.8 achieved by AMTTrack and higher than most IEEE TRANSACTIONS ON ***, 2026 8                            
+
+> TABLE I EXPERIMENTAL RESULTS (SR/PR) ON FE108 DATASET .
+> SiamBAN [55] SiamFC++ [56] KYS [57] CLNet [58] CMT-MDNet [8] ATOM [59] DiMP [60]
+> 22.5/37.4 23.8/39.1 26.6/41.0 34.4/55.5 35.1/57.8 46.5/71.3 52.6/79.1
+> PrDiMP [61] CMT-ATOM [8] CEUTrack [9] ViPT [13] MamTrack [16] AMTTrack [10] Ours
+> 53.0/80.5 54.3/79.4 55.6/84.5 65.8/93.8 66.4 /94.2 65.6/95.9 65.1/ 97.0
+> TABLE II EXPERIMENTAL RESULTS ON COESOT D ATASET .
+
+Trackers Source SR PR 01. Stark [62] ICCV21 56.0 67.7 
+
+02. KeepTrack [34] ICCV21 59.6 70.9 
+
+03. TrDiMP [33] CVPR21 60.1 72.2 
+
+04. TransT [1] ECCV22 60.5 72.4 
+
+05. OSTrack [3] ECCV22 59.0 70.7 
+
+06. AiATrack [63] ECCV22 59.0 72.4 
+
+07. MixFormer [2] CVPR22 55.7 66.3 
+
+08. ToMP101 [64] CVPR22 59.9 71.6 
+
+09. MDNet [8] TCYB23 53.3 66.5 
+
+10. ViPT [13] CVPR23 68.3 81.0 
+
+11. SDSTrack [21] CVPR24 66.7 79.7 
+
+12. UnTrack [19] CVPR24 67.9 80.9 
+
+13. CEUTrack [9] PR25 62.7 76.0 
+
+14. CMDTrack [65] TPAMI25 65.7 74.8 
+
+15. LMTrack [66] AAAI25 58.4 71.1 
+
+16. MCITrack [38] AAAI25 64.7 78.1 
+
+17. AMTTrack [10] arXiv25 68.8 82.9 
+
+18. SpikeFET [67] NeurIPS25 68.5 81.7 
+
+19. UTPTrack-O [68] CVPR26 57.8 70.2 
+
+20. UTPTrack-S [68] CVPR26 64.7 77.6 
+
+21. LASTracker [69] PR26 62.6 72.3 
+
+22. Ours - 68.3 84.0    
+
+> TABLE III EXPERIMENTAL RESULTS ON VIS EVENT DATASET .
+
+Trackers Source SR PR 01. ATOM [59] CVPR19 41.2 60.8 
+
+02. DiMP50 [60] ICCV19 45.1 66.1 
+
+03. SiamCAR [70] CVPR20 42.0 59.9 
+
+04. PrDiMP50 [61] CVPR20 45.3 64.4 
+
+05. SiamR-CNN [71] CVPR20 49.9 65.9 
+
+06. Stark [62] ICCV21 44.6 61.2 
+
+07. TransT [1] ECCV22 47.4 65.0 
+
+08. OSTrack [3] ECCV22 53.4 69.5 
+
+09. MDNet [8] TCYB23 42.6 66.1 
+
+10. ViPT [13] CVPR23 59.2 75.8 
+
+11. SDSTrack [21] CVPR24 59.7 76.7 
+
+12. UnTrack [19] CVPR24 59.7 76.3 
+
+13. AMTTrack [10] arXiv25 60.1 78.1 
+
+14. SpikeFET [67] NeurIPS25 59.0 75.3 
+
+15. SEATrack [72] CVPR26 60.3 77.1 
+
+16. LASTracker [69] PR26 52.9 70.4 
+
+17. Ours - 60.0 79.4 
+
+existing trackers. This indicates that APRTrack provides more accurate target localization on COESOT without sacrificing overlap performance. These results show the effectiveness of the proposed missing-robust representation learning frame-work in large-scale RGB-Event tracking scenarios. 
+
+• Results on VisEvent Dataset. VisEvent [8] contains 820   
+
+> TABLE IV EXPERIMENTAL RESULTS ON FELT DATASET .
+
+Trackers Source SR PR NPR 01. Stark [62] ECCV22 52.7 67.9 62.8 
+
+02. OSTrack [3] ECCV22 52.3 65.9 63.3 
+
+03. MixFormer [2] CVPR22 53.0 67.5 63.8 
+
+04. AiATrack [63] ECCV22 52.2 66.7 62.8 
+
+05. SimTrack [73] ECCV22 49.7 63.6 59.82 
+
+06. GRM [74] CVPR23 52.1 65.6 62.9 
+
+07. ROMTrack [75] ICCV23 51.8 65.8 62.7 
+
+08. ViPT [13] CVPR23 52.8 65.3 63.1 
+
+09. SeqTrack [4] CVPR23 52.7 66.9 63.4 
+
+10. ARTrackv2 [76] CVPR24 52.3 65.2 62.8 
+
+11. HIPTrack [35] CVPR24 51.6 65.6 62.2 
+
+12. ODTrack [36] AAAI24 52.2 66.0 63.5 
+
+13. EVPTrack [77] AAAI24 53.8 68.7 64.8 
+
+14. AQATrack [37] CVPR24 54.0 69.1 64.7 
+
+15. SDSTrack [21] CVPR24 53.7 66.4 64.1 
+
+16. UnTrack [19] CVPR24 53.6 66.0 63.9 
+
+17. FERMT [78] ECCV24 51.8 66.1 62.9 
+
+18. LMTrack [66] AAAI25 50.9 63.9 61.8 
+
+19. AsymTrack [79] AAAI25 51.9 66.7 62.0 
+
+20. ORTrack [80] CVPR25 48.4 61.7 59.2 
+
+21. UNTrack [81] CVPR25 50.0 63.9 61.6 
+
+22. SUTrack [20] AAAI25 55.1 68.9 65.2 
+
+23. XTrack [22] ICCV25 55.1 67.6 65.3 
+
+24. AMTTrack [10] arXiv25 54.8 67.9 65.7 
+
+25. UTPTrack-O [68] CVPR26 51.9 65.1 62.9 
+
+26. UTPTrack-S [68] CVPR26 54.7 68.5 65.2 
+
+27. SpikeTrack [82] CVPR26 52.5 67.9 63.5 
+
+28. Ours - 55.3 70.1 66.6 
+
+video sequences and 371,127 frames, with an average length of 453 frames per sequence, and covers 17 challenging factors across RGB and Event modalities. As shown in Table III, APRTrack achieves the best PR score of 79.4, outperforming SDSTrack [21] with 76.7, AMTTrack [10] with 78.1, and UnTrack [19] with 76.3. Although its SR score of 60.0 is slightly lower than the 60.3 achieved by SEATrack [72], it remains close to the leading method. This indicates that APRTrack provides more accurate target center localization while preserving competitive success performance on VisEv-ent. These results further show that the proposed framework generalizes well to complex short-term RGB-Event tracking scenarios. 
+
+• Results on FELT Dataset. FELT [10] is a large-scale long-term Frame-Event tracking dataset with 1,044 videos, 1,949,680 frames, and 60 target categories, covering indoor and outdoor scenarios with 14 annotated challenging attributes, such as fast motion, low illumination, overexposure, and out-of-view motion. As shown in Table IV, APRTrack achieves the best performance on FELT, with 55.3 SR, 70.1 PR, and 66.6 NPR. Compared with AMTTrack [10], APRTrack improves IEEE TRANSACTIONS ON ***, 2026 9                                                   
+
+> TABLE V COMPONENT ANALYSIS ON COESOT D ATASET .
+> #MPL SPL HR FC SR PR NPR Params FLOPs
+> 166.3 81.2 79.4 70.65M 56.87G 2✓67.8 83.3 81.4 70.79M 56.87G 3✓66.2 82.0 79.9 70.66M 56.87G 4✓✓66.5 82.5 80.7 80.65M 78.22G 5✓✓✓67.5 83.6 81.7 81.73M 78.50G 6✓✓✓✓68.3 84.0 82.0 81.86M 78.50G
+
+SR, PR, and NPR by 0.5, 2.2, and 0.9 points, respectively. It also outperforms recent strong trackers such as SUTrack [20] and XTrack [22], which obtain similar SR scores but lower PR and NPR. These results show that APRTrack improves RGB-Event tracking accuracy and provides more stable target localization in long-term scenarios with complex missing, occlusion, and appearance variation. 
+
+D. Ablation Study 
+
+• Component Analysis. As shown in Table V, we ablate four key components of APRTrack: modality-level perturbation layer (MPL), spatial-level perturbation layer (SPL), Hopfield retrieval (HR), and footprint-channel calibration (FC). Each component contributes to the tracking performance from a different degradation perspective. Compared with the baseline, adding MPL alone brings gains of 1.5 SR, 2.1 PR, and 2.0 NPR, showing that modality-level adversarial perturba-tion strengthens the robustness of the RGB-Event tracker against whole modality absence. SPL alone mainly improves localization-related metrics, with gains of 0.8 PR and 0.5 NPR, indicating that spatial-level perturbation introduces use-ful training difficulty for local target missing, although the overall improvement remains limited without historical com-pensation. Adding vanilla Hopfield retrieval on top of SPL further improves SR, PR, and NPR by 0.3, 0.5, and 0.8, respectively, suggesting that historical association provides complementary cues for locally corrupted observations. With footprint-channel calibration, the model gains another 1.0 SR, 1.1 PR, and 1.0 NPR over vanilla Hopfield retrieval. This verifies that the query-memory association footprint helps characterize retrieval reliability and calibrate the channel-wise retrieval metric space for corrupted queries before Hopfield association. Finally, the complete model improves the baseline by 2.0 SR, 2.8 PR, and 2.6 NPR and achieves the best overall performance. These results show that the four components are complementary: MPL targets whole modality missing, SPL models local spatial absence, HR introduces historical association, and FC improves retrieval reliability. Under the hierarchical routing training framework, they jointly improve missing-robust RGB-Event tracking. 
+
+• Analysis on MPL Design. This experiment analyzes how MPL selects modality missing states. Random dropout serves as a non-adaptive baseline that drops one modality with a fixed probability, while MPL w/o reg. uses an adversarial gate to select more challenging missing states according to the current RGB-Event observation. Without constraints, however, the gate may favor a small subset of modality states, especially                                                              
+
+> TABLE VI ANALYSIS OF MPL DESIGN ON COESOT D ATASET .
+> Setting Selection SR PR NPR
+> Random dropout random 67.5 82.8 81.0 MPL w/o reg. adv. gate 67.7 82.9 81.2 MPL adv. gate + bal. reg. 67.8 83.3 81.4
+> TABLE VII ANALYSIS OF SPATIAL PERTURBATION AND RETRIEVAL DESIGNS ON
+> COESOT D ATASET .
+> # Occlusion Severity SR PR NPR
+> 1. [0.10, 0.20] 67.1 82.7 81.1
+> 2. [0.15, 0.30] 67.5 83.6 81.7
+> 3. [0.20, 0.40] 66.4 82.5 80.6
+> # Search Number SR PR NPR
+> 1. 2 66.8 82.6 80.9
+> 2. 3 67.5 83.6 81.7
+> 3. 4 66.4 82.2 80.5 4. 5 66.2 82.2 80.4
+> # Footprint Descriptor SR PR NPR
+> 1. w/o footprint 66.5 82.5 80.7 2. Entropy only 67.0 82.9 81.2 3. Max probability only 66.9 82.5 80.8
+> 4. Entropy + Max probability 67.5 83.6 81.7
+
+since Event observations are usually sparser than RGB in many scenes, leading to imbalanced training difficulty. The complete MPL further introduces balance regularization (bal. reg. in Table VI) to constrain the selection distribution of different modality missing states and mitigate gate collapse. With balance regularization, MPL improves SR, PR, and NPR over MPL w/o reg. by 0.1, 0.4, and 0.2 points, respectively, and achieves the best results on all three metrics. This shows that adversarial selection and balance regularization jointly improve modality-level missing robustness learning. 
+
+• Analysis on Spatial Occlusion Severity. Spatial-level continuous perturbation simulates local target absence by applying target-constrained rectangular occlusion, where the occlusion area range controls the strength of local degradation. This range denotes the area ratio of the candidate occlusion window to the full search token grid; for example, [0.15, 0.30] means that the selected window covers 15% to 30% of the search tokens. We compare three occlusion severity settings, i.e., [0.10, 0.20], [0.15, 0.30], and [0.20, 0.40]. As shown in Table VII, the moderate range [0.15, 0.30] achieves the best performance. This setting provides sufficient local-missing pressure while preserving recoverable target cues. In contrast, a smaller range cannot adequately simulate local target absence, whereas a larger range may corrupt excessive target regions and turn local absence into severe target damage, weakening the effective correspondence between historical retrieval and current representation. 
+
+• Analysis on Training Historical Context. FCHR relies on historical search frames available during training to learn cross-temporal compensation. We analyze the influence of historical context length by varying the search number in the training data, where search number = 2 denotes the current frame with one historical search frame, search number = 3 IEEE TRANSACTIONS ON ***, 2026 10                   
+
+> TABLE VIII ANALYSIS OF HIERARCHICAL ROUTING STRATEGY ON COESOT DATASET .
+> Training Strategy Variant SR PR NPR
+> Stacked perturbation MPL + SPL 64.0 80.5 79.4 Hierarchical routing w/o clean branch 67.6 83.4 81.5 w/ clean, w/o prog. 68.2 83.6 81.7 w/ clean and prog. 68.3 84.0 82.0
+
+denotes the current frame with two historical search frames, and so on. As shown in Table VII, search number = 3
+
+achieves the best performance, indicating that a moderate historical context is more suitable for stable retrieval learning. Too few historical frames provide insufficient cross-temporal target cues for memory-based compensation, whereas further increasing the search number introduces more appearance variation, localization noise, and background interference, weakening the effective association between the current query and historical memory. Therefore, FCHR does not simply benefit from longer histories; instead, it requires a moderate and reliable temporal context for stable retrieval learning. 
+
+• Analysis on Footprint Descriptor Design. FCHR esti-mates retrieval reliability using the query-memory association footprint and calibrates the channel-wise metric space of the query before Hopfield association. We compare four footprint descriptor designs: without footprint, entropy only, max prob-ability only, and entropy combined with max probability. As shown in Table VII, combining entropy and max probability achieves the best performance, indicating that the two statistics characterize retrieval states from complementary perspectives. Entropy reflects the dispersion of the association distribution and measures retrieval uncertainty, while max probability cap-tures the strongest historical response and indicates whether a clear target-related memory exists. Either statistic alone describes only one aspect of the retrieval state; their combi-nation jointly models distributional uncertainty and strongest-match confidence, providing a more complete reliability cue for channel calibration and leading to more stable and reliable historical compensation. 
+
+• Analysis on Hierarchical Routing Strategy. Table VIII validates the necessity of hierarchical routing, where prog. denotes progressive modality scheduling: training starts with milder modality perturbation and gradually restores the full perturbation strength. Directly stacking MPL and SPL exposes the same sample to both whole modality missing and local spatial occlusion, which excessively weakens the effective in-formation in the current frame and leads to clear performance degradation. Hierarchical routing without a clean branch al-ready improves SR, PR, and NPR over the stacked setting by 3.6, 2.9, and 2.1 points, respectively, showing that assigning modality-level missing and spatial-level missing to separate training paths avoids information collapse caused by double degradation. However, when all samples are placed under degraded states, the model still lacks an unperturbed current frame representation anchor. Introducing the clean branch further improves SR, PR, and NPR by 0.6, 0.2, and 0.2 points, respectively, indicating that clean samples help balance normal  
+
+> Fig. 4. Success rate comparison under 14 challenging attributes on FELT.
+
+representation learning with structured degradation training. Finally, the complete strategy outperforms the variant without progressive scheduling, suggesting that gradually increasing modality missing pressure helps stabilize early joint training. These results show that the clean branch and progressive scheduling are important for stably combining MPL, SPL, and historical retrieval compensation. 
+
+• Success Rate Under Challenging Attributes. To further analyze robustness under different challenging factors, we report the success rate of different trackers on 14 attributes of the FELT dataset, including fast motion (FM), viewpoint transformation (VT), full occlusion (FOC), low illumination (LI), small target (ST), out-of-view (OV), and other chal-lenging factors. As shown in Fig. 4, APRTrack is compared with OSTrack [3], SDSTrack [21], SUTrack [20], ViPT [13], and AiATrack [63] in terms of attribute-level SR. APRTrack achieves consistent improvements on most attributes, espe-cially under viewpoint transformation, deformation, partial occlusion, scale variation, and aspect ratio change, where the target appearance or geometric state changes substantially. It also remains competitive under stronger degradation factors such as fast motion, full occlusion, low illumination, and out-of-view. The relatively low scores on small target (ST) indicate that this attribute remains highly challenging, since limited target pixels provide insufficient appearance and event cues, making accurate localization difficult for all compared trackers. These results indicate that the gains of APRTrack are not limited to a single attribute, but are reflected across diverse missing, occlusion, and appearance variation conditions. 
+
+E. Efficiency Analysis 
+
+As shown in Table V, APRTrack improves tracking perfor-mance with acceptable computational overhead. Since MPL and SPL are training-time perturbation modules, we report the IEEE TRANSACTIONS ON ***, 2026 11       
+
+> Fig. 5. Compensation gate dynamics of FCHR during training. 185 mm 185 mm 185 mm 185 mm 185 mm
+> Fig. 6. Visualization of attention maps generated by APRTrack.
+
+training-time parameter count to reflect the full optimization framework, while FLOPs are measured at inference time. The complete model increases the parameter count from 70.65M to 81.86M, mainly due to the historical compensation and footprint calibration modules. When FCHR is enabled, the inference FLOPs increase from 56.87G to 78.50G, indicating that the additional historical retrieval cost remains moderate. In addition, APRTrack runs at 31 FPS on FELT, showing its practical real-time tracking capability. 
+
+F. Visualization 
+
+• Compensation Gate Dynamics. As shown in Fig. 5, the Event branch consistently shows higher average compensation gate values at each epoch than the RGB branch, indicating that the Event representation relies more on historical com-pensation. Since Event responses are triggered by brightness changes, the target may become sparse or even less visible in static or weak-motion scenes, resulting in weak current frame features. The stronger Event compensation gate therefore sug-gests that FCHR adaptively injects more historical target cues into the Event branch, compensating for insufficient current observations. 
+
+• Attention Maps and Response Maps. As shown in Fig. 6, we visualize the attention activation maps produced by APRTrack in two representative scenarios: similar object interference and target rotation. Regions with warmer colors    
+
+> Fig. 7. Visualization of response maps generated by APRTrack. Ours Ours GT GT AQATrack AQATrack ViPT ViPT OSTrack OSTrack
+> Fig. 8. Visualization of tracking results produced by APRTrack and other state-of-the-art trackers.
+
+indicate higher attention weights. The visualization shows that APRTrack can focus on target-related regions despite distrac-tors or appearance changes, rather than being dominated by background regions or similar objects. Fig. 7 further presents the final response maps generated by the tracker, where high-response regions indicate the predicted target locations. The response maps cover fast motion and partial occlusion scenarios, and APRTrack still produces concentrated responses around the target in the search region. These results suggest that hierarchical perturbation training improves target dis-crimination under degraded observations, while FCHR helps maintain stable localization when current frame information is incomplete. 
+
+• Tracking Results. Beyond quantitative analysis, we provide qualitative tracking results for a more intuitive understanding of APRTrack. As shown in Fig. 8, APRTrack is compared with OSTrack [3], ViPT [13], and AQATrack [37] on RGB-Event tracking sequences. Compared with these representative trackers, APRTrack better exploits complementary RGB and Event cues, and produces more stable bounding boxes through missing-robust perturbation training and controlled historical retrieval. These qualitative results further confirm its localiza-tion stability in challenging scenes. IEEE TRANSACTIONS ON ***, 2026 12 
+
+G. Limitation Analysis 
+
+Although APRTrack achieves promising performance on multiple RGB-Event tracking benchmarks, it still has limi-tations. First, our framework mainly focuses on robust repre-sentation learning under structured missing conditions, using hierarchical perturbation and historical retrieval to alleviate modality-level degradation and local target corruption. It does not explicitly model long-term state evolution across frames, which may affect performance in sequences with drastic appearance changes or continuous target state transi-tions. Second, when RGB and Event observations are both severely degraded, or when the historical memory contains unreliable target states, the complementary cues available for recovery may become insufficient. Future work will explore stronger temporal modeling, reliable memory updating, and uncertainty-aware retrieval to improve robustness in long-term and extremely degraded scenarios. V. C ONCLUSION 
+
+In this paper, we present APRTrack, an adversarial hierar-chical perturbation and retrieval framework for missing-robust RGB-Event tracking. To address structured degradation in real-world scenarios, APRTrack decomposes missing observations into modality-level degradation and local target corruption, and models them with adversarial modality-level perturbation and adversarial spatial-level perturbation, respectively. A hi-erarchical routing training strategy further decouples different degradation states, avoiding information collapse caused by directly stacking multiple degradations on the same sample. Meanwhile, Footprint-guided Channel-calibrated Hopfield Re-trieval incorporates historical target cues in a controlled man-ner, using query-memory association footprints to calibrate the retrieval space before associative memory access. Experi-ments on multiple RGB-Event tracking benchmarks show that APRTrack stably integrates modality-robust learning, spatial missing modeling, and reliable historical retrieval, leading to consistent performance improvements. These results validate the effectiveness of unifying structured degradation modeling and controlled memory retrieval within a single framework. ACKNOWLEDGMENT 
+
+This work was supported by the National Natural Science Foundation of China under Grant 62102205 and the An-hui Provincial Natural Science Foundation-Outstanding Youth Project under Grant 2408085Y032. The authors acknowledge the High-performance Computing Platform of Anhui Univer-sity for providing computing resources. REFERENCES [1] X. Chen, B. Yan, J. Zhu, D. Wang, X. Yang, and H. Lu, “Transformer tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2021, pp. 8126–8135. [2] Y. Cui, C. Jiang, L. Wang, and G. Wu, “Mixformer: End-to-end tracking with iterative mixed attention,” in Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition , 2022, pp. 13 608– 13 618. [3] B. Ye, H. Chang, B. Ma, S. Shan, and X. Chen, “Joint feature learning and relation modeling for tracking: A one-stream framework,” in European conference on computer vision . Springer, 2022, pp. 341– 357. [4] X. Chen, H. Peng, D. Wang, H. Lu, and H. Hu, “Seqtrack: Sequence to sequence learning for visual object tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2023, pp. 14 572–14 581. [5] G. Gallego, T. Delbrück, G. Orchard, C. Bartolozzi, B. Taba, A. Censi, S. Leutenegger, A. J. Davison, J. Conradt, K. Daniilidis et al. , “Event-based vision: A survey,” IEEE transactions on pattern analysis and machine intelligence , vol. 44, no. 1, pp. 154–180, 2020. [6] J. Huang, S. Wang, M. Guo, and S. Chen, “Event-guided structured output tracking of fast-moving objects using a celex sensor,” IEEE Transactions on Circuits and Systems for Video Technology , vol. 28, no. 9, pp. 2413–2417, 2018. [7] J. Zhang, X. Yang, Y. Fu, X. Wei, B. Yin, and B. Dong, “Object tracking by jointly exploiting frame and event domain,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2021, pp. 13 043–13 052. [8] X. Wang, J. Li, L. Zhu, Z. Zhang, Z. Chen, X. Li, Y. Wang, Y. Tian, and F. Wu, “Visevent: Reliable object tracking via collaboration of frame and event flows,” IEEE Transactions on Cybernetics , vol. 54, no. 3, pp. 1997–2010, 2023. [9] C. Tang, X. Wang, J. Huang, B. Jiang, L. Zhu, S. Chen, J. Zhang, Y. Wang, and Y. Tian, “Revisiting color-event based tracking: A unified network, dataset, and metric,” Pattern Recognition , p. 112718, 2025. [10] X. Wang, J. Huang, S. Wang, C. Tang, B. Jiang, Y. Tian, J. Tang, and B. Luo, “Long-term frame-event visual tracking: Benchmark dataset and baseline,” arXiv e-prints , pp. arXiv–2403, 2024. [11] J. Zhang, Y. Wang, W. Liu, M. Li, J. Bai, B. Yin, and X. Yang, “Frame-event alignment and fusion network for high frame rate tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2023, pp. 9781–9790. [12] Z. Zhu, J. Hou, and D. O. Wu, “Cross-modal orthogonal high-rank augmentation for rgb-event transformer-trackers,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2023, pp. 22 045–22 055. [13] J. Zhu, S. Lai, X. Chen, D. Wang, and H. Lu, “Visual prompt multi-modal tracking,” in Proceedings of the IEEE/CVF conference on com-puter vision and pattern recognition , 2023, pp. 9516–9526. [14] Y. Fu, M. Li, W. Liu, Y. Wang, J. Zhang, B. Yin, X. Wei, and X. Yang, “Distractor-aware event-based tracking,” IEEE Transactions on Image Processing , vol. 32, pp. 6129–6141, 2023. [15] T. Zhang, K. Debattista, Q. Zhang, G. Ding, and J. Han, “Revisiting motion information for rgb-event tracking with mot philosophy,” in 
+
+Advances in Neural Information Processing Systems , vol. 37, 2024. [16] C. Sun, J. Zhang, Y. Wang, H. Ge, Q. Xia, B. Yin, and X. Yang, “Exploring historical information for rgbe visual tracking with mamba,” in Proceedings of the Computer Vision and Pattern Recognition Confer-ence , 2025, pp. 6500–6509. [17] H. Ramsauer, B. Schäfl, J. Lehner, P. Seidl, M. Widrich, T. Adler, L. Gruber, M. Holzleitner, M. Pavlovi´ c, G. K. Sandve et al. , “Hopfield networks is all you need,” arXiv preprint arXiv:2008.02217 , 2020. [18] X. Wang, S. Wang, C. Tang, L. Zhu, B. Jiang, Y. Tian, and J. Tang, “Event stream-based visual object tracking: A high-resolution bench-mark dataset and a novel baseline,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 19 248–19 257. [19] Z. Wu, J. Zheng, X. Ren, F.-A. Vasluianu, C. Ma, D. P. Paudel, L. Van Gool, and R. Timofte, “Single-model and any-modality for video object tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2024, pp. 19 156–19 166. [20] X. Chen, B. Kang, W. Geng, J. Zhu, Y. Liu, D. Wang, and H. Lu, “Sutrack: Towards simple and unified single object tracking,” arXiv preprint arXiv:2412.19138 , 2024. [21] X. Hou, J. Xing, Y. Qian, Y. Guo, S. Xin, J. Chen, K. Tang, M. Wang, Z. Jiang, L. Liu et al. , “Sdstrack: Self-distillation symmetric adapter learning for multi-modal visual object tracking,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2024, pp. 26 551–26 561. [22] Y. Tan, Z. Wu, Y. Fu, Z. Zhou, G. Sun, E. Zamfi, C. Ma, D. P. Paudel, L. Van Gool, and R. Timofte, “Xtrack: Multimodal training boosts rgb-x video object trackers,” in Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 2025, pp. 5734–5744. [23] S. Wang, J. Huang, Q. Ma, J. Gao, C. Xu, X. Wang, L. Chen, and B. Jiang, “Mamba-fetrack v2: Revisiting state space model for frame-event based visual object tracking,” arXiv preprint arXiv:2506.23783 ,2025. [24] J. Zhao, R. Li, and Q. Jin, “Missing modality imagination network for emotion recognition with uncertain missing modalities,” in Proceedings IEEE TRANSACTIONS ON ***, 2026 13 
+
+of the AAAI Conference on Artificial Intelligence , vol. 35, no. 6, 2021, pp. 5680–5688. [25] M. Ma, J. Ren, L. Zhao, S. Tulyakov, C. Wu, and X. Peng, “Smil: Multimodal learning with severely missing modality,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 35, no. 3, 2021, pp. 2302–2310. [26] Y.-L. Lee, Y.-H. Tsai, W.-C. Chiu, and C.-Y. Lee, “Multimodal prompt-ing with missing modalities for visual recognition,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2023, pp. 14 943–14 952. [27] H. Wang, Y. Chen, C. Ma, J. Avery, L. Hull, and G. Carneiro, “Multi-modal learning with missing modality via shared-specific feature modelling,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2023, pp. 15 878–15 887. [28] H. Huang, T. Gong, K. He, W. Wen, W. Zhang, and M. Feng, “Re-covering coherent affective patterns: Addressing modality missing in multimodal sentiment analysis,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 40, no. 26, 2026, pp. 21 957–21 965. [29] N. He, Y. Deng, S. Yue, Y. Fu, Z. Zhang, and T. Gao, “Rag4dmc: Retrieval-augmented generation for data-level modality completion,” in 
+
+International Conference on Learning Representations , 2026. [30] S. Zhao, N. Ahuja, T. Yu, T. Shen, and V. Narayanan, “Mora: Missing modality low-rank adaptation for visual recognition,” in International Conference on Learning Representations , 2026. [31] R. Xi, “Miss-reid: Delivering robust multi-modality object re-identification despite missing modalities,” in Advances in Neural In-formation Processing Systems , vol. 38, 2025. [32] S. Du, X. Luo, D. P. O’Regan, and C. Qin, “Inference-time dynamic modality selection for incomplete multimodal classification,” in Inter-national Conference on Learning Representations , 2026. [33] N. Wang, W. Zhou, J. Wang, and H. Li, “Transformer meets tracker: Exploiting temporal context for robust visual tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,2021, pp. 1571–1580. [34] C. Mayer, M. Danelljan, D. P. Paudel, and L. Van Gool, “Learning target candidate association to keep track of what not to track,” in Proceedings of the IEEE/CVF international conference on computer vision , 2021, pp. 13 444–13 454. [35] W. Cai, Q. Liu, and Y. Wang, “Hiptrack: Visual tracking with historical prompts,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 19 258–19 267. [36] Y. Zheng, B. Zhong, Q. Liang, Z. Mo, S. Zhang, and X. Li, “Odtrack: Online dense temporal token learning for visual tracking,” in Proceed-ings of the AAAI conference on artificial intelligence , vol. 38, no. 7, 2024, pp. 7588–7596. [37] J. Xie, B. Zhong, Z. Mo, S. Zhang, L. Shi, S. Song, and R. Ji, “Autoregressive queries for adaptive tracking with spatio-temporal trans-formers,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 19 300–19 309. [38] B. Kang, X. Chen, S. Lai, Y. Liu, Y. Liu, and D. Wang, “Exploring enhanced contextual information for video-level object tracking,” in 
+
+Proceedings of the AAAI conference on Artificial Intelligence , vol. 39, no. 4, 2025, pp. 4194–4202. [39] B. Millidge, T. Salvatori, Y. Song, T. Lukasiewicz, and R. Bogacz, “Universal hopfield networks: A general framework for single-shot associative memory models,” in International Conference on Machine Learning . PMLR, 2022, pp. 15 561–15 583. [40] S. Wang, Y. Pan, Z. Shen, M. Zhang, H. Wang, and G. Li, “Adaptive hopfield network: Rethinking similarities in associative memory,” in 
+
+International Conference on Learning Representations , 2026. [41] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly et al. ,“An image is worth 16x16 words: Transformers for image recognition at scale,” arXiv preprint arXiv:2010.11929 , 2020. [42] A. Fürst, E. Rumetshofer, J. Lehner, V. T. Tran, F. Tang, H. Ramsauer, D. Kreil, M. Kopp, G. Klambauer, A. Bitto et al. , “Cloob: Modern hopfield networks with infoloob outperform clip,” Advances in neural information processing systems , vol. 35, pp. 20 450–20 468, 2022. [43] J. Y.-C. Hu, P.-H. Chang, R. Luo, H.-Y. Chen, W. Li, W.-P. Wang, and H. Liu, “Outlier-efficient hopfield layers for large transformer-based models,” arXiv preprint arXiv:2404.03828 , 2024. [44] X. Niu, B. Bai, L. Deng, and W. Han, “Beyond scaling laws: Understand-ing transformer performance with associative memory,” arXiv preprint arXiv:2405.08707 , 2024. [45] Q. Ma, S. Wang, T. Zheng, X. Dai, Y. Wang, Q. Yang, and X. Wang, “Exploiting memory-aware q-distribution prediction for nuclear fusion via modern hopfield network,” in International Conference on Brain Inspired Cognitive Systems . Springer, 2024, pp. 104–114. [46] A. Auer, M. Gauch, D. Klotz, and S. Hochreiter, “Conformal prediction for time series with modern hopfield networks,” Advances in neural information processing systems , vol. 36, pp. 56 027–56 074, 2023. [47] Y.-H. Wu, J. Y.-C. Hu, W. Li, B.-Y. Chen, and H. Liu, “Stanhop: Sparse tandem hopfield model for memory-enhanced time series prediction,” in 
+
+International Conference on Learning Representations , vol. 2024, 2024, pp. 30 886–30 925. [48] Y. Ganin and V. Lempitsky, “Unsupervised domain adaptation by back-propagation,” Proceedings of the International Conference on Machine Learning , pp. 1180–1189, 2015. [49] E. Jang, S. Gu, and B. Poole, “Categorical reparameterization with gumbel-softmax,” International Conference on Learning Representa-tions , 2017. [50] C. J. Maddison, A. Mnih, and Y. W. Teh, “The concrete distribution: A continuous relaxation of discrete random variables,” International Conference on Learning Representations , 2017. [51] H. Rezatofighi, N. Tsoi, J. Gwak, A. Sadeghian, I. Reid, and S. Savarese, “Generalized intersection over union: A metric and a loss for bounding box regression,” in Proceedings of the IEEE/CVF conference on com-puter vision and pattern recognition , 2019, pp. 658–666. [52] H. Law and J. Deng, “Cornernet: Detecting objects as paired keypoints,” in Proceedings of the European conference on computer vision (ECCV) ,2018, pp. 734–750. [53] I. Loshchilov and F. Hutter, “Decoupled weight decay regularization,” 
+
+arXiv preprint arXiv:1711.05101 , 2017. [54] X. Zhang, Y. Tian, L. Xie, W. Huang, Q. Dai, Q. Ye, and Q. Tian, “Hivit: A simpler and more efficient design of hierarchical vision transformer,” in The eleventh international conference on learning representations ,2023. [55] Z. Chen, B. Zhong, G. Li, S. Zhang, and R. Ji, “Siamese box adaptive network for visual tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2020, pp. 6668–6677. [56] Y. Xu, Z. Wang, Z. Li, Y. Yuan, and G. Yu, “Siamfc++: Towards robust and accurate visual tracking with target estimation guidelines,” in 
+
+Proceedings of the AAAI conference on artificial intelligence , vol. 34, no. 07, 2020, pp. 12 549–12 556. [57] G. Bhat, M. Danelljan, L. Van Gool, and R. Timofte, “Know your surroundings: Exploiting scene information for object tracking,” in 
+
+European conference on computer vision . Springer, 2020, pp. 205– 221. [58] X. Dong, J. Shen, L. Shao, and F. Porikli, “Clnet: A compact latent network for fast adjusting siamese trackers,” in European conference on computer vision . Springer, 2020, pp. 378–395. [59] M. Danelljan, G. Bhat, F. S. Khan, and M. Felsberg, “Atom: Accurate tracking by overlap maximization,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2019, pp. 4660– 4669. [60] G. Bhat, M. Danelljan, L. V. Gool, and R. Timofte, “Learning discrim-inative model prediction for tracking,” in Proceedings of the IEEE/CVF international conference on computer vision , 2019, pp. 6182–6191. [61] M. Danelljan, L. V. Gool, and R. Timofte, “Probabilistic regression for visual tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2020, pp. 7183–7192. [62] B. Yan, H. Peng, J. Fu, D. Wang, and H. Lu, “Learning spatio-temporal transformer for visual tracking,” in Proceedings of the IEEE/CVF international conference on computer vision , 2021, pp. 10 448–10 457. [63] S. Gao, C. Zhou, C. Ma, X. Wang, and J. Yuan, “Aiatrack: Attention in attention for transformer visual tracking,” in European Conference on Computer Vision . Springer, 2022, pp. 146–164. [64] C. Mayer, M. Danelljan, G. Bhat, M. Paul, D. P. Paudel, F. Yu, and L. Van Gool, “Transforming model prediction for tracking,” in Pro-ceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2022, pp. 8731–8740. [65] T. Zhang, Q. Zhang, K. Debattista, and J. Han, “Cross-modality distilla-tion for multi-modal tracking,” IEEE Transactions on Pattern Analysis and Machine Intelligence , 2025. [66] C. Xu, B. Zhong, Q. Liang, Y. Zheng, G. Li, and S. Song, “Less is more: Token context-aware learning for object tracking,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 39, no. 8, 2025, pp. 8824–8832. [67] J. Yang, L. Fan, J. Zhang, X. Lian, H. Shen, and D. Hu, “Fully spiking neural networks for unified frame-event object tracking,” vol. 38, 2026, pp. 121 132–121 163. IEEE TRANSACTIONS ON ***, 2026 14 
+
+[68] H. Wu, X. Wang, J. Zhang, J. Tong, X. Chen, J. Lin, Y. Ma, and X. Shen, “Utptrack: Towards simple and unified token pruning for visual tracking,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2026, pp. 20 963–20 972. [69] Z. Wang, S. Liu, H. Zheng, S. Wang, Y. Hu, H. Fan, Y. Li, H. Guo, and L. Deng, “Lastracker: A lightweight rgb-e tracking framework with ann-snn adaptive switching,” Pattern Recognition , p. 113623, 2026. [70] D. Guo, J. Wang, Y. Cui, Z. Wang, and S. Chen, “Siamcar: Siamese fully convolutional classification and regression for visual tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2020, pp. 6269–6277. [71] P. Voigtlaender, J. Luiten, P. H. Torr, and B. Leibe, “Siam r-cnn: Visual tracking by re-detection,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2020, pp. 6578–6588. [72] J. Su, Z. Xue, S. Zhang, K. Chen, W. Hu, and Z. Zhang, “Seatrack: Simple, efficient, and adaptive multimodal tracker,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2026, pp. 28 679–28 689. [73] B. Chen, P. Li, L. Bai, L. Qiao, Q. Shen, B. Li, W. Gan, W. Wu, and W. Ouyang, “Backbone is all your need: A simplified architecture for visual object tracking,” in European conference on computer vision .Springer, 2022, pp. 375–392. [74] S. Gao, C. Zhou, and J. Zhang, “Generalized relation modeling for transformer tracking,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2023, pp. 18 686–18 695. [75] Y. Cai, J. Liu, J. Tang, and G. Wu, “Robust object modeling for visual tracking,” in Proceedings of the IEEE/CVF international conference on computer vision , 2023, pp. 9589–9600. [76] Y. Bai, Z. Zhao, Y. Gong, and X. Wei, “Artrackv2: Prompting autore-gressive tracker where to look and how to describe,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,2024, pp. 19 048–19 057. [77] L. Shi, B. Zhong, Q. Liang, N. Li, S. Zhang, and X. Li, “Explicit visual prompts for visual object tracking,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 38, no. 5, 2024, pp. 4838– 4846. [78] J. Zheng, M. Liang, S. Huang, and J. Ning, “Exploring the feature extraction and relation modeling for light-weight transformer tracking,” in European Conference on Computer Vision . Springer, 2024, pp. 110– 126. [79] J. Zhu, H. Tang, X. Chen, X. Wang, D. Wang, and H. Lu, “Two-stream beats one-stream: asymmetric siamese network for efficient visual tracking,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 39, no. 10, 2025, pp. 10 959–10 967. [80] Y. Wu, X. Wang, X. Yang, M. Liu, D. Zeng, H. Ye, and S. Li, “Learning occlusion-robust vision transformers for real-time uav tracking,” in Pro-ceedings of the Computer Vision and Pattern Recognition Conference ,2025, pp. 17 103–17 113. [81] H. Qin, T. Xu, T. Li, Z. Chen, T. Feng, and J. Li, “Must: The first dataset and unified framework for multispectral uav single object track-ing,” in Proceedings of the Computer Vision and Pattern Recognition Conference , 2025, pp. 16 882–16 891. [82] Q. Zhang, J. Cheng, Q. Mao et al. , “Spiketrack: A spike-driven frame-work for efficient visual tracking,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2026, pp. 6802–6811.

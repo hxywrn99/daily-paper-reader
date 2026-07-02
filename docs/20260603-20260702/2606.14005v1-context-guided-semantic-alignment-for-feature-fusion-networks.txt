@@ -1,0 +1,647 @@
+Title: Context-Guided Semantic Alignment for Feature Fusion Networks
+
+URL Source: https://arxiv.org/pdf/2606.14005v1
+
+Published Time: Mon, 15 Jun 2026 00:21:32 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+# Context-Guided Semantic Alignment for Feature Fusion Networks 
+
+Hyungseop Lee , Jiho Lee , and Woochul Kang ⋆
+
+Department of Embedded Systems Engineering, Incheon National University, Yeonsu-gu 22012, South Korea 
+
+{hhss0927, wchkang}@inu.ac.kr 
+
+Abstract. Feature fusion networks are fundamental components in mod-ern object detectors, aggregating multi-scale features to detect objects of varying sizes. However, directly fusing features from different pyramid levels often introduces semantic inconsistency due to their heterogeneous representations. In this paper, we propose Feature Interaction NEtwork (FINE), a lightweight semantic alignment module that refines low-level features via high-level contextual guidance using cross-level attention prior to fusion. To bridge the structural gap and ensure computational efficiency, we introduce an Alignment-Aware Token Sampling that aligns corresponding spatial regions across scales, reducing the attention com-plexity by an order of magnitude. The resulting attention weights gener-ate a spatial-channel modulation map that is upsampled and applied to the low-level features via residual element-wise modulation. This mecha-nism ensures that the network selectively enhances semantically relevant pixels while preserving the sub-pixel localization accuracy necessary for dense prediction tasks. FINE is generally applicable to various detectors and consistently improves detection accuracy without compromising ef-ficiency. 
+
+## 1 Introduction 
+
+Modern object detectors [1, 19, 49, 53, 55, 58] generally follow a tripartite archi-tecture, consisting of a backbone for feature extraction, a neck for feature fusion, and a head for prediction, as illustrated in Figure 1(a). The backbone extracts hierarchical representations from the input image, where early layers capture fine-grained local details with small receptive fields, while deeper layers produce semantically rich but spatially coarse representations due to progressively ex-panded receptive fields. To exploit complementary information across feature levels, the neck aggregates these pyramidal features via cross-level fusion, and the fused representations are fed into the head for bounding box regression and category classification. As an intermediate component bridging feature extrac-tion and final prediction, the neck is responsible for constructing multi-scale representations essential for detecting objects of varying sizes.  
+
+> ⋆
+
+Corresponding author. 
+
+> arXiv:2606.14005v1 [cs.CV] 12 Jun 2026
+
+2 H. Lee et al. Semantic inconsistency        
+
+> 2×Up
+> FINE
+> Baseline
+> Low -level
+> High -level
+> 2×Up
+> Low -level
+> High -level Ours
+> Backbone Head Neck
+> pred.
+> pred.
+> pred.
+> (a) Object detection architecture
+> Fusion block + FINE (Ours)
+> (b) Fusion block comparison (c) Prediction
+> Misclassification
+> 𝑺 𝟒
+> 𝑺 𝟑
+> 𝑺 𝟐
+> 𝑭 𝟒
+> 𝑭 𝟑
+> 𝑭 𝟐
+> f
+> f
+> f
+> f
+> f: feature fusion
+
+Fig. 1: Semantic inconsistency in conventional feature fusion. (a) Modern de-tectors use a neck to aggregate multi-scale backbone features. (b) Standard fusion blocks combine features via naive element-wise operations, enforcing pixel-wise align-ment but leaving representational discrepancies unresolved. In contrast, our method mitigates this by explicitly aligning low-level features with high-level context prior to fusion. (c) In baseline models, semantic inconsistency often causes misclassifications in background clutter. FINE reduces such errors and improves detection reliability. 
+
+Despite the widespread adoption of feature fusion networks [10, 31, 35, 47], existing approaches often overlook a critical issue: semantic inconsistency be-tween feature levels. In typical feature pyramid architectures, high-level features learn rich semantic contexts while losing spatial information due to repeated downsampling in the backbone network. In contrast, low-level features preserve spatial details but lack sufficient semantic abstraction. Directly fusing these het-erogeneous features through naive element-wise operations, such as addition or concatenation, enforces position-wise aggregation without resolving the under-lying representational discrepancies, as illustrated by the activation heatmaps in Figure 1(b). This semantic mismatch induces information conflicts [16] at corresponding spatial positions, thereby distorting the fused representation and increasing the risk of inaccurate classification in background clutter, as shown in Figure 1(c) (detailed analysis in Section 5.4). Motivated by these limitations, we propose a lightweight semantic alignment module, termed Feature Interaction NE twork (FINE). Before feature fusion, FINE performs spatial-channel modulation on low-level features, guided by the rich context of their corresponding higher-level representations. To generate this modulation map, we employ multi-head cross-level attention to capture diverse semantic interactions. However, directly enforcing dense pixel-to-pixel interac-tions across pyramid levels is not only computationally prohibitive but also in-herently unaligned in terms of effective receptive fields. Specifically, features from different backbone stages encode distinct contextual scales and exhibit inconsis-tent receptive field sizes, making naive position-wise interactions unreliable for establishing meaningful cross-level correspondences. To address this, we intro-duce Alignment-Aware Token Sampling (AATS), which condenses features into Context-Guided Semantic Alignment for Feature Fusion Networks 3
+
+representative tokens while aligning their effective receptive fields across levels. Based on these aligned and reduced tokens, our bottleneck cross-level attention establishes robust correspondences to selectively inject high-level semantic con-text into low-level features. Since the modulation map is estimated at a coarse regional scale due to token sampling, we adopt a residual modulation strategy to preserve high-resolution spatial cues critical for accurate object localization. Extensive experiments on the MS COCO [33] dataset demonstrate that FINE consistently boosts performance across various detection architectures with neg-ligible computational overhead. These gains are largely driven by a reduction in false positives, suppressing the misclassification of background clutter as fore-ground objects. Furthermore, FINE yields notable gains for small object detec-tion by enriching the limited semantic context of low-level features. While our evaluation primarily focuses on object detection, FINE generalizes well to other datasets and can be readily integrated into other dense prediction tasks ( e.g ., segmentation), as detailed in Appendix Section D Our contributions can be summarized as follows: 
+
+– We propose FINE, a lightweight plug-and-play module that facilitates ef-ficient inter-level cross-scale attention to mitigate semantic misalignment across feature pyramid levels in real-time detectors. 
+
+– We propose Alignment-Aware Token Sampling, a mechanism that signifi-cantly reduces the computational overhead of cross-level attention while es-tablishing precise regional correspondences across pyramidal feature levels. 
+
+– Extensive evaluations demonstrate that FINE consistently enhances detec-tion performance across diverse architectures with minimal inference over-head. By mitigating semantic conflicts, FINE substantially reduces false pos-itives and yields significant improvements in small object detection. 
+
+## 2 Related Work 
+
+2.1 Misalignment in Feature Fusion Networks 
+
+Semantic misalignment across pyramid levels poses a fundamental challenge in feature fusion networks. To alleviate this issue, several approaches recalibrate channel-wise feature responses. For example, Squeeze-and-Excitation (SENet) [15] is widely used to modulate channel importance. Building on this, FaPN [18] adds a feature selection module to emphasize informative channels, and AFF [7] extends SENet by incorporating multi-scale pooling for both global and local context. AugFPN [12] further mitigates semantic gaps by enforcing consistent supervision across all pyramid levels. Other works redesign the fusion architec-ture itself: for instance, A2-FPN [16] aggregates global context from multiple levels to reduce semantic loss, and CATFPN [17] refines separate feature pyra-mids using global context blocks. In parallel, some studies address pixel-level misalignment caused by artifacts from naive upsampling, employing learnable sampling offsets [18,21,38,54] or soft upsampling [11,29] to preserve fine-grained 4 H. Lee et al. 
+
+textures. These approaches can improve fusion quality but often introduce sig-nificant computational overhead or lack plug-and-play applicability to existing detectors. 
+
+2.2 Attention Mechanisms for Object Recognition 
+
+Self-attention [52] has been widely adopted to model long-range dependencies. However, its quadratic complexity [8] has motivated numerous efficient variants, including local attention [20, 36, 49, 53], hybrid CNN–transformer architectures [40, 56], kernel-based linear attention [3, 26, 37], and token sparsification [2, 30, 44]. Despite their efficacy, these mechanisms are tailored for intra-level feature extraction within a single scale. Several studies have leveraged cross-attention to model dependencies across heterogeneous feature representations. For multi-scale feature fusion, FPT [57] introduces transformer-style interactions across the feature pyramid, while CLASS [48] employs cross-level attention in a U-Net-based [46] architecture for salient object detection. However, their dense pixel-wise computations introduce sub-stantial latency, limiting their applicability to real-time architectures. While the DETR family [4, 28, 34, 59] and its real-time variants [19, 43, 55, 58] successfully employ cross-attention for generic object detection, this mechanism is primarily used in the detection head for object query decoding, rather than for cross-level feature fusion. Consequently, efficient cross-level attention within feature fusion networks remains largely unexplored in real-time object detection, hindered by the prohibitive computational costs of high-resolution features and the spatial-channel heterogeneity. 
+
+## 3 Preliminaries 
+
+In this section, we briefly review Feature Pyramid Networks (FPN) [31] and establish the notation used throughout this paper. Given an input image, a backbone network extracts a hierarchy of feature maps {S2, S 3, S 4}, where each 
+
+Sl ∈ RHl×Wl×Cl corresponds to strides of {8, 16 , 32 } pixels relative to the input image, respectively. Each Sl is first projected to a unified channel dimension 
+
+C via 1 × 1 convolutions. At the l-th fusion stage, the low-level and high-level features are defined as: 
+
+Flow = Conv 1×1(Sl), Fhigh = Conv 1×1(Sl+1 ). (1) These adjacent features are integrated using a top-down pathway: 
+
+Ffused = f  Flow , Up (Fhigh , scale = 2) , (2) where Up (·) denotes nearest-neighbor interpolation and f (·) represents a fu-sion operator, such as element-wise addition or concatenation. The resulting 
+
+Ffused subsequently serves as the high-level input for the next fusion stage Context-Guided Semantic Alignment for Feature Fusion Networks 5𝑁 low × 𝑑 
+
+FINE 
+
+> 𝐶
+> 𝑊 low
+> 𝐻 low
+> 𝑭 𝐥𝐨𝐰
+> 𝐚𝐥𝐢𝐠𝐧𝐞𝐝
+> Residual Modulation
+> 𝑭 𝒍 +𝟏
+> 𝐶
+> 𝑊 high
+> 𝐻 high
+
+f            
+
+> 1×1
+> Conv
+> 𝑺 𝒍
+> 2×Up
+> 𝐶
+> 𝑊 low
+> 𝐻 low
+> 𝑭 𝐥𝐨𝐰
+> 𝑭 𝐡𝐢𝐠𝐡
+> 𝐶
+> 𝑑 ×𝑁 high
+> Softmax (𝑸 ,𝑲 𝐓 )𝑽
+> Bottleneck Cross -Level Attention
+> ×ℎ
+> 𝑊 high
+> 𝐻 high
+> Down
+> (AATS)
+> 𝑲 ,𝑽
+> 𝑸
+> 𝑁 high ×𝑑
+> Up
+> (AATS)
+
+⊙ ⊕ 𝑭 𝐟𝐮𝐬𝐞𝐝 
+
+> 𝑭 𝐟𝐮𝐬𝐞𝐝
+> 𝑴
+> Residual Modulation
+> ෡𝑭 𝐡𝐢𝐠𝐡
+> ෡𝑭 𝐥𝐨𝐰
+> ෡𝑴
+> 𝐶
+> 𝑊 low
+> 𝐻 low
+> 𝐶
+
+Fig. 2: Overview of the Feature Interaction NEtwork (FINE). Given adjacent low- and high-level features ( Flow and Fhigh ), FINE refines Flow into a semantically aligned representation F aligned low under the guidance of Fhigh . Through Alignment-Aware Token Sampling (AATS), Flow is condensed into ˆFlow as the Query ( Q), and Fhigh 
+
+is compressed into ˆFhigh as the Key ( K) and Value ( V ), with an alignment factor that explicitly aligns their regional correspondence. The resulting bottleneck cross-level attention produces a spatial-channel modulation map ˆM . After upsampling, the map is applied to Flow via element-wise multiplication, followed by a residual connection to preserve fine-grained localization cues. 
+
+(l − 1). Through this recursive process, the network constructs multi-scale fea-tures {F2, F 3, F 4}, integrating fine-grained spatial details with high-level seman-tic information. These features may be further refined by an additional path-way [35] or fed directly into the detection head. 
+
+## 4 Method 
+
+4.1 Overview 
+
+Figure 2 illustrates an overview of our Feature Interaction NE twork (FINE). We reformulate the standard fusion process Eq. 2 by replacing the original low-level feature Flow with its semantically aligned representation F aligned low , conditioned on the high-level context Fhigh :
+
+Ffused = f  F aligned low , Up (Fhigh , scale=2 ),
+
+where F aligned low = FINE (Flow , F high ). (3) To generate F aligned low , the FINE module employs three key components: (i) Alignment-Aware Token Sampling (Section 4.2) to align inherently unaligned effective receptive fields and reduce memory and computational cost, (ii) Bot-tleneck Multi-Head Cross-Level Attention (Section 4.3) to construct a spatial-channel modulation map that captures diverse cross-level semantic interactions 6 H. Lee et al. 
+
+across multiple subspaces, and (iii) Residual Spatial-Channel Modulation (Sec-tion 4.4) to apply the estimated modulation, selectively injecting high-level con-text into low-level features while preserving fine spatial details. 
+
+4.2 Alignment-Aware Token Sampling 
+
+To alleviate semantic inconsistency across adjacent pyramid levels, we employ cross-level attention to refine the low-level feature Flow under the semantic guid-ance of the high-level feature Fhigh . However, as illustrated in Figure 3(a), vanilla dense pixel-to-pixel interaction faces a fundamental limitation in pyramidal ar-chitectures: features from adjacent backbone stages inherently possess different effective receptive fields (ERFs) [39], i.e. , the spatial region of the input image that influences each token’s representation. Since Fhigh is extracted at a spatial stride r times larger than that of Flow (r > 1, typically r = 2 ), pixels from different stages correspond to inconsistent physical regions of the input image. When these misaligned pixels are directly treated as tokens for cross-level atten-tion, this coverage mismatch prevents reliable correspondence between features at different contextual scales. Furthermore, the massive token count in high-resolution visual features makes the vanilla approach computationally prohibitive for real-time applications. While lightweight variants such as window- [36] or area-based schemes [49], as depicted in Figure 3(c,d), improve efficiency by restricting attention to local regions, they limit the long-range dependencies of Fhigh and fail to align the ERFs. To establish ERF alignment and mitigate the excessive token density, we introduce an Alignment-Aware Token Sampling (AATS) strategy that constructs compact, ERF-aligned token representations prior to cross-level attention. AATS downsamples both feature levels while accounting for their stride discrepancy, using asymmetric sampling kernels to align their effective receptive fields: 
+
+ˆFhigh = Down (Fhigh , kernel = k),
+
+ˆFlow = Down (Flow , kernel = rk ) (4) where k is the base sampling kernel size for the high-level feature, and r is the 
+
+alignment-aware sampling ratio .Assuming non-overlapping pooling, the resulting features are ˆFhigh ∈ R Hhigh    
+
+> k×Whigh
+> k×C
+
+and ˆFlow ∈ R Hlow     
+
+> rk ×Wlow
+> rk ×C
+
+. Since the choice of pooling operator has marginal impact on cross-level attention quality, we adopt parameter-free average pooling as our default implementation of AATS (see Appendix Section B for an ablation study). For all object detectors in the evaluation, we set the sampling ratio r = 2 
+
+to match the downsampling ratio between adjacent backbone stages. Empirical validation of this choice is provided in Section 5.3, and a theoretical rationale in terms of ERF alignment is given in Appendix Section F. Context-Guided Semantic Alignment for Feature Fusion Networks 7(b) r = 2 (ours)  (c) Window  (d) Area  
+
+> (a) Vanilla
+
+𝑭 𝐥𝐨𝐰 
+
+𝑭 𝐡𝐢𝐠𝐡    
+
+> ෡𝑭 𝐡𝐢𝐠𝐡
+> (𝑲 ,𝑽 )
+> ෡𝑭 𝐥𝐨𝐰
+> (𝑸 )
+> (b) AATS (c) Window (d) Area
+> Unaligned
+> Global
+> Unaligned
+> Local
+> Unaligned
+> Local
+> Aligned
+> Global
+> ERFs
+> Interaction
+> Unaligned
+> global
+
+𝑭 𝐥𝐨𝐰 
+
+𝑭 𝐡𝐢𝐠𝐡  ෡𝑭 𝐡𝐢𝐠𝐡    
+
+> (𝑲 ,𝑽 )
+> ෡𝑭 𝐥𝐨𝐰
+> (𝑸 )
+> (b) AATS (c) Window (d) Area
+> (a) Unaligned
+> global dense
+> Unaligned
+> Local
+> Unaligned
+> Local
+> Aligned
+> Global
+> ERFs:
+> Attention:
+
+Fig. 3: Visualization of Effective Receptive Fields (ERFs) and token depen-dencies. Each grid cell represents the ERF of a token with respect to the input image. Shaded grids indicate tokens participating in attention, where the solid red square denotes the query token. (a) In the vanilla mechanism, tokens across adjacent pyra-mid stages exhibit inherently unaligned ERFs due to varying backbone strides. (b) 
+
+Alignment-Aware Token Sampling (AATS) synchronizes ERFs across levels, establish-ing reliable cross-level correspondences for accurate global interaction. Local attention variants including (c) window and (d) area attention restrict long-range dependencies and leave the ERFs unaligned. 
+
+4.3 Bottleneck Multi-Head Cross-Level Attention 
+
+Given the ERF-aligned, condensed feature maps ˆFlow and ˆFhigh from AATS, we apply multi-head cross-level attention in a bottleneck manner to generate a spatial-channel modulation map M . By assigning ˆFlow as the query and ˆFhigh 
+
+as the key and value, each spatial location in ˆFlow selectively retrieves seman-tically relevant contextual information from higher-level representations. The condensed maps are flattened and linearly projected to obtain queries ( Q), keys (K), and values ( V ): 
+
+Q = Flatten ( ˆFlow )WQ, K = Flatten ( ˆFhigh )WK , V = Flatten ( ˆFhigh )WV ,
+
+(5) where WQ, W K , W V ∈ RC×C are learnable projection weights. This yields Q ∈
+
+RNlow ×C and K, V ∈ RNhigh ×C , with reduced sequence lengths Nlow = Hlow Wlow 
+
+> r2k2
+
+and Nhigh = Hhigh Whigh  
+
+> k2
+
+.To capture diverse semantic-spatial interactions across heterogeneous feature levels, we adopt multi-head attention. By projecting Q, K, and V into h inde-pendent subspaces (each with dimension d = C/h ), the network jointly captures cross-level correlations from multiple representation perspectives rather than a single shared space. Formally, for the i-th head, the cross-level attention is com-puted as: 
+
+head i = Softmax 
+
+ QiK⊤
+
+> i
+
+√d
+
+
+
+Vi ∈ RNlow ×d, (6) where the attention weights identify cross-level token correspondences, and Vi
+
+carries the high-level semantic content to be selectively injected into each low-level spatial location. The outputs from all heads are concatenated, projected, 8 H. Lee et al. 
+
+and reshaped into a spatial feature map ˆM :
+
+ˆM = Reshape 
+
+
+
+Concat (head 1, . . . , head h)W O 
+
+∈ R Hlow     
+
+> rk ×Wlow
+> rk ×C
+
+, (7) where W O ∈ RC×C is a learnable projection matrix. Finally, ˆM is spatially upsampled by a factor of rk to recover the original resolution of Flow :
+
+M = Up ( ˆM , scale= rk ) ∈ RHlow ×Wlow ×C . (8) This upsampling broadcasts the encoded semantic context across rk × rk local regions, providing spatially aligned guidance for subsequent modulation (Sec-tion 4.4). 
+
+4.4 Residual Spatial-Channel Modulation 
+
+Instead of directly using the upsampled attention output M as a standalone feature, we utilize it to refine the original low-level feature Flow . Because M is estimated from condensed tokens via AATS, it remains spatially coarser than the dense, raw feature map. Consequently, completely replacing Flow with M would inevitably discard the high-resolution, fine-grained details essential for precise dense prediction. To address this, we treat M as a spatial-channel modulation map that adaptively re-weights Flow rather than overwriting it. Unlike conven-tional channel-attention frameworks that apply a single global scaling factor per channel, M provides location-specific modulation across both spatial and chan-nel dimensions, allowing the network to selectively emphasize object-relevant regions while suppressing background noise. However, direct modulation ( F aligned low = Flow ⊙ M ) tightly couples the refined features to the coarse spatial structure inherited from the bottleneck attention, which may attenuate fine-grained spatial details. To provide a more conservative refinement pathway, we formulate the modulation as a residual transformation: 
+
+F aligned low = ( Flow ⊙ M ) + Flow , (9) where ⊙ denotes element-wise multiplication. The identity mapping ( +Flow )provides a direct information pathway, preserving the original high-resolution spatial details. The modulation term (Flow ⊙ M ) functions as a data-dependent residual transformation that adaptively rescales feature responses based on high-level contextual cues. 
+
+## 5 Experiments 
+
+5.1 Experimental Setup 
+
+We conduct experiments on MS COCO dataset [33], which consists of 118k train-ing images and 5k validation images. Following standard practice, we evaluate object detection performance using official COCO metrics: mean Average Pre-cision (AP). For fair comparison, FINE is plugged into each baseline without Context-Guided Semantic Alignment for Feature Fusion Networks 9Model Fusion Method #Params FLOPs FPS AP 50:95 AP 50 AP s AP m AP l
+
+SOTA Real-Time Object Detectors RT-DETRv1 R18 [58] H-Enc 20.2M 61.7G 80 46.5 63.8 28.4 49.8 63.0 RT-DETRv1 R50 ∗ [58] H-Enc 42.9M 138.0G 40 52.8 71.0 34.2 57.3 70.0 YOLOv8-S [23] PAN 11.2M 28.6G 189 45.0 61.8 26.0 49.9 61.0 YOLOv10-S [53] PAN 8.1M 24.8G 173 46.2 63.0 26.9 51.1 63.7 YOLOv12-S [49] PAN 9.1M 19.4G 112 47.6 64.5 28.3 52.7 65.9 RT-DETRv1 R18 H-Enc + FINE 21.2M 62.9G 78 47.3 (+0.8) 64.4 30.1 50.8 63.5 RT-DETRv1 R50 H-Enc + FINE 44.0M 139.2G 40 53.3 (+0.5) 71.3 35.6 57.6 70.4 YOLOv8-S PAN + FINE 12.3M 29.6G 177 45.8 (+0.8) 62.7 27.0 51.2 62.1 YOLOv10-S PAN + FINE 9.0M 25.7G 153 46.7 (+0.5) 63.6 28.2 51.4 63.2 YOLOv12-S PAN + FINE 10.5M 21.2G 106 48.2 (+0.6) 65.1 30.6 53.3 65.2 Classic Object Detectors Faster R-CNN R50 [45] FPN 41.8M 134.4G - 37.0 58.5 21.1 40.3 48.2 RetinaNet R50 [32] FPN 34.0M 151.5G - 36.4 55.7 19.1 40.0 48.9 FCOS R50 [50] FPN 32.3M 128.2G - 39.2 58.2 22.1 42.4 51.3 Faster R-CNN R50 FPN + FINE 42.8M 135.5G - 39.1 (+2.1) 60.8 23.3 42.6 50.4 RetinaNet R50 FPN + FINE 35.0M 152.9G - 37.3 (+0.9) 56.8 20.6 40.7 49.4 FCOS R50 FPN + FINE 33.3M 129.6G - 39.8 (+0.6) 58.7 23.3 43.1 51.2 
+
+Table 1: Performance of the proposed FINE module on various detectors 
+
+on COCO val2017. Models with ‘ ∗’ mark yield slightly lower performance compared to the results reported in the original paper [58], which may stem from differences in experimental setup or unreleased training details. PAN: PANet-style Fusion Network. H-Enc: Hybrid Encoder. RT-DETR R18      
+
+> RT-DETR R50
+> YOLOv8-S
+> YOLOv10-S
+> YOLOv12-S
+> Faster R-CNN
+> RetinaNet
+> FCOS
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> Relative Improvement (%)
+> 6.0
+> 4.1 3.8
+> 4.8
+> 8.1
+> 10.4
+> 7.9
+> 5.4
+> 2.0
+> 0.5
+> 2.6
+> 0.6 1.1
+> 5.7
+> 1.8 1.7
+> 0.8 0.6
+> 1.8
+> -0.8 -1.1
+> 4.6
+> 1.0
+> -0.2
+
+Relative AP Improvement by Object Size 
+
+> Small (AP s)
+> Medium (AP m)
+> Large (AP l)
+
+Fig. 4: Relative AP improvement across different object sizes. The proposed FINE module achieves the most significant gains in small object detection. 
+
+any modification to the original training recipes. To evaluate efficiency under resource constraints, FPS and latency are measured on an NVIDIA Jetson Orin Nano with TensorRT v10.7.0 [42]. 10 H. Lee et al. 
+
+5.2 Main Results Performance on Various Detectors To validate the generality of our ap-proach, we integrate FINE into a diverse range of detectors, as summarized in Table 1. For CNN-based one-stage real-time detectors such as YOLOv8-S [23], FINE improves AP from 45.0 to 45.8 with negligible overhead (+1.0G FLOPs, +1.1M parameters). We also evaluate FINE on RT-DETR-R50 [58], an end-to-end transformer-based detector that replaces post-processing with a hybrid encoder-decoder architecture. When inserted into the hybrid encoder, FINE in-creases AP from 52 .8 to 53 .3 while fully maintaining the real-time throughput of 40 FPS. Lastly, on the attention-centric real-time detector YOLOv12-S [49], FINE yields a steady improvement from 47 .6 to 48 .1 AP. These consistent results demonstrate that FINE provides reliable, architecture-agnostic improvements. While FINE improves detection accuracy across most object scales, the gains are particularly pronounced for small objects, as shown in Figure 4. By mitigat-ing the semantic inconsistency overlooked in early fusion architectures such as FPN [31], FINE achieves substantial relative improvements in AP s: 10 .4% for Faster R-CNN [45], 7.9% for RetinaNet [32], and 5.4% for FCOS [50]. FINE also consistently improves small object detection in modern detectors with ad-vanced fusion schemes, including PANet [35] and Hybrid Encoder [58], yielding AP s gains of 6.0% on RT-DETR R18 [58], 4.8% on YOLO v10-S [53], and 8.1% 
+
+on YOLOv12-S [49]. While we observe marginal fluctuations in AP l for some models, such as YOLOv12-S, these likely reflect statistical noise rather than meaningful architectural degradation, particularly as large object detection ac-curacy in modern detectors is already near saturation. We further validate FINE on the VisDrone-DET2019 [9] dataset, a benchmark dominated by small objects, in Appendix Section E. 
+
+Comparison with Prior Cross-Scale Feature Alignment Methods We compare FINE against representative feature alignment methods on two dis-tinct detector architectures: Faster R-CNN R50 [45] and RT-DETR R18 [58]. As shown in Table 2, FINE achieves the best accuracy-efficiency trade-off in both cases. On Faster R-CNN R50, FINE improves AP from 37.0 to 39.1 with only +1.0M parameters and +1.1G FLOPs. In contrast, MGC [16] consumes +27.4G FLOPs for a smaller +1.3 AP gain, as its global context aggregation and redistri-bution across all pyramid levels introduce substantial computational overhead. Furthermore, FINE achieves competitive accuracy while requiring substantially fewer resources than FaPN [18] and AdaFPN [54], which add +9.2G and +25.0G FLOPs, respectively. A similar trend is observed on RT-DETR R18. While sev-eral prior methods bring marginal or even negative changes, such as SNI [29] and AdaFPN [54], degrading the baseline by 0.2 and 0.4 AP, respectively, FINE achieves the largest improvement from 38.7 to 39.7 AP with minimal overhead (+1.0M parameters, +1.2G FLOPs). These results demonstrate that resolving semantic misalignment through lightweight cross-level attention is more efficient and robust than heavier architectural modifications or sampling-based strategies. Context-Guided Semantic Alignment for Feature Fusion Networks 11 Faster R-CNN R50 [45] Fusion Method #Params FLOPs ∆ AP baseline 41.8M 134.4G -                                                                      
+
+> +SNI ∗[29] 41.8M 134.4G 37.0 →37.7
+> +FaPN [18] 48.5M 143.6G 37.9 →39.2
+> +AdaFPN [54] 45.6M 159.4G 37.8 →39.0
+> +A2-FPN(MGC) ∗[16] 44.4M 161.8G 37.0 →38.3
+> +FINE 42.8M 135.5G 37.0 →39.1
+> RT-DETR R18 [58] Fusion Method #Params FLOPs ∆AP baseline 20.2M 61.7G -
+> +SNI ∗[29] 20.2M 61.7G 38.7 →38.5
+> +FaPN ∗[18] 21.9M 71.8G 38.7 →39.0
+> +AdaFPN ∗[54] 22.9M 82.8G 38.7 →38.3
+> +A2-FPN(MGC) ∗[16] 21.1M 68.7G 38.7 →38.6
+> +FINE 21.2M 62.9G 38.7 →39.7
+
+Table 2: Comparison with prior alignment methods. Methods with ‘ ∗’ are re-implemented and trained either according to the original paper or a Torchvision refer-ence recipe [51]. ‘MGC’ denotes the use of only the Multi-level Global Context module from A2-FPN. Model Attention Complexity #Params FLOPs Mem (MB) FPS Latency AP RT-DETR R18 – – 20.2M 61.74G 64.50 80 12.81ms 38.7                                       
+
+> + FINE
+> Vanilla [52] O(Hlow Wlow ×Hhigh Whigh )
+> +1.0M +18.0G +1223.48 57 17.74ms 39.5 Window [36] O(Hlow Wlow M2)+8.9G +65.11 68 15.05ms 39.7 Area [49] O(Hlow Wlow ×Hhigh Whigh
+> A)+10.0G +65.67 69 14.71ms 39.2 Linear [26] O(Hlow Wlow +Hhigh Whigh )+7.0G +18.42 64 16.05ms 39.0
+> AATS O(Hlow Wlow
+> r2k2×Hhigh Whigh
+> k2)+1.2G +1.17 78 13.24ms 39.7
+
+Table 3: Performance of various attention strategies integrated into the FINE module, evaluated on RT-DETR R18 ( 1× schedule). Window attention uses a window size of 7 × 7 (M = 7 ) [36], and area attention divides feature maps into four regions (A = 4 ) [49]. 
+
+5.3 Ablation Study 
+
+We ablate the four core design choices of FINE on RT-DETR R18 [58] and Faster R-CNN R50 [45] under a 1 × training schedule to assess the contribution of each component in FINE. Specifically, we investigate the attention strategy, the alignment-aware sampling ratio, the number of attention heads, and the modulation design. 
+
+Cross-level Attention Strategy We evaluate several attention variants within FINE on RT-DETR R18 [58]. As reported in Table 3, vanilla attention [52] in-curs prohibitive quadratic overhead (+18.0G FLOPs, +1223.48 MB memory), reducing FPS from 80 to 57, while its performance gain remains limited due to unaligned cross-level ERFs (38.7 → 39.5 AP). Local attention variants such as window [36] and area [49] reduce some computational cost, but still introduce noticeable overhead (+8.9G to +10.0G FLOPs, +65.11 to +65.67 MB mem-ory) while restricting long-range dependencies. Linear attention [26] further im-proves efficiency through kernel approximation, yet processing high-resolution features still incurs considerable overhead (+7.0G FLOPs, +18.42 MB mem-ory). Since these methods are primarily designed for intra-level interactions, they 12 H. Lee et al. 1 2 4  
+
+> Alignment-aware sampling ratio ( r)
+> 38.0
+> 38.1
+> 38.2
+> 38.3
+> 38.4
+> 38.5
+> 38.6
+> 38.7
+> AP (%)
+> +19.3G
+> +5.4G
+> +1.9G
+> +2.5G
+> +1.0G
+> +0.6G
+> Kernel Size & FLOPs
+> k= 1
+> k= 2
+
+Fig. 5: Ablation on AATS sam-pling ratio r. Aligning r with the backbone’s stride ( r = 2 ) provides the best performance-efficiency trade-off. Fhigh          
+
+> (K, V)
+> r= 1
+> Flow
+> (Q)
+> r= 2 r= 4
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Normalized ERF
+
+Fig. 6: Visualization of ERFs across dif-ferent sampling ratios r. The cyan ‘X’ de-notes the target token, selected at a normal-ized spatial coordinate of ( 0.1, 0.1) to ensure the exact same physical anchor point on the input image regardless of the feature map res-olutions. 
+
+fail to address the underlying structural misalignment across levels. In contrast, Alignment-Aware Token Sampling (AATS) explicitly synchronizes ERF scales before attention, achieving the best accuracy (39.7 AP) with negligible overhead (+1.2G FLOPs, +1.17 MB memory). Compared with vanilla attention, AATS reduces computational and memory costs by 93.3% and 99.9%, respectively, while largely preserving real-time speed (80 → 78 FPS). 
+
+Alignment-Aware Sampling Ratio The core hyperparameter of AATS is the alignment-aware sampling ratio r, which controls the degree to which the ERFs of ˆFlow and ˆFhigh are synchronized. Figure 5 reports AP and FLOPs overhead on Faster R-CNN R50 [45] for r ∈ { 1, 2, 4} and two kernel sizes k ∈ { 1, 2}.While r = 4 incurs the least overhead (+1.9G for k = 1 ; +0.6G for k = 2 ), it yields lower accuracy than r = 2 , dropping from 38.4% to 38.1% AP for k = 1 ,and from 38.2% to 38.1% AP for k = 2 . Conversely, r = 1 introduces heavy computational costs (+19.3G for k = 1 ; +2.5G for k = 2 ) with no accuracy benefits (38.2% and 38.1% AP, respectively). Setting r = 2 thus achieves the best accuracy-efficiency trade-off across both kernel sizes. Figure 6 provides an ERF [39] visualization that explains this result. For each cell, the ERF of a target token, marked by the cyan ‘X’ at the normalized co-ordinate (0 .1, 0.1) , is computed by back-propagating the token’s response to the input image and rendered as a heatmap (brighter colors indicate stronger con-tribution). The normalized anchor keeps the physical reference consistent across resolutions, so comparing the two rows within each column reveals whether the ERFs are aligned at that r. When r = 1 , the sampled low-level tokens span a Context-Guided Semantic Alignment for Feature Fusion Networks 13 Metric Baseline Number of Heads ( h) in FINE, given C = 256                                
+
+> (w/o FINE) 14816 32 64 128 Per-Head Dim ( d)-256 64 32 16 842AP 37.0 37.9 38.1 38.1 38.2 38.2 38.1 38.0
+> Table 4: Ablation on the number of attention heads h.Evaluated on Faster R-CNN R50 with COCO val2017 (1 ×schedule). With the total channel dimension fixed to C= 256 , varying hreveals the trade-off between subspace diversity and per-head representational capacity.
+
+smaller physical footprint than the high-level tokens, causing a scale mismatch. In contrast, r = 4 over-expands the low-level receptive field beyond the target region covered by the high-level tokens. Only at r = 2 do the ERFs of the two layers align closely, with the sampled tokens covering comparable physical re-gions around the anchor point and enabling reliable regional correspondences. Together with the ERF-size analysis in Appendix Section F, this provides both theoretical and empirical justification for choosing r = 2 . Guided by these ob-servations and prioritizing a lightweight design, we set k = 1 for the l = 3 fusion stage and k = 2 for the l = 2 fusion stage. 
+
+Number of Attention Heads To investigate the multi-head mechanism within FINE, we ablate the number of attention heads h on Faster R-CNN R50 with a fixed channel dimension C = 256 . This ablation aims to analyze the fundamen-tal trade-off between maximizing subspace diversity for cross-level interactions and preserving sufficient per-head representational capacity. As reported in Ta-ble 4, performance peaks at 38.2% AP when h = 16 or h = 32 , where each head operates at a dimension of d = 16 or d = 8 , respectively. With fewer heads, such as h = 1 or h = 4 , the limited number of shared subspaces restricts the diversity of cross-level interactions, yielding 37.9% AP and 38.1% AP, respec-tively. Conversely, increasing h beyond 32 reduces the per-head dimension below 8, which compresses the representational capacity of each subspace and degrades performance (e.g., dropping to 38.0% AP at h = 128 ). Based on this analysis, we fix the per-head dimension to d = 16 as our default setting by adjusting h
+
+accordingly. 
+
+Residual Modulation We ablate the two design choices introduced in Sec-tion 4.4 on RT-DETR R18: (i) whether to use the cross-level attention output as a direct refined feature or as a modulation map for Flow , and (ii) whether to apply that modulation directly ( Flow ⊙ M ) or through the residual formulation (Eq. 9). Figure 7 reports the L1 loss, GIoU training loss, and small object Aver-age Precision (AP S ) across the four configurations. Using the attention output directly as a refined feature (No modulation) yields substantially higher local-ization losses and drops AP S from 21.4 (baseline) to 15.4, confirming that the spatially coarse signal produced under bottleneck attention cannot replace the 14 H. Lee et al. 2.5 5.0 7.5 10.0 12.5                   
+
+> Epoch
+> 0.2
+> 0.3
+> 0.4
+> Loss
+> L1loss
+> 910 11
+> 0.20
+> 0.21
+> 2.5 5.0 7.5 10.0 12.5
+> Epoch
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> Loss
+> GIoU loss
+> 910 11
+> 0.58
+> 0.60
+> 2.5 5.0 7.5 10.0 12.5
+> Epoch
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> AP
+> AP S
+> 910 11
+> 0.20
+> 0.22
+> Baseline (w/o FINE) No modulation Direct modulation Residual modulation
+
+Fig. 7: Ablation of the modulation strategy on localization losses and small object detection. Training curves for RT-DETR R18 on COCO train2017 (1 × sched-ule). No modulation underperforms even the FINE-free baseline on both metrics, whereas repurposing the attention output as a modulation map (Direct and Residual) consistently improves localization learning and AP S . The Residual variant maintains marginally lower losses and higher AP S than Direct modulation throughout training (zoomed insets). 𝑭 𝐥𝐨𝐰 𝑭 𝐡𝐢𝐠𝐡  𝑴  𝑭 𝐥𝐨𝐰 
+
+> 𝐚𝐥𝐢𝐠𝐧𝐞𝐝
+> Image
+
+Fig. 8: Activation heatmaps of high-level, low-level, learned modulation map, and aligned low-level features, visualized at the l = 3 fusion stage on COCO. 
+
+high-resolution Flow . Once the attention output is repurposed as a modulation map, both direct and residual modulation reduce the losses and improve AP S
+
+beyond the baseline, reaching 22.2 and 22.4 respectively. We attribute the con-sistent advantage of the residual variant to its design: while direct modulation rescales every pixel of Flow by the spatially coarse map M and thus inevitably attenuates fine-grained spatial cues, the residual formulation preserves the orig-inal high-resolution representation intact and treats modulation as an additive refinement. Such preservation of sub-pixel localization cues is particularly crit-ical for small objects, whose limited spatial extent leaves little redundancy to absorb any loss of fine-grained detail. Context-Guided Semantic Alignment for Feature Fusion Networks 15 #Images #TPs ( ↑) #FPs ( ↓) #FNs ( ↓) Precision Recall F1-score w/o FINE 5,000 23,833 21,557 12,502 0.525 0.656 0.583              
+
+> w/ FINE 5,000 24,186 19,417 12,149 0.555 0.666 0.605
+> Improvement -+1.48% -9.93% -2.82% +5.71% +1.52% +3.77%
+
+Table 5: Detection error analysis of Mask R-CNN R50 on COCO val2017. Results are computed with an IoU threshold of 0.5 and confidence threshold of 0.5. FPN 
+
+> FPN
+> +FINE
+> Ground
+> Truth
+> Large, medium
+
+Fig. 9: False positive suppression comparing FPN [31] and FPN+FINE on Mask R-CNN R50 [13] trained on COCO (confidence threshold: 0.8). 
+
+5.4 Analysis 
+
+To better understand how mitigating semantic inconsistency improves detection performance, we analyze activation heatmaps and detection errors using Mask R-CNN R50 [13] trained with a 2× schedule on COCO. 
+
+Activation Heatmap. Activation heatmaps are visualized in Figure 8. Tak-ing the first row as an example, Fhigh concentrates activations on the airplane body, providing strong semantic cues but coarse spatial resolution, while Flow 
+
+captures fine-grained boundaries but also activates background regions. Through cross-level interaction, the modulation map M re-weights object-relevant regions relative to the background. By applying residual modulation to preserve the spa-tial details of Flow , the resulting feature F aligned low retains the sharp boundaries of the airplane while suppressing activations on background clutter. 
+
+Detection Error Analysis. We further investigate whether the refined acti-vations produced by FINE translate into fewer detection errors. As shown in Ta-ble 5, a substantial 9.93% reduction in False Positives (FPs) yields a 5.71% gain in precision, while a 2.82% decrease in False Negatives (FNs) leads to a 1.52% increase in recall. Importantly, the FP reduction does not suppress foreground predictions, as the number of True Positives also increases ( 23 ,833 → 24 ,186 ). 16 H. Lee et al. 
+
+Consequently, the overall F1-score improves by 3.77%, confirming enhanced de-tection reliability. This improvement is further supported by qualitative results in Figure 9, where FPN produces spurious detections on background clutter such as complex textures and small structures, whereas FINE effectively suppresses these high-confidence FPs while preserving correct object predictions. Additional qualitative analyses are provided in Appendix Section G. 
+
+## 6 Conclusion 
+
+We propose Feature Interaction NEtwork (FINE), a lightweight plug-and-play module that introduces alignment-aware cross-level attention into multi-scale feature fusion. Through Alignment-Aware Token Sampling, bottleneck multi-head cross-level attention, and residual spatial-channel modulation, FINE con-sistently improves detection accuracy with negligible computational overhead. These gains are primarily driven by a substantial reduction in false positives and marked improvements in small object detection, highlighting the importance of mitigating semantic inconsistency across pyramid levels in modern object detec-tors. FINE currently operates within the conventional backbone–neck dichotomy, treating feature extraction and fusion as distinct stages. A promising future di-rection is to dissolve this boundary by embedding cross-scale attention directly throughout the feature extraction process, thereby unifying representation learn-ing and multi-scale fusion into a single paradigm. Context-Guided Semantic Alignment for Feature Fusion Networks 17 
+
+# Appendix 
+
+## A Training Setup 
+
+For our experiments, real-time object detectors (reported in Table 1) are trained using 4 × NVIDIA GeForce RTX 3090 GPUs, while classic object detectors are trained on 2 × NVIDIA RTX Ada 6000 GPUs. In all cases, we strictly adhere to the official training recipes and hyperparameters provided by the respective baseline implementations to ensure a fair and reproducible comparison. 
+
+## B Downsampling Operator in Alignment-Aware Token Sampling 
+
+We present an ablation study on the downsampling operator Down (·) used within our Alignment-Aware Token Sampling (AATS) (Eq. 4), with results summarized in Table 6. Although a learnable operator such as depthwise separable convolu-tion (DWConv) [5] could capture richer local statistics, parameter-free pooling operators (MaxPool and AvgPool) achieve comparable performance while intro-ducing no additional parameters or computational overhead. This suggests that the primary role of Down (·) in AATS is not complex feature transformation, but rather the alignment of effective receptive fields across feature levels. Con-sequently, a simple pooling operator is sufficient to provide the required spatial aggregation for ERF alignment. Based on these results, we adopt average pool-ing as the default implementation of AATS due to its simplicity, parameter-free design, and smoother preservation of regional feature distributions compared to the discrete selection behavior of max pooling.            
+
+> Down (·)MACs #Params AP DWConv 2.46M +6.14K 38.1 MaxPool ––38.2 AvgPool ––38.2
+> Table 6: Ablation on different downsampling operators in Alignment-Aware Token Sampling. Results are evaluated using Faster R-CNN R50 [45] on COCO val2017 (1 ×training schedule).
+
+## C Channel Dimension Unification 
+
+As described in Section 3, most FPN-based detectors unify the channel dimen-sions of hierarchical features before fusion, by applying 1 × 1 convolutions that 18 H. Lee et al. 
+
+project each feature map {S2, S 3, S 4} into a common embedding space with C
+
+channels. This design simplifies subsequent fusion and attention operations, in-cluding those in our proposed FINE module, which assumes channel-consistent features. Therefore, no additional preprocessing is required for channel alignment in such architectures. In contrast, the YOLO series [22, 23, 27, 49, 53] retains the original backbone output channels {C2, C 3, C 4} without enforcing channel uniformity across scales. To enable cross-level attention, the channel dimensions are aligned by projecting the high-level feature Sl+1 ∈ RHl+1 ×Wl+1 ×Cl+1 into the channel space of the low-level feature Sl ∈ RHl×Wl×Cl using a 1 × 1 convolution: 
+
+Flow = Sl, Fhigh = Conv 1×1(Sl+1 ) (10) where Flow is used directly without channel projection, and Fhigh ∈ RHl+1 ×Wl+1 ×Cl
+
+is the channel-adjusted high-level feature used in FINE. This lightweight embed-ding step is introduced only when required by the architecture, allowing FINE to remain broadly applicable across diverse detector architectures while preserving its feature alignment capability. 
+
+## D Applicability to Dense Prediction Tasks 
+
+Although FINE is primarily evaluated for object detection, its core principle of enhancing semantic consistency across hierarchical features is also applicable to pixel-level dense prediction tasks. To demonstrate this generality, we inte-grate FINE into representative frameworks for instance, semantic, and panop-tic segmentation. For instance segmentation, we follow the torchvision training recipe [51], while semantic and panoptic segmentation experiments adopt the 1×
+
+training schedule from OpenMMLab [41], using input resolutions of 640 × 640 
+
+for COCO [33] and 512 × 1024 for Cityscapes [6]. As shown in Table 7, FINE consistently improves performance across all three tasks with negligible computational overhead. For instance segmentation on COCO, adding FINE to Mask R-CNN R50 [13] improves box AP and mask AP by +1 .8 and +0 .9, respectively. For semantic segmentation on Cityscapes, incorporating FINE into Semantic FPN [24] yields a +1 .9 mIoU improvement. For panoptic segmentation on COCO, Panoptic FPN with FINE achieves +0 .7
+
+gains in PQ (Panoptic Quality), SQ (Segmentation Quality), and RQ (Recogni-tion Quality), following the evaluation metrics of [25]. These results demonstrate that although FINE extracts region-level seman-tic context due to its bottleneck architecture, the resulting feature representa-tions are by no means coarse. By using this regional context to modulate high-resolution low-level features via a residual connection, FINE effectively broad-casts strong categorical cues to individual pixels while preserving fine-grained spatial details. Context-Guided Semantic Alignment for Feature Fusion Networks 19 Instance segmentation on COCO [33] dataset Model FINE #Params FLOPs Box AP Mask AP Mask R-CNN R50 [13] – 44.4M 134.4G 37.9 34.6 Mask R-CNN R50 ✓ 45.5M 135.5G 39.7 (+1.8) 35.5 (+0.9) Semantic segmentation on Cityscapes [6] dataset Model FINE #Params FLOPs mIoU Semantic FPN [24] – 28.5M 90.9G 74.5 Semantic FPN ✓ 30.1M 91.7G 76.4 (+1.9) Panoptic segmentation on COCO dataset Model FINE #Params FLOPs PQ SQ RQ Panoptic FPN [24] – 46.0M 156.7G 40.2 77.8 49.3 Panoptic FPN ✓ 47.6M 157.3G 40.9 (+0.7) 78.5 (+0.7) 50.0 (+0.7) 
+
+Table 7: Generality of FINE across dense prediction tasks. Beyond object detection, FINE consistently enhances performance in instance, semantic, and panoptic segmentation with minimal computational overhead. Model Fusion Method FLOPs AP 50                   
+
+> YOLOv5-S [22] PAN 37.5G 45.9 PAN + FINE 40.8G 46.9 (+1.0)
+> YOLOv6-S v3.0 [27] PAN 72.2G 44.8 PAN + FINE 74.5G 45.6 (+0.8)
+> YOLOv8-S [23] PAN 44.7G 46.3 PAN + FINE 49.2G 47.2 (+0.9)
+
+Table 8: Performance on VisDrone-DET2019. All models are evaluated with an input resolution of 800 × 800 .
+
+## E Performance on VisDrone Dataset 
+
+The VisDrone-DET2019 dataset [9] is a challenging benchmark characterized by crowded scenes, complex backgrounds, and a large proportion of small ob-jects captured from aerial viewpoints. To evaluate the robustness of FINE under these demanding conditions, we integrate it into several representative real-time detectors [22, 23, 27]. As summarized in Table 8, integrating FINE consistently improves AP 50 across all evaluated detectors, yielding gains of up to +1.0. Notably, these YOLO baselines are primarily designed for generic object de-tection and real-time efficiency rather than for specialized small-object detection. Nevertheless, FINE consistently improves detection accuracy with marginal com-putational overhead, demonstrating that selectively modulating low-level fea-tures under high-level semantic guidance effectively benefits target localization in small-object-dominated scenarios. 20 H. Lee et al. Stage 1 
+
+> (stride=4)
+> Stage 2
+> (stride=8)
+> Stage 3
+> (stride=16)
+> Stage 4
+> (stride=32)
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> Expected ERF size  [ ]
+> 5.1
+> 10.0
+> 31.4
+> 54.9
+
+Expected [ high ][ low ] = 2.29          
+
+> [2][1]= 1.98
+> [3][2]= 3.14
+> [4][3]= 1.75
+
+Fig. 10: Empirical analysis of effective receptive fields (ERFs) in ResNet-50 [14]. Evaluated over the COCO val2017 , the average expected ERF expansion ratio across adjacent stages closely approximates the architectural stride ratio. 
+
+## F Effective Receptive Field Analysis 
+
+Following the theoretical framework established in [39], we define the effective receptive field (ERF) of a feature activation yi,j at spatial location (i, j ) by mea-suring its gradient-based influence with respect to all pixels on the input plane. Formally, for any input pixel xu,v at spatial coordinates (u, v ), the influence is defined as 
+
+gu,v = ∂y i,j 
+
+∂x u,v 
+
+. (11) The ERF is characterized by the spatial distribution of gu,v across all input coordinates (u, v ). Under a cascade of convolutional layers, the central limit theorem implies that this distribution asymptotically approaches a 2D Gaussian: 
+
+gu,v ∝ exp 
+
+
+
+− ∥(u, v ) − μ∥2
+
+2σ2
+
+
+
+, (12) where μ = ( μu, μ v ) denotes the spatial center of the effective receptive field, and the standard deviation σ is taken as the effective receptive field (ERF) size ,which approximates its spatial radius. To empirically validate the relationship between ERF size [39] and network downsampling, we conduct an ERF analysis on ResNet-50 [14] over all 5,000 images of the COCO val2017 split. For each image, we compute σ at the cen-tral spatial location of the final feature map within each backbone stage and average these values across the dataset to obtain E[σ] per stage. As illustrated in Figure 10, the ratio of expected ERF sizes between adjacent stages closely approximates the architectural stride ratio: 
+
+E[σhigh ]
+
+E[σlow ] ≈ s,  (13) Context-Guided Semantic Alignment for Feature Fusion Networks 21 
+
+where s denotes the stride ratio between adjacent stages. Averaged across all adjacent stage pairs (Stage 1–2, 2–3, and 3–4), this ratio is 2.29 . This closely matches the theoretical stride ratio of s = 2 , providing an empirical justification for setting the alignment-aware sampling ratio to r = 2 in our Alignment-Aware Token Sampling strategy. 
+
+## G Qualitative Analysis 
+
+False Negative Reduction. As quantitatively shown in Table 5, the simultane-ous reduction in both False Positives (FPs) and False Negatives (FNs) indicates that FINE not only suppresses background clutter but also amplifies foreground object signals. As visualized in Figure 11, the baseline FPN frequently misses small or partially visible objects due to insufficient semantic abstraction in the low-level features. By enforcing semantic consistency across hierarchical levels, FINE recovers missed detections of small objects and those with low visual saliency ( e.g ., snowboards, frisbees, skis, and stop signs) without compromising correct predictions made by the baseline. 
+
+Instance Segmentation. Figure 12 further demonstrates that the represen-tational benefits of FINE extend to pixel-level instance segmentation. As high-lighted in the red zoomed-in crops, the baseline FPN struggles with precise boundary localization, producing coarse masks that either bleed into the back-ground (e.g., mistakenly segmenting shadows around the teddy bear) or exhibit fragmented contours on complex shapes ( e.g ., missing edges of the skateboard). By modulating low-level features with high-level semantic context, FINE al-leviates these pixel-level ambiguities, enabling cleaner instance separation and sharper object boundaries. 22 H. Lee et al. FPN 
+
+> FPN
+> +FINE
+> Ground
+> Truth
+> small
+
+Fig. 11: False negatives reduction comparing FPN [31] and FPN+FINE on Mask R-CNN R50 [13] trained on COCO (confidence threshold: 0.8). FPN 
+
+> FPN
+> +FINE
+> Ground
+> Truth
+
+Fig. 12: Instance segmentation results comparing FPN [31] and FPN+FINE 
+
+on Mask R-CNN R50 [13] trained on COCO. Red solid boxes show zoomed-in views of the dashed regions. Context-Guided Semantic Alignment for Feature Fusion Networks 23 
+
+## References 
+
+1. Bochkovskiy, A., Wang, C.Y., Liao, H.Y.M.: Yolov4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934 (2020) 2. Bolya, D., Fu, C.Y., Dai, X., Zhang, P., Feichtenhofer, C., Hoffman, J.: Token merging: Your ViT but faster. In: International Conference on Learning Represen-tations (2023) 3. Cai, H., Li, J., Hu, M., Gan, C., Han, S.: Efficientvit: Lightweight multi-scale attention for high-resolution dense prediction. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 17302–17313 (2023) 4. Carion, N., Massa, F., Synnaeve, G., Usunier, N., Kirillov, A., Zagoruyko, S.: End-to-end object detection with transformers. In: European conference on computer vision. pp. 213–229. Springer (2020) 5. Chollet, F.: Xception: Deep learning with depthwise separable convolutions. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 1251–1258 (2017) 6. Cordts, M., Omran, M., Ramos, S., Rehfeld, T., Enzweiler, M., Benenson, R., Franke, U., Roth, S., Schiele, B.: The cityscapes dataset for semantic urban scene understanding. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 3213–3223 (2016) 7. Dai, Y., Gieseke, F., Oehmcke, S., Wu, Y., Barnard, K.: Attentional feature fusion. In: Proceedings of the IEEE/CVF winter conference on applications of computer vision. pp. 3560–3569 (2021) 8. Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., et al.: An image is worth 16x16 words: Transformers for image recognition at scale. arXiv preprint arXiv:2010.11929 (2020) 9. Du, D., Zhu, P., Wen, L., Bian, X., Lin, H., Hu, Q., Peng, T., Zheng, J., Wang, X., Zhang, Y., et al.: Visdrone-det2019: The vision meets drone object detection in image challenge results. In: Proceedings of the IEEE/CVF international conference on computer vision workshops. pp. 0–0 (2019) 10. Ghiasi, G., Lin, T.Y., Le, Q.V.: Nas-fpn: Learning scalable feature pyramid ar-chitecture for object detection. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 7036–7045 (2019) 11. Gong, Y., Yu, X., Ding, Y., Peng, X., Zhao, J., Han, Z.: Effective fusion factor in fpn for tiny object detection. In: Proceedings of the IEEE/CVF winter conference on applications of computer vision. pp. 1160–1168 (2021) 12. Guo, C., Fan, B., Zhang, Q., Xiang, S., Pan, C.: Augfpn: Improving multi-scale feature learning for object detection. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 12595–12604 (2020) 13. He, K., Gkioxari, G., Dollár, P., Girshick, R.: Mask r-cnn. In: Proceedings of the IEEE international conference on computer vision. pp. 2961–2969 (2017) 14. He, K., Zhang, X., Ren, S., Sun, J.: Deep residual learning for image recognition. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 770–778 (2016) 15. Hu, J., Shen, L., Sun, G.: Squeeze-and-excitation networks. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 7132–7141 (2018) 16. Hu, M., Li, Y., Fang, L., Wang, S.: A2-fpn: Attention aggregation based feature pyramid network for instance segmentation. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 15343–15352 (2021) 24 H. Lee et al. 17. Huang, J., Chen, Z., Wu, Q.J., Liu, C., Yuan, H., He, W.: Catfpn: Adaptive feature pyramid with scale-wise concatenation and self-attention. IEEE Transactions on Circuits and Systems for Video Technology 32 (12), 8142–8152 (2021) 18. Huang, S., Lu, Z., Cheng, R., He, C.: Fapn: Feature-aligned pyramid network for dense image prediction. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 864–873 (2021) 19. Huang, S., Lu, Z., Cun, X., Yu, Y., Zhou, X., Shen, X.: Deim: Detr with improved matching for fast convergence. In: Proceedings of the computer vision and pattern recognition conference. pp. 15162–15171 (2025) 20. Huang, Z., Wang, X., Huang, L., Huang, C., Wei, Y., Liu, W.: Ccnet: Criss-cross attention for semantic segmentation. In: Proceedings of the IEEE/CVF Interna-tional Conference on Computer Vision (ICCV) (October 2019) 21. Huang, Z., Wei, Y., Wang, X., Liu, W., Huang, T.S., Shi, H.: Alignseg: Feature-aligned segmentation networks. IEEE Transactions on Pattern Analysis and Ma-chine Intelligence 44 (1), 550–557 (2021) 22. Jocher, G.: YOLOv5 by Ultralytics (May 2020). https://doi.org/10.5281/ zenodo.3908559 , https://github.com/ultralytics/yolov5 , aGPL-3.0 License 23. Jocher, G., Qiu, J., Chaurasia, A.: Ultralytics YOLO (Jan 2023), https://github. com/ultralytics/ultralytics 
+
+24. Kirillov, A., Girshick, R., He, K., Dollár, P.: Panoptic feature pyramid networks. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recog-nition. pp. 6399–6408 (2019) 25. Kirillov, A., He, K., Girshick, R., Rother, C., Dollar, P.: Panoptic segmentation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (June 2019) 26. Koohpayegani, S.A., Pirsiavash, H.: Sima: Simple softmax-free attention for vision transformers. In: Proceedings of the IEEE/CVF Winter Conference on Applica-tions of Computer Vision. pp. 2607–2617 (2024) 27. Li, C., Li, L., Geng, Y., Jiang, H., Cheng, M., Zhang, B., Ke, Z., Xu, X., Chu, X.: Yolov6 v3.0: A full-scale reloading. arXiv preprint arXiv:2301.05586 (2023) 28. Li, F., Zhang, H., Liu, S., Guo, J., Ni, L.M., Zhang, L.: Dn-detr: Accelerate detr training by introducing query denoising. In: Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition. pp. 13619–13627 (2022) 29. Li, H.: Rethinking features-fused-pyramid-neck for object detection. In: European Conference on Computer Vision. pp. 74–90. Springer (2024) 30. Liang, Y., Ge, C., Tong, Z., Song, Y., Wang, J., Xie, P.: Not all patches are what you need: Expediting vision transformers via token reorganizations. In: International Conference on Learning Representations (2022), https://openreview.net/forum? id=BjyvwnXXVn_ 
+
+31. Lin, T.Y., Dollár, P., Girshick, R., He, K., Hariharan, B., Belongie, S.: Feature pyramid networks for object detection. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 2117–2125 (2017) 32. Lin, T.Y., Goyal, P., Girshick, R., He, K., Dollár, P.: Focal loss for dense object detection. In: Proceedings of the IEEE international conference on computer vision. pp. 2980–2988 (2017) 33. Lin, T.Y., Maire, M., Belongie, S., Hays, J., Perona, P., Ramanan, D., Dollár, P., Zitnick, C.L.: Microsoft coco: Common objects in context. In: Computer vision– ECCV 2014: 13th European conference, zurich, Switzerland, September 6-12, 2014, proceedings, part v 13. pp. 740–755. Springer (2014) Context-Guided Semantic Alignment for Feature Fusion Networks 25 34. Liu, S., Li, F., Zhang, H., Yang, X., Qi, X., Su, H., Zhu, J., Zhang, L.: DAB-DETR: Dynamic anchor boxes are better queries for DETR. In: International Confer-ence on Learning Representations (2022), https://openreview.net/forum?id= oMI9PjOb9Jl 
+
+35. Liu, S., Qi, L., Qin, H., Shi, J., Jia, J.: Path aggregation network for instance segmentation. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 8759–8768 (2018) 36. Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., Guo, B.: Swin transformer: Hierarchical vision transformer using shifted windows. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 10012–10022 (2021) 37. Lu, J., Yao, J., Zhang, J., Zhu, X., Xu, H., Gao, W., Xu, C., Xiang, T., Zhang, L.: Soft: Softmax-free transformer with linear complexity. Advances in Neural Infor-mation Processing Systems 34 , 21297–21309 (2021) 38. Lu, L., Xiao, Y., Chang, X., Wang, X., Ren, P., Ren, Z.: Deformable attention-oriented feature pyramid network for semantic segmentation. Knowledge-Based Systems 254 , 109623 (2022) 39. Luo, W., Li, Y., Urtasun, R., Zemel, R.: Understanding the effective receptive field in deep convolutional neural networks. Advances in neural information processing systems 29 (2016) 40. Mehta, S., Rastegari, M.: Mobilevit: light-weight, general-purpose, and mobile-friendly vision transformer. arXiv preprint arXiv:2110.02178 (2021) 41. MMSegmentation Contributors: OpenMMLab Semantic Segmentation Toolbox and Benchmark (Jul 2020), https://github.com/open-mmlab/mmsegmentation 
+
+42. NVIDIA: Tensorrt. https://github.com/NVIDIA/TensorRT (2024), gitHub repos-itory 43. Peng, Y., Li, H., Wu, P., Zhang, Y., Sun, X., Wu, F.: D-fine: Redefine re-gression task in detrs as fine-grained distribution refinement. arXiv preprint arXiv:2410.13842 (2024) 44. Rao, Y., Zhao, W., Liu, B., Lu, J., Zhou, J., Hsieh, C.J.: Dynamicvit: Efficient vision transformers with dynamic token sparsification. In: Advances in Neural In-formation Processing Systems (NeurIPS) (2021) 45. Ren, S., He, K., Girshick, R., Sun, J.: Faster r-cnn: Towards real-time object de-tection with region proposal networks. Advances in neural information processing systems 28 (2015) 46. Ronneberger, O., Fischer, P., Brox, T.: U-net: Convolutional networks for biomedi-cal image segmentation. In: International Conference on Medical image computing and computer-assisted intervention. pp. 234–241. Springer (2015) 47. Tan, M., Pang, R., Le, Q.V.: Efficientdet: Scalable and efficient object detection. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recog-nition. pp. 10781–10790 (2020) 48. Tang, L., Li, B.: Class: cross-level attention and supervision for salient objects detection. In: Proceedings of the Asian Conference on Computer Vision (2020) 49. Tian, Y., Ye, Q., Doermann, D.: Yolov12: Attention-centric real-time object detec-tors. In: Advances in Neural Information Processing Systems (2025) 50. Tian, Z., Shen, C., Chen, H., He, T.: Fcos: Fully convolutional one-stage object detection. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 9627–9636 (2019) 51. TorchVision: TorchVision: PyTorch’s Computer Vision library (Nov 2025), https: //github.com/pytorch/vision 26 H. Lee et al. 52. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, Ł., Polosukhin, I.: Attention is all you need. Advances in neural information pro-cessing systems 30 (2017) 53. Wang, A., Chen, H., Liu, L., Chen, K., Lin, Z., Han, J., et al.: Yolov10: Real-time end-to-end object detection. Advances in neural information processing systems 
+
+37 , 107984–108011 (2024) 54. Wang, C., Zhong, C.: Adaptive feature pyramid networks for object detection. IEEE Access 9, 107024–107032 (2021). https://doi.org/10.1109/ACCESS.2021. 3100369 
+
+55. Wang, S., Xia, C., Lv, F., Shi, Y.: Rt-detrv3: real-time end-to-end object detection with hierarchical dense positive supervision. In: 2025 IEEE/CVF Winter Confer-ence on Applications of Computer Vision (WACV). pp. 1628–1636. IEEE (2025) 56. Wu, H., Xiao, B., Codella, N., Liu, M., Dai, X., Yuan, L., Zhang, L.: Cvt: In-troducing convolutions to vision transformers. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 22–31 (2021) 57. Zhang, D., Zhang, H., Tang, J., Wang, M., Hua, X., Sun, Q.: Feature pyramid transformer. In: Computer Vision–ECCV 2020: 16th European Conference, Glas-gow, UK, August 23–28, 2020, Proceedings, Part XXVIII 16. pp. 323–339. Springer (2020) 58. Zhao, Y., Lv, W., Xu, S., Wei, J., Wang, G., Dang, Q., Liu, Y., Chen, J.: Detrs beat yolos on real-time object detection. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 16965–16974 (2024) 59. Zhu, X., Su, W., Lu, L., Li, B., Wang, X., Dai, J.: Deformable detr: Deformable transformers for end-to-end object detection. arXiv preprint arXiv:2010.04159 (2020)

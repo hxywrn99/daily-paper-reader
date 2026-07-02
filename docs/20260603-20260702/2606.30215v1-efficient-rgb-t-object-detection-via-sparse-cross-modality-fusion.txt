@@ -1,0 +1,747 @@
+Title: Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion
+
+URL Source: https://arxiv.org/pdf/2606.30215v1
+
+Published Time: Tue, 30 Jun 2026 02:12:23 GMT
+
+Number of Pages: 23
+
+Markdown Content:
+# Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 
+
+Chao Tian 1 , Zikun Zhou 1⋆ , Chao Yang 1 , Guoqing Zhu 1 , and Zhenyu He 1⋆
+
+Harbin Institute of Technology, Shenzhen, Guangdong, China 
+
+tianchao@stu.hit.edu.cn, zhouzikunhit@gmail.com, {20b951014,20B951002}@stu.hit.edu.cn, zhenyuhe@hit.edu.cn 
+
+Abstract. RGB-T detectors leverage the complementary strengths of visible and thermal infrared modalities, achieving robust performance under challenging conditions. Many of them resort to heavy dual back-bones and exhaustive cross-modality fusion across the entire image, lead-ing to impractically high computational costs. We observe that most im-age regions are smooth backgrounds ( e.g. , sky, ground) that can be easily handled by lightweight single-modality models. In light of this observa-tion, we propose a sparse fusion mechanism for efficient RGB-T detec-tion: first rapidly scanning the image to identify the proposals and then carefully examining the remaining sparse proposals via feature fusion. We propose a two-stage framework to instantiate this mechanism, which performs detection in two stages: 1) a lightweight and modality-specific detection stage that produces high-recall RoIs, and 2) a fusion-driven ex-amination and refinement stage that filters out the false positives and re-fines the bounding boxes. This design enables the detector to adaptively allocate more computational resources to the potential foregrounds, im-proving the efficiency while ensuring detection accuracy. Extensive ex-periments show that our method achieves competitive performance with substantially fewer parameters and lower cost, while maintaining strong scalability to high-resolution images. 
+
+Keywords: RGB-Thermal infrared · Sparse fusion · Object detection 
+
+1 Introduction 
+
+RGB-Thermal infrared (RGB-T) object detection aims to leverage the comple-mentarity from different modalities to handle various challenging conditions [20, 37], drawing much attention in recent years. Numerous benchmarks [14, 21, 36] and detectors [18, 26, 37] have been proposed. Detectors based on feature fusion have acquired superior detection performance [25], which typically extract the RGB and thermal infrared (TIR) features using two independent backbones and perform pixel-to-pixel feature fusion [27, 33]. However, the computational com-plexity of these powerful RGB-T detectors remains undesirably high, reaching up to hundreds of GFLOPs [5,16,22,25], restricting their practical applicability.  
+
+> ⋆
+
+Corresponding authors. 
+
+> arXiv:2606.30215v1 [cs.CV] 29 Jun 2026
+
+2 C. Tian et al. Low positioning  
+
+> accuracy
+> High cut -off
+> recall
+> False -positive
+> detections
+> P-R Curve
+> RPN -TIR
+> (b) YOLOv8 Small vs . Large
+> RPN -RGB
+> Proposal Sets
+> Paired RoIs
+> True
+> Positive
+> False
+> Positive
+> Poorly
+> Localized
+> Fusion -driven
+> Examination and Refinement
+
+RRR RRR
+
+TT     
+
+> Detection Results
+> (d) Framework of SFEDet
+> RoI Align
+> (a) From Dense Fusion to Sparse Fusion
+> RGB Extraction
+> TIR Extraction
+> Dense Fusion
+> Spatially -uniform
+> complexity
+> Spatially -adaptive
+> complexity
+> Sparse Fusion
+> RGB Pre -filter
+> TIR Pre -filter
+> Re sources
+> Distribution
+> Recall vs . #RoIs
+> (c) Sufficient Recall of RPN
+> (e) Comparison of Efficiency
+
+Fig. 1: Illustration for our motivation and insight. (a) Most of an image is background that can be efficiently filtered out without fusion. Sparse fusion for potential areas could avoid the computationally intensive dense fusion over the entire image. (b) The P-R curves of YOLOv8-Large and -Small suggest that, though the lightweight detector has more false positives and lower location accuracy, it maintains a high recall rate for proposals. (c) Our RPNs demonstrate a sufficient recall comparable to that of large detectors, ensuring the feasibility of first extracting proposals and then accordingly implementing sparse fusion. (d) SFEDet detects objects by first rapidly scanning the image to identify sparse proposals, followed by a thorough examination and refinement driven by feature fusion. (e) Comparison between our SFEDet and recent RGB-T detectors. The radius of circles indicates the number of parameters. 
+
+Existing powerful RGB-T detectors primarily employ heavy dual backbones and perform sophisticated feature fusion uniformly across the entire image to detect the target objects accurately. Nevertheless, the backgrounds, such as the sky and ground, which generally occupy the majority of the image, are smooth and can be readily distinguished by lightweight models, even when utilizing only a single modality. Hence, processing the backgrounds with a heavy feature ex-tractor and a complex fusion mechanism is unnecessary and highly inefficient. In light of this, an effective strategy for constructing lightweight yet high-precision RGB-T detectors is to pre-filter these simple background regions using compact single-modality models and employ a powerful cross-modality fusion module to process the remaining regions. This is essentially an efficient sparse fusion mech-anism, adaptively allocating more computational resources to potential fore-grounds, as shown in Figure 1 (a). The prerequisite for the sparse fusion mechanism is that the lightweight model can identify potential foregrounds at a high recall rate without unaccept-able mistaken drops. To figure this out, we conduct an analytical experiment with YOLOv8-Large and YOLOv8-Small [28]. Figure 1 (b) presents the Preci-sion–Recall (PR) curves on FLIR [36]. We observe that the lightweight detector achieves a cut-off recall comparable to that of the heavyweight detector, both remarkably close to 100%, when the IoU threshold is 50%. Such a high recall Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 3
+
+validates the effectiveness of a lightweight model for searching potential fore-grounds, i.e. , proposals. This demonstrates the feasibility of the sparse fusion mechanism. Nevertheless, we observe two limitations from the PR curves. First, the PR curve of the lightweight detector remains consistently lower than that of the heavyweight one at IoU=50%. This suggests a high false-positive rate in the preliminary proposals, which therefore requires further verification for accu-rate recognition. Second, the recall drops sharply at IoU=75%, indicating the limited localization accuracy of the lightweight model. These two issues can be effectively mitigated with the robust features derived from cross-modality fusion. In this paper, we instantiate Sparse Fusion mechanism and propose an 
+
+Efficient RGB-T object Det ector, dubbed SFEDet , as illustrated in Figure 1(d). Specifically, we employ two lightweight detectors, one for each modality, serv-ing as region proposal networks (RPNs) to identify potential foreground regions, 
+
+i.e. , Regions of Interest (RoIs), for further detailed examination. Herein, to avoid missing real objects during proposal extraction, we construct the proposal set by taking the union of RoIs from individual modalities. Subsequently, we borrow RoI Align [10] to extract paired RoI features from the two modalities. Despite the high recall of the collected proposals extracted by our RPNs, as shown in Figure 1 (c), the RPNs still suffer from false positives and inaccurate localiza-tion. To accurately filter out false positives and refine coarse bounding boxes, we introduce a Fusion-driven Examination and Refinement ( FER ) module to process the RoIs for final detection, which performs multi-step feature fusion fol-lowed by step-wise classification and box refinement. In this way, the lightweight RPNs process the entire image preliminarily, while the sophisticated FER mod-ule operates only on sparse RoI features with fixed spatial sizes. This design enables a favorable balance between efficiency and performance. Moreover, due to the sparse fusion mechanism, SFEDet demonstrates excellent scalability for high-resolution images, as the computational complexity of FER depends solely on the number of RoIs, as demonstrated in Figure 1 (e). The implementation of the FER module is crucial to the efficiency and per-formance of our SFEDet. To this end, we introduce a Rolling Convolution op-erator into the FER module to replace the conventional convolution operator, improving its efficiency. Furthermore, we adopt a denoising training strategy to facilitate the FER module to learn to process proposals with large localization errors, consequently improving its detection performance. We conduct elaborate experiments on FLIR, M3FD, and LLVIP datasets, where the SFEDet achieves a balance between efficiency and precision. The main contributions can be sum-marized as follows: 
+
+– We introduce a sparse fusion mechanism that adaptively allocates greater computational resources to potential foreground regions; it is then instanti-ated within our SFEDet framework, enabling SFEDet to achieve a favorable balance between efficiency and performance. 
+
+– We propose a fusion-driven examination and refinement method to process the sparse proposals, which effectively filters out the false positives and re-fines the coarse bounding boxes via step-wise feature enhancement. 4 C. Tian et al. 
+
+– We conduct extensive experiments on popular RGB-T detection benchmarks, demonstrating the effectiveness of our method and highlighting its scalability for high-resolution images. 
+
+2 Related works 
+
+2.1 RGB-T Object Detection 
+
+In recent years, several benchmarks [13, 36] have been established and promote the development of the detection area. Some of them, such as M3FD [21] and LLVIP [14], are well aligned and adopted not only in object detection but also in pixel-level image fusion. The algorithms for RGB-T object detection have advanced substantially, evolving from image fusion-based methods [29, 40] and box fusion-based meth-ods [3] to feature fusion-based approaches. Among these, He et al. [11] proposed weighting different modalities according to the information difference measured within their local neighborhoods. Li et al. [15, 18] adjusted the fusion weights of RGB and TIR features based on illumination conditions. Hu et al. [12] incorpo-rated edge priors to constrain the fusion process, while ICAFusion [25] employed a cross-attention mechanism for modality guidance. Other studies [37, 43] used box-aligned masks as spatial guidance to achieve more precise fusion. Chen et al. [2, 34] introduced vision transformers into RGB-T object detectors, while Dong [6] employed Mamba [9] to perform feature fusion. In addition, several studies have addressed specific challenges in RGB-T object detection. Tian et al. [27, 38] focused on the non-alignment issue, whereas Zhou et al. [26, 42] in-vestigated the modality imbalance problem, where the RGB and TIR modalities contribute unequally to the fusion results. However, the computational overhead of feature fusion-based RGB-T detectors has received little attention to date. 
+
+2.2 Efficient Object Detectors 
+
+Efficient lightweight detectors have been extensively studied in general object detection. The YOLO [23] series is well known for enabling real-time detec-tion. Early versions [1, 24] are anchor-based, which makes both training and deployment relatively complex. Subsequent improvements, such as YOLOX [8] and TOOD [7], introduce dynamic sample assignment, a technique that has been widely adopted in later versions of YOLO [28, 30]. YOLOv7 [31] and PP-YOLOE [32] further enhance the network architectures to improve inference speed and overall efficiency. YOLOv10 [30] focuses on eliminating the non-maximum suppression (NMS) post-processing step, which has long been con-sidered a bottleneck in detector acceleration. DETR-like detectors [17, 35, 44] generally achieve higher upper-bound performance but at the cost of increased computational complexity. RT-DETR [41] is a real-time DETR-based detector that strikes a favorable balance between speed and accuracy. Although efficient single-modality detectors have been extensively explored, the modal-specific and unshared feature extraction pipelines, together with the Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 5FPN FPN     
+
+> NMS
+> Dets
+> Dets
+> Boxes 0
+> Backbone
+> Ffu
+> 1
+> Ffu
+> 1
+> Backbone
+> Ffu
+> 2
+> Ffu
+> 2Ffu
+> 3
+> Ffu
+> 3
+> Head
+> Boxes 0
+> Logits 1
+> Boxes 1
+> Boxes 1
+> Logits 2
+> Boxes 2
+> Weighting & Add
+> Group -wise Fusion
+> Ffu
+> 1
+> Ffu
+> 1
+> Ngw
+> groups
+> Denoising
+> strategy Boxes dn
+> Add & Norm Difference Hadamard Product
+
+Loss              
+
+> RoI Features (FPN)
+> Group -wise Fusion
+> Differential Enhancement
+> Sigmoid Sigmoid
+> Aux -feats Enhancement
+> Aux -feats Enhancement
+> Ffu
+> 4
+> Ffu
+> 4
+> Head
+> Ffu
+> 1
+> Ffu
+> 1
+> Differential
+> Enhancement
+> Rolling
+> Conv
+> Rolling
+> Conv
+> LN LN
+> SiLU SiLU
+> Conv 1x1 Conv 1x1
+> ×k
+> Channel Rolling
+> N-groups
+> CC
+> Conv 3x3
+> Groups=N
+> Conv 3x3
+> Groups=N
+> SiLU SiLU
+> Conv 1x1 Conv 1x1
+> Conv -Block
+> Rolling
+> Conv Noise scale
+> Add
+> Noise
+> Denoising strategy
+> GTs
+> Fusion & Det Fusion & Det
+> Loss
+> Boxes dn ×Nde
+> Backbone Features
+> Boxes
+> CC
+> RoI Align
+> Aux -feats Enhancement
+> RPNs Fusion -driven Examination and Refinement
+> RoI Align
+> Ffu
+> 2
+> Ffu
+> 2
+> Conv -Block
+> Conv -Block
+> Conv -Block
+> Conv -Block
+> RoI Align RoI Align
+> Conv -Block
+> RoI Align RoI Align
+> Channel
+> Split
+> Linear
+> LN
+> Linear
+> Softmax 0.6 0.4 0.6 0.4
+> 0.7 0.3 0.7 0.3
+> 0.1 0.9 0.1 0.9
+> 0.6 0.4
+> 0.7 0.3
+> 0.1 0.9
+> Pooling & stack
+> Conv -Block Conv -Block
+> Sigmoid Sigmoid
+
+Fig. 2: Illustration of the SFEDet framework that adopts the sparse fusion mecha-nism. It consists of two main components: the dual lightweight RPNs and the elabo-rate Fusion-driven Examination and Refinement (FER) module. The RPNs filter the background and identify potential foregrounds, i.e. , the RoIs, across the entire im-age. The FER module performs step-wise cross-modality fusion, classification, and box refinement only within the remaining sparse RoIs. 
+
+subsequent fusion process, remain computationally demanding. This issue has received limited attention in prior studies. Deevi [4] attempts to alleviate the training cost by freezing two backbones; however, the overall computational com-plexity of the model remains unchanged. Addressing this limitation constitutes the primary goal of our work. 
+
+3 Method 
+
+In this section, we present the instantiation of the sparse fusion mechanism, 
+
+i.e. , the SFEDet framework, which performs efficient and accurate RGB-T de-tection through two stages: 1) the first stage takes a quick look at the entire image with lightweight model to filter out the redundant backgrounds while retaining potential foreground regions; 2) the second stage performs detailed examination and refinement within the sparse foreground regions, i.e. , the RoIs, to produce the final detection results. Next, we describe the overall framework of SFEDet and detail its key components. 
+
+3.1 Overall framework of SFEDet 
+
+Figure 2 illustrates the overall framework of SFEDet performing detection in two stages. In the first stage, we employ two lightweight detectors serving as independent RPNs to filter out the apparent background regions through pre-liminary detection. We then construct the proposal set by taking the union set of 6 C. Tian et al. 
+
+proposals from individual modalities. To further reduce redundancy in the pre-liminary detections, we subsequently apply NMS in the union set to get sparse, non-overlapping proposals. With these proposals, we extract the corresponding RGB-T RoI feature pairs from the multi-level FPN features via RoI Align, where each proposal box is used to get spatially aligned features from two modalities. The proposals generated in the first stage typically contain numerous false posi-tives and poorly localized boxes. To address these issues, we further introduce a Fusion-driven Examination and Refinement (FER) module in the second stage. It fuses the RGB and TIR features through multi-step feature enhancement, producing a more robust representation for each RoI and facilitating the sup-pression of false positives. For proposals with inaccurate localization, a step-wise refinement strategy is adopted to progressively refine the bounding boxes. The most computationally intensive component of our SFEDet, i.e. , the FER module, is activated only within potential foreground regions. This means that the computational cost depends primarily on the number of RoIs. Consequently, SFEDet exhibits strong scalability when processing high-resolution images. We provide detailed designs of the proposed FER module, the box refinement pro-cedure, and the overall training schedule of SFEDet in the following sections. 
+
+3.2 Fusion-driven Examination and Refinement 
+
+Due to numerous false positives or poorly localized proposals in the first-stage results, we thus design an elaborate Examination and Refinement module based on the cross-modality feature fusion to address this, as illustrated in Figure 2. We deploy an efficient differential-enhanced group-wise fusion (DEGF) to balance the fusion cost and quality. The following multi-step enhancements with auxiliary features ensure a robust representation for each RoI. 
+
+Differential-enhanced group-wise fusion. This module contains a group-wise cross-modality fusion and a subsequent differential enhancement module. Before fusion, the RoI features from both RGB and TIR modalities are simul-taneously extracted from three stages of the feature pyramid network (FPN) via RoI Align, denoted as FMf pn −i, where M ∈ { rgb, tir } and i ∈ { 1, 2, 3}.Multi-stage features from FPN are then reduced into a cross-stage representa-tion FMf pn ∈ RC×5×5 for each proposal, where C denotes the number of channels and 5 represents the RoI spatial size. Core of this module is the group-weighting fusion applied to Frgb f pn and Ftir f pn ,as illustrated in Figure 2. After the Ngw -group split along the channel dimen-sion, the weights within each group are predicted separately and shared across the entire group in fusion, which reduces the computational cost. The softmax normalization ensures that the sum of weights equals one for each channel pair. The fused features are denoted as F1
+
+> f u
+
+.The differential enhancement module aims to adaptively learn a supplemen-tary representation for each modality by comparing the fused features F1 
+
+> f u
+
+with the original modality-specific features. The adaptive weights are learned from the joint representation of F1 
+
+> f u
+
+and FMf pn , where the feature difference is adopted as a Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 7
+
+computationally efficient operation. Compared with the Add and Concatenation 
+
+operation, the adopted difference operation is lighter in computation than the 
+
+Concatenation while achieving superior performance to Add , as demonstrated in the ablation study. As illustrated in Figure 2, the enhancement procedure is formulated as:  ˆFrgb = Frgb f pn · Ψrgb (F1 
+
+> f u
+
+− Frgb f pn ),
+
+ˆFtir = Ftir f pn · Ψtir (F1 
+
+> f u
+
+− Ftir f pn ),
+
+F2 
+
+> f u
+
+= ϕLN (F1 
+
+> f u
+
++ ˆFrgb + ˆFtir ),
+
+(1) where Ψ (·) is the convolution block, and ϕLN means the Layer Norm. 
+
+Auxiliary Feature Enhancement. Since the FPN features are high-level rep-resentations extracted from later stages of the network, we introduce low-level features from the backbone (BB) as auxiliary (Aux.) inputs to enhance the fusion representation. The fusion procedure is illustrated in Figure 2, where auxiliary features are re-captured by RoI Align from the backbone feature maps. 
+
+Rolling Convolution. To further reduce computational costs, we propose a variant of Group Convolution (GC), termed Rolling Convolution, which replaces all conventional convolutional operators in the FER module. The performance of cascaded GCs tends to be suboptimal due to the lack of inter-group interactions. To address this issue, we deploy an additional counterpart of GC, where the fea-tures are rolled along the channel dimension before convolution. The rolling shift is set to half of the channels within each group, as illustrated in Figure 2. A sub-sequent point-wise convolution merges the outputs from the two GCs. Compared with conventional convolution, the proposed Rolling Convolution employs fewer parameters while providing greater depth and nonlinearity for the detector. 
+
+3.3 Step-wise Box Refinement Step-wise Refinement. Owing to the poorly localized bounding boxes in the outputs of lightweight RPNs, we adopt a step-wise refinement strategy to pro-gressively refine the bounding boxes. In the FER module, we employ a two-step refinement scheme, where the bounding boxes are predicted and decoded conditioned on the predictions from the previous step. The residuals between successive bounding boxes are predicted based on the updated fusion features, meaning that the auxiliary features are re-captured via RoI Align at the end of the first step, once the bounding boxes are updated. 
+
+Box Encoder and Decoder. The RPNs in our framework adopt the distance-based decoder to predict bounding boxes for better performance. However, in the FER module, the RoI features lose the stride-scale information, which is inherently preserved in conventional multi-scale feature maps and indicates the actual scale of normalized boxes in the original image space. To address this issue and unify the box constraint format across all heads, we leverage the scale of the proposals to normalize and decode the bounding boxes in the FER module. Let di denote the predicted distance of a side, and L denote the theoretical 8 C. Tian et al. 
+
+maximum distance that the prediction head can output; the bounding boxes are then decoded as: 
+
+Di =
+
+ x2−x1 
+
+> L
+
+· di, i ∈ { lef t, right }, 
+
+> y2−y1
+> L
+
+· di, i ∈ { upper, bottom }, (2) where Di is the updated distance of each side to the center of the proposal box after decoding, and [x1, y 1, x 2, y 2] indicates the position of the proposal box. The corresponding encoding procedure is then formulated as follows: 
+
+ˆdi =
+
+( Lx2−x1 · Dgt i , i ∈ { lef t, right }, 
+
+> Ly2−y1
+
+· Dgt i , i ∈ { upper, bottom }, (3) where Dgt i is the distance of each side of the ground truth bounding box to the proposal center, ˆdi is the target of the prediction set in the loss function. 
+
+3.4 Denoising Training strategy 
+
+The proposed FER module is trained using the proposals generated by the RPNs. However, during the early stages of training, the RPNs may not be sufficiently robust to cover all regions containing objects. As a result, some regions that potentially contain objects are dropped, which often correspond to hard samples that are crucial for learning. To mitigate this issue, we adopt a denoising training strategy, where Nde groups of noisy variants of the ground-truth bounding boxes are added to the proposal list. This strategy enhances the diversity of training samples and encourages the FER module to learn from challenging cases. The procedure of noise injection is illustrated in Figure 2 and formulated as: 
+
+(xi, y i) → (xi + δx, y i + δy ), i ∈ { 1, 2},δx ∼ U (−0.4 ∗ W, +0 .4 ∗ W ),δy ∼ U (−0.4 ∗ H, +0 .4 ∗ H),
+
+(4) where W and H denote the width and height of the GT boxes, respectively. The assigner automatically categorizes these noisy proposals into positive and negative samples and matches them with the corresponding GT boxes. 
+
+3.5 Training Procedure Two-stage training. Our method employs a two-stage training strategy to ensure stable and robust convergence. In the first stage, two independent RPNs are trained separately for the RGB and TIR modalities, and their weights are then initialized in the detector as a warm-up. In the second stage, the entire detector is trained in an end-to-end manner, where the parameter updates of the two RPNs are regulated by a learning rate decay factor λ.
+
+Total Loss. The total loss of our architecture is composed of losses from two independent RPNs and two-step refinements in the FER module. The loss con-figuration for each head of the FER module can be unified with that of the Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 9
+
+Table 1: Comparison with other methods in M3FD benchmark (1024 ×768). Three-level accent colors ( ) are respectively used to highlight the top three methods across different metrics, where the red means the best. CSP means the CSP-Darknet architecture used in YOLOv5/v8. † means our re-evaluated results using the fvcore 
+
+toolkit based on the officially released codes for a fair comparison.                                                                                       
+
+> Methods Backbone Params. FLOPs Precision (%) mAP AP50 People Bus Car Motor Lamp Truck (2024’) ICAFusion [25] CSP-L 120M 370G †82.3 93.9 93.4 89.6 88.2 87.8 –88.2 (2024’) EME [40] Res-50 36.4M 316G †79.5 89.8 91.9 74.87 77.4 84.0 54.0 82.9 (2025’) RDMI [26] CSP-L 72.0M 320G 84.3 85.4 87.7 68 79.6 70.4 49.7 79.2 (2025’) MMFN [33] Res-50 176M –83.0 92.1 93.2 73.7 87.6 87.4 –86.2 (2025’) EI2Det [12] CSP-L 116M 391G †82.8 91.6 91.4 77.2 84.7 89.3 55.5 86.2 (2025’) Fu-Mamba [5] CSP-L 288M 1133G †84.3 94.2 92.9 80.5 87.5 88.8 61.9 88.0 SFEDet (Ours) CSP-S 24.5M 112.6G 88.7 96.7 91.2 88.2 91 83.2 61.0 89.8
+
+RPNs based on our encoding scheme proposed in Sec 3.3. Consequently, all four heads follow the standard loss settings of YOLOv8, where binary cross-entropy (BCE) loss is used for classification, and CIoU and DFL [19] losses are adopted for bounding box prediction. The overall loss function is defined as follows: 
+
+Ltotal = Lrgb rpn + Ltir rpn + L(1) 
+
+f er + L(2) 
+
+f er , (5) where each loss item is composed of 
+
+L = αLBCE + βLCIoU + γL DF L . (6) The α, β, and γ in Eq (5) are the weights of different loss terms. 
+
+4 Experiments 
+
+4.1 Experimental Setup Datasets. M3FD [21] is a well-aligned RGB-T dataset widely used in RGB-T object detection and image fusion. It contains 6 categories and is built with 4.2K image pairs at 1024 ×768 resolution. The dataset contains several challenging sce-narios with extreme light and weather conditions, and objects of different scales, making it hard for any single modality. The relabeled FLIR [36] benchmark is a large-scale dataset widely adopted in RGB-T object detection, including 3 cate-gories at 640 ×512 resolution. The LLVIP [14] is a high-quality RGB-T pedestrian detection dataset with more than 15K image pairs at 1280 ×1024 resolution. 
+
+Evaluation metrics. We use the standard COCO-style mAP 0.5:0.95 (denoted as mAP ) and AP50 as the detection metric throughout all experiments. 
+
+Implementation details. We deploy the YOLOv8-Small as the RPN in all experiments. The Ngw in group-wise fusion is 4, and the Nde in denoising training is 10 to balance the training cost. The L in the box-decoding is 16, as that in standard YOLOv8. The groups in the rolling convolution and the RoI size are detailed in the ablation study. The weights of loss items are set to α = 0 .5,10 C. Tian et al. 
+
+Table 2: Comparison with other methods in FLIR and LLVIP benchmarks. SFEDet-Lite represents a sparser configuration of our method, with the decrease in AP50 kept within 0.1. Three-level accent colors ( ) are respectively used to highlight the top three methods across different metrics, where the red means the best. † means our re-evaluated results based on the officially released codes.                                                                                                                         
+
+> Methods Backbone Params. FLOPs Precision (%) mAP AP50 FLOPS mAP AP50 Bicycle Car Person FLIR (640 ×512) LLVIP (1280 ×1024) (2021’) CFT [22] CSP-L 206M 224G –––40.2 78.7 640G †63.6 97.5 (2024’) ICAFusion [25] CSP-L 120M 166G †66.9 89.0 81.6 41.1 79.2 –––(2024’) Cro-Former [16] Res-50 –362G –––42.1 79.3 –65.1 97.4 (2025’) RDMI [26] CSP-L 72M 133G 62.0 89.3 85 41.2 78.8 –––(2025’) MMFN [33] Res-50 176M –65.5 91.2 85.7 41.7 80.8 ––97.2 (2025’) COFNet [43] CSP-L 90.2M 197G –––44.6 83.6 628G †65.9 97.7 (2025’) EI2Det [12] CSP-L 116M 168G †66.3 89.4 84.9 –80.2 644G †63.9 98.0 (2025’) Fu-Mamba [5] CSP-L 288M 472G †–––45.9 84.9 1888G †64.3 97.0 SFEDet (Ours) CSP-S 24.5M 69.0G 70.6 89.3 85.2 43.0 81.7 163G 65.9 96.8 SFEDet-Lite (Ours) CSP-S 24.5M 53.6G 70.5 89.1 85.2 42.8 81.6 153G 65.6 96.8
+
+GT 
+
+COFNet 
+
+Ours 
+
+GT 
+
+COFNet 
+
+Ours 
+
+#09515 #09008 
+
+Fig. 3: Qualitative comparison with COFNet in challenging illumination conditions, demonstrating the effectiveness of our SFEDet. 
+
+β = 7 .5, and γ = 0 .375 . We adopt the AdamW optimizer for training, with a learning rate of 0.0002 and a batch size of 6. The learning rate decay for the RPNs, i.e. , the λ, is set to 0.005. Please refer to Appendix B for more details. 
+
+4.2 Comparisons with State-of-the-art Methods Results on M3FD dataset. The quantitative comparison on the M3FD dataset is presented in Table 1. The term CSP in the table refers to the CSP-Darknet used in the YOLOv5/v8 series. We re-evaluated several methods using their official code to measure their computational cost at a resolution of 1024 ×768, which are marked with †. Our method achieves competitive detection accuracy while requiring only about 30% of the computational cost compared to other approaches on the high-resolution images. 
+
+Results on FLIR and LLVIP datasets. Table 2 presents comparison results on them. The proposed SFEdet achieves precision comparable to significantly heavier detectors. On the LLVIP dataset, the image area increases by 400%, leading to a substantial rise in computational cost. SFEDet experiences a 2.4 ×
+
+increase in FLOPs, which is smaller than that of other methods, for example, Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 11 
+
+Table 3: Comparison with detectors via dense fusion in the same basic setting. The best and second-best methods are indicated in bold and underlined, respectively.                                              
+
+> Fusion after Backbone Params. mAP AP50 FLOPs M3FD (1024 ×768) Image 1×CSP-L 51.2M 62.5 89.8 268G Backbone 2×CSP-S 18.8M 55.6 85.5 88.0G FPN (+Our DEGF) 2×CSP-S 18.8M 59.6 88.4 180.4G SFEDet (Ours) 2×CSP-S 24.5M 61.0 89.8 112.6G FLIR (640 ×512) Image 1×CSP-L 51.2M 39.5 77.6 130.0G Backbone 2×CSP-S 18.8M 38.2 76.5 36.8G FPN (+Our DEGF) 2×CSP-S 18.8M 41.4 79.2 75.2G SFEDet (Ours) 2×CSP-S 24.5M 43.0 81.7 69.0G
+
+Table 4: Ablation study on the design of each component. BB denotes the backbone; the first line is the vanilla setting, and blue highlights the setting we finally adopt.                                                                                                                          
+
+> M3FD (1024 ×768) FLIR (640 ×512) GW Fu. Diff. Aux-feats 2nd-Ref. Roll. Conv DN Params. (M) mAP AP50 FLOPs (G) mAP AP50 FLOPs (G) Base ✘Add ✘✘✘✘21.1 57.2 85.4 104.0 41.9 79.9 58.0
+> ✔Add ✘✘✔✔20.0 58.4 87.1 96.4 41.6 79.9 45.8
+> ✘✔✘✘✔✔20.0 58.1 87.4 96.4 41.7 79.7 45.8
+> ✔✔✘✘✔✔20.0 58.6 87.2 96.4 41.9 80.3 45.8
+> ✔✔RPN ✘✔✔21.1 59.1 88.1 104.2 41.9 79.9 57.2
+> ✔✔BB ✘✔✔21.1 59.9 88.5 104.6 42.1 80.8 57.0 FER ✔✔BB ✔✔✔24.5 61.0 89.8 112.6 43.0 81.7 69.0
+> ✔✔BB ✔✘✔29.0 61.1 88.9 144.4 42.8 81.2 116.0
+> ✔✔BB ✔✔✘24.5 59.9 88.0 111.6 42.7 81.0 68.4
+
+3.8 × in EI2Det, demonstrating the advantage of our method in maintaining sub-linear growth in computational complexity. Figure 3 presents a qualitative comparison between COFNet and our SFEDet in challenging illumination con-ditions, demonstrating the effectiveness of our sparse fusion architecture. More qualitative detection results on different datasets are in Appendix B .Furthermore, we construct a lighter SFEDet version for the FLIR and LLVIP datasets by filtering proposals and increasing sparsity, denoted as SFEDet-Lite. We set the configuration to limit the AP50 decrease within 0.1, presented in Table 2, which achieves an additional reduction of approximately 10G FLOPs. 
+
+4.3 Ablation Study Comparison with other fusion manners. To quantitatively analyze the per-formance and complexity of our sparse fusion detection framework, we construct several RGB-T detector prototypes using different fusion strategies, as summa-rized in Table 3. We perform dense fusion on image pairs, backbone features, and FPN features via channel-wise concatenation. Given the relatively limited performance of the image-level fusion detector, we deploy the Large model for comparison. Furthermore, we apply the proposed DEGF module in a dense fu-sion manner to further demonstrate the efficiency of the sparse fusion mechanism. Experimental results on the M3FD and FLIR datasets indicate that our method achieves a favorable trade-off between computational cost and performance. 12 C. Tian et al. 
+
+Table 5: Comparison of different convolution operations. The FLOPs column reports the statistics of computational costs at the 25%, 50%, and 75% percentiles, as well as their mean values.                                     
+
+> Conv OP (dim=128) Params. mAP AP50 FLOPs (G) M3FD (1024 ×768) Rolling (G=8) 24.5M 61.0 89.8 [92, 110, 122] – 112.6 Shuffle [39] (G=8) 22.6M 59.8 88.9 [90, 98, 102] – 98.4 DW + Conv 1 ×122.6M 59.6 88.5 [90, 98, 102] – 98.4 Conv2d 29.0M 61.1 88.9 [96, 144, 168] – 144.4 FLIR (640 ×512) Rolling (G=8) 24.5M 43.0 81.7 [64, 68, 72] – 69.0 Shuffle [39] (G=8) 22.6M 42.6 80.9 [46, 48, 50] – 49.0 DW + Conv 1 ×122.6M 42.4 80.6 [46, 48, 50] – 49.0 Conv2d 29.0M 42.8 81.2 [102, 114, 124] – 116.0
+
+Proposals Baseline Fusion Our FER 
+
+FLIR FLIR FLIR 
+
+M3FD M3FD M3FD 
+
+Fig. 4: Qualitative comparison between FER and vanilla fusion. 
+
+Effects of model components. The ablation study of different modules is sum-marized in Table 4. The results indicate that the group-wise fusion provides bet-ter performance due to fine-grained adaptation in fusion, without any increased cost. Compared with using element-wise addition, the differential enhancement module improves precision without increasing computational cost. The auxiliary feature column demonstrates the necessity of the third-stage feature enhance-ment, where low-level features extracted from the backbone are more effective than high-level features from the FPN. The second-refinement column illustrates the improvement introduced by the step-wise refinement mechanism. All con-volutional layers in the FER module are replaced by rolling convolution layers, which reduce computational complexity while enhancing performance. This may be attributed to the increased depth of the network. Without the denoising train-ing strategy, the detector performance declines, possibly because the model lacks sufficient hard training samples. 
+
+Effects of different convolution operations. Lightweight variants of the conventional convolutional layer have been widely studied, including group con-volution, depthwise (DW) convolution, and the ShuffleNet [39] block. We perform a comparative study among several existing lightweight convolution designs, as summarized in Table 5. The results indicate that all lightweight convolutions achieve performance comparable to other detectors, while the proposed rolling convolution further improves performance at slightly higher computational cost. Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 13 
+
+Table 6: The AP50 at different proposal localization accuracy.                     
+
+> Data Proposal IoU Upper Bound EI2Det (2025’) 1.0 0.9 0.8 0.7 0.6 0.5 FLIR 81.7 81.6 81.7 81.5 79.3 62.7 80.2 M3FD 89.8 89.8 89.8 89.5 88.2 75.3 86.2
+
+Table 7: Ablation study on hyper-parameters in our framework. The FLOPs column reports the statistics of computational costs at the 25%, 50%, and 75% percentiles, as well as their mean values.                               
+
+> RoI-size RC-group mAP AP50 Params. FLOPs (G) 7861.0 88.9 26.8M [96, 128, 154] – 134.0 5861.0 89.8 24.5M [92, 110, 122] – 112.6 3860.0 88.7 22.9M [90, 98, 102] – 98.8 5461.1 89.7 25.7M [94, 120, 134] – 121.6 516 60.8 88.9 23.9M [92, 106, 114] – 107.8
+
+Total Effects of FER. The experimental results demonstrate the effectiveness of FER in improving localization quality, as shown in Table 4. The mAP of the baseline increases largely in the FLIR and M3FD. The qualitative experiment on the typical conditions shown in Figure 4 demonstrates the effectiveness of FER. The quantitative results show that the false-positive count is reduced from 26.5 to 2.1 per image on M3FD. More details are in Appendix A .To evaluate the robustness of FER on poor localized proposals, we progres-sively noise the proposals to ensure that their IoUs are below the predefined upper bound (from 1.0 to 0.5) to simulate providing poor proposals for FER. The corresponding results are reported in Table 6, where all results are obtained 
+
+without retraining , and demonstrate the robustness of our SFEDet. This robust-ness owes to 2 designs of SFEDet: 1) the proposed denoising training strategy; and 2) the scale factor of 1.1 to enlarge the proposals before pooling. 
+
+RoI size and Rolling Convolution groups. The feature size obtained from RoI Align and the group configuration in the rolling convolution are two key hyperparameters in our method, as they correspond to detection performance and computational complexity. We conduct an additional ablation study to in-vestigate their effects, as summarized in Table 7. Configurations highlighted in blue represent the balanced setting that achieves a desirable trade-off between cost and performance and are thus adopted in the final model configuration. 
+
+4.4 Complexity Analysis FLOPs vs. Sparsity. The low computational cost of our SFEDet primarily results from its sparse fusion and prediction mechanisms. Consequently, the prediction sparsity has a significant impact on the overall computational cost. We further investigate the relationship between FLOPs and prediction sparsity, which we define as: 
+
+Sparsity = n · (Sroi )2 /
+
+> 3
+
+X
+
+> level =1
+
+wlevel f pn · hlevel f pn , (7) 14 C. Tian et al. 0         
+
+> 20
+> 40
+> 60
+> FLOPS (G)
+> 20 40 60 80
+> Sparsity (%)
+> 72.5
+> 75.0
+> 77.5
+> 80.0
+> AP50 (%)
+> FLIR
+> AP50
+> Total FLOPS
+> RPN FLOPS 0
+> 40
+> 80
+> 120
+> FLOPS (G)
+> 510 15 20
+> Sparsity (%)
+> 82
+> 84
+> 86
+> 88
+> 90
+> AP50 (%)
+> M3FD
+> AP50
+> Total FLOPS
+> RPN FLOPS 0
+> 50
+> 100
+> 150
+> FLOPS (G)
+> 2468
+> Sparsity (%)
+> 94
+> 95
+> 96
+> AP50 (%)
+> LLVIP
+> AP50
+> Total FLOPS
+> RPN FLOPS
+
+Fig. 5: The relationship between precision/complexity and sparsity. The results on different benchmarks demonstrate that our detector maintains high precision even un-der large sparsity, while significantly reducing computational cost, especially for high-resolution images. Blue lines indicate the setting of our reported performance. FLIR #1 FLIR #2 FLIR #3   
+
+> M3FD #1 M3FD #2 M3FD #3
+
+Fig. 6: Complexity distribution map. The red areas are allocated with more FLOPs, while the blue areas are allocated with the minimum computational cost. The appar-ent backgrounds are filtered out, and the fusion is performed on the potential areas. 0.00 0.25 0.50 0.75 1.00 1.25 
+
+> Area (M pixels)
+> 0
+> 100
+> 200
+> 300
+> FLOPS (G)
+> FLOPS vs. Area
+> Dense@18.8M
+> Total@24.5M
+> RPN@16.8M
+
+Fig. 7: Computational cost vs. image area. The Dense is the FPN-feature fu-sion detector we implement with DEGF in Table 3. RPN means the total of two RPN modules in our framework. The To-tal line means our SFEDet. 
+
+where n denotes the number of proposals, Sroi is the RoI feature size, and wf pn 
+
+and hf pn represent the feature map widths and heights at different levels, re-spectively. This metric represents the ratio of the spatial area where convolution-based computations are performed. We adjust the sparsity by varying the thresh-old of RPN outputs, as illustrated in Figure 5. The curves indicate that the com-putational cost introduced by the FER is linearly correlated with the number of proposals. Experimental results on different datasets suggest that our detector maintains high precision even under large sparsity, while substantially reducing the overall computational cost. In high-resolution images, most of the compu-tation is dominated by the RPN, whereas the FER accounts for only a small fraction of the total cost. The qualitative results in Figure 6 visualize the spa-tial distribution of computational complexity, showing that the computation is sparse with most background regions excluded. 
+
+FLOPs vs. Image size. We further examine the relationship between compu-tational complexity and image area within our framework. We respectively eval-uate the RPN module, SFEDet, and its dense variant with DEGF on datasets of varying resolutions. Quantitative results are presented in Figure 7. The RPN module and SFEDet-Dense are fully convolutional networks, and their computa-tional costs scale linearly with the detection area. Our SFEDet achieves improved Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 15 8 16 24 32 
+
+> Number of GTs
+> 20
+> 40
+> 60
+> 80
+> 100
+> FPS
+> Ours
+> EI2Det
+> COFNet
+
+Fig. 8: FPS vs. #GTs. SFEDet achieves compa-rable efficiency on dense samples and much better on sparse samples. 0.0 2.5 5.0 7.5 10.0     
+
+> Shifts in X-axis (pixels)
+> 32
+> 40
+> 48
+> 56
+> mAP
+> EI2Det
+> Ours
+> Ours w/ Aug 0.0 2.5 5.0 7.5 10.0
+> Shifts in Y-axis (pixels)
+> 32
+> 40
+> 48
+> 56
+> mAP
+> EI2Det
+> Ours
+> Ours w/ Aug
+
+Fig. 9: mAP vs. spatial shifts. Spatial misalignment degrades the performance of both our method and the dense fusion detector EI2Det. The impact of misalign-ment can be effectively alleviated by "shift" data aug-mentation in training. 
+
+detection performance with only a modest increase in FLOPs, and exhibits sub-linear growth in computational cost with respect to detection area. 
+
+FPS vs. Number of GTs. The FPS of our SFEDet is related to the number of RoIs, i.e. , the objects. The quantitative evaluation results are shown in Figure 8. Our method achieves a comparable FPS to those large dense detectors [12, 43], while largely outperforming them in samples with fewer objects. 
+
+4.5 Discussion on spatial misalignment 
+
+The spatial shifts between the RGB and TIR images lead to a misalignment in feature fusion, which impacts both the dense fusion detector ( e.g. , EI2Det [12]) and our SFEDet, as shown in Figure 9. In recent research [27], some special-ized techniques are developed to handle this issue. We adopt the corresponding data augmentation, i.e. , the shift, in the training of our SFEDet. The impact of misalignment can be effectively alleviated, as shown by the red line in Figure 9, demonstrating the practical effectiveness of our sparse fusion architecture. 
+
+5 Conclusion 
+
+In this work, we propose an efficient RGB-T detector, SFEDet. By filtering most background at the very beginning, the SFEDet performs feature fusion-driven examination and step-wise refinements via the proposed FER module only within potential RoIs, thereby improving the computational efficiency. We introduce a Rolling Convolution operator and a denoising training strategy to reduce computational cost and improve the performance of the FER module, respectively. We believe that SFEDet may contribute to the development of efficient RGB-T object detection. 
+
+Acknowledgments 
+
+This work was supported in part by the Guangdong Basic and Applied Basic Research Foundation (Grants No. 2025A1515010705). 16 C. Tian et al. 
+
+References 
+
+1. Bochkovskiy, A., Wang, C.Y., Liao, H.Y.M.: Yolov4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934 (2020) 2. Chen, K., Liu, J., Zhang, H.: Igt: Illumination-guided rgb-t object detection with transformers. Knowledge-Based Systems 268 , 110423 (May 2023). https://doi. org/10.1016/j.knosys.2023.110423 
+
+3. Chen, Y.T., Shi, J., Ye, Z., Mertz, C., Ramanan, D., Kong, S.: Multimodal ob-ject detection via probabilistic ensembling. In: European Conference on Computer Vision. pp. 139–158. Springer (2022) 4. Deevi, S.A., Lee, C., Gan, L., Nagesh, S., Pandey, G., Chung, S.J.: Rgb-x ob-ject detection via scene-specific fusion modules. In: Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision. pp. 7366–7375 (2024) 5. Dong, W., Zhu, H., Lin, S., Luo, X., Shen, Y., Guo, G., Zhang, B.: Fusion-mamba for cross-modality object detection. IEEE Transactions on Multimedia p. 1–15 (2025). https://doi.org/10.1109/TMM.2025.3599020 
+
+6. Dong, W., Zhu, H., Lin, S., Luo, X., Shen, Y., Guo, G., Zhang, B.: Fusion-mamba for cross-modality object detection. IEEE Transactions on Multimedia p. 1–15 (2025). https://doi.org/10.1109/TMM.2025.3599020 
+
+7. Feng, C., Zhong, Y., Gao, Y., Scott, M.R., Huang, W.: Tood: Task-aligned one-stage object detection. In: 2021 IEEE/CVF International Conference on Computer Vision (ICCV). pp. 3490–3499. IEEE Computer Society (2021) 8. Ge, Z., Liu, S., Wang, F., Li, Z., Sun, J.: Yolox: Exceeding yolo series in 2021. arXiv preprint arXiv:2107.08430 (2021) 9. Gu, A., Dao, T.: Mamba: Linear-time sequence modeling with selective state spaces. In: First conference on language modeling (2024) 10. He, K., Gkioxari, G., Dollár, P., Girshick, R.: Mask r-cnn. In: Proceedings of the IEEE international conference on computer vision. pp. 2961–2969 (2017) 11. He, X., Tang, C., Zou, X., Zhang, W.: Multispectral object detection via cross-modal conflict-aware learning. In: Proceedings of the 31st ACM International Conference on Multimedia. p. 1465–1474. ACM, Ottawa ON Canada (Oct 2023). 
+
+https://doi.org/10.1145/3581783.3612651 , https://dl.acm.org/doi/10. 1145/3581783.3612651 
+
+12. Hu, K., He, Y., Li, Y., Zhao, J., Chen, S., Kang, Y.: Ei ²det: Edge-guided illumination-aware interactive learning for visible-infrared object detection. IEEE Transactions on Circuits and Systems for Video Technology 35 (7), 7101–7115 (July 2025). https://doi.org/10.1109/TCSVT.2025.3539625 
+
+13. Hwang, S., Park, J., Kim, N., Choi, Y., So Kweon, I.: Multispectral pedestrian detection: Benchmark dataset and baseline. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 1037–1045 (2015) 14. Jia, X., Zhu, C., Li, M., Tang, W., Zhou, W.: Llvip: A visible-infrared paired dataset for low-light vision. In: Proceedings of the IEEE/CVF international con-ference on computer vision. pp. 3496–3504 (2021) 15. Kim, J.U., Park, S., Ro, Y.M.: Uncertainty-guided cross-modal learning for robust multispectral pedestrian detection. IEEE Transactions on Circuits and Systems for Video Technology 32 (3), 1510–1523 (Mar 2022). https://doi.org/10.1109/ TCSVT.2021.3076466 
+
+16. Lee, S., Park, J., Park, J.: Crossformer: Cross-guided attention for multi-modal object detection. Pattern Recognition Letters 179 , 144–150 (2024) Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 17 17. Li, F., Zhang, H., Liu, S., Guo, J., Ni, L.M., Zhang, L.: Dn-detr: Accelerate detr training by introducing query denoising. In: Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition. pp. 13619–13627 (2022) 18. Li, Q., Zhang, C., Hu, Q., Fu, H., Zhu, P.: Confidence-aware fusion using dempster-shafer theory for multispectral pedestrian detection. IEEE Transactions on Multi-media (2022) 19. Li, X., Wang, W., Wu, L., Chen, S., Hu, X., Li, J., Tang, J., Yang, J.: General-ized focal loss: Learning qualified and distributed bounding boxes for dense object detection. Advances in neural information processing systems 33 , 21002–21012 (2020) 20. Liu, J., Zhang, S., Wang, S., Metaxas, D.N.: Multispectral deep neural networks for pedestrian detection. arXiv preprint arXiv:1611.02644 (2016) 21. Liu, J., Fan, X., Huang, Z., Wu, G., Liu, R., Zhong, W., Luo, Z.: Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection. In: Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition. pp. 5802–5811 (2022) 22. Qingyun, F., Dapeng, H., Zhaokui, W.: Cross-modality fusion transformer for mul-tispectral object detection. arXiv preprint arXiv:2111.00273 (2021) 23. Redmon, J., Divvala, S., Girshick, R., Farhadi, A.: You only look once: Unified, real-time object detection. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 779–788 (2016) 24. Redmon, J., Farhadi, A.: Yolov3: An incremental improvement. arXiv preprint arXiv:1804.02767 (2018) 25. Shen, J., Chen, Y., Liu, Y., Zuo, X., Fan, H., Yang, W.: Icafusion: Iterative cross-attention guided feature fusion for multispectral object detection. Pattern Recog-nition 145 , 109913 (2024) 26. Tian, C., Yang, C., Zhu, G., Wang, Q., He, Z.: Learning a robust rgb-thermal detector for extreme modality imbalance. Pattern Recognition Letters 196 , 1–8 (2025). https://doi.org/https://doi.org/10.1016/j.patrec.2025.05.005 
+
+27. Tian, C., Zhou, Z., Huang, Y., Li, G., He, Z.: Cross-modality proposal-guided fea-ture mining for unregistered rgb-thermal pedestrian detection. IEEE Transactions on Multimedia 26 , 6449–6461 (2024) 28. Ultralytics: https://github.com/ultralytics/ultralytics 
+
+29. Wagner, J., Fischer, V., Herman, M., Behnke, S.: Multispectral pedestrian detec-tion using deep fusion convolutional neural networks. Computational Intelligence (2016) 30. Wang, A., Chen, H., Liu, L., Chen, K., Lin, Z., Han, J., et al.: Yolov10: Real-time end-to-end object detection. Advances in Neural Information Processing Systems 
+
+37 , 107984–108011 (2024) 31. Wang, C.Y., Bochkovskiy, A., Liao, H.Y.M.: Yolov7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 7464–7475 (2023) 32. Xu, S., Wang, X., Lv, W., Chang, Q., Cui, C., Deng, K., Wang, G., Dang, Q., Wei, S., Du, Y., et al.: Pp-yoloe: An evolved version of yolo. arXiv preprint arXiv:2203.16250 (2022) 33. Yang, F., Liang, B., Li, W., Zhang, J.: Multidimensional fusion network for mul-tispectral object detection. IEEE Transactions on Circuits and Systems for Video Technology 35 (1), 547–560 (Jan 2025). https://doi.org/10.1109/TCSVT.2024. 3454631 18 C. Tian et al. 34. Yang, F., Liang, B., Li, W., Zhang, J.: Multidimensional fusion network for mul-tispectral object detection. IEEE Transactions on Circuits and Systems for Video Technology 35 (1), 547–560 (Jan 2025). https://doi.org/10.1109/TCSVT.2024. 3454631 
+
+35. Zhang, H., Li, F., Liu, S., Zhang, L., Su, H., Zhu, J., Ni, L.M., Shum, H.Y.: Dino: Detr with improved denoising anchor boxes for end-to-end object detection. arXiv preprint arXiv:2203.03605 (2022) 36. Zhang, H., Fromont, E., Lefevre, S., Avignon, B.: Multispectral fusion for object detection with cyclic fuse-and-refine blocks. In: 2020 IEEE International conference on image processing (ICIP). pp. 276–280. IEEE (2020) 37. Zhang, H., Fromont, E., Lefèvre, S., Avignon, B.: Guided attentive feature fusion for multispectral pedestrian detection. In: Proceedings of the IEEE/CVF winter conference on applications of computer vision. pp. 72–80 (2021) 38. Zhang, L., Zhu, X., Chen, X., Yang, X., Lei, Z., Liu, Z.: Weakly aligned cross-modal learning for multispectral pedestrian detection. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 5127–5137 (2019) 39. Zhang, X., Zhou, X., Lin, M., Sun, J.: Shufflenet: An extremely efficient convolu-tional neural network for mobile devices. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 6848–6856 (2018) 40. Zhang, X., Cao, S.Y., Wang, F., Zhang, R., Wu, Z., Zhang, X., Bai, X., Shen, H.L.: Rethinking early-fusion strategies for improved multispectral object detec-tion. IEEE Transactions on Intelligent Vehicles p. 1–15 (2024). https://doi.org/ 10.1109/TIV.2024.3462488 
+
+41. Zhao, Y., Lv, W., Xu, S., Wei, J., Wang, G., Dang, Q., Liu, Y., Chen, J.: Detrs beat yolos on real-time object detection. In: 2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). p. 16965–16974. IEEE, Seattle, WA, USA (june 2024). https://doi.org/10.1109/CVPR52733.2024.01605 , https: //ieeexplore.ieee.org/document/10657220/ 
+
+42. Zhou, K., Chen, L., Cao, X.: Improving multispectral pedestrian detection by ad-dressing modality imbalance problems. In: European conference on computer vi-sion. pp. 787–803. Springer (2020) 43. Zhou, M., Li, Y., Yang, G., Wei, X., Pu, H., Luo, J., Jia, W.: Cofnet: Contrastive object-aware fusion using box-level masks for multispectral object detection. IEEE Transactions on Multimedia p. 1–15 (2025). https://doi.org/10.1109/TMM.2025. 3599097 
+
+44. Zhu, X., Su, W., Lu, L., Li, B., Wang, X., Dai, J.: Deformable detr: Deformable transformers for end-to-end object detection. In: International Conference on Learning Representations (2021) Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 1
+
+Appendix A Effect of the proposed FER 
+
+We conduct a comparison to evaluate the effectiveness of the proposed FER module, as shown in Table H. We adjust the score threshold to maintain the same recall rate as the RPNs and count the false positives in each image pair. The results demonstrate that FER more effectively suppresses false-positive proposals generated by the RPNs.              
+
+> Table H: Mean average of the number of false positives in an image. Number of false positives Datasets Recall Required Dual RPNs Base FER M3FD 0.96 18.0 26.5 2.1 FLIR 0.95 65.0 38.0 33.5
+
+B Additional Details of Implementation 
+
+In this section, we detail the implementation and training phase. In the construc-tion of the proposed SFEDet, we try to balance the computational cost and the detection performance. Each component in the SFEDet and the FER module is carefully designed. The parameters of each component are detailed in Table I.           
+
+> Table I: Statistics for the number of parameters of each module. Module Parameters RPN-RGB (YOLOv8-Small) 8.4M RPN-TIR (YOLOv8-Small) 8.4M DEGF 0.95M Auxiliary Enhancement-1 1.11M FER-Head-1 2.27M Auxiliary Enhancement-2 1.11M FER-Head-2 2.27M Total 24.5M
+
+Two independent RPNs are two standard YOLOv8-Small [28] detectors, with multi-class classification retained to improve feature quality. The DEGF module, as mentioned in the Method, is a high-efficiency, lightweight fusion module. Two 2 C. Tian et al. 0 2500 5000 7500 10000 12500 15000 17500               
+
+> 0
+> 10
+> 20
+> 30
+> 40
+> Classification Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+> 02500 5000 7500 10000 12500 15000 17500
+> 8
+> 10
+> 12
+> 14
+> 16
+> 18
+> 20
+> Bbox CIoU Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+> 02500 5000 7500 10000 12500 15000 17500
+> 8
+> 10
+> 12
+> 14
+> 16
+> Bbox DFL Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+
+(a) M3FD 0 1000 2000 3000 4000 5000 6000 7000 8000                  
+
+> 5
+> 10
+> 15
+> 20
+> 25
+> Classification Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+> 01000 2000 3000 4000 5000 6000 7000 8000
+> 10
+> 15
+> 20
+> 25
+> Bbox CIoU Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+> 01000 2000 3000 4000 5000 6000 7000 8000
+> 10
+> 12
+> 14
+> 16
+> 18
+> 20
+> 22
+> Bbox DFL Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+
+(b) FLIR 0 2500 5000 7500 10000 12500 15000 17500                
+
+> 2.5
+> 5.0
+> 7.5
+> 10.0
+> 12.5
+> 15.0
+> 17.5
+> Classification Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+> 02500 5000 7500 10000 12500 15000 17500
+> 7.5
+> 10.0
+> 12.5
+> 15.0
+> 17.5
+> 20.0
+> 22.5
+> 25.0
+> Bbox CIoU Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+> 02500 5000 7500 10000 12500 15000 17500
+> 10
+> 15
+> 20
+> 25
+> 30
+> Bbox DFL Loss
+> RPN-RGB
+> RPN-TIR
+> FER-1
+> FER-2
+
+(c) LLVIP 
+
+Fig. J: Training loss curves of SFEDet in different datasets. All metrics for different detection heads are calculated under the same scale and standard. The different losses during training show the capability of different heads, where FER heads have a much stronger capacity. 
+
+detection heads in the FER module are the heaviest modules in our framework. The heads share the same setting as those in YOLOv8, which adopt decoupled heads. Each head contains two independent prediction branches, i.e. , the clas-sification branch and regression branch. Though the number of channels in our SFEDet is set to 128 in most modules, the dimensions of the channels in the two heads are set to 512 for better performance. Though the prediction head is heavyweight, the total efficiency is guaranteed because of the sparse fusion. We adopt several techniques in training. First, we deploy the Exp-Momentum Exponential Moving Average (ExpMomentumEMA) [8] to achieve a better con-vergence in thermal-related datasets, where the momentum is set to 1e − 4. At the beginning of training, we deploy a linear warm-up scheduler for the learning rate for 500 training iterations. Then, we decay the learning rate by a 0.1 fac-tor after different training epochs for different datasets for better convergence. Borrowing from literature [26], we randomly add noise to one of the modalities during RGB and TIR. The type of noise is randomly selected during Gaussian ,
+
+Contrast , and Blur , following a uniform distribution. These data augmentations enhance the diversity of samples, thus improving the robustness of features after fusion and overcoming the modality imbalance issue [26]. 
+
+Training loss analysis. The loss curves of SFEDet on different datasets are shown in Figure J. Across all datasets, the losses of the FER heads exhibit a sharp decrease at the beginning, as the FER module is trained from scratch. During the later training stages, the deeper heads tend to converge to lower loss values under the same evaluation criteria, which suggests an improvement in the Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 3
+
+representational capacity of the detector. Furthermore, the differences between the losses of the two RPNs reflect the distinct contributions of the RGB and TIR modalities. In the M3FD [21] dataset, the RGB and TIR modalities tend to contribute comparably to the overall detection performance, owing to their complementary sensitivities to different object categories, such as traffic lights (in RGB) and persons (in TIR). In contrast, for the FLIR [36] and LLVIP [14] datasets, where the primary target objects (i.e., persons and cars) are generally more salient in TIR images, the TIR modality plays a more dominant role. The comparison between RPNs and the final heads demonstrates the effectiveness of the proposed cross-modality sparse fusion and examination. 
+
+C More Qualitative Detection Results RoIs  
+
+> Complexity
+> Results
+> Fig. K: Qualitative detection results on M3FD dataset. Different rows respectively show the corresponding RoIs, complexity, and results. Different categories are marked in different colors.
+
+We present more qualitative detection results of our SFEDet. The results from different datasets are respectively shown in Figure K, Figure L and Fig-ure M. The first row of each figure is the RoIs obtained from RPNs, where the preliminary detections are processed by the NMS to get the sparse proposals. The second row shows the distribution of computational complexity. Considering that some regions are repetitively computed, these regions suffer a heavier com-plexity, highlighted with the hot color. The third row shows the final detection bounding boxes, where the boxes of different colors mean different categories. The sparsity of RoIs demonstrates the effectiveness of our SFEDet. Due to the poor imaging quality in RGB images of the FLIR dataset, the proposals ob-tained from the RGB images are slightly more than those from other datasets. 4 C. Tian et al. RoIs 
+
+> Complexity
+> Results
+
+Fig. L: Qualitative detection results on FLIR dataset. Due to the poor imaging quality in RGB images of the FLIR dataset, the proposals obtained from the RGB are a bit more than those of other datasets. RoIs 
+
+> Complexity
+> Results
+
+Fig. M: Qualitative detection results on LLVIP dataset. According to the above results, most of the background areas are pre-filtered, avoiding the fusion and heavyweight inference module. In the second stage, the RoIs are carefully examined and refined to find out the sparse bounding boxes. 
+
+Meanwhile, in the LLVIP dataset, due to the lower challenging conditions, most of the background areas are pre-filtered, avoiding the fusion and heavyweight in-ference module. In the second stage, the RoIs are carefully examined and refined to find the sparse bounding boxes. The difference between RoIs and the final results shows the achievement of our proposed fusion-driven examination and Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion 5
+
+refinement module, which excludes the false positives in proposals and modifies the inaccurate bounding boxes.
