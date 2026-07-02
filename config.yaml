@@ -25,3 +25,60 @@ subscriptions:
     stage: A
     diff_threshold_pct: 15
   keyword_recall_mode: or
+  intent_profiles:
+    - tag: image-fusion
+      description: 请帮我查找图像融合相关的深度学习论文
+      enabled: true
+      paper_sources:
+        - arxiv
+      keywords:
+        - keyword: image fusion
+          keyword_cn: 图像融合
+          query: image fusion techniques
+        - keyword: deep learning fusion
+          keyword_cn: 深度学习融合
+          query: deep learning for image fusion
+        - keyword: multimodal image fusion
+          keyword_cn: 多模态图像融合
+          query: multimodal image fusion using deep learning
+        - keyword: diffusion models
+          keyword_cn: 扩散模型
+          query: CNN for image fusion
+        - keyword: generative adversarial network fusion
+          keyword_cn: 生成对抗网络融合
+          query: GAN for image fusion
+        - keyword: feature fusion network
+          keyword_cn: 特征融合网络
+          query: feature level fusion in deep learning
+      intent_queries:
+        - query: find deep learning papers on image fusion
+          query_cn: 查找图像融合的深度学习论文
+          enabled: true
+          source: manual
+          note: ''
+        - query: image fusion survey deep learning
+          query_cn: 图像融合深度学习综述
+          enabled: true
+          source: manual
+          note: ''
+        - query: multimodal image fusion using deep neural networks
+          query_cn: 使用深度神经网络的多模态图像融合
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-07-02T05:18:44.282Z'
+source_backends:
+  arxiv:
+    papers_table: arxiv_papers
+    use_vector_rpc: true
+    vector_rpc: match_arxiv_papers
+    vector_rpc_exact: match_arxiv_papers_exact
+    use_bm25_rpc: true
+    bm25_rpc: match_arxiv_papers_bm25
+    sync_table: arxiv_sync_status
+    sync_success_value: success
+    schema: public
+    kind: supabase
+    enabled: true
+    url: https://lyucdwgefyfbmaiopjbk.supabase.co
+    anon_key: sb_publishable_lX-oi64Uxyd7SIVv3_w2Uw_MTOojeKq
