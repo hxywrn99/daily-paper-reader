@@ -6,28 +6,22 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-03
-- 运行时间：2026-07-03 20:50:50 UTC
+- 最新运行日期：2026-07-04
+- 运行时间：2026-07-04 20:33:51 UTC
 - 运行状态：成功
-- 本次总论文数：1
+- 本次总论文数：0
 - 精读区：0
-- 速读区：1
+- 速读区：0
 
 ### 今日简报（AI）
-今日速读1篇论文，聚焦RGB-Event目标检测的Transformer创新方法。
-
-最值得关注的方向：利用层次化信息交互融合多模态特征，提出CMTFormer架构，评分7.0/10。
-
-建议普通读者后续可深入探索该架构如何提升检测精度，并关注其与纯RGB方法的性能对比。
-- 详情：[/202607/03/README](/202607/03/README)
+> 今日无新推荐，系统未产出可展示论文。
+- 详情：[/202607/04/README](/202607/04/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [CMTFormer: Marrying Transformer with Hierarchical Information Interaction for RGB-Event Object Detection](/202607/03/2606.29136v1-cmtformer-marrying-transformer-with-hierarchical-information-interaction-for-rgb-event-object-detection)  
-   标签：评分：7.0/10、query:image-fusion
-   evidence：RGB与事件流的跨模态融合用于目标检测
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
