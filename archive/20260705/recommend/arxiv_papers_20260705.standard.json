@@ -1,0 +1,97 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-05T21:00:03.715327+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.28951v1",
+      "source": "arxiv",
+      "title": "Cross-Session 3D LiDAR and Camera Fusion for Robust Localization of Unmanned Aerial Vehicles in GPS-Denied Environments",
+      "abstract": "Accurate localization of unmanned aerial vehicles (UAVs) is essential for applications such as structural health monitoring, especially in environments where Global Positioning System (GPS) signals are denied or unreliable, like indoor spaces, tunnels, urban canyons, or areas beneath large structures. To address this challenge, we propose Cross-Fusion, a novel method for real-time UAV localization that integrates data from a 3D Light Detection and Ranging (LiDAR) and a monocular camera. A key contribution is its cross-session fusion strategy, which integrates visual and geometric information collected from multiple agents during routine baseline surveys to improve localization consistency and map completeness. The system employs LiDAR-based odometry for motion tracking and image-based feature matching via a single red-green-blue (RGB) camera to correct drift and improve accuracy. Unlike visual-inertial systems, Cross-Fusion maintains a simple sensor setup and avoids the complexity of stereo or global shutter configurations. Experimental results demonstrate that Cross-Fusion achieves localization accuracy comparable to GPS-based methods and performs reliably in challenging feature-sparse environments.",
+      "authors": [
+        "Cong Hoang Quach",
+        "Chi Thanh Vo",
+        "Dong LT. Tran",
+        "Truong Son Nguyen",
+        "Manh Duong Phung",
+        "Thuan Hoang Tran"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-27T14:48:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.28951v1",
+      "tags": [
+        "keyword:image-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "LiDAR-camera fusion for UAV localization",
+      "llm_evidence_cn": "LiDAR与相机融合用于无人机定位",
+      "llm_evidence": "LiDAR与相机融合用于无人机定位",
+      "canonical_evidence": "LiDAR与相机融合用于无人机定位",
+      "llm_tldr_en": "Cross-Fusion integrates 3D LiDAR and monocular camera data with a cross-session strategy for robust UAV localization in GPS-denied environments.",
+      "llm_tldr_cn": "针对GPS拒止环境下无人机定位难题，提出跨会话LiDAR-相机融合方法Cross-Fusion，利用多次巡检中采集的多源数据增强地图一致性和定位鲁棒性，实时融合视觉与几何信息，在室内外场景中显著提升定位精度。",
+      "llm_tldr": "针对GPS拒止环境下无人机定位难题，提出跨会话LiDAR-相机融合方法Cross-Fusion，利用多次巡检中采集的多源数据增强地图一致性和定位鲁棒性，实时融合视觉与几何信息，在室内外场景中显著提升定位精度。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.30355v1",
+      "source": "arxiv",
+      "title": "Residual-Guided Expert Specialization for Incomplete Multimodal Learning",
+      "abstract": "As real-world prediction systems often face missing modalities at inference, incomplete multimodal learning (IML) remains a practical challenge. While prior methods aim to learn representations robust to missing inputs, representations from incomplete modalities inevitably deviate from their full-modality counterparts due to missing evidence. To explicitly leverage these deviations, we propose MARS (Missingness-Aware Residual-guided Specialization), a mixture-of-experts framework that guides expert specialization based on how representations are reshaped by missingness. By contrasting task representations derived from incomplete inputs with their complete counterparts during training, we derive a privileged residual signal that captures this representational gap. The residual signal guides a residual router to assign samples to experts specialized for the corresponding deviation patterns. In parallel, a feature router learns to imitate this routing behavior using only incomplete inputs, enabling deployment without access to full modalities. To mitigate this train-test router gap, we develop a discrepancy-aware noise regularization that adaptively perturbs the residual router's decisions when the feature router deviates, enhancing expert robustness under imperfect imitation. Experiments on multimodal classification (CASIA-SURF, CREMA-D, UPMC Food-101) and segmentation (MCubeS) under missing scenarios show that MARS consistently surpasses baselines while remaining efficient and extensible to diverse backbones and tasks.",
+      "authors": [
+        "Seunghun Baek",
+        "Jihwan Park",
+        "Jaeyoon Sim",
+        "Minjae Jeong",
+        "Hoseok Lee",
+        "Won Hwa Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-29T14:24:05+00:00",
+      "link": "https://arxiv.org/pdf/2606.30355v1",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Mixture-of-experts for incomplete multimodal learning, addresses feature fusion under missing modalities",
+      "llm_evidence_cn": "混合专家模型处理不完整多模态学习，应对缺失模态下的特征融合",
+      "llm_evidence": "混合专家模型处理不完整多模态学习，应对缺失模态下的特征融合",
+      "canonical_evidence": "混合专家模型处理不完整多模态学习，应对缺失模态下的特征融合",
+      "llm_tldr_en": "Proposes MARS, a mixture-of-experts framework that leverages residual signals between full and incomplete modality representations to guide expert specialization for robust incomplete multimodal learning.",
+      "llm_tldr_cn": "不完整多模态学习中，缺失模态导致表征偏离完整表征，现有方法忽略这种偏差。本文提出缺失感知残差引导的专家特化框架MARS，利用完整与不完整表征间的残差信号指导专家网络专门化，显式利用偏差提升模型鲁棒性。实验表明在多种缺失场景下分类准确率显著提升，为不完整多模态学习开辟了新途径。",
+      "llm_tldr": "不完整多模态学习中，缺失模态导致表征偏离完整表征，现有方法忽略这种偏差。本文提出缺失感知残差引导的专家特化框架MARS，利用完整与不完整表征间的残差信号指导专家网络专门化，显式利用偏差提升模型鲁棒性。实验表明在多种缺失场景下分类准确率显著提升，为不完整多模态学习开辟了新途径。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
