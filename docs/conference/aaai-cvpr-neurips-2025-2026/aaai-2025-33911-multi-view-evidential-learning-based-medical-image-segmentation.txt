@@ -1,0 +1,483 @@
+Title: Multi-view Evidential Learning-based Medical Image Segmentation
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/33911/36066
+
+Number of Pages: 9
+
+Markdown Content:
+# Multi-view Evidential Learning-based Medical Image Segmentation 
+
+## Chao Huang 1, Yushu Shi 1, Waikeung Wong *2,3 , Chengliang Liu 4, Wei Wang 1, Zhihua Wang 5, Jie Wen *6 
+
+> 1
+
+School of Cyber Science and Technology, Shenzhen Campus of Sun Yat-sen University 
+
+> 2
+
+School of Fashion and Textiles, Hong Kong Polytechnic University 
+
+> 3
+
+Laboratory for Artificial Intelligence in Design, Hong Kong 
+
+> 4
+
+Department of Computer Science and Engineering, Hong Kong University of Science and Technology 
+
+> 5
+
+Department of Computer Science, City University of Hong Kong 
+
+> 6
+
+School of Computer Science and Technology, Harbin Institute of Technology, Shenzhen huangch253@mail.sysu.edu.cn, shiysh8@mail2.sysu.edu.cn, calvin.wong@polyu.edu.hk, liucl1996@163.com, wangwei29@mail.sysu.edu.cn, zhihua.wang@my.cityu.edu.hk, wenjie@hit.edu.cn 
+
+Abstract 
+
+Medical image segmentation provides useful information about the shape and size of organs, which is beneficial for improving diagnosis, analysis, and treatment. Despite tra-ditional deep learning-based models can extract domain-specific knowledge, they face a generalization bottleneck due to the limited embedded knowledge scope. Vision foundation models have been demonstrated to be effective in extract-ing generalizable knowledge, but they cannot extract domain-specific knowledge without fine-tuning. In this work, we propose a novel multi-view evidential learning-based frame-work, which can extract both domain-specific and general-izable knowledge from multi-view features by combining the advantages of traditional and vision foundation models. Specifically, a novel multi-view state space model (MV-SSM) is designed to extract task-related knowledge while remov-ing redundant information within multi-view features. The proposed MV-SSM utilizes Mamba, a state space model, to model cross-view contextual dependencies between domain-specific and generalizable features. Additionally, evidential learning is adopted to quantify the segmentation uncertainty of the model for boundary. In special, variational Dirichlet is introduced to characterize the distribution of the result prob-abilities, parameterized with collected evidence to quantify uncertainty. As a result, the model can reduce the segmenta-tion uncertainties of boundaries by optimizing the parameters of the Dirichlet distribution. Experimental results on three datasets show that our method obtains superior segmentation performance. 
+
+## Introduction 
+
+Medical image segmentation is a critical component of computer-aided diagnosis, which plays a pivotal role in rel-ative applications. It can provide useful information about the shape and size of organs, which is beneficial for improv-ing diagnosis, analysis, and treatment. In recent years, deep learning techniques have been extensively applied to medi-cal image segmentation and have achieved remarkable suc-cess (Qureshi et al. 2023). These methods (Butoi et al. 2023; 
+
+> *
+
+Corresponding Authors Copyright © 2025, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. 
+
+Rahman and Marculescu 2023) obtained promising perfor-mance and significant improvement in disease diagnosis. In order to facilitate the extraction of domain-specific knowledge, previous methods (Heidari et al. 2023; Roy et al. 2023) need to be trained on specific medical image datasets. In fact, these methods adopt the single view-based medi-cal image segmentation framework, which extracts informa-tion for segmentation from a perspective of the original in-put. However, the single view-based framework restricts the scope of encoded knowledge for the model. Although some methods achieve information augmentation by introducing multi-scale representation learning (Zhan et al. 2023), they fail to consider multiple scales to balance the distribution of feature weights. Consequently, existing methods still cannot effectively explore sufficient information to overcome the generalization bottleneck caused by the limited embedded knowledge scope of the single view-based framework. Drawing inspiration from biological cognitive mecha-nisms, visual information from different views (e.g., differ-ent observation and viewing angles) can be mutually corre-lated and complementary (Liu et al. 2022). Consequently, multi-view learning can be adopted to as a solution to over-come the generalization bottleneck. In fact, there are several works (Liu et al. 2024a) have attempted to achieve medical image segmentation based on multi-view learning. Despite achieving superior performance compared to single-view methods, these methods still exhibit limitations. Specifi-cally, current multi-view methods are still trained on limited datasets. They remain incapable of extracting effective gen-eralizable knowledge. Recently, vision foundation models such as SAM (Kir-illov et al. 2023) and CLIP (Radford et al. 2021) have been extensively applied to various vision tasks (Awais et al. 2023) and achieved remarkable success. These vision foun-dation models have strong feature extraction and zero-shot transfer capabilities, since they are usually trained on large scale datasets. Thus, vision foundation models can extract richer and generalizable information (Frintrop, Rome, and Christensen 2010). However, vision foundation models can-not extract domain-specific knowledge if directly applied to medical images segmentation due to domain differences (Zhang, Shen, and Jiao 2024). Thus, it is necessary to The Thirty-Ninth AAAI Conference on Artificial Intelligence (AAAI-25) 
+
+17386 fine-tune vision foundation models when applying them for medical image segmentation. Fine-tuning visual foundation models is a challenging task due to the extremely high cost of acquiring high-quality labeled data. To address these challenges, we propose a novel multi-view evidential learning-driven framework for medical im-age segmentation. The proposed method leverages the strengths of two types of models (traditional deep learn-ing model and vision foundation model) to extract domain-specific and generalizable knowledge from multi-view fea-tures. Specifically, we propose a novel multi-view state space model (MV-SSM). It is adopted to extract task-related knowledge while removing redundant information within multi-view features. Mamba, a state space model, is uti-lized in the proposed MV-SSM to model cross-view con-textual dependencies between domain-specific and general-izable features. Moreover, we propose a novel Mamba block for domain-specific models, which is adopted to extract rich domain-specific knowledge during training through multi-scale representation. Additionally, the evidential learning is also adopted to quantify the segmentation uncertainty of the model for boundary. In detail, variational Dirichlet is intro-duced to characterize the distribution of the result probabil-ities and parameterized with collected evidence, which de-notes the segmentation results and the uncertainty distribu-tion. The variational Dirichlet can be adopted to efficiently quantify the boundary segmentation uncertainty. As a re-sult, the model can reduce the segmentation uncertainties of boundaries by optimizing the parameters of the Dirich-let distribution. Our main contributions are summarized as follows: • A novel multi-view evidential learning-driven framework is proposed for medical image segmentation, which com-bines the advantages of domain-specific and vision foun-dation models. Thus, the proposed method can extract both domain-specific and generalizable knowledge from multi-view features. • A novel multi-view state space model is designed to ex-tract task-related knowledge. It adopts Mamba to model cross-view contextual dependencies between domain-specific and generalizable features. Additionally, a novel Mamba block is proposed for the domain-specific model to extract rich domain-specific knowledge. • The evidential learning is adopted to quantify the bound-ary segmentation uncertainty of the model. As a result, the model can reduce the segmentation uncertainties of boundaries by optimizing the relative parameters. 
+
+## Related Work 
+
+Medical Image Segmentation 
+
+Medical image segmentation refers to identifying organ or lesion pixels from medical images (Yao et al. 2023). U-Net (Ronneberger, Fischer, and Brox 2015) is a widely adopted model for medical images. Various methods have been proposed to improve its performance. For instance, UNet++ (Zhou et al. 2019) adds dense skip connections to enhance feature propagation. Attention-UNet (Wang, Li, and Zhuang 2021) incorporated an attention mechanism to focus on relevant regions. TransUNet (Chen et al. 2021) and Swin-UNet (Cao et al. 2022) combined Transformer and UNet architectures for achieving better performance. How-ever, these domain-specific models are typically trained with single-view data only. It limits the model’s ability to en-code comprehensive knowledge, although these models can extract domain-specific knowledge. Several methods have incorporated multi-view learning to enhance the scope of encoded knowledge for domain-specific models. However, these methods are still trained on a limited dataset, which cannot extract effective generalizable knowledge. In this work, we present a novel multi-view evidential learning framework that leverages the strengths of traditional deep learning model and vision foundation model. The proposed method enables the model to extract both domain-specific and generalizable knowledge from multi-view features. 
+
+Evidential Learning 
+
+Recently, some uncertainty estimation methods based on the Dirichlet distribution have been applied to the com-puter vision community. For example, PriorNet evidence networks (Sensoy, Kaplan, and Kandemir 2018) modeled the Dirichlet distribution using subjective logic. Ensemble distribution distillation (Malinin, Mlodozeniec, and Gales 2019) obtained the Dirichlet distribution by distilling from the predictions of multiple models. PostNet (Charpentier, Z¨ ugner, and G¨ unnemann 2020) utilized normalized flows and Bayesian losses to estimate uncertainty and obtain the Dirichlet distribution during training. Median smoothing ap-plied to the Dirichlet model significantly improves its ability to handle adversarial examples (Kopetzki et al. 2021). Mo-tivated by these methods, we incorporate evidence learning to tackle the issue of model boundary segmentation uncer-tainty. Specifically, we quantify uncertainty by modeling the distribution of the result with a variational Dirichlet function and minimize the boundary segmentation uncertainty by op-timizing the parameters of the Dirichlet distribution. 
+
+State Space Model 
+
+The concept of the state space model was initially introduced in the Structured State Space Sequence Model (Gu, Goel, and R´ e 2021) (S4 model), presenting a distinctive archi-tecture capable of effectively modeling global information compared to conventional CNN or Transformer. The sub-sequent Hungry Hungry Hippos (H3 model) (Mehta et al. 2022) further refined and expanded upon this foundation, en-abling the model to perform competitively with Transform-ers in language model tasks. Mamba (Gu and Dao 2023) introduced an input adaptation mechanism. It significantly improves the inference speed of the State Space model. Thus, Mamba demonstrates superior overall metrics com-pared to transformers of equivalent scale. Vision Mamba (Zhu et al. 2024) and Vmaba (Liu et al. 2024b) expand the application of Mamba to visual tasks. These adaptations achieved impressive results in classification and segmenta-tion, notably in medical image segmentation (Ma, Li, and Wang 2024; Zhang et al. 2024). The potential of this model in multi-view learning remains an area that has not been 17387 thoroughly explored. In this paper, a novel multi-view state space model (MV-SSM) is proposed to extract task-related knowledge from multi-view features. MV-SSM leverages Mamba to model cross-view contextual dependencies be-tween domain-specific and generalizable features. Further-more, a novel Mamba block is introduced to extract the domain-specific knowledge. 
+
+## Methodology 
+
+Overview 
+
+The overall architecture of the proposed method is shown in Figure 1. Segment Anything Model (Kirillov et al. 2023) is adopted as the vision foundation model. Given a medi-cal image I, the SAM image encoder and domain-specific encoder are adopted to extract generalizable knowledge and domain-specific knowledge from the medical image. Then, the Multi-view State Space Model (MV-SSM) is adopted to model cross-view contextual dependencies and extract task-related knowledge between domain-specific and generaliz-able features. Additionally, a novel Mamba Residual Chan-nel Cross-Fusion Transformer (Mamba Residual CCT) is designed to extract richer domain-specific knowledge. Then, a domain-specific decoder is adopted to collect evidence. We parameter a variational Dirichlet distribution based on the collected evidence, which is adopted to quantify the bound-ary segmentation uncertainty. Finally, the boundary segmen-tation uncertainty of the model can be reduced by optimizing the parameters of the Dirichlet distribution. 
+
+Preliminaries: State Space Model 
+
+Mamba is a State Space Model (SSM), which originates from continuous systems that transform a sequence x(t) →
+
+y(t) through a hidden state function h(t) ∈ RN . It can be expressed as the following equation: 
+
+h′(t) = Ah(t) + Bx(t), y(t) = Ch(t), (1) where A ∈ RN ×N is a state matrix, and B, C ∈ RN are the projection matrixs. Mamba discretizes the aforementioned continuous system by introducing a time scale parameter ∆A and ∆B that converts continuous parameters A, B into discrete parame-ters A, B. The zero-order hold is adopted as the discretiza-tion rule, defined as follows: 
+
+A = exp(∆ A), B = ( ∆A )−1(exp( ∆A ) − J) · ∆B, (2) where J is a unit matrix. After discretizing A and B, Eq. 1 can be written as fol-lows: 
+
+h′(t) = Ah(t) + Bx(t), y(t) = Ch(t). (3) Furthermore, a global convolution is adopted to compute the output, defined as: 
+
+K = ( CB , CAB , CA L−1B), y = x ∗ K, (4) where L denotes the length of the input sequence and K ∈
+
+RL is a structured convolution kernel. 
+
+Multi-view State Space Model 
+
+Previous medical image segmentation methods focuses on extracting domain-specific knowledge, which is essential for accurate segmentation. However, these methods cannot extract generalizable knowledge, which limits their perfor-mance on unseen data. Vision foundation models are effec-tive in extracting generalizable knowledge since they are trained on large-scale datasets. Unfortulately, these mod-els typically struggle to capture domain-specific knowledge, which results in suboptimal performance on the medical im-age segmentation task. To address these limitations, we propose a multi-view state space module that can simultaneously the strengths of two types of models (traditional deep learning model and vision foundation model) to extract domain-specific and generalizable knowledge from multi-view features. Specifically, a novel Pixel-Window Channel Mamba (PWC-Mamba) is designed to extract task-related knowledge from both domain-specific and generalizable knowledge. PWC-Mamba will be detailed in the next subsection. The extracted features from the two knowledge sources are then concate-nated in the channel dimension, defined as: 
+
+FV = Enc SAM (I), FD = Enc DSE (I), (5) 
+
+F = [PPM( FV), PPM( FD)] , (6) where Enc SAM denotes the SAM image encoder, and 
+
+Enc DSE is the domain-specific image encoder. The concate-nated features are passed through L PWC-Mamba modules to further exploit the semantic relevance between domain-specific and generalizable knowledge and model cross-view contextual dependencies. 
+
+Pixel-Window Channel Mamba 
+
+Considering that global and local information in segmenta-tion models contribute to accurately segmenting foreground objects, it is necessary to model global and local information simultaneously. Mamba combines the strengths of Convolu-tion Neural Network (CNN) and Recurrent Neural Network (RNN), which provides a more efficient option to achieve this goal. Therefore, inspired by previous work, the Pixel-Window Channel Mamba (PWC-Mamba) is designed to model global and local information simultaneously. Figure 1 shows details of the proposed PWC-Mamba. Specifically, it is achieved by simultaneously modeling pixel-level and patch-level infor-mation. The large window partition is adopted to split a fea-ture with H × W resolution into many sub-windows. There-fore, Mamba can more effectively model the dependency relationships between local neighboring pixels by continu-ously inputting sub-windows. Considering the rich feature correlations within different channels in the same location of the feature map, we propose a novel window-based chan-nel attention mechanism (WCA). It first duplicates the fea-ture tensor and concats in channel splicing. Then, it applies a convolution with a large kernel to fuse the channel informa-tion. Each channel adopts different convolution kernel pa-rameters to extract more diverse features. WCA models the dependency relationship between pixels in a large window 17388 SAM Image Encoder 
+
+> Image
+
+
+
+
+
+Multi-view Representation 
+
+> Image
+> Domain-Specific Encoder
+> Pixel-Window Channel Mamba
+> Pixel-Window Channel Mamba
+
+
+
+
+
+Multi-view State Space Model 
+
+Partition  BIMam 
+
+Identity Map. 
+
+Identity Map. 
+
+# C Conv  BIMam  Up 
+
+Sample 
+
+Pixel-Window Channel Mamba 
+
+Multi-View 
+
+Mamba Module 
+
+# C  
+
+> Pixel-Window
+> Channel Mamba
+> Pixel-Window
+> Channel Mamba
+> 𝐿𝐿𝐿 ×⋯
+
+Feature 𝐅𝐅 𝟏𝟏 
+
+Domain-Specific Encoder-Decoder 
+
+Mamba Residual CCT 
+
+Mamba Residual CCT   
+
+> 𝑁𝑁 ×⋯
+
+Mamba Residual CCT 
+
+
+
+> Multi-head Cross Attention
+> LN  LN  LN  LN
+
+Concat 
+
+MLP Block 
+
+MLP Block 
+
+MLP Block 
+
+MLP Block      
+
+> 𝐐𝐐 𝟏𝟏
+> 𝐐𝐐 𝟐𝟐
+> 𝐐𝐐 𝟑𝟑
+> 𝐐𝐐 𝟒𝟒
+> 𝐊𝐊 𝐕𝐕
+
+Conv 1 × 1 
+
+Conv 1 × 1 
+
+Conv 1 × 1 
+
+Conv 1 × 1         
+
+> Concat  Concat  Concat  Concat
+> Pixel Patch
+> Mamba
+> Pixel Patch
+> Mamba
+> Pixel Patch
+> Mamba
+> Pixel Patch
+> Mamba
+> Feature 𝐇𝐇 𝟏𝟏
+> Feature 𝐇𝐇 𝟐𝟐
+> Feature 𝐇𝐇 𝟑𝟑
+> Feature 𝐇𝐇 𝟒𝟒
+
+𝐇𝐇 𝟏𝟏 
+
+𝐇𝐇 𝟐𝟐 
+
+𝐇𝐇 𝟑𝟑 
+
+𝐇𝐇 𝟒𝟒 
+
+𝐇𝐇 𝟓𝟓  𝛀𝛀 
+
+𝝎𝝎 𝟒𝟒 
+
+𝝎𝝎 𝟑𝟑 
+
+𝝎𝝎 𝟐𝟐 
+
+𝝎𝝎 𝟏𝟏  Feature 𝝎𝝎 𝟏𝟏       
+
+> Feature 𝝎𝝎 𝟐𝟐
+> Feature 𝝎𝝎 𝟑𝟑
+> Feature 𝝎𝝎 𝟒𝟒
+
+𝐇𝐇 𝟓𝟓 
+
+𝐇𝐇 𝑆𝑆𝑆𝑆𝑆𝑆   
+
+> Generalizable
+> feature 𝛀𝛀 𝐺𝐺
+> Domain-Specific
+> feature 𝛀𝛀 𝐷𝐷
+
+Feature 𝐅𝐅 𝟐𝟐     
+
+> 𝛀𝛀 𝐺𝐺 𝛀𝛀 𝐷𝐷
+> Concated Feature 𝐅𝐅 𝐶𝐶
+> Multi-view
+> feature 𝛀𝛀
+
+Evidential Learning Module    
+
+> Domain-Specific Decoder Evidence 𝐄𝐄
+> Variational Dirichlet
+> Predication
+> Mask
+> ice KL
+
++ 
+
+> Dice
+
+
+
+: Matrix Multiplication 
+
+# C : Concat Operation 
+
+: Elemental Addition 
+
+BIMam  : Bidirectional Mamba 
+
+> Ground Truth
+
+: MaxPool & Convs  : Concat & UpSample & Convs Figure 1: Overview of the proposed method, ‘Snow’ symbol indicates frozen parameters. Our method uses a SAM image encoder and a domain-specific encoder to respectively extract generalizable and domain-specific knowledge from medical images. The Multi-view State Space Model (MV-SSM) is designed to model cross-view contextual dependencies and extract task-related knowledge. The Mamba Residual Channel Cross-Fusion Transformer (Mamba Residual CCT) is designed to further enrich domain-specific knowledge. Then our method collects evidence with a domain-specific decoder and parameterizes a variational Dirichlet distribution to quantify the boundary segmentation uncertainty. Finally, the parameters of Dirichlet are optimized to reduce the boundary segmentation uncertainty of the model. while preserving local features. Finally, WCA is applied to the origin feature tensor through element-wise multiplica-tion and addition. The element-wise multiplication and ad-dition with the original feature tensor ensure that the fine-grained details captured by pixel-level modeling are not lost. The window-based channel attention is defined as: 
+
+M1 = Identify( Fo), M2 = Identify( Fo), (7) 
+
+M = Conv 7×7([ M1, M2]) , F = M × Fo + F o, (8) where M1 and M2 are the identify mapping results, respec-tively. Fo is the pixel-level feature, [·] denotes the concate-nation operation, M denotes the output after a 7 × 7 convo-lution kernel, and F denotes the channel attention output. Then, a Mamba block is adopted for larger scale global information modeling. Meanwhile, the residual connection is also adopted to preserve the original information. More-over, the Mamba block suffers from information loss for ear-lier input elements. Thus, we adopt the Bidirectional Mamba (BiMam) (Wang et al. 2024) which performs both forward and backward scans to avoid information loss. 
+
+Mamba Residual Cross-Fusion Transformer 
+
+The Channel-wise Cross fusion Transformer (CCT) (Wang et al. 2022) has been demonstrated to be effective in fus-ing multi-scale features and achieving information enhance-ment. However, it still has some limitations. For example, it does not explicitly preserve the original information before fusion, which results in information loss. Moreover, it only uses a single feature extraction strategy, which is not opti-mal for all medical image segmentation tasks. As shown in figure 1, we propose a Mamba Residual CCT model, which combines the advantages of CCT and the proposed PWC-Mamba. Specifically, a 1 × 1 convolution is adopted as a residual connection to preserve the original information be-fore fusion. It avoids information loss by extracting the rich channel information. PWC-Mamba is applied to simultane-17389 ously model cross-scale global and local information, which enables the model to more effectively mine domain-specific knowledge and helps the model to obtain more accurate seg-mentation results. 
+
+Evidential Learning-Driven Segmentation Uncertainty Reduction 
+
+Existing medical image segmentation methods typically adopt a Softmax function to convert the output of decoder into the predicted probability. However, the Softmax func-tion is prone to be overconfident on prediction results. The boundary ambiguity in medical images poses a challenge to accurate boundary segmentation. In other words, boundary segmentation remains a high degree of uncertainty. To address this issue, we incorporate an activation func-tion (Softplus) after the decoder to ensure non-negative values. These non-negative outputs are interpreted as evi-dence E = SoftPlus( O), from which a Dirichlet distribu-tion D(p | α) can be derived. The Dirichlet distribution 
+
+D(p | α) is considered as the conjugate prior to the multi-nomial distribution. It provides a predictive distribution for the segmentation results, defined as follows: 
+
+D(p | α) = 
+
+ 1
+
+> β(α)
+
+QKi=1 pαi−1 
+
+> i
+
+f or p ∈ Q C
+
+0 otherwise (9) where α = α1, . . . , α c is the Dirichlet distribution param-eters, p = [ p1, . . . p k] are the parameters of the multinomial distribution, β(α) is the high-dimensional multinomial beta function, and QC is the K − 1 dimensional unit simplex, defined as: 
+
+QC =
+
+(
+
+p
+
+> C
+
+X
+
+> c=1
+
+pc = 1 and 0 ≤ p1, . . . , p C ≤ 1
+
+)
+
+. (10) After obtaining the Dirichlet distribution D(p | α), we focus on quantifying uncertainty and optimizing parameters to minimize segmentation uncertainty. Therefore, Subjective Logic (SL) (Jsang 2018) is adopted to optimize the param-eters of Dirichlet distribution. In multi-class segmentation, subjective logic provides a theoretical framework for the re-lationship between Dirichlet distribution parameters for con-fidence and uncertainty. Specifically, it provides a mass be-lief and uncertainty for the segmentation results. Therefore, for a two-dimensional input image I and decoder output O
+
+without the Softmax function, all C + 1 quality values are non-negative and sum to 1, defined as follows: 
+
+uci,j +
+
+> C
+
+X
+
+> c=1
+
+bci,j = 1 , (11) where uci,j and bci,j mean the segmentationn probability of the pixel (i, j ) for the c-th class and the overall uncertainty of the pixel (i, j ) in the input image I, respectively. Subse-quently, SL links the evidence of pixel (i, j ) to the Dirichlet distribution parameters αci,j = eci,j + 1 , where αci,j ∈ α and 
+
+eci,j ∈ E. Therefore, the mass of belief and uncertainty for the pixel (i, j ) can be expressed as follows: 
+
+bci,j = eci,j 
+
+Q = αci,j − 1
+
+Q and ui,j = CQ , (12) where Q = PCc=1 
+
+ eci,j + 1  is known as the Dirichlet strength. It describes that the higher the allocated belief mass, the more evidence is obtained for pixel (i, j ). Con-versely, the less evidence obtained, the greater the overall uncertainty for the segmentation of pixel (i, j ).Considering that on the simplex, the ideal Dirichlet dis-tribution should concentrate on the vertex corresponding to the class label. This means that the Dirichlet distribution parameters should be as close as possible to 1 except for the correctly labeled parameters. Therefore, it is necessary to design a loss function that optimizes the model param-eters by optimizing the Dirichlet distribution parameters to minimize the segmentation uncertainty of model. It allows the boundary segmentation results in the image to collect more evidence. Specifically, we adopt the cross-entropy loss function Lce = PCc=1 −yc log ( pc), associating the Dirich-let distribution with the belief distribution within the sub-jective logical framework. Based on the evidence collected from the decoder, probabilities for different classes and un-certainties for different pixels are obtained. Furthermore, the cross-entropy loss can be reformulated as: 
+
+Lice =
+
+Z " CX
+
+> c=1
+
+−yc log( pc)
+
+#
+
+1
+
+β(α)
+
+> C
+
+Y
+
+> c=1
+
+(pc)αc−1 dp (13) 
+
+=
+
+> C
+
+X
+
+> c=1
+
+yc (ψ (QC ) − ψ (αc)) , (14) where ψ (·) is digamma function, and yc is the ground truth labels. Additionally, we introduce the Kullback-Leibler (KL) divergence loss function to ensure that incorrect labels generate less evidence and avoid penalizing the Dirichlet pa-rameter of the ground-truth class to 1, defined as follows: 
+
+LKL = log 
+
+ Γ
+
+PCc=1 ˜αc
+
+
+
+Γ( C) PCc=1 Γ (˜ αc)
+
+ (15) 
+
++
+
+> C
+
+X
+
+> c=1
+
+(˜ αc − 1) 
+
+"
+
+ψ (˜ αc) − ψ
+
+> C
+
+X
+
+> c=1
+
+˜αc
+
+!# 
+
+, (16) where Γ ( ·) is the gamma function, ˜αc = yc +(1 −yc)⊙αc.
+
+Loss function 
+
+The loss function L used in this work is consist of Dice loss 
+
+LDice , Lice , and LKL , formulated as: 
+
+L = LDice + Lice + λtLKL . (17) where λt is a hyperparameter, which is adopted to balance the expected Lice and LKL . To prevent the network from overemphasizing LKL in the early stages, which would re-sult in insufficient exploration of the parameter space, and a nearly flat uniform distribution is finally obtained, a small value of λt is employed and gradually increase it during training. The Dice loss Lice is adopted to maximize the correspon-dence between the segmentation result and the ground-truth label, defined as follows: 
+
+LDice = 1 −
+
+> N
+
+X
+
+> i=1
+> C
+
+X
+
+> j=1
+
+1
+
+N C · 2|dij ∩ oij |
+
+(|dij | + |oij |) , (18) 17390 Method Venue MoNuSeg GlaS TNBC DRIVE Dice MIoU Dice MIoU Dice MIoU Dice MIoU UNet MICCAI’2015 76.45 62.86 85.45 74.78 80.64 67.62 81.41 68.64 UNet++ TMI’2017 79.49 66.04 87.36 79.03 81.19 68.44 81.14 68.27 DCA EAAI’2023 79.50 65.97 89.90 81.68 82.45 70.14 76.66 62.16 AttUNet MICCAI’2021 76.67 63.47 88.80 80.69 81.25 68.59 80.39 67.21 Swin-UNet ECCV’2022 77.69 63.77 89.58 82.06 72.50 58.10 64.24 47.48 TransUNet ArXiv’2021 78.53 65.05 88.40 80.40 78.30 64.37 78.15 64.20 UCTransNet AAAI’2022 79.09 66.68 89.76 81.91 82.07 70.33 82.67 70.54 TGANet MICCAI’2022 70.09 61.63 87.96 82.74 — — — —VMUNet ArXiv’2024 78.85 69.20 89.85 82.53 82.22 69.98 82.61 70.41 MedSAM Nat. Commun’2024 — 21.40 — 54.79 75.74 61.42 — —VMUNet v2 ArXiv’2024 63.89 47.02 87.88 79.31 68.01 52.40 79.02 65.34 LViT-T TMI’2023 80.15 67.00 90.02 82.68 — — — —SAM ICCV’2023 30.24 18.21 58.46 42.81 20.44 12.53 — —Ours 81.88 69.45 90.59 83.70 83.75 72.23 84.12 72.67 
+
+Table 1: Quantitative comparison of our method and other SOTA methods on MoNuSeg, GlaS, TNBC, and DRIVE datasets. where N is the number of pixels in the image, C is the num-ber of classes, oij and dij are the ground truth and predicted segmentation output, respectively. 
+
+## Experiments 
+
+Datasets and Evaluation Metrics 
+
+The proposed method is evaluated on four medical image segmentation datasets: MoNuSeg (Kumar et al. 2017), GlaS (Sirinukunwattana et al. 2017), TNBC (Naylor et al. 2018), and DRIVE (Staal et al. 2004). MoNuSeg contains 30 digital microscopic tissue images of several patients. The training, validation, and test sets are organized as (Wang et al. 2022). GlaS has 85 images for training and 80 images for testing. TNBC (Naylor et al. 2018) contains a total of 50 images with a total of 4,022 annotated cells. DRIVE (Staal et al. 2004) is a retinal vessel segmentation dataset that contains 40 im-ages. DRIVE dataset is divided into 20 images for training and 20 images for testing. Dice score and IoU (Wang et al. 2022) are used to evaluate the performance. 
+
+Implementation Details 
+
+Our model is optimized by AdamW (Loshchilov and Hut-ter 2017) and the cosine annealing learning rate scheduler is adopted. The learning rate is set to 1e-3. The size of in-put image and batch size are 224 × 224 and 2, respectively. All experiments are conducted on a single NVIDIA A100 GPU with 80GB memory. We select several State-of-the-art methods as baselines, including U-Net (Ronneberger, Fis-cher, and Brox 2015), DoubleUnet (Ates, Mohan, and Ce-lik 2023), AttUNet (Wang, Li, and Zhuang 2021), Swin-UNet (Cao et al. 2022), TransUNet (Chen et al. 2021), UC-TransNet (Wang et al. 2022), MedSAM (Ma et al. 2024), LViT (Li et al. 2023) and TGANet (Tomar et al. 2022), SAM (Kirillov et al. 2023), VMUNet (Ruan and Xiang 2024), and VMUNet v2 (Zhang et al. 2024). More details are reported in supplementary materials. 
+
+Comparsion with State-of-the-art Methods 
+
+The quantitative comparison results are presented in Table 1. It shows that the proposed method consistently outperforms domain-specific and vision foundation models across all datasets. Specifically, on the MoNuSeg dataset, the proposed method obtains an 81.88% Dice score and 69.45% mIoU, which surpasses the previous best results. Similarly, on the GlaS dataset, our method has a 90.59% Dice score and 83.70% mIoU. Moreover, our method obtains an 83.75% Dice score and 72.23% mIoU on the TNBC dataset. The per-formance improvements are 1.3% and 1.9%, respectively. Additionally, our method obtains an 84.12% Dice score and 72.67% mIoU on the DRIVE dataset. Figure 2 shows the vi-sualization of segmentation results. It shows that our method effectively achieves superior boundary segmentation. These remarkable results can be attributed to the carefully de-signed multi-view learning framework, which can combine the advantages of traditional and vision foundation models to extract both domain-specific and generalizable knowledge from multi-view features. Besides, variational Dirichlet is introduced to characterize the distribution of the result prob-abilities, parameterized with collected evidence to quantify uncertainty. Thus, the model can reduce the segmentation uncertainties of boundaries, which leads to further perfor-mance improvement. 
+
+Ablation Study 
+
+Effectiveness of the proposed components Table 2 re-ports the ablation results of the effectiveness of each pro-posed component. These results indicate that these compo-nents are effective for the proposed method. Specifically, introducing the Dirichlet distribution explicitly improves the performance of our model across all datasets. On the MoNuSeg dataset, the Dice score and MIoU score respec-tively increase by 0.55% and 0.15%. On the GlaS dataset, these metrics exhibit respective gains of 0.22% and 0.52%. It demonstrates the effectiveness of minimizing boundary 17391 (f) Ours (d) VMUNet v2  (e) UCTransNet (c) VMUNet (a)Image  (b) GT Figure 2: Qualitative comparison of the proposed method and other SOTA methods on MoNuSeg and GlaS datasets. UCTransNet Uncertainty Mamba Residual CCT MV-SSM MoNuSeg GlaS Dice MIoU Dice MIoU 
+
+! 79.09 66.68 89.76 81.91 
+
+! ! 79.64 66.33 89.98 82.43 
+
+! ! ! 80.22 67.19 90.11 82.45 
+
+! ! ! 81.30 68.61 90.12 82.94 
+
+! ! ! ! 81.88 69.45 90.67 83.67 
+
+Table 2: Ablation study on the effectiveness of the proposed components on MoNuSeg and GlaS datasets. segmentation uncertainty through Dirichlet distribution pa-rameter optimization. Notably, the results show that inte-grating the proposed MV-SSM yields more performance gains. Specifically, the Dice score and MIoU score increase by 1.66% and 2.28% on MoNuSeg, respectively. Similarly, the Dice score and MIoU score increase by 0.14% and 0.51%. The performance improvement is due to the multi-view learning framework effectively integrating domain-specific and generalization knowledge. Moreover, the MV-SSM module can effectively extract task-relevant knowledge through the exploration of cross-view contextual informa-tion, which is beneficial for performance improvement. 
+
+## Conclusion 
+
+In this work, we proposes a novel multi-view evidential learning framework, which leverages the advantage of both traditional deep learning and vision foundation models. Our proposed framework can extract both domain-specific and generalizable knowledge from multi-view features. Specif-ically, a novel multi-view state space model (MV-SSM) is designed to extract task-relevant knowledge. The MV-SSM utilizes Mamba to model the cross-view contextual depen-dencies between domain-specific and generalizable features. Additionally, evidential learning is adopted to quantify the segmentation uncertainty of the model for boundary. Specif-ically, Variational Dirichlet is adopted to characterize the distribution of result probabilities, parameterized with col-lected evidence to quantify uncertainty. It enables the model to reduce segmentation uncertainties by optimizing the pa-rameters of the Dirichlet distribution. Experimental results on medical image segmentation datasets indicate that our method outperforms other state-of-the-art methods. 17392 Acknowledgments 
+
+This work was supported by National Natural Science Foun-dation of China (No. 62301621), and Shenzhen Science and Technology Program (No. 20231121172359002, No. 202412023000572). 
+
+## References 
+
+Ates, G. C.; Mohan, P.; and Celik, E. 2023. Dual Cross-Attention for medical image segmentation. Engineering Ap-plications of Artificial Intelligence , 126: 107139. Awais, M.; Naseer, M.; Khan, S.; Anwer, R. M.; Cholakkal, H.; Shah, M.; Yang, M.-H.; and Khan, F. S. 2023. Foun-dational models defining a new era in vision: A survey and outlook. arXiv preprint arXiv:2307.13721 .Butoi, V. I.; Ortiz, J. J. G.; Ma, T.; Sabuncu, M. R.; Gut-tag, J.; and Dalca, A. V. 2023. Universeg: Universal medical image segmentation. In Proceedings of the IEEE/CVF In-ternational Conference on Computer Vision , 21438–21451. Cao, H.; Wang, Y.; Chen, J.; Jiang, D.; Zhang, X.; Tian, Q.; and Wang, M. 2022. Swin-unet: Unet-like pure transformer for medical image segmentation. In European conference on computer vision , 205–218. Springer. Charpentier, B.; Z¨ ugner, D.; and G¨ unnemann, S. 2020. Pos-terior network: Uncertainty estimation without ood samples via density-based pseudo-counts. Advances in neural infor-mation processing systems , 33: 1356–1367. Chen, J.; Lu, Y.; Yu, Q.; Luo, X.; Adeli, E.; Wang, Y.; Lu, L.; Yuille, A. L.; and Zhou, Y. 2021. Transunet: Transform-ers make strong encoders for medical image segmentation. 
+
+arXiv preprint arXiv:2102.04306 .Frintrop, S.; Rome, E.; and Christensen, H. I. 2010. Com-putational visual attention systems and their cognitive foun-dations: A survey. ACM Transactions on Applied Perception (TAP) , 7(1): 1–39. Gu, A.; and Dao, T. 2023. Mamba: Linear-time se-quence modeling with selective state spaces. arXiv preprint arXiv:2312.00752 .Gu, A.; Goel, K.; and R´ e, C. 2021. Efficiently modeling long sequences with structured state spaces. arXiv preprint arXiv:2111.00396 .Heidari, M.; Kazerouni, A.; Soltany, M.; Azad, R.; Agh-dam, E. K.; Cohen-Adad, J.; and Merhof, D. 2023. Hi-former: Hierarchical multi-scale representations using trans-formers for medical image segmentation. In Proceedings of the IEEE/CVF winter conference on applications of com-puter vision , 6202–6212. Jsang, A. 2018. Subjective Logic: A formalism for reasoning under uncertainty . Springer Publishing Company, Incorpo-rated. Kirillov, A.; Mintun, E.; Ravi, N.; Mao, H.; Rolland, C.; Gustafson, L.; Xiao, T.; Whitehead, S.; Berg, A. C.; Lo, W.-Y.; et al. 2023. Segment anything. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,4015–4026. Kopetzki, A.-K.; Charpentier, B.; Z¨ ugner, D.; Giri, S.; and G¨ unnemann, S. 2021. Evaluating robustness of predictive uncertainty estimation: Are Dirichlet-based models reliable? In International Conference on Machine Learning , 5707– 5718. PMLR. Kumar, N.; Verma, R.; Sharma, S.; Bhargava, S.; Vahadane, A.; and Sethi, A. 2017. A dataset and a technique for gen-eralized nuclear segmentation for computational pathology. 
+
+IEEE transactions on medical imaging , 36(7): 1550–1560. Li, Z.; Li, Y.; Li, Q.; Wang, P.; Guo, D.; Lu, L.; Jin, D.; Zhang, Y.; and Hong, Q. 2023. Lvit: language meets vision transformer in medical image segmentation. IEEE Transac-tions on Medical Imaging .Liu, C.; Liu, H.; Zhang, X.; Guo, J.; and Lv, P. 2024a. Multi-scale and multi-view network for lung tumor segmentation. 
+
+Computers in Biology and Medicine , 172: 108250. Liu, D.; Gao, Y.; Zhangli, Q.; Han, L.; He, X.; Xia, Z.; Wen, S.; Chang, Q.; Yan, Z.; Zhou, M.; et al. 2022. Transfusion: multi-view divergent fusion for medical image segmentation with transformers. In International Conference on Medi-cal Image Computing and Computer-Assisted Intervention ,485–495. Springer. Liu, Y.; Tian, Y.; Zhao, Y.; Yu, H.; Xie, L.; Wang, Y.; Ye, Q.; and Liu, Y. 2024b. Vmamba: Visual state space model. 
+
+arXiv preprint arXiv:2401.10166 .Loshchilov, I.; and Hutter, F. 2017. Decoupled weight decay regularization. arXiv preprint arXiv:1711.05101 .Ma, J.; He, Y.; Li, F.; Han, L.; You, C.; and Wang, B. 2024. Segment anything in medical images. Nature Communica-tions , 15(1): 654. Ma, J.; Li, F.; and Wang, B. 2024. U-mamba: Enhancing long-range dependency for biomedical image segmentation. 
+
+arXiv preprint arXiv:2401.04722 .Malinin, A.; Mlodozeniec, B.; and Gales, M. 2019. Ensem-ble Distribution Distillation. In International Conference on Learning Representations .Mehta, H.; Gupta, A.; Cutkosky, A.; and Neyshabur, B. 2022. Long range language modeling via gated state spaces. 
+
+arXiv preprint arXiv:2206.13947 .Naylor, P.; La´ e, M.; Reyal, F.; and Walter, T. 2018. Segmen-tation of nuclei in histopathology images by deep regression of the distance map. IEEE transactions on medical imaging ,38(2): 448–459. Qureshi, I.; Yan, J.; Abbas, Q.; Shaheed, K.; Riaz, A. B.; Wahid, A.; Khan, M. W. J.; and Szczuko, P. 2023. Medical image segmentation using deep semantic-based methods: A review of techniques, applications and emerging trends. In-formation Fusion , 90: 316–352. Radford, A.; Kim, J. W.; Hallacy, C.; Ramesh, A.; Goh, G.; Agarwal, S.; Sastry, G.; Askell, A.; Mishkin, P.; Clark, J.; et al. 2021. Learning transferable visual models from nat-ural language supervision. In International conference on machine learning , 8748–8763. PMLR. Rahman, M. M.; and Marculescu, R. 2023. Medical image segmentation via cascaded attention decoding. In Proceed-ings of the IEEE/CVF Winter Conference on Applications of Computer Vision , 6222–6231. 17393 Ronneberger, O.; Fischer, P.; and Brox, T. 2015. U-net: Convolutional networks for biomedical image segmenta-tion. In Medical Image Computing and Computer-Assisted Intervention–MICCAI 2015: 18th International Conference, Munich, Germany, October 5-9, 2015, Proceedings, Part III 18 , 234–241. Springer. Roy, S.; Koehler, G.; Ulrich, C.; Baumgartner, M.; Petersen, J.; Isensee, F.; Jaeger, P. F.; and Maier-Hein, K. H. 2023. Mednext: transformer-driven scaling of convnets for med-ical image segmentation. In International Conference on Medical Image Computing and Computer-Assisted Interven-tion , 405–415. Springer. Ruan, J.; and Xiang, S. 2024. Vm-unet: Vision mamba unet for medical image segmentation. arXiv preprint arXiv:2402.02491 .Sensoy, M.; Kaplan, L.; and Kandemir, M. 2018. Eviden-tial deep learning to quantify classification uncertainty. Ad-vances in neural information processing systems , 31. Sirinukunwattana, K.; Pluim, J. P.; Chen, H.; Qi, X.; Heng, P.-A.; Guo, Y. B.; Wang, L. Y.; Matuszewski, B. J.; Bruni, E.; Sanchez, U.; et al. 2017. Gland segmentation in colon histology images: The glas challenge contest. Medical im-age analysis , 35: 489–502. Staal, J.; Abr` amoff, M. D.; Niemeijer, M.; Viergever, M. A.; and Van Ginneken, B. 2004. Ridge-based vessel segmen-tation in color images of the retina. IEEE transactions on medical imaging , 23(4): 501–509. Tomar, N. K.; Jha, D.; Bagci, U.; and Ali, S. 2022. TGANet: Text-guided attention for improved polyp segmentation. In 
+
+International Conference on Medical Image Computing and Computer-Assisted Intervention , 151–160. Springer. Wang, H.; Cao, P.; Wang, J.; and Zaiane, O. R. 2022. Uc-transnet: rethinking the skip connections in u-net from a channel-wise perspective with transformer. In Proceedings of the AAAI conference on artificial intelligence , volume 36, 2441–2449. Wang, J.; Chen, J.; Chen, D.; and Wu, J. 2024. Large Window-based Mamba UNet for Medical Image Segmenta-tion: Beyond Convolution and Self-attention. arXiv preprint arXiv:2403.07332 .Wang, S.; Li, L.; and Zhuang, X. 2021. AttU-Net: atten-tion U-Net for brain tumor segmentation. In International MICCAI Brainlesion Workshop , 302–311. Springer. Yao, W.; Bai, J.; Liao, W.; Chen, Y.; Liu, M.; and Xie, Y. 2023. From CNN to Transformer: A Review of Medical Image Segmentation Models. arXiv preprint arXiv:2308.05305 .Zhan, B.; Song, E.; Liu, H.; Gong, Z.; Ma, G.; and Hung, C.-C. 2023. CFNet: A medical image segmentation method using the multi-view attention mechanism and adaptive fu-sion strategy. Biomedical Signal Processing and Control ,79: 104112. Zhang, M.; Yu, Y.; Gu, L.; Lin, T.; and Tao, X. 2024. Vm-unet-v2 rethinking vision mamba unet for medical image segmentation. arXiv preprint arXiv:2403.09157 .Zhang, Y.; Shen, Z.; and Jiao, R. 2024. Segment anything model for medical image segmentation: Current applications and future directions. Computers in Biology and Medicine ,108238. Zhou, Z.; Siddiquee, M. M. R.; Tajbakhsh, N.; and Liang, J. 2019. Unet++: Redesigning skip connections to exploit multiscale features in image segmentation. IEEE transac-tions on medical imaging , 39(6): 1856–1867. Zhu, L.; Liao, B.; Zhang, Q.; Wang, X.; Liu, W.; and Wang, X. 2024. Vision mamba: Efficient visual representation learning with bidirectional state space model. arXiv preprint arXiv:2401.09417 .17394

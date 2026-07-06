@@ -1,0 +1,351 @@
+Title: ConDSeg: A General Medical Image Segmentation Framework via Contrast-Driven Feature Enhancement
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/32482/34637
+
+Number of Pages: 9
+
+Markdown Content:
+# ConDSeg: A General Medical Image Segmentation Framework via Contrast-Driven Feature Enhancement 
+
+## Mengqi Lei 1, Haochen Wu 1, Xinhua Lv 1, Xin Wang 2
+
+> 1
+
+China University of Geosciences, Wuhan 430074, China 
+
+> 2
+
+Baidu Inc, Beijing, China mengqi-lei@163.com, hcwu@cug.edu.cn, xinhualv@cug.edu.cn, wangxin105@baidu.com 
+
+Abstract 
+
+Medical image segmentation plays an important role in clini-cal decision making, treatment planning, and disease track-ing. However, it still faces two major challenges. On the one hand, there is often a “soft boundary” between fore-ground and background in medical images, with poor illu-mination and low contrast further reducing the distinguisha-bility of foreground and background within the image. On the other hand, co-occurrence phenomena are widespread in medical images, and learning these features is misleading to the model’s judgment. To address these challenges, we pro-pose a general framework called Contrast-Driven Medical Image Segmentation (ConDSeg). First, we develop a con-trastive training strategy called Consistency Reinforcement. It is designed to improve the encoder’s robustness in vari-ous illumination and contrast scenarios, enabling the model to extract high-quality features even in adverse environments. Second, we introduce a Semantic Information Decoupling module, which is able to decouple features from the encoder into foreground, background, and uncertainty regions, grad-ually acquiring the ability to reduce uncertainty during train-ing. The Contrast-Driven Feature Aggregation module then contrasts the foreground and background features to guide multi-level feature fusion and key feature enhancement, fur-ther distinguishing the entities to be segmented. We also pro-pose a Size-Aware Decoder to solve the scale singularity of the decoder. It accurately locate entities of different sizes in the image, thus avoiding erroneous learning of co-occurrence features. Extensive experiments on five datasets across three scenarios demonstrate the state-of-the-art performance of our method, proving its advanced nature and general applicability to various medical image segmentation scenarios. 
+
+Code — https://github.com/Mengqi-Lei/ConDSeg 
+
+## Introduction 
+
+Medical image segmentation is a cornerstone of the medical imaging field, providing indispensable support for clinical decision-making, treatment planning, and disease monitor-ing (Xun et al. 2022; Qureshi et al. 2023). In recent years, deep learning methods (Xi et al. 2024) have shown great po-tential in medical image segmentation (Liu et al. 2021; Mal-hotra et al. 2022), such as U-Net (Ronneberger, Fischer, and 
+
+Copyright © 2025, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. Co-occurrence Single occur. Image & g.t. TGANet pred. Ours pred.  
+
+> The ambiguity of boundaries.
+> Medical image  Natural scene
+> The challenge of co-occurrence.
+> Image G.t.
+
+Figure 1: Major challenges in medical image segmentation. Brox 2015), U-Net++ (Zhou et al. 2018), PraNet (Fan et al. 2020), TGANet (Tomar et al. 2022), CASF-Net (Zheng et al. 2023), continuously improving segmentation performance. In the field of medical images, different scenarios of tasks use images with different modalities, such as endoscopy im-ages (Jha et al. 2020, 2021), dermatoscopy images (Gut-man et al. 2016; Codella et al. 2018), digitally scanned whole slide images (Sirinukunwattana et al. 2017), etc. Al-though existing deep learning methods have made great breakthroughs in medical image segmentation, achieving ac-curate segmentation is still a challenge, which comes from two main aspects: ambiguous boundaries and co-occurrence phenomena, which are visualized in Figure 1. On the one hand, compared with natural images where the boundary be-tween foreground and background is clear, in medical im-ages, the foreground and background are often a kind of blurred “soft boundary” (Xie et al. 2023; Lei and Wang 2024). This blurring is mainly due to the existence of transi-tion areas between pathological tissue and surrounding nor-mal tissue, making the boundary hard to define. Moreover, in many cases, medical images exhibit poor light and low contrast (Cossio 2023; Peng and Wang 2021), which further blurs the boundary between pathological and normal tissues, adding to the difficulty of distinguishing the boundary. On the other hand, co-occurrence is widely present in medi-cal images (Chen et al. 2022). For example, in endoscopy polyp images, small polyps tend to co-occur with polyps of similar size. This leads the model to easily learn certain co-The Thirty-Ninth AAAI Conference on Artificial Intelligence (AAAI-25) 
+
+4571 occurrence features that are not related to the polyps them-selves. And when the pathological tissue appears alone, the model often fails to predict accurately. Thus, We propose a general framework called Contrast-Driven Medical Image Segmentation (ConDSeg) to overcome these challenges. To address the challenges posed by ambiguous bound-aries, we first introduce a preliminary training strategy named Consistency Reinforcement (CR). Specifically, we feed the encoder with the original images and the strongly augmented images, and use the output of the encoder to predict the masks respectively. By maximizing the consis-tency between these mask pairs, we enhance the Encoder’s robustness to various scenes involving different lighting con-ditions, colors, etc., enabling it to extract high-quality fea-tures even in adverse environments. Subsequently, we pro-pose the Semantic Information Decoupling (SID) module, which decouples the feature map from the Encoder into three distinct ones: foreground, background and regions of uncer-tainty. During the training phase, we promote the reduction of the uncertainty regions by enforcing their complemen-tarity and the precision of the foreground and background masks through our elaborately designed loss functions. To further emphasize the distinction between foreground and background and to address the challenges brought by co-occurrence phenomena, we propose the Contrast-Driven Feature Aggregation (CDFA) module. CDFA receives fore-ground and background features from SID, guiding the multi-level feature fusion and the enhancement of key fea-tures under their contrastive information. Further, We pro-pose Size-Aware Decoder to solve the problem of scale sin-gularity of decoders (Cao et al. 2022; Wang et al. 2023) when predicting masks. The SA-Decoders responsible for different sizes individually receive feature maps from differ-ent levels to predict entities of various sizes, thereby facil-itating the model’s ability to distinguish between different entities within the same image and preventing the erroneous learning of co-occurrence features. Overall, the main contri-butions of this paper are as follows: • Our proposed CR preliminary training strategy can effec-tively improve the robustness and performance of the En-coder to harsh environments. The SID can decouple fea-ture maps into foreground, background, and regions of un-certainty, and it learns to reduce uncertainty during the training process via specially designed loss functions. • Our proposed CDFA guides the fusion and enhancement of multilevel features via the contrastive features extracted by SID. The SA-Decoder is designed to better differenti-ate between different entities within the image and make separate predictions for entities of various sizes, overcom-ing the interference of co-occurrence features. • We conducted extensive experiments on five datasets cov-ering tasks under three modalities. ConDSeg achieves state-of-the-art performance across all datasets. 
+
+## Related Works 
+
+Automatic medical image segmentation has been one of the research hotspots in the field of medical images (Xun et al. 2022; Wang et al. 2022; Qureshi et al. 2023). The U-Net (Ronneberger, Fischer, and Brox 2015), based on the Encoder-Decoder architecture, innovatively utilizes skip connections to combine shallow and deep features, solving the problem of fine-grained information loss due to down-sampling. On this basis, U-Net++(Zhou et al. 2018) and ResUNet (Diakogiannis et al. 2020) have been widely rec-ognized for their enhanced performance in image segmen-tation. Recent studies have focused on improving various modules in the Encoder-Decoder architecture or introduc-ing auxiliary supervision tasks. CPFNet (Feng et al. 2020) fuses global/multi-scale contextual information by combin-ing a global pyramid guidance module and a scale-aware pyramid fusion module. PraNet (Fan et al. 2020) progres-sively extends object regions by incorporating edge features through parallel partial decoders and reverse attention mod-ules. TGANet (Tomar et al. 2022) guides the model to learn additional feature representations via textual label supervi-sion. Swin-Unet (Cao et al. 2022), TransUNet (Chen et al. 2021), XBoundFormer (Wang et al. 2023) enhance the per-formance by using variants of Transformer Encoder. In med-ical images, the foreground and the background often do not have clear boundaries, but rather a “soft boundary”. Fur-thermore, the lighting conditions and contrast in the image are often limited due to physical constraints and the com-plex reflective properties of the internal tissue. In recent years, many methods have been devoted to overcoming this challenge. SFA (Fang et al. 2019) introduced an additional decoder for boundary prediction and employs a boundary-sensitive loss function to exploit the region-boundary re-lationship. BCNet (Yue et al. 2022) proposed a bilateral boundary extraction module that combines shallow contex-tual features, high-level positional features, and additional polyp boundary supervision to capture boundaries. CFA-Net (Zhou et al. 2023) designed a boundary prediction network to generate boundary-aware features, which are incorporated into the segmentation network using a layer-wise strategy. MEGANet (Bui et al. 2024) proposed an edge-guided atten-tion module that uses the Laplacian operator to emphasize boundaries. Although these methods improve the model’s focus on boundaries by explicitly introducing supervision related to boundaries, they do not fundamentally enhance the model’s ability to spontaneously reduce the uncertainty of ambiguous regions. Therefore, in harsh environments, these methods exhibit weak robustness and offer limited per-formance improvement for the model. Moreover, the co-occurrence phenomenon is an easily overlooked challenge in medical image segmentation. Unlike objects that appear randomly in natural scenes, organs and tissues in medical images show a high degree of fixity and regularity, and thus co-occurrence widely exists (Chen et al. 2022). For exam-ple, in colonoscopy images, smaller polyps often appear in multiples simultaneously, and larger polyps are frequently accompanied by smaller polyps in their vicinity. This leads to the possibility that existing models may rely excessively on these contextual associations during the training process, rather than on the features of the polyps themselves. When a single polyp appears, models often have a tendency to pre-dict multiple ones. This is precisely due to the failure of the model to learn to accurately distinguish between foreground 4572 Block 1 Block 2 Block 3 Block 4 Auxiliary Head    
+
+> CDFA CDFA CDFA CDFA
+> Decoder 𝑠
+> Decoder 𝑚
+> Decoder 𝑙
+> Small Medium Large
+> Block 1 Block 2 Block 3 Block 4
+> Predict Mask
+> Stage ⅠStage Ⅱ
+> Strong Aug. Original Consistency Reinforcement
+> input
+> Concat
+> Dil. Conv Dil. Conv Dil. Conv Dil. Conv Concat Concat
+> 3×3CBR
+> 3×3CBR
+> 3×3CBR
+> 3×3CBR
+> 3×3CBR
+> 3×3CBR 1×1CBR 1×1CBR 1×1CBR Decoupling
+> foreground background uncertainty
+> ………
+> &: BCE Dice loss function : Degree of complementary : Feature transmission : Low learning rate
+> foreground feature background feature
+> Feature Fusion & Enhancement CDFA
+
+Figure 2: Overall framework of the proposed ConDSeg. and background, and between different entities in the image. 
+
+## Methodology 
+
+Network Architecture 
+
+ConDSeg is a two-stage architecture, as shown in Figure 2. In first stage, we introduce the Consistency Reinforcement strategy to preliminarily train the Encoder, forcing the En-coder blocks to enhance robustness against adverse condi-tions such as weak illumination and low contrast, ensuring effective extraction of high-quality features in various sce-narios. In second stage, the learning rate for the Encoder is set at a lower level for fine-tuning. The ConDSeg network contains four steps: 1) The Encoder extracts feature maps f1
+
+to f4 with varying semantic information at different levels. 2) The feature map f4, which carries deep semantic informa-tion, is fed into the Semantic Information Decoupling (SID) to be decoupled into feature maps enriched with foreground, background, and uncertainty region information, ff g , fbg ,
+
+fuc . 3) Feature maps f1 to f4 are sent into the Contrast-Driven Feature Aggregation (CDFA) module, facilitating gradual fusion of multi-level feature maps guided by ff g 
+
+and fbg , and enhancing the representation of foreground and background features. 4) Decoder s, Decoder m and Decoder l
+
+each receive outputs from CDFA at specific levels to locate multiple entities within the image by size. The outputs from each decoder are fused to produce the final mask. 
+
+Improving Boundary Distinction 
+
+To overcome the challenge of blurred boundaries, the Con-sistency Reinforcement strategy and the Semantic Informa-tion Decoupling module are proposed, which will be elabo-rated in the following two subsections. 
+
+Consistency Reinforcement The Encoder underpins the entire model’s performance with its feature extraction ca-pability and robustness. Therefore, in the first stage, our objective is to maximize the feature extraction capability of the Encoder and its robustness under weak illumination and low contrast scenarios. To achieve this, we isolate the Encoder from the whole network and design a prediction head for it. We ensure that the structure of this prediction head is as simple as possible to avoid providing additional structures with feature-extraction capability beyond the En-coder blocks, thereby optimizing the Encoder performance as much as possible. We refer to this initial training net-work in the first stage as N et 0. For an input image X, on the one hand, it is directly fed into N et 0; on the other hand, 
+
+X is strongly augmented to obtain X′, which is then fed into N et 0. These augmentation methods include randomly changing brightness, contrast, saturation, and hue, convert-ing to grayscale images randomly and adding Gaussian blur. In this way, we simulate the variable environments in medi-cal imaging (Abdollahi, Tomita, and Hassanpour 2020; Go-ceri 2023), such as weak illumination, low contrast and blur. This process can be represented as follows: 
+
+M1 = N et 0(X), M2 = N et 0(Aug (X)) . (1) Here, Aug (·) represents the strong augmentation operation. 
+
+M1 and M2 respectively represent the predictions using the original image and the strongly augmented image. For M1
+
+and M2, it is not only necessary for them to approximate the ground truth, but also need to maximize their similarity. This ensures the robustness of the Encoder in feature extraction, i.e., for the same content, the predicted mask should be con-sistent under any conditions and should not be affected by changes in lighting, contrast, etc. 4573 Toward this, on the one hand, we jointly use Binary Cross-Entropy (BCE) Loss and Dice Loss to constrain M1 and M2:          
+
+> LBCE (Y, M ) = −1
+> N
+> PNi=1 (Yilog ( Mi) + (1 −Yi) log (1 −Mi)) ,
+
+(2) 
+
+LDice (Y, M ) = 1 − 2 ×
+
+PNi=1 MiYi
+
+PNi=1 Mi + PNi=1 Yi
+
+, (3) 
+
+Lmask (Y, M ) = LBCE (Y, M ) + LDice (Y, M ), (4) where i represents the index of all pixels, Mi is the predicted value, and Yi is the true label. N denotes the total number of pixels. Through the BCE Dice Loss, we consider both the pixel-level prediction accuracy and the issue of class imbal-ance in segmentation tasks. On the other hand, we design a novel consistency loss to maximize the similarity between 
+
+M1 and M2 during the training process. When quantify-ing the consistency of model outputs, traditional methods such as KL divergence and JS divergence usually measure similarity from the perspective of probability distributions. These methods have a clear statistical significance in the-ory but may encounter numerical instability in practical ap-plications, especially when predicted probabilities are close to 0 or 1. Logarithmic functions at these extreme values can cause numerical issues, which is particularly significant when dealing with large amounts of data. In contrast, our proposed consistency loss Lcons is designed based on pixel-level classification accuracy, using simple binarization oper-ation and Binary Cross-Entropy (BCE) loss calculation, di-rectly comparing pixel-level differences between predicted masks M1 and M2. This makes the calculation simpler and avoids numerical instability, making it more robust for large-scale data. Specifically, we alternately binarize one of M1
+
+and M2 as a reference and calculate the BCE Loss with the other. First, define a threshold t for the binarization opera-tion, and the binarization function B(M, t ) is defined as: 
+
+B(M, t ) = 
+
+1 if M ≥ t, 
+
+0 otherwise (5) The consistency loss Lcons is given by the following for-mula, which calculates the average of the BCE Loss of M2
+
+with M1 as the reference, and the BCE Loss of M1 with M2
+
+as the reference: 
+
+Lcons (M1, M 2) = 12
+
+
+
+LBCE (B (M2, t ) , M 1)+ LBCE (B (M1, t ) , M 2)
+
+
+
+. (6) Finally, the overall loss for the first stage is as follows: 
+
+Lstage 1 = Lmask 1 + Lmask 2 + Lcons . (7) 
+
+Semantic Imformation Decoupling The Semantic Infor-mation Decoupling (SID) module aims to decouple high-level feature map outputted by the Encoder into three feature maps enriched with information on the foreground, back-ground, and regions of uncertainty, respectively. By con-straining with loss functions, the SID is encouraged to learn to reduce uncertainty, allowing for precise differentiation be-tween foreground and background. SID begins with three parallel branches, each consist-ing of multiple CBR blocks. The feature map f4 from the Encoder is inputted into these three branches to ob-tain three feature maps with different semantic information, 
+
+ff g , f bg , f uc , which are enriched with the foreground, back-ground, and uncertainty region features respectively. The three feature maps are then predicted by an auxiliary head to produce masks for the foreground ( M f g ), background (M bg ), and regions of uncertainty ( M f g ). Ideally, the value at each pixel of these three masks should be a definitive 0 or 1, indicating that the category to which the pixel belongs is certain. Moreover, the three feature maps should exhibit a complementary relationship, i.e., for any pixel index i, the three masks M f g , M bg , and M uc should satisfy: 
+
+(M f g i , M bg i , M uc i ∈ { 0, 1}
+
+M f g i + M bg i + M uc i = 1 (8) Therefore, our optimization goal is for M f g and M bg to approximate the ground truth Y and its negation (1 − Y ),respectively. Meanwhile, M f g , M bg , and M uc should ap-proximately satisfy the aforementioned complementary. On the one hand, we optimize M f g and M bg towards the true labels using the BCE Dice Loss, denoted as Lf g and 
+
+Lbg . Additionally, considering that small-sized entities oc-cupy very few pixels and thus their prediction accuracy has a minor impact on the overall loss, we designed a pair of dynamic penalty terms, β1, β 2:
+
+β1 = 1tanh 
+
+ PNi=1 M f g i
+
+> N
+
+ , β2 = 1tanh 
+
+ PNi=1 M bg i
+
+> N
+
+ , (9) where N represents the total number of pixels and i is the index for all pixels, ranging from 1 to N . Essentially, β1 and 
+
+β2 are penalty terms calculated based on the area ratio of the prediction results, designed to give more attention to entities with smaller areas in the loss function, thus improving the stability of the loss function. Therefore, with the addition of the penalty terms, Lf g and Lbg are transformed into β1Lf g 
+
+and β2Lbg .On the other hand, considering that the outputs M f g ,
+
+M bg , and M uc from the auxiliary head are in fact proba-bility distributions, we designed a simple yet effective loss function to quantify their degree of complementarity: 
+
+Lcompl = 1
+
+> N
+
+PNi=1 
+
+
+
+M f g i · M bg i + M f g i · M uc i + M bg i · M uc i
+
+
+
+.
+
+(10) Here, M f g i , M bg i , and M uc i represent the probability of the 
+
+i-th pixel being predicted to be foreground, background, and an uncertainty region, respectively. This formulation pro-vides a direct and effective constraint on the SID’s predic-tions. By normalizing the loss by the total number of pixels, the scale of the loss function is made independent of the input image size, keeping its value consistently within the range [0 , 1] , thus fully ensuring the stability of training. Overall, Lcompl enforces the complementarity of the pre-diction results from the three branches, ensuring each pixel 4574 Co-occurrence Single occurrence Image Ground truth Vis. of TGANet Vis. of Ours Figure 3: The Grad-CAM visualization of different methods. It illustrates the attention areas of our model and TGANet in cases of co-occurrence and individual appearances. is categorized as belonging exclusively to one of the fore-ground, background, or uncertainty regions. Additionally, 
+
+β1Lf g and β2Lbg are used to constrain the accuracy of the foreground and background branches. With these constraints during training, the model gradually reduces the uncertainty regions, and enhances the prominence of the foreground and background within the feature maps ff g and fbg .
+
+Overcoming Co-occurrence 
+
+Co-occurrence phenomena are widespread in medical imag-ing, which often cause models to learn incorrect patterns, thus degrading their performance. Figure 3 shows a visual comparison between TGANet (Tomar et al. 2022) and our method on several examples from the Kvasir-SEG dataset (Jha et al. 2020). For both, we utilize Grad-CAM (Selvaraju et al. 2017) to visualize convolutional layers near the output layer, intuitively demonstrating the focus of the models. For co-occurring polyps, both models can achieve accurate lo-calization. However, when the polyp appears alone, TGANet tends to mistakenly predict multiple polyps. In contrast, our method avoids the misleading effects of co-occurrence phe-nomena. It remains capable of accurately recognizing and segmenting when a single polyp appears. In our frame-work, we overcome co-occurrence via Contrast-Driven Fea-ture Aggregation module and Size-Aware Decoder, which will be detailed in the following two subsections. 
+
+Contrast-Driven Feature Aggregation The Contrast-Driven Feature Aggregation (CDFA) module aims to utilize contrastive features of the foreground and background de-coupled by SID to guide multi-level feature fusion. More-over, it helps the model better distinguish between entities to be segmented and the complex background environments. Specifically, f1 to f4 outputted from the Encoder blocks are first pre-enhanced through a set of dilated convolutional lay-ers to obtain e1 to e4. Subsequently, CDFA achieve multi-level feature fusion guided by contrastive features ( ff g , fbg ). 3×3CBR  
+
+> 3×3CBR
+> …
+> Linear Linear
+> ……
+> ……
+> ……Reshape Reshape Linear Unfold Softmax Softmax
+
+Figure 4: The structure of CDFA. On the one hand, the output from the previous level and the lateral feature map (i.e. ei, i = 1 , 2, 3, 4) are concate-nated along the channel direction to form F . Then F is fed into CDFA (except e4, which is directly inputted into CDFA). On the other hand, ff g and fbg are adjusted to match the dimensions of F through convolutional layers and bilin-ear upsampling before being fed into CDFA. Figure 4 shows the structure of CDFA. ff g and fbg are both derived from the decoupling of deep features, where the features at each spatial position are representative enough to generate attention weights for locally aggregating neigh-boring features. At each spatial location (i, j ), CDFA calcu-lates the attention weights within a K × K window centered at (i, j ), by incorporating details from the foreground and background. Specifically, given the input feature map F ∈
+
+RH×W ×C , it is first subjected to preliminary fusion through multiple CBR blocks. Subsequently, this C-dimensional fea-ture vector is mapped to a value vector V ∈ RH×W ×C
+
+through a linear layer weight WV ∈ RC×C . The value vec-tor V is then unfolded over each local window, preparing to aggregate neighborhood information for each position. Let 
+
+V∆i,j ∈ RC×K2
+
+represent all the values within the local window centered at (i, j ), defined as: 
+
+V∆i,j =
+
+n
+
+Vi+p−⌊ K 
+
+> 2
+
+⌋,j +q−⌊ K 
+
+> 2
+
+⌋
+
+o
+
+, 0 ≤ p, q < K. (11) The foreground and background feature maps ( ff g and fbg )are then processed through two distinct linear layers to gen-erate corresponding attention weights Af g ∈ RH×W ×K2
+
+and Abg ∈ RH×W ×K2
+
+. The calculation of attention weights can be represented as: 
+
+Af g = Wf g · ff g , Abg = Wbg · fbg , (12) where Wf g ∈ RC×K4
+
+and Wbg ∈ RC×K4
+
+are the linear transformation weight matrices for the foreground and back-ground feature maps, respectively. Subsequently, the fore-ground and background attention weights at position (i, j )
+
+are reshaped into ˆAf g i,j ∈ RK2×K2
+
+and ˆAbg i,j ∈ RK2×K2
+
+,and both of them are activated by a Softmax function. Then, the unfolded value vector V∆i,j is weighted in two steps: 
+
+˜V∆i,j = Softmax ( ˆAf g i,j ) ⊗ (Softmax ( ˆAbg i,j ) ⊗ V∆i,j ).
+
+(13) 4575 Methods Kvasir-Sessile Kvasir-SEG GlaS mIoU mDSC Rec. Prec. mIoU mDSC Rec. Prec. mIoU mDSC Rec. Prec. U-Net 23.1 33.8 45.1 46.6 65.5 75.8 83.6 77.6 75.8 85.5 90.3 82.8 U-Net++ 38.4 50.2 62.5 51.8 67.9 77.2 86.5 77.6 77.6 86.9 89.6 85.5 Attn U-Net 27.5 38.9 59.0 44.4 67.6 77.4 83.9 79.9 76.6 85.9 91.8 82.2 PraNet 66.7 77.4 80.7 82.4 83.0 89.4 90.6 91.3 71.8 83.0 90.9 78.0 TGANet 74.4 82.0 79.3 85.9 83.3 89.8 91.3 91.2 71.8 84.7 86.9 80.2 DCSAU-Net 72.6 81.1 65.6 62.9 83.5 88.9 89.5 89.5 77.6 86.5 93.0 82.5 XBFormer 73.6 81.1 87.2 76.3 83.8 88.9 89.8 87.2 73.7 84.3 84.0 85.7 CASF-Net 60.5 72.4 78.0 74.8 81.7 88.7 89.2 88.2 78.4 87.2 91.3 85.9 DTAN 76.4 84.2 84.2 85.9 84.1 90.4 91.6 92.0 78.5 87.9 85.8 90.2             
+
+> Ours 81.2 89.1 90.1 90.0 84.6 90.5 92.3 91.7 85.1 91.6 93.5 90.5
+
+Table 1: Comparison with other methods on the Kvasir-Sessile, Kvasir-SEG and GlaS datasets. Here, ⊗ denotes matrix multiplication. Finally, the weighted value representations are densely aggregated to obtain the final output feature map. Specifically, the aggregated feature at position (i, j ) is: 
+
+> ∼
+
+F i,j = X
+
+> 0≤m,n<K
+> ∼
+
+V    
+
+> i,j
+> ∆i+m−⌊ K
+> 2⌋,j +n−⌊ K
+> 2⌋
+
+. (14) 
+
+Size-Aware Decoder We designed a simple but effective Size-Aware Decoder (SA-Decoder), whose structure is de-tailed in the Supplementary Material . SA-Decoder imple-ments separate predictions by distributing entities of differ-ent sizes in different layers. Among the features outputted by multiple CDFAs, the shallow-level feature maps con-tain more fine-grained information, making them suitable for predicting smaller-sized entities. As the layers deepen, the feature maps incorporate increasing amounts of global information and higher-level semantics, making them more suitable for predicting larger-sized entities. Therefore, we establish three Decoders for small, medium, and large sizes: Decoder s, Decoder m, and Decoder l, each receives features from the two adjacent CD-FAs, namely eF1 and eF2, eF2 and eF3, eF3 and eF4, respectively. The outputs of the three Decoders are then concatenated and fused along the channel dimension. Then the predicted mask is produced through a Sigmoid function. Through the collaborative work of multiple parallel SA-Decoders, ConD-Seg is able to accurately distinguish individuals of different sizes. The model is capable of both precisely segmenting large entities and accurately locating small entities. 
+
+Overall Optimization and Training Process 
+
+ConDSeg’s training is a two-stage process. The first stage focuses on enhancing the feature extraction capability of the Encoder and its robustness to adverse conditions. In the sec-ond stage, we set the learning rate of Encoder at a lower level and optimize entire model. Formally, Lstage 2 is as follows: 
+
+Lstage 2 = Lmask + β1Lf g + β2Lbg + Lcompl . (15) 
+
+## Experiments 
+
+Experimental Setup 
+
+To verify the performance and general applicability of our ConDSeg in the field of medical image segmenta-                                 
+
+> Method ISIC-2016 ISIC-2017 mIoU mDSC mIoU mDSC U-Net 83.6 90.3 73.7 82.8 CENet 84.6 90.9 76.4 84.8 CPFNet 84.2 90.7 76.2 84.7 FAT-Net 85.3 91.6 76.5 85.0 DCSAU-Net 85.3 91.4 76.1 85.0 EIU-Net 85.5 91.9 77.1 85.5 Ours 86.8 92.5 80.9 88.3
+
+Table 2: Comparison with other methods on the ISIC-2016 and ISIC-2017 datasets. tion, we conducted experiments on five challenging pub-lic datasets: Kvasir-SEG (Jha et al. 2020), Kvasir-Sessile (Jha et al. 2021), GlaS (Sirinukunwattana et al. 2017), ISIC-2016 (Gutman et al. 2016), and ISIC-2017 (Codella et al. 2018), covering subdivision tasks across three medical im-age modalities. Detailed information about the datasets is shown in the Supplementary Material .All experiments were conducted on an NVIDIA GeForce RTX 4090 GPU, with the image size adjusted to 256 × 256 
+
+pixels. Simple data augmentation strategies, including ran-dom rotation, vertical flipping and horizontal flipping were used. The batch size was set to 4, and the Adam optimizer (Kingma and Ba 2014) was used for optimization. We use the ResNet-50 (He et al. 2016) as the default encoder, which can also be replaced with other backbones such as Trans-formers (see the Supplementary Material ). In the first stage, the learning rate is set to 1 e-4. In the second stage, we load the weights of the Encoder and set its learning rate to a lower 1e-5, while for the rest of the network, the learning rate is set to 1 e-4. The window size for CDFA is set to 3. We use standard medical image segmentation metrics such as mean Intersection over Union (mIoU), mean Sørensen-Dice coef-ficient (mDSC), Recall, and Precision. 
+
+Comparison with Other State-of-the-Art 
+
+Tables 1 and 2 detail the comparison of our method with the following state-of-the-art methods: U-Net(Ronneberger, Fischer, and Brox 2015),U-Net++(Zhou et al. 2018), Attn U-Net (Oktay et al. 2018), CENet(Gu et al. 2019), 4576 U-Net U - Net+ + TGANet XBoundFormer Ours(One-Stage) Ours(Two-Stage)            
+
+> 020 40 60 80 100 020 40 60 80 100
+> mIoU vs Epoch
+> 0.8 0.6 0.4 0.2 0.0 0.8 0.6 0.4 0.2 0.0
+> mDSC mIoU U-Net U - Net+ + TGANet XBoundFormer Ours(One-Stage) Ours(Two-Stage) mDSC vs Epoch Epoch Epoch
+
+Figure 5: Comparison of convergence curves with other methods in the training process on the Kvasir-SEG dataset. 
+
+Stage 1 Stage 2 Metric 
+
+N et 0 CR mIoU mDSC Rec. Prec. 
+
+✓ 77.3 85.1 86.7 88.6 
+
+✓ ✓ 78.4 86.1 87.1 89.8 
+
+✓ 82.7 88.9 91.8 90.2 
+
+✓ ✓ 82.9 89.2 92.0 90.2 
+
+✓ ✓ ✓ 84.6 90.5 92.3 91.7 
+
+Table 3: Ablation experiments on training strategies. CPFNet(Feng et al. 2020), PraNet(Fan et al. 2020), FAT-Net(Wu et al. 2022), TGANet(Tomar et al. 2022), DCSAU-Net(Xu et al. 2023), XBoundFormer(Wang et al. 2023), CASF-Net(Zheng et al. 2023), EIU-Net(Yu et al. 2023), DTAN (Zhao et al. 2024). On all five datasets, our method achieves the best segmentation performance. Additionally, we compare the convergence speed during the training in Figure 5. Here, One-Stage and Two-Stage respectively rep-resent ConDSeg trained from scratch and trained with the pre-trained weights (using CR) loaded. The figure shows that ConDSeg can reach an advanced level even with only one stage training. When using the complete ConD-Seg framework (Two-Stage), our method achieves both the fastest convergence speed and best performance. 
+
+Ablation Study 
+
+To verify the effectiveness of our proposed Consistency Re-inforcement training strategy and all the proposed modules, we conducted comprehensive ablation experiments, which will be elaborated in the following two subsections. 
+
+Training Strategy On the Kvasir-SEG dataset, we de-signed 5 sets of ablation experiments for ConDSeg’s train-ing strategy: 1) Direct training of N et 0 (proposed in 3.2.1) and using N et 0 for prediction. 2) Training N et 0 with the CR strategy and using N et 0 for prediction. 3) Directly train-ing the entire ConDSeg network, without using a two-stage strategy. 4) Employing the two-stage strategy. In the first stage, N et 0 is used to preliminarily train the Encoder, and in the second stage, the entire network is trained. However, CR is not used in the first stage. 5) Using the two-stage strat-egy, with CR employed in the first stage. Among these 5 experiments, 1) and 2) are aimed at comparing and verify-ing the effectiveness of CR in enhancing the robustness of the Encoder. 3) to 5) are designed to verify the effective-ness of using a two-stage strategy and the additional bene-
+
+Modules Metrics Baseline SID & CDFA SA-Decoder mIoU mDSC 
+
+✓ 78.3 87.5 
+
+✓ ✓ 83.3 90.4 
+
+✓ ✓ ✓ 85.1 91.6 
+
+Table 4: Ablation experiments on different modules. fits of employing the proposed CR on network performance. As shown in Table 3, the experimental results under set-tings 1) to 5) are sequentially presented. It indicates that: the CR strategy significantly improves the Encoder’s feature ex-traction capability and its robustness to adverse conditions; adopting a two-stage training approach and utilizing the CR strategy in the first stage significantly enhances model per-formance, achieving the best results. 
+
+Proposed Modules To validate the effectiveness of the proposed modules on model performance, we set up 3 groups of ablation experiments on the GlaS dataset. All ex-periments were conducted on the basis of the Encoder al-ready enhanced by the CR strategy in the first stage. The baseline refers to that in ConDSeg, the SID is removed and the CDFA is replaced with normal convolutional layers, and a single-scale Decoder is used. Its specific structure is de-tailed in the Supplementary Material . Our 4 experiment se-tups are: 1) Baseline. 2) Adding the SID and CDFA mod-ules. 3) Further adopting the SA-Decoder, i.e., the complete ConDSeg architecture. According to Table 4, both mIoU and mDSC are significantly improved when modules are added incrementally and are optimal when all modules are used. More visualization and results of the ablation experiments are detailed in the Supplementary Material .
+
+## Conclusion 
+
+We propose a general medical image segmentation frame-work, ConDSeg, which alleviates the challenges posed by soft boundaries and co-occurrence phenomena widespread in medical imaging. For issues related to ambiguous bound-aries, as well as poor illumination and low contrast, our preliminary training strategy, Consistency Reinforcement, is specifically aimed at enhancing the Encoder’s robustness to adverse conditions. Furthermore, we design the Seman-tic Information Decoupling module to decouple features from the Encoder into three parts, foreground, background and regions of uncertainty, gradually acquiring the ability to reduce uncertainty during training. To address the chal-lenge of co-occurrence, the Contrast-Driven Feature Aggre-gation module uses foreground and background information to guide the fusion of multi-level feature maps and enhance the key features, facilitating the model further distinguishing between foreground and background. Moreover, we intro-duce the Size-Aware Decoder to achieve precise localization of multiple entities of different sizes within images. Across five widely used medical image segmentation datasets of various modalities, our ConDSeg achieves state-of-the-art performance, verifying the advanced nature and universal-ity of our framework. 4577 References 
+
+Abdollahi, B.; Tomita, N.; and Hassanpour, S. 2020. Data augmentation in training deep learning models for medical image analysis. Deep learners and deep learner descriptors for medical applications , 167–180. Bui, N.-T.; Hoang, D.-H.; Nguyen, Q.-T.; Tran, M.-T.; and Le, N. 2024. MEGANet: Multi-Scale Edge-Guided Atten-tion Network for Weak Boundary Polyp Segmentation. In 
+
+Proceedings of the IEEE/CVF Winter Conference on Appli-cations of Computer Vision , 7985–7994. Cao, H.; Wang, Y.; Chen, J.; Jiang, D.; Zhang, X.; Tian, Q.; and Wang, M. 2022. Swin-unet: Unet-like pure transformer for medical image segmentation. In European conference on computer vision , 205–218. Springer. Chen, J.; Lu, Y.; Yu, Q.; Luo, X.; Adeli, E.; Wang, Y.; Lu, L.; Yuille, A. L.; and Zhou, Y. 2021. Transunet: Transform-ers make strong encoders for medical image segmentation. 
+
+arXiv preprint arXiv:2102.04306 .Chen, Z.; Tian, Z.; Zhu, J.; Li, C.; and Du, S. 2022. C-cam: Causal cam for weakly supervised semantic segmentation on medical image. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 11676–11685. Codella, N. C.; Gutman, D.; Celebi, M. E.; Helba, B.; Marchetti, M. A.; Dusza, S. W.; Kalloo, A.; Liopyris, K.; Mishra, N.; Kittler, H.; et al. 2018. Skin lesion analysis to-ward melanoma detection: A challenge at the 2017 interna-tional symposium on biomedical imaging (isbi), hosted by the international skin imaging collaboration (isic). In 2018 IEEE 15th international symposium on biomedical imaging (ISBI 2018) , 168–172. IEEE. Cossio, M. 2023. Augmenting medical imaging: a compre-hensive catalogue of 65 techniques for enhanced data analy-sis. arXiv preprint arXiv:2303.01178 .Diakogiannis, F. I.; Waldner, F.; Caccetta, P.; and Wu, C. 2020. ResUNet-a: A deep learning framework for semantic segmentation of remotely sensed data. ISPRS Journal of Photogrammetry and Remote Sensing , 162: 94–114. Fan, D.-P.; Ji, G.-P.; Zhou, T.; Chen, G.; Fu, H.; Shen, J.; and Shao, L. 2020. Pranet: Parallel reverse attention network for polyp segmentation. In International conference on medical image computing and computer-assisted intervention , 263– 273. Springer. Fang, Y.; Chen, C.; Yuan, Y.; and Tong, K.-y. 2019. Selec-tive feature aggregation network with area-boundary con-straints for polyp segmentation. In Medical Image Com-puting and Computer Assisted Intervention–MICCAI 2019: 22nd International Conference, Shenzhen, China, October 13–17, 2019, Proceedings, Part I 22 , 302–310. Springer. Feng, S.; Zhao, H.; Shi, F.; Cheng, X.; Wang, M.; Ma, Y.; Xi-ang, D.; Zhu, W.; and Chen, X. 2020. CPFNet: Context pyra-mid fusion network for medical image segmentation. IEEE transactions on medical imaging , 39(10): 3008–3018. Goceri, E. 2023. Medical image data augmentation: tech-niques, comparisons and interpretations. Artificial Intelli-gence Review , 56(11): 12561–12605. Gu, Z.; Cheng, J.; Fu, H.; Zhou, K.; Hao, H.; Zhao, Y.; Zhang, T.; Gao, S.; and Liu, J. 2019. Ce-net: Context en-coder network for 2d medical image segmentation. IEEE transactions on medical imaging , 38(10): 2281–2292. Gutman, D.; Codella, N. C.; Celebi, E.; Helba, B.; Marchetti, M.; Mishra, N.; and Halpern, A. 2016. Skin lesion analysis toward melanoma detection: A challenge at the international symposium on biomedical imaging (ISBI) 2016, hosted by the international skin imaging collaboration (ISIC). arXiv preprint arXiv:1605.01397 .He, K.; Zhang, X.; Ren, S.; and Sun, J. 2016. Deep resid-ual learning for image recognition. In Proceedings of the IEEE conference on computer vision and pattern recogni-tion , 770–778. Jha, D.; Smedsrud, P. H.; Johansen, D.; De Lange, T.; Jo-hansen, H. D.; Halvorsen, P.; and Riegler, M. A. 2021. Acomprehensive study on colorectal polyp segmentation with ResUNet++, conditional random field and test-time aug-mentation. IEEE journal of biomedical and health infor-matics , 25(6): 2029–2040. Jha, D.; Smedsrud, P. H.; Riegler, M. A.; Halvorsen, P.; De Lange, T.; Johansen, D.; and Johansen, H. D. 2020. Kvasir-seg: A segmented polyp dataset. In MultiMedia Mod-eling: 26th International Conference, MMM 2020, Daejeon, South Korea, January 5–8, 2020, Proceedings, Part II 26 ,451–462. Springer. Kingma, D. P.; and Ba, J. 2014. Adam: A method for stochastic optimization. arXiv preprint arXiv:1412.6980 .Lei, M.; and Wang, X. 2024. EPPS: Advanced Polyp Seg-mentation via Edge Information Injection and Selective Fea-ture Decoupling. arXiv preprint arXiv:2405.11846 .Liu, X.; Song, L.; Liu, S.; and Zhang, Y. 2021. A review of deep-learning-based medical image segmentation methods. 
+
+Sustainability , 13(3): 1224. Malhotra, P.; Gupta, S.; Koundal, D.; Zaguia, A.; Enbeyle, W.; et al. 2022. Deep neural networks for medical image segmentation. Journal of Healthcare Engineering , 2022. Oktay, O.; Schlemper, J.; Folgoc, L. L.; Lee, M.; Heinrich, M.; Misawa, K.; Mori, K.; McDonagh, S.; Hammerla, N. Y.; Kainz, B.; et al. 2018. Attention u-net: Learning where to look for the pancreas. arXiv preprint arXiv:1804.03999 .Peng, J.; and Wang, Y. 2021. Medical Image Segmenta-tion With Limited Supervision: A Review of Deep Network Models. IEEE Access , 9: 36827–36851. Qureshi, I.; Yan, J.; Abbas, Q.; Shaheed, K.; Riaz, A. B.; Wahid, A.; Khan, M. W. J.; and Szczuko, P. 2023. Medical image segmentation using deep semantic-based methods: A review of techniques, applications and emerging trends. In-formation Fusion , 90: 316–352. Ronneberger, O.; Fischer, P.; and Brox, T. 2015. U-net: Convolutional networks for biomedical image segmenta-tion. In Medical image computing and computer-assisted intervention–MICCAI 2015: 18th international conference, Munich, Germany, October 5-9, 2015, proceedings, part III 18 , 234–241. Springer. 4578 Selvaraju, R. R.; Cogswell, M.; Das, A.; Vedantam, R.; Parikh, D.; and Batra, D. 2017. Grad-cam: Visual explana-tions from deep networks via gradient-based localization. In 
+
+Proceedings of the IEEE international conference on com-puter vision , 618–626. Sirinukunwattana, K.; Pluim, J. P.; Chen, H.; Qi, X.; Heng, P.-A.; Guo, Y. B.; Wang, L. Y.; Matuszewski, B. J.; Bruni, E.; Sanchez, U.; et al. 2017. Gland segmentation in colon histology images: The glas challenge contest. Medical im-age analysis , 35: 489–502. Tomar, N. K.; Jha, D.; Bagci, U.; and Ali, S. 2022. TGANet: Text-guided attention for improved polyp segmentation. In 
+
+International Conference on Medical Image Computing and Computer-Assisted Intervention , 151–160. Springer. Wang, J.; Chen, F.; Ma, Y.; Wang, L.; Fei, Z.; Shuai, J.; Tang, X.; Zhou, Q.; and Qin, J. 2023. Xbound-former: To-ward cross-scale boundary modeling in transformers. IEEE Transactions on Medical Imaging .Wang, R.; Lei, T.; Cui, R.; Zhang, B.; Meng, H.; and Nandi, A. K. 2022. Medical image segmentation using deep learn-ing: A survey. IET Image Processing , 16(5): 1243–1267. Wu, H.; Chen, S.; Chen, G.; Wang, W.; Lei, B.; and Wen, Z. 2022. FAT-Net: Feature adaptive transformers for auto-mated skin lesion segmentation. Medical image analysis ,76: 102327. Xi, H.; Nelson, J. D.; Hensher, D. A.; Hu, S.; Shao, X.; and Xie, C. 2024. Evaluating travel behavior resilience across urban and rural areas during the COVID-19 pan-demic: contributions of vaccination and epidemiological in-dicators. Transportation research part A: policy and prac-tice , 180: 103980. Xie, Y.; Yang, B.; Guan, Q.; Zhang, J.; Wu, Q.; and Xia, Y. 2023. Attention mechanisms in medical image segmenta-tion: A survey. arXiv preprint arXiv:2305.17937 .Xu, Q.; Ma, Z.; Na, H.; and Duan, W. 2023. DCSAU-Net: A deeper and more compact split-attention U-Net for medical image segmentation. Computers in Biology and Medicine ,154: 106626. Xun, S.; Li, D.; Zhu, H.; Chen, M.; Wang, J.; Li, J.; Chen, M.; Wu, B.; Zhang, H.; Chai, X.; et al. 2022. Generative adversarial networks in medical image segmentation: A re-view. Computers in biology and medicine , 140: 105063. Yu, Z.; Yu, L.; Zheng, W.; and Wang, S. 2023. EIU-Net: Enhanced feature extraction and improved skip connections in U-Net for skin lesion segmentation. Computers in Biology and Medicine , 107081. Yue, G.; Han, W.; Jiang, B.; Zhou, T.; Cong, R.; and Wang, T. 2022. Boundary constraint network with cross layer fea-ture integration for polyp segmentation. IEEE Journal of Biomedical and Health Informatics , 26(8): 4090–4099. Zhao, Y.; Li, J.; Ren, L.; and Chen, Z. 2024. DTAN: Diffusion-based Text Attention Network for medical image segmentation. Computers in Biology and Medicine , 168: 107728. Zheng, J.; Liu, H.; Feng, Y.; Xu, J.; and Zhao, L. 2023. CASF-Net: Cross-attention and cross-scale fusion network for medical image segmentation. Computer Methods and Programs in Biomedicine , 229: 107307. Zhou, T.; Zhou, Y.; He, K.; Gong, C.; Yang, J.; Fu, H.; and Shen, D. 2023. Cross-level feature aggregation network for polyp segmentation. Pattern Recognition , 140: 109555. Zhou, Z.; Rahman Siddiquee, M. M.; Tajbakhsh, N.; and Liang, J. 2018. Unet++: A nested u-net architecture for medical image segmentation. In Deep Learning in Medical Image Analysis and Multimodal Learning for Clinical De-cision Support: 4th International Workshop, DLMIA 2018, and 8th International Workshop, ML-CDS 2018, Held in Conjunction with MICCAI 2018, Granada, Spain, Septem-ber 20, 2018, Proceedings 4 , 3–11. Springer. 4579

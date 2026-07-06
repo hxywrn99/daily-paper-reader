@@ -1,0 +1,574 @@
+Title: DuSSS: Dual Semantic Similarity-Supervised Vision-Language Model for Semi-Supervised Medical Image Segmentation
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/32674/34829
+
+Number of Pages: 9
+
+Markdown Content:
+# DuSSS: Dual Semantic Similarity-Supervised Vision-Language Model for Semi-Supervised Medical Image Segmentation 
+
+# Qingtao Pan 1,2 , Wenhao Qiao 1,2 , Jingjiao Lou 1,2 , Bing Ji 1,2* , Shuo Li 3
+
+> 1
+
+School of Control Science and Engineering, Shandong University, Jinan, China 
+
+> 2
+
+Key Laboratory of Machine Intelligence and System Control, Ministry of Education, China 
+
+> 3
+
+Department of Computer and Data Science and Department of Biomedical Engineering, Case Western Reserve University, USA 
+
+{qingtaopan33, wenhaoo.qiao, jingjiaolou, slishuo }@gmail.com, b.ji@sdu.edu.cn 
+
+Abstract 
+
+Semi-supervised medical image segmentation (SSMIS) uses consistency learning to regularize model training, which al-leviates the burden of pixel-wise manual annotations. How-ever, it often suffers from error supervision from low-quality pseudo labels. Vision-Language Model (VLM) has great po-tential to enhance pseudo labels by introducing text prompt guided multimodal supervision information. It nevertheless faces the cross-modal problem: the obtained messages tend to correspond to multiple targets. To address aforementioned problems, we propose a Dual Semantic Similarity-Supervised VLM (DuSSS) for SSMIS. Specifically, 1) a Dual Contrastive Learning (DCL) is designed to improve cross-modal seman-tic consistency by capturing intrinsic representations within each modality and semantic correlations across modalities. 
+
+2) To encourage the learning of multiple semantic correspon-dences, a Semantic Similarity-Supervision strategy (SSS) is proposed and injected into each contrastive learning process in DCL, supervising semantic similarity via the distribution-based uncertainty levels. Furthermore, a novel VLM-based SSMIS network is designed to compensate for the quality deficiencies of pseudo-labels. It utilizes the pretrained VLM to generate text prompt guided supervision information, re-fining the pseudo label for better consistency regularization. Experimental results demonstrate that our DuSSS achieves outstanding performance with Dice of 82.52%, 74.61% and 78.03% on three public datasets (QaTa-COV19, BM-Seg and MoNuSeg). 
+
+Code — https://github.com/QingtaoPan/DuSSS/ 
+
+# Introduction 
+
+Medical image segmentation aims to divide medical images into specific regions with unique attributes. It contributes to detecting abnormal areas and providing clinical guid-ance (Chen et al. 2021a). In clinical practice, achieving pre-cise segmentation results necessitates manual implementa-tion and there is an urgent need for automatic medical im-age segmentation to aid in diagnosis and treatment. Fully-supervised medical image segmentation methods, such as U-Net (Ronneberger, Fischer, and Brox 2015a) and its vari-ants (Zhou et al. 2018; ¨ Ozg¨ un C ¸ ic ¸ek et al. 2016; Fang et al. 
+
+> *
+
+Corresponding Author Copyright © 2025, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. Advantage: Enhance the      
+
+> quality of pseudo label s via
+> text -guided mask.
+> Consistency
+> Student
+> Teacher
+> Image Enc
+> Text Enc
+> Text Text
+> VLM Student
+> Teacher
+> Traditional pseudo -
+> labeling SSL methods
+> Our idea: VLM -guided pseudo -
+> labeling SSL method
+> Disadvantage: Tend to
+> produce low -quality
+> pseudo labels.
+> Consistency
+> Prediction
+> Pseudo label Text
+> Mask
+
+Figure 1: The VLM has potential to enhance pseudo labels via text-guided mask, improving consistency learning. 2019), have been developed for medical image segmenta-tion through an encoder and a decoder in a U-shaped ar-chitecture, connected by skip connections. However, fully-supervised methods need a large amount of pixel-level an-notated data for model training and labeling such pixel-level annotations is laborious and requires expert knowl-edge especially in medical images, resulting in that labeled data are expensive or simply unavailable (Shen et al. 2023). Semi-supervised medical image segmentation (SSMIS) is a method that utilizes a small amount of labeled data and a large amount of unlabeled data to learn segmentation mod-els (Qin, Wang, and Zhang 2024). SSMIS methods, such as (Chen et al. 2021b; ?; Wang et al. 2021; Bai et al. 2023), have shown promising per-formance for semi-supervised segmentation by combining consistency regularization and pseudo labeling via cross su-pervision between the sub-networks. However, one key dis-advantage of these approaches is that they may generate low-quality pseudo labels (Ronneberger, Fischer, and Brox 2015b), which misleads model training and causes the model to learn incorrect features, thus failing to effectively utilize unlabeled data and disrupting consistency learning on unla-beled data. Therefore, the question that comes to mind is: how to effectively improve the quality of pseudo labels for SSMIS. Vision-Language Model (VLM) has great potential to en-hance the quality of pseudo-labels. It produces text-guided supervision information by leveraging textual prompts to de-scribe visual content, thus enhancing pseudo labels for var-The Thirty-Ninth AAAI Conference on Artificial Intelligence (AAAI-25) 
+
+6299 Text Text       
+
+> Image Image
+> Text Text
+> Image Image
+> Semantic
+> Alignment Distribution
+> Alignment
+> Text Text
+> Image Image
+> (a) Semantic -based
+> Image -Text Alignment (b) Distribution -based
+> Image -Text Alignment (c) Our Du SSS -based
+> Image -Text Alignment
+> DuSSS
+> Alignment Sup
+> CLS CLS  CLS CLS
+> CLS CLS  CLS CLS
+> CLS CLS  CLS CLS
+> Vision
+> Encoder
+> Vision
+> Encoder
+> Text
+> Encoder
+> Text
+> Encoder
+> Vision
+> Encoder
+> Vision
+> Encoder
+> Text
+> Encoder
+> Text
+> Encoder Text
+> Encoder
+> Text
+> Encoder
+> Vision
+> Encoder
+> Vision
+> Encoder
+
+Figure 2: The limitations of current VLM methods and the solution of our DuSSS. ious tasks (Yi et al. 2023), as shown in Fig. 1. Once suc-cessful, this approach will significantly improve the perfor-mance of SSMIS by guiding the segmentation model to lo-cate target segmentation regions with textual prompts. Al-though promising performance of current VLMs, such as CLIP (Radford et al. 2021), MedCLIP (Wang et al. 2022b), MGCA (Wang et al. 2022a), etc, the cross-modal uncertainty remains a significant problem since they merely conduct one-to-one alignment between image and text (Fig. 2 (a)). Specifically, multiple images/texts may correspond to one text/image, which manifests cross-modal uncertainty. Utilizing distribution to represent semantic embeddings is a prominent approach for uncertainty awareness (Lei et al. 2023; Chun et al. 2021; Sun et al. 2020). This approach com-monly transfers semantic embeddings as distribution repre-sentations for image-text alignment through Gaussian mod-eling (Yang et al. 2021; Yu et al. 2019), to learn the uncer-tainty (Fig. 2 (b)). The distribution’s variance is computed for uncertainty judgment. Although the variance reflects dis-tribution discrepancies, relying solely on distribution repre-sentations lose original semantic attributes, leading to poor semantic associations between image and text. Therefore, we argue that it is necessary to address the uncertainty prob-lem while detaining semantic attributes. In this paper, we propose a novel VLM paradigm with Dual Semantic Similarity-Supervision (DuSSS) to learn multiple semantic correspondences (Fig. 2 (c)). Specifically, 
+
+1) a Dual Contrastive Learning (DCL) is constructed for cross- and intra-modal contrastive learning. It reinforces se-mantic correlations across modalities and captures implicit representation relationships within each modality, thereby prompting image-text alignment. 2) A Semantic Similarity-Supervision strategy (SSS) is proposed to supervise seman-tic similarity based on corresponding uncertainty levels by incorporated it into each contrastive learning process in DCL, learning potential uncertainty correspondences across modalities and within modalities. 3) For the first time, a text-guided segmentation network is constructed to compensate for quality deficiencies of pseudo-labels for SSMIS. Our contributions are summarized as follows: • This is the first VLM-based method for pseudo label-ing SSMIS. It compensates for the quality deficiencies of pseudo-labels by utilizing the advantages of text prompts to locate segmentation regions. • A new SSS supervises semantic similarity via uncertainty levels. It promotes model’s understanding of data pairs that are similar yet semantically ambiguous, mitigating impacts of uncertain correspondences. • A novel DCL boosts semantic associations across modal-ities and captures intrinsic representation relationships within each modality, thereby boosting cross-modal se-mantic consistency. • Extensive experiments are conducted on three public medical image segmentation datasets. Comprehensive results demonstrate the effectiveness of each component of our method and the superiority of our DuSSS over the state-of-the-art methods. 
+
+# Related Works 
+
+Semi-Supervise Medical Image Segmentation 
+
+In the field of SSMIS, the main methods includes self-training methods (Zhu et al. 2021; Zou et al. 2018), ad-versarial training methods (Hung et al. 2018; Li, Zhang, and He 2020), co-training methods (Wang et al. 2021; Xia et al. 2020), and consistency regularization methods (Wang et al. 2020; Zhang et al. 2023). Consistency regularization focuses on maintaining consistent model predictions un-der different perturbations. The state-of-the-art technique is Mean Teacher (MT) (Tarvainen and Valpola 2017). In MT, the teacher model is employed to generate pseudo-labels for unlabeled data while maintaining prediction consistency be-tween the teacher and student models through various regu-larization methods. Afterward, the teacher model is the ex-ponential moving average (EMA) of the student model’s weights. This method enables the teacher model to contin-ually aggregate historical prediction information from un-labeled data. Subsequent improvements use different con-sistency regularization strategies to improve the prediction quality of unlabeled data (Chen et al. 2021b; Ouali, Hudelot, and Tami 2020). However, these methods are still based on the single-modal approaches, leading to poor pseudo labels. In this paper, we introducing VLM into SSMIS to enhanc-ing the quality of pseudo labels by generating text prompt guided multimodal supervision information. 
+
+Vision-Language Model 
+
+Although existing VLMs learns generic visual-textual rep-resentations by aligning image-text, they are limited by un-certainty awareness of cross-modal and intra-modal. CLIP (Radford et al. 2021) is a representative work of VLM, us-ing the contrastive loss to calculate similarity scores between images and texts. ViLT (Kim, Son, and Kim 2021) is a more efficient architecture that deals with visual feature using in-teraction layers. Accordingly, numerous works use text in-formation to improve the image segmentation capabilities (Yang et al. 2022; Ding et al. 2022; Xu et al. 2022). For instance, Yang et al. (Yang et al. 2022) conducted early fu-sion of image-text features in intermediate layers of a trans-former network, achieving significantly cross-modal align-ment. Ding et al. (Ding et al. 2022) built an encoder decoder attention network with transformer and multi-head attention to provide the language expression ”queries” for the given image. Inspired by VLM in natural images, a few works 6300 have started utilizing text information for medical image analysis (M¨ uller et al. 2022; Tomar et al. 2022). Li et al. (Li et al. 2024b) proposed a Language meets Vision Trans-former model (LViT) to incorporated text annotations with images in down-sampling and up-sampling processes, com-pensating for the quality deficiencies in image data. Boeck-ing et al. (Boecking et al. 2022) used the attention weights learned during local alignment to conduct medical semantic segmentation. In this work, we introduce cross-modal and intra-modal self-supervision with uncertainty awareness for better image-text alignment. 
+
+# Methodology 
+
+Our DuSSS (Fig. 3) proposes uncertainty-aware VLM for SSMIS. Specifically, it comprises two steps. Step 1: VLM pre-training with DuSSS . The DuSSS promotes cross-modal semantic associations via DCL and supervises seman-tic similarity based on uncertainty levels during contrastive learning process for uncertainty learning. It addresses uncer-tainty problems across modalities. Step 2: Text-guided SS-MIS . It generates multimodal supervision information (i.e., text-guided mask) to improve pseudo-label quality. 
+
+SSS for Uncertain Correspondence Learning 
+
+The SSS supervises semantic similarity based on the corre-sponding uncertainty levels to perceive uncertain correspon-dences. It comprehends intricate semantic relationships be-tween data pairs that are similar yet semantically ambiguous, improving semantic consistency representations. The distribution distance is regarded as the uncertainty level, which supervises semantic similarity measured by Eu-clidean distance. For a paired data (x1, x 2), their semantic similarity is defined as Ds(x1, x 2) = ∥s1 − s2∥2. ( s1, s2)are the semantic embeddings of (x1, x 2). To measure uncer-tainty level, semantic embeddings are transformed to multi-variate Gaussian distributions. The mean vector μ and vari-ance vector σ2 denote the center position and the distribution scope, respectively. The 2-Wasserstein (Kantorovich 1960; Kim, Son, and Kim 2021) is utilized to measure the dif-ference (i.e. uncertainty level) of multivariate Gaussian dis-tributions. The following defines the 2-Wasserstein of two Gaussian distributions N (μ1, σ 1) and N (μ2, σ 2).
+
+D2W = || μ1 − μ2|| 22 + || σ1 − σ2|| 22 (1) where μ represents the mean vector and σ is the standard deviation vector. The global information of [CLS] is utilized to model the uncertainty distribution. The uncertainty level between the paired data (x1, x 2) is given by: 
+
+Du(x1, x 2) = a · D2W (x1[ CLS ], x 2[ CLS ]) + b (2) where a is a positive scale that controls the degree of uncer-tainty and b is a deviation value. When comparing two data, both the semantic similarity Ds(·) and the uncertainty level 
+
+Du(·) need to be considered. The semantic similarity is con-strained when large uncertainty exists. Here, the ratio of the uncertainty level to the semantic similarity is used to define the relative uncertainty bDu. The SSS is defined as: 
+
+bDu(x1, x 2) = Du(x1, x 2)
+
+Ds(x1, x 2) (3) 
+
+DSSS (x1, x2) = e−λ bDu(x1,x2) (4) where λ is a parameter for controlling constraint degree. 
+
+Summarized Advantages: The SSS provides a novel ap-proach to handle uncertainty for robust image-text align-ment. It supervises semantic similarity via the uncertainty levels measured by distribution representations. Therefore, it promotes the ability of similarity judgments for am-biguous sample pairs. It addresses the problem in existing distribution-based VLM methods where original semantic attributes are losing. 
+
+VLM Pre-training with DuSSS 
+
+The DuSSS learns multiple semantic correspondences across modalities and within each modality for uncertainty learning. Specifically, the DCL is conducted to advance the semantic correlation between images and texts by driv-ing cross- and intra-modal representation learning. The SSS is integrated into cross-modal and intra-modal contrastive learning in DCL to supervise semantic similarity in each contrastive learning process via uncertainty levels, solving semantic uncertainty. 
+
+1) SSS-based Cross-Modal Contrastive Learning (CMC) aims to learn multiple semantic correspondences be-tween image and text embeddings. That is, pull the matched image-text embeddings together and push the unmatched image-text embeddings away. To avoid potential uncertain-ties, the cosine similarity sim (I, T ) between image and text is constrained via DSSS (I, T ), thus obtaining the un-certainty cosine similarity sbim (I, T ). The InfoNCE loss (van den Oord, Li, and Vinyals 2018) is used to optimize 
+
+sbim (I, T ), thus enabling the positive image-text pairs sim-ilar and the negative pairs dissimilar. For N data pairs in a batch, N positive image-text pairs are matched and there are 
+
+N (N − 1) negative image-text pairs. The InfoNCE loss for the SSS-based image-to-text is denoted as: 
+
+sbim (I, T ) = 1 − (1 − sim (I, T )) · DSSS (I, T ) (5) 
+
+LI2Tnce = −E(I,T )
+
+"
+
+log exp (sbim (( I1, T +)/τ )
+
+PNn=1 exp (sbim (I1, bTn)/τ )
+
+#
+
+(6) where τ is a learned temperature hyper-parameter. T+
+
+denotes the positive text matched with I1 and bT =
+
+{ bT1, . . . , bTN } are the negative texts that do not match I1.Similarly, the InfoNCE loss for text-to-image is given by: 
+
+LT 2Ince = −E(T,I )
+
+"
+
+log exp (sbim (T1, I +)/τ )
+
+PNn=1 exp (sbim (T1, bIn)/τ )
+
+#
+
+(7) where I+ is the positive image that matches to T1 and bI =
+
+{bI1, . . . , bIN } are the negative images that do not match T1.Overall, we define the cross-modal loss of image-text as: 6301 Bilateral 
+
+> pulmonary
+> infectio n......
+> Vision Encoder Vision Encoder
+> MU
+> Vision Encoder
+> (momentum )
+> Text Encoder
+> (momentum )
+> Text Encoder
+> (momentum )
+> MU
+> Student
+> Model
+> Teacher
+> Model
+> Segmentation
+> Network
+> Unlabeled
+> Image
+> Labeled Pred Labeled Pred Labeled Pred
+> Unlabeled Pred Unlabeled Pred
+> Pseudo Label Pseudo Label sup
+
+Step 1: VLM pre -training with DuSSS Step 2: Text -guided SSMIS   
+
+> Ground Truth Ground Truth Labeled
+> Image
+> Image (A)
+> Tokens
+> Text Tokens
+> Text (A) Tokens
+> Image
+> Augmented
+> Image
+> Text
+> Image
+> Tokens Image
+> Patch Tokens
+> Text CLS Token
+> Decoder
+> Text -guided
+> Mask
+> Text -guided
+> Mask
+> Dense Image
+> Embeddings
+> Text -guided
+> Embeddings
+> Merged
+> Pseudo Label
+> EMA EMA
+> Text
+> Text -Guided
+> Loss tg
+> Unlabeled
+> Image
+
+Pretrained Vision Encoder 
+
+Pretrained Text Encoder  
+
+> Text
+> Encoder
+> Element -wise product Sigmoid Dot product merged
+> semi text
+> semi
+> Di stribution
+> Uncertainty
+
+SSS 
+
+> Cross -Modal Intra -Modal
+
+DuSSS 
+
+> Semantic 1
+> Semantic 2
+> Similarity
+> Supervise
+> SSS SSS
+> Sup
+> Sup
+> SSS SSS
+> Sup
+> Sup
+> Text Encoder Text Encoder
+> Bilateral
+> pulmonary
+> infectio n....
+> Bilateral
+> pulmonary
+> infectio n....
+
+Figure 3: The framework of our DuSSS driven VLM for SSMIS. Step 1: Our DuSSS improves the ability of uncertainty understanding in VLM pre-training, thus enhancing the model’s robustness for image-text alignment. Step 2: The text-guided SSMIS improves the quality of pseudo-labels for reliable semi-supervised consistency learning. 
+
+Lcmc = 12
+
+h
+
+LI2Tnce (I1, T +, bT ) + LT 2Ince (T1, I +, bI)
+
+i
+
+(8) The CMC aligns images and texts through minimizing 
+
+Lcmc . However, cross-modal alignment fails to build seman-tic associations within each modality. To solve this, SSS-based intra-modal contrastive learning is introduced. 
+
+2) SSS-based Intra-Modal Contrastive Learning (IMC) captures the underlying associations among different samples within each modality. Meanwhile, the SSS is in-jected into IMC for weakening semantic uncertainty within each modality. For the raw image-text (I1, T 1) and the randomly augmented image-text (I2, T 2), similar to cross-modal loss, intra-modal contrastive loss is defined as: 
+
+Limc = 12
+
+h
+
+LI2Ince (I1, I 2, bI) + LT 2Tnce (T1, T 2, bT )
+
+i
+
+(9) where I2 is the image to be matched with I1 and bI =
+
+{bI1, . . . , cIN } are the negative images. Similarly, T2 is the text to be matched with T1 and bT = { bT1, . . . , cTN } are the negative texts. 
+
+Summarized Advantages: The DuSSS provides a new scheme to tackle uncertainty problems across modalities. It incorporates SSS into each contrastive learning process in DCL to supervise semantic similarity via the corresponding uncertainty levels, addressing cross-modal uncertainty. 
+
+Text-Guided SSMIS for Pseudo-Label Quality Enhancement 
+
+The text-guided SSMIS enhances the quality of pseudo-labels via the benefit of text descriptions. The goal of SSMIS is to train a model by utilizing a labeled train-ing dataset Xl = {(xli , y li )}Nl 
+
+> i
+
+and an unlabeled training dataset Xu = {(xuj )}Nu 
+
+> i
+
+. Our text-guided SSMIS consists of two paths: 1) Text-guided pseudo-label generation, and 2) Teacher-Student Network-guided pseudo-label generation. These two paths are detailed as follows. 
+
+1) Text-Guided Pseudo-Label Generation. The text-guided pseudo-label leverages the advantage of text to local-ize target segmentation regions. The patch-level image fea-tures vpatch f and text features tf from the pre-trained VLM are used to synthetize the text-guided mask. Specifically, the patch-level image features vf are decoded into pixel-level features through a grounding decoder fg (·). The text-guided mask ytext u is calculated by dot product between vf and tf ,and the process is as follows. 
+
+vf = fg (vpatch f ), ytext u = σ(t⊤ 
+
+> f
+
+vf ) (10) where σ is Sigmoid function, and ⊤ is transposition. 
+
+Text-Guided Loss. To suppress the irrelevant text guided mask generation, a text-guided loss Ltg is designed. It helps the model better understand both the global structure and local details. The text-guided loss is denoted as: 
+
+Ltg (vtf , t f ) = − 12 E(f,t )
+
+"
+
+log exp (sim (vtf , t f )) /τ )
+
+PKk=1 exp (sim (vtf , btfk )/τ )
+
+#
+
+− 12 E(t,f )
+
+"
+
+log exp (sim (tf , v tf )) /τ )
+
+PKk=1 exp (sim (tf , bvtfk )/τ )
+
+#
+
+(11) 
+
+2) Teacher Student Network-Guided Pseudo-Label Generation. The teacher and student segmentation net-6302 works have identical architecture. The student network fθs
+
+is parameterized by θs, while the teacher network fθt is up-dated by the Exponential Moving Average (EMA) of the stu-dent. The updating process is as follows: 
+
+θt = αθ t + (1 − α)θs (12) where α ∈[0,1] controls the updating pace. The student net-work predicts the labeled image xl and the unlabeled image 
+
+xu. The teacher network generates the pseudo-label ytu of the unlabeled image. The calculation process is: 
+
+yl = fθs (xl), ysu = fθs (xu), ytu = fθt (xu) (13) where yl and ysu are labeled and unlabeled prediction. The supervised loss Lsup and semi-supervised loss Lsemi 
+
+are utilized to jointly optimize the segmentation network. For labeled images, Lsup is computed between the ground truth ygt and the labeled prediction yl. For unlabeled im-ages xu, Lsemi is obtained by Lmerged semi and Ltext semi . Lmerged semi 
+
+is calculated between the unlabeled prediction ysu and the merged pseudo-label, where the merged pseudo-label is the combination of both the teacher network-generated pseudo-label and the text-guided mask. Ltext semi is calculated between the unlabeled prediction ysu and the text-guided mask. 
+
+Lsup = − 1
+
+Nl
+
+1
+
+HW 
+
+> Nl
+
+X
+
+> i=1
+> HW
+
+X
+
+> j=1
+
+ℓce (yli,j , y gt i,j ) (14) 
+
+Lmerged semi = − 1
+
+Nu
+
+1
+
+HW 
+
+> Nu
+
+X
+
+> i=1
+> HW
+
+X
+
+> j=1
+
+ℓce (ysui,j , σ (ytui,j + ytext ui,j )
+
+(15) 
+
+Ltext semi = − 1
+
+Nu
+
+1
+
+HW 
+
+> Nu
+
+X
+
+> i=1
+> HW
+
+X
+
+> j=1
+
+ℓce (ysui,j , y text ui,j ) (16) 
+
+Lsemi = ( Lmerged semi + Ltext semi )/2 (17) where ℓ(·) is the cross-entropy loss. (i, j ) represents the j-th pixel in i-th mask. Nl and Nu are the batch size of labeled images and unlabeled images. W and H represent the width and height of an image. 
+
+Summarized Advantages: To the best of our knowledge, this is the first attempt to integrate text-guided mask into SS-MIS. It compensates quality deficiencies of pseudo-labels, achieving reliable consistency regularization in SSMIS. 
+
+Theoretical Analysis 
+
+Our theoretical proofs have proven that SSS can address the alignment uncertainty between image and text. 
+
+Proof. 
+
+sbim (I, T ) = 1 − (1 − sim (I, T )) · DSSS (I, T )= 1 − (1 − sim (I, T )) · e−λ Du (x1,x 2)
+
+> Ds (x1,x 2)
+
+∝ Du(x1, x 2).
+
+(18) For the image-text pair with high uncertainty Du(x1, x 2),i.e. high relative uncertainty Du(x1,x 2) 
+
+> Ds(x1,x 2)
+
+, the proposed uncer-tainty cosine similarity make such image-text pair more sim-ilar, addressing the alignment uncertainty. 
+
+# Experiments 
+
+Datasets 
+
+Extensive experiments are conducted on three public med-ical image segmentation datasets: chest infection area seg-mentation, bone metastases segmentation, and nuclei in-stances segmentation. 
+
+QaTa-COV19 (Degerli et al. 2022) contains 9258 COVID-19 chest X-ray radiographs. (Li et al. 2024b) pro-vided text annotations and split 7145 samples for training and 2113 samples for testing. 
+
+BM-Seg (Afnouch et al. 2023) consists of 23 CT-scans from 23 patients, totaling 1517 slices from different skeletal views. 270 slices from a single view are selected, allocating 200 for training and 70 for testing. 
+
+MoNuSeg (Kumar et al. 2017) includes 44 images, and the image size is 1000 ×1000. The training dataset contains 30 images and the testing dataset contains 14 images. 
+
+Implementation Details 
+
+Our method is implemented using Pytorch. The operating system is Ubuntu 20.04.4 LTS with 24GB V100 GPU. The learning rate is set to 3e-4 for both the QaTa-COV19 and BM-Seg datasets, and 1e-3 for the MoNuSeg dataset. Early stopping is implemented if the model’s performance does not improve after 20 epochs based on its current perfor-mance. The batch size is 32 for the QaTa-COV19 dataset, 16 for the BM-Seg dataset, and 4 for the MoNuSeg dataset. 
+
+Evaluation Metrics 
+
+The Dice Dice = PNi=1 
+
+PCj=1 1 
+
+> N C
+
+· 2|pij ∩yij |   
+
+> (|pij |+|yij |)
+
+and mIoU 
+
+mIoU = PNi=1 
+
+PCj=1 1 
+
+> N C
+
+· |pij ∩yij ||pij ∪yij | are used to evaluate our method and other compared methods, where C is the number of categories, and N is the number of pixels. 
+
+Comparison Study Shows Our Superiority 
+
+The DuSSS is compared with 13 state-of-the art methods, including U-Net (Ronneberger, Fischer, and Brox 2015b), CLIP (Radford et al. 2021), ViLT (Kim, Son, and Kim 2021), MT (Tarvainen and Valpola 2017), CCT (Ouali, Hudelot, and Tami 2020), BCP (Bai et al. 2023), MC-Net (Wu et al. 2022a), SS-Net (Wu et al. 2022b), UCMT (Shen et al. 2023), and LViT (Li et al. 2024b), CMITM (Chen et al. 2023), ASG (Li et al. 2024a), MGCA (Wang et al. 2022a). 
+
+Qualitative Analysis. Fig. 4 presents the excellent seg-mentation performance of our method in comparison with state-of-the art methods. It can be observed that our method not only accurately localizes target regions but also gen-erates coherent boundaries, even in small object circum-stances. As shown in Fig. 4, SS-Net, MC-Net, BCP, MT and CCT all have more severe mis-segmentation than the proposed method. This indicates that the introduction of the 6303 Method Data used QaTa-COV19 BM-Seg MoNuSeg Complexity Labeled Text Dice (%) mIoU (%) Dice (%) mIoU (%) Dice (%) mIoU (%) Param (M) Flops (G) U-Net 100% × 79.02 69.46 74.15 60.32 78.66 68.46 14.75 25.19 CLIP 100% ✓ 79.81 70.66 74.49 59.56 79.79 68.27 87.00 57.60 ViLT 100% ✓ 79.63 70.12 73.23 58.22 77.92 67.81 87.40 28.00 MT 25%                                                                                                                                                                                                     
+
+> ×77.88 67.53 66.31 53.35 72.80 56.70 14.75 25.19 CCT ×78.02 67.03 70.66 55.27 74.25 56.55 4.65 8.45 BCP ×74.79 65.26 71.26 55.28 72.06 54.69 1.81 2.28 MC-Net ×74.58 64.26 69.67 53.36 71.53 48.12 1.81 2.28 SS-Net ×67.93 58.13 70.21 54.68 71.80 47.80 1.81 2.28 UCMT ×76.09 64.13 71.22 55.82 75.53 54.82 1.81 2.30 LViT ✓78.12 66.75 69.45 54.26 75.69 56.14 29.72 27.08 CMITM ✓78.04 65.84 70.63 54.66 75.14 54.28 14.75 25.19 ASG ✓77.92 65.09 70.26 54.33 75.69 55.92 14.75 25.19 MGCA ✓78.17 67.03 70.19 53.67 76.14 56.22 14.75 25.19 Ours ✓79.00 68.21 71.48 55.97 76.51 58.08 14.75 25.19 MT 50%
+> ×79.64 71.88 72.31 56.99 75.15 59.64 −−
+> CCT ×80.25 71.69 72.65 60.54 76.23 55.87 −−
+> BCP ×75.57 65.31 74.21 61.25 72.17 50.88 −−
+> MC-Net ×74.98 61.97 73.37 60.74 71.59 48.75 −−
+> SS-Net ×68.37 56.73 73.59 60.89 73.05 49.88 −−
+> UCMT ×77.81 68.65 74.32 60.41 76.36 59.29 −−
+> LViT ✓80.32 72.16 73.15 60.14 76.57 65.44 −−
+> CMITM ✓81.33 72.84 74.96 60.18 77.63 66.31 −−
+> ASG ✓80.47 71.84 74.22 59.47 76.79 65.91 −−
+> MGCA ✓81.24 73.56 75.17 61.49 77.06 65.23 −−
+> Ours ✓82.52 75.87 74.61 61.08 78.03 66.93 −−
+
+Table 1: The comparative experiments on the QaTa-COV19 , BM-Seg and MoNuSeg datasets demonstrate that our powerful uncertainty processing and pseudo-label enhancing ability. Method QaTa-COV19 BM-Seg MoNuSeg SSS DCL Ltg Dice (%) mIoU (%) Dice (%) mIoU (%) Dice (%) mIoU (%) 
+
+× × × 79.64 71.88 72.31 56.99 75.15 59.64 
+
+✓ × × 80.86 72.33 74.34 60.22 77.25 63.81 
+
+× ✓ × 80.13 72.31 73.11 60.14 76.90 62.73 
+
+✓ × ✓ 81.49 75.25 75.58 60.79 77.53 65.10 
+
+× ✓ ✓ 81.05 73.80 74.27 60.65 77.10 64.01 
+
+✓ ✓ × 81.10 75.08 75.24 59.11 77.74 64.62 
+
+✓ ✓ ✓ 82.52 75.87 76.41 61.08 78.03 66.93 
+
+Table 2: Ablation studies demonstrate that significant improvements of the proposed innovations. The results are based on 50% labeled data on the QaTa-COV19, BM-Seg and MoNuSeg datasets. Baseline: Teacher-Student Network; SSS: Semantic Similarity Supervision; DCL: Dual Contrastive Learning; Ltg : Text-Guided Loss. text-guided mask in the semi-supervised learning can bet-ter guide the training of the model, and consequently gener-ate more accurate segmentation. In addition, compared with other VLM methods, the DuSSS is more delicate in the seg-mentation boundary. This is attributed to the understanding of cross-modal alignment uncertainty. 
+
+Quantitative Analysis. Our DuSSS achieves highly com-petitive performance on three datasets against existing state-of-the art methods. Specifically, Table 1 indicates that our DuSSS outperforms all the other methods in both Dice (82.52%) and mIoU (75.87%) on 50% labeled images, and both Dice (79.00%) and mIoU (68.21%) on 25% labeled im-ages from the QaTa-COV19 dataset. It is noteworthy that the proposed method surpasses fully supervised methods. Additionally, the proposed method achieves better perfor-mance compared to the text-equipped methods, while requir-ing fewer parameters and having lower computational costs. It indicates that our DuSSS driven SSMIS has the ability of precisely locating target regions with text guidance. Table 1 also demonstrates the superiority our DuSSS in the BM-Seg and MoNuSeg datasets. Overall, our DuSSS achieves the best results in different segmentation tasks, demonstrat-6304 Raw Image CLIP LViT SS -Net MC -Net BCP MT CCT UNet GT Ours Figure 4: The visual superiority of the proposed method (DuSSS) on the QaTa-COV19, BM-Seg and MoNuSeg datasets. The proposed method shows high-quality segmentation, compared with semi-supervised and VLM-based methods. ing its superior generalization and robustness. (1) Bilateral lung infection, two            
+
+> infected areas, lower left lung
+> and middle lower right lung .
+> 2) Both pulmonary sides have
+> infection areas located at the
+> bottom.
+> (3) The size of the infection area
+> in both lower left chest and
+> lower right chest is different.
+> Ours CLIP Similar texts with uncertainty
+
+Figure 5: Our DuSSS shows great target region activation effects for multiple similarly yet lexically ambiguous texts. 
+
+Ablation Study 
+
+We perform ablation experiments to verify the contribution of novel designs, and the number of segmentation model pa-rameters does not increase after adding novel designs. 
+
+Effectiveness of SSS. Table 2 shows that removing the SSS limits the performance, resulting in a decrease of 1.22% in Dice and 0.45% in mIoU on the QaTa-COV19 dataset. Additionally, adding SSS to DCL could further improve 0.97% in Dice and 2.77% mIoU. This indicates that the SSS contributes to supervising semantic similarity in ambiguous data via being aware of the uncertainty. 
+
+Effectiveness of DCL. Table 2 demonstrates that the DCL improves the Dice and mIoU by 0.49% and 0.43% on the QaTa-COV19 dataset respectively, compared with the cross-modal contrastive learning alone. This owes to allevi-ating uncertainty during image-text alignment by enhancing semantic consistent representations within each modality. 
+
+Effectiveness of Text-Guided Loss. Table 2 indicates that introducing the text-guided loss improves the perfor-mance of SSS, DCL, and their combination. It demonstrates the superiority of text-guided loss in restraining the interfer-ence of negative text regions. 
+
+Uncertainty Analysis 
+
+Fig. 5 demonstrates the strong robustness of our DuSSS against alignment uncertainty. For multiple similar texts with lexical uncertainty, our DuSSS generates robust tar-get region activation effects. However, other VLM-based method shows unstable activation effects. Therefore, the proposed DuSSS can comprehend various semantic corre-spondences between image and text, aiding the model to bet-ter address alignment uncertainty between image and text. 
+
+# Conclusion 
+
+In this paper, we propose a novel VLM named DuSSS for SSMIS. Our DuSSS integrates the SSS into each contrastive learning process to supervise semantic similarity based on uncertainty levels, addressing semantic uncertainty across modalities. Finally, using the pretrained VLM, a text-guide SSMIS framework is proposed to enhance the quality of pseudo labels, improving the model’s consistency learning capability. Experimental results demonstrate that our DuSSS outperforms SOTA methods. 6305 Acknowledgments 
+
+This work was partly supported by the National Natu-ral Science Foundation of China (Grant No.62173212), Taishan Scholars Program of Shandong Province(Grant No.tsqn202306017), Shandong Province“Double-Hundred Talent Plan”on 100 Foreign Experts and 100 Foreign Expert Teams (Grant No.WSR2023049). 
+
+# References 
+
+Afnouch, M.; Gaddour, O.; Hentati, Y.; Bougourzi, F.; Abid, M.; Alouani, I.; and Ahmed, A. T. 2023. BM-Seg: A new bone metastases segmentation dataset and ensemble of CNN-based segmentation approach. Expert Systems with Applications , 228: 120376. Bai, Y.; Chen, D.; Li, Q.; Shen, W.; and Wang, Y. 2023. Bidirectional Copy-Paste for Semi-Supervised Medical Im-age Segmentation. In Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition (CVPR) ,11514–11524. Boecking, B.; Usuyama, N.; Bannur, S.; Castro, D. C.; Schwaighofer, A.; Hyland, S.; Wetscherek, M.; Naumann, T.; Nori, A.; Alvarez-Valle, J.; Poon, H.; and Oktay, O. 2022. Making the Most of Text Semantics to Improve Biomedical Vision–Language Processing. In Proceedings of the Euro-pean Conference on Computer Vision (ECCV) , 1–21. Chen, C.; Zhong, A.; Wu, D.; Luo, J.; and Li, Q. 2023. Con-trastive masked image-text modeling for medical visual rep-resentation learning. Proceedings of the International Con-ference on Medical Image Computing and Computer As-sisted Intervention (MICCAI) , 493–503. Chen, J.; Lu, Y.; Yu, Q.; Luo, X.; Adeli, E.; Wang, Y.; Lu, L.; Yuille, A. L.; and Zhou, Y. 2021a. TransUNet: Transform-ers Make Strong Encoders for Medical Image Segmentation. 
+
+arXiv preprint arXiv:2102.04306 .Chen, X.; Yuan, Y.; Zeng, G.; and Wang, J. 2021b. Semi-supervised semantic segmentation with cross pseudo super-vision. Proceedings of the IEEE/CVF Conference on Com-puter Vision and Pattern Recognition (CVPR) , 2613–2622. Chun, S.; Oh, S. J.; de Rezende, R. S.; Kalantidis, Y.; and Larlus, D. 2021. Probabilistic Embeddings for Cross-Modal Retrieval. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 8411– 8420. Degerli, A.; Kiranyaz, S.; Chowdhury, M. E. H.; and Gab-bouj, M. 2022. Osegnet: Operational Segmentation Network for Covid-19 Detection Using Chest X-Ray Images. In Pro-ceedings of the IEEE International Conference on Image Processing (ICIP) , 2306–2310. Ding, H.; Liu, C.; Wang, S.; and Jiang, X. 2022. VLT: Vision-Language Transformer and Query Generation for Referring Segmentation. IEEE Transactions on Pattern Analysis and Machine Intelligence , 45(6): 1–16. Fang, Z.; Chen, Y.; Nie, D.; Lin, W.; and Shen, D. 2019. RCA-U-Net: Residual Channel Attention U-Net for Fast Tissue Quantification in Magnetic Resonance Fingerprint-ing. In Proceedings of the International Conference on Med-ical Image Computing and Computer Assisted Intervention (MICCAI) , 101–109. Hung, W.-C.; Tsai, Y.-H.; Liou, Y.-T.; Lin, Y.-Y.; and Yang, M.-H. 2018. Adversarial learning for semi-supervised se-mantic segmentation. arXiv preprint arXiv:1802.07934 .Kantorovich, L. V. 1960. Mathematical Methods of Orga-nizing and Planning Production. Management Science , 6: 366–422. Kim, W.; Son, B.; and Kim, I. 2021. ViLT: Vision-and-Language Transformer Without Convolution or Region Su-pervision. In Proceedings of the International Conference on Machine Learning (ICML) , 5583–5594. Kumar, N.; Verma, R.; Sharma, S.; Bhargava, S.; Vahadane, A.; and Sethi, A. 2017. A Dataset and a Technique for Gen-eralized Nuclear Segmentation for Computational Pathol-ogy. IEEE Transactions on Medical Imaging , 36(7): 1550– 1560. Lei, T.; Sun, R.; Wang, X.; Wang, Y.; He, X.; and Asoke, N. 2023. CiT-Net: Convolutional Neural Networks Hand in Hand with Vision Transformers for Medical Image Segmen-tation. In Proceedings of the International Joint Conference on Artificial Intelligence (IJCAI) , 1017–1025. Li, Q.; Yan, X.; Xu, J.; Yuan, R.; Zhang, Y.; Feng, R.; Shen, Q.; Zhang, X.; and Wang, S. 2024a. Anatomical structure-guided medical vision-language pre-training. Proceedings of the International Conference on Medical Image Comput-ing and Computer Assisted Intervention (MICCAI) , 80–90. Li, S.; Zhang, C.; and He, X. 2020. Shape-aware semi-supervised 3D semantic segmentation for medical images. 
+
+Proceedings of the International Conference on Medical Im-age Computing and Computer Assisted Intervention (MIC-CAI) , 552–561. Li, Z.; Li, Y.; Li, Q.; Wang, P.; Guo, D.; Lu, L.; Jin, D.; Zhang, Y.; and Hong, Q. 2024b. LViT: Language Meets Vision Transformer in Medical Image Segmentation. IEEE Transactions on Medical Imaging , 43(1): 96–107. M¨ uller, P.; Kaissis, G.; Zou, C.; and Rueckert, D. 2022. Joint learning of localized representations from medical images and reports. In Proceedings of the European Conference on Computer Vision (ECCV) , 685–701. Ouali, Y.; Hudelot, C.; and Tami, M. 2020. Semi-supervised semantic segmentation with cross-consistency training. Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 12674–12684. Qin, C.; Wang, Y.; and Zhang, J. 2024. URCA: Uncertainty-based region clipping algorithm for semi-supervised medi-cal image segmentation. Computer Methods and Programs in Biomedicine , 108278. Radford, A.; Kim, J. W.; Hallacy, C.; Ramesh, A.; Goh, G.; Agarwal, S.; Sastry, G.; Askell, A.; Mishkin, P.; Clark, J.; Krueger, G.; and Sutskever, I. 2021. Learning Transferable Visual Models From Natural Language Supervision. In Pro-ceedings of the International Conference on Machine Learn-ing (ICML) , 8748–8763. Ronneberger, O.; Fischer, P.; and Brox, T. 2015a. U-Net: Convolutional Networks for Biomedical Image Segmenta-tion. In Proceedings of the International Conference on 6306 Medical Image Computing and Computer Assisted Interven-tion (MICCAI) , 234–241. Ronneberger, O.; Fischer, P.; and Brox, T. 2015b. U-Net: Convolutional Networks for Biomedical Image Segmenta-tion. In Proceedings of the International Conference on Medical Image Computing and Computer Assisted Interven-tion (MICCAI) , 234–241. Shen, Z.; Cao, P.; Yang, H.; Liu, X.; Yang, J.; and Zaiane, O. R. 2023. Co-training with High-Confidence Pseudo La-bels for Semi-supervised Medical Image Segmentation. In 
+
+Proceedings of the International Joint Conference on Artifi-cial Intelligence (IJCAI) , 4199–4207. Sun, J. J.; Zhao, J.; Chen, L.-C.; Schroff, F.; Adam, H.; and Liu, T. 2020. Probabilistic Embeddings for Cross-Modal Retrieval. In Proceedings of the European Conference on Computer Vision (ECCV) , 53–70. Tarvainen, A.; and Valpola, H. 2017. Mean teachers are better role models: Weight-averaged consistency targets im-prove semi-supervised deep learning results. In Proceedings of the International Conference on Neural Information Pro-cessing Systems (NIPS) , volume 30. Tomar, N. K.; Jha, D.; Bagci, U.; and Ali, S. 2022. TGANet: Text-guided attention for improved polyp segmentation. In 
+
+Proceedings of the International Conference on Medical Im-age Computing and Computer Assisted Intervention (MIC-CAI) , 151–160. van den Oord, A.; Li, Y.; and Vinyals, O. 2018. Represen-tation Learning with Contrastive Predictive Coding. arXiv preprint arXiv:1807.03748 .Wang, F.; Zhou, Y.; Wang, S.; Vardhanabhuti, V.; and Yu, L. 2022a. Multi-granularity cross-modal alignment for gener-alized medical visual representation learning. Proceedings of the International Conference on Neural Information Pro-cessing Systems (NIPS) , 35: 33536–33549. Wang, P.; Peng, J.; Pedersoli, M.; Zhou, Y.; Zhang, C.; and Desrosiers, C. 2021. Self-paced and self-consistent co-training for semi-supervised image segmentation. Medical Image Analysis , 73: 102146. Wang, Y.; Zhang, Y.; Tian, J.; Zhong, C.; Shi, Z.; Zhang, Y.; and He, Z. 2020. Double-uncertainty weighted method for semi-supervised learning. Proceedings of the International Conference on Medical Image Computing and Computer As-sisted Intervention (MICCAI) , 542–551. Wang, Z.; Wu, Z.; Agarwal, D.; and Sun, J. 2022b. Med-CLIP: Contrastive Learning from Unpaired Medical Images and Text. Proceedings of the Conference on Empirical Meth-ods in Natural Language Processing (EMNLP) , 3876–3887. Wu, Y.; Ge, Z.; Zhang, D.; Xu, M.; Zhang, L.; Xia, Y.; and Cai, J. 2022a. Mutual consistency learning for semi-supervised medical image segmentation. Medical Image Analysis , 81: 102530. Wu, Y.; Wu, Z.; Wu, Q.; Ge, Z.; and Cai, J. 2022b. Explor-ing Smoothness and Class-Separation for Semi-supervised Medical Image Segmentation. In Proceedings of the In-ternational Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI) , 34–43. Xia, Y.; Yang, D.; Yu, Z.; Liu, F.; Cai, J.; Yu, L.; Zhu, Z.; Xu, D.; Yuille, A.; and Roth, H. 2020. Uncertainty-aware multi-view co-training for semi-supervised medical image segmentation and domain adaptation. Medical Image Anal-ysis , 65: 101766. Xu, J.; De Mello, S.; Liu, S.; Byeon, W.; Breuel, T.; Kautz, J.; and Wang, X. 2022. Groupvit: Semantic segmenta-tion emerges from text supervision. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 18134–18144. Yang, G.; Zhang, J.; Zhang, Y.; Wu, B.; and Yang, Y. 2021. Probabilistic modeling of semantic ambiguity for scene graph generation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 12522–12531. Yang, Z.; Wang, J.; Tang, Y.; Chen, K.; Zhao, H.; and Torr, P. H. 2022. LAVT: Language-Aware Vision Trans-former for Referring Image Segmentation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 18134–18144. Yi, M.; Cui, Q.; Wu, H.; Yang, C.; Yoshie, O.; and Lu, H. 2023. A simple framework for text-supervised semantic seg-mentation. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 7071– 7080. Yu, T.; Li, D.; Yang, Y.; Hospedales, T. M.; and Xiang, T. 2019. Robust Person Re-Identification by Modelling Feature Uncertainty. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 552–561. Zhang, S.; Zhang, J.; Tian, B.; Lukasiewicz, T.; and Xu, Z. 2023. Multi-modal contrastive mutual learning and pseudo-label re-learning for semi-supervised medical image seg-mentation. Medical Image Analysis , 83: 102656. Zhou, Z.; Siddiquee, M. M. R.; Tajbakhsh, N.; and Liang, J. 2018. UNet++: A Nested U-Net Architecture for Medi-cal Image Segmentation. In Proceedings of the International Conference on Medical Image Computing and Computer As-sisted Intervention (MICCAI) , 3–11. Zhu, Y.; Zhang, Z.; Wu, C.; Zhang, Z.; He, T.; Zhang, H.; Manmatha, R.; Li, M.; and Smola, A. 2021. Improving se-mantic segmentation via efficient self-training. IEEE Trans-actions on Pattern Analysis and Machine Intelligence , 46(3): 1589–1602. Zou, Y.; Yu, Z.; Kumar, B.; and Wang, J. 2018. Unsu-pervised domain adaptation for semantic segmentation via class-balanced self-training. In Proceedings of the European Conference on Computer Vision (ECCV) , 289–305. ¨Ozg¨ un C ¸ ic ¸ek; Abdulkadir, A.; Lienkamp, S. S.; Brox, T.; and Ronneberger, O. 2016. 3D U-Net: Learning Dense Volumetric Segmentation from Sparse Annotation. In Pro-ceedings of the International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI) ,424–432. 6307

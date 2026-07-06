@@ -1,0 +1,2185 @@
+{
+  "top_k": 200,
+  "generated_at": "2026-07-06T03:10:12.240405+00:00",
+  "papers": [
+    {
+      "id": "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Annotation Ambiguity Aware Semi-Supervised Medical Image Segmentation",
+      "abstract": "Despite the remarkable progress of deep learning-based methods in medical image segmentation, their use in clinical practice remains limited for two main reasons. First, obtaining a large medical dataset with precise annotations to train segmentation models is challenging. Secondly, most current segmentation techniques generate a single deterministic segmentation mask for each image. However, in real-world scenarios, there is often significant uncertainty regarding what defines the \"correct\" segmentation, and various expert annotators might provide different segmentations for the same image. To tackle both of these problems, we propose Annotation Ambiguity Aware Semi-Supervised Medical Image Segmentation (AmbiSSL). AmbiSSL combines a small amount of multi-annotator labeled data and a large set of unlabeled data to generate diverse and plausible segmentation maps. Our method consists of three key components: (1) The Diverse Pseudo-Label Generation (DPG) module utilizes multiple decoders, created by performing randomized pruning on the original backbone decoder. These pruned decoders enable the generation of a diverse pseudo-label set; (2) a Semi-Supervised Latent Distribution Learning (SSLDL) module constructs a common latent space by utilizing both ground truth annotations and pseudo-label set; and (3) a Cross-Decoder Supervision (CDS) module, which enables pruned decoders to guide each other's learning. We evaluated the proposed method on two publicly available datasets. Extensive experiments demonstrate that AmbiSSL can generate diverse segmentation maps using only a small amount of labeled data and abundant unlabeled data, offering a more practical solution for medical image segmentation by reducing reliance on large labeled datasets.",
+      "authors": [
+        "Kumari, Suruchi",
+        "Singh, Pravendra"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Kumari_Annotation_Ambiguity_Aware_Semi-Supervised_Medical_Image_Segmentation_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2025-32184",
+      "source": "AAAI-2025-Accepted",
+      "title": "FAMNet: Frequency-aware Matching Network for Cross-domain Few-shot Medical Image Segmentation",
+      "abstract": "Existing few-shot medical image segmentation (FSMIS) models fail to address a practical issue in medical imaging: the domain shift caused by different imaging techniques, which limits the applicability to current FSMIS tasks. To overcome this limitation, we focus on the cross-domain few-shot medical image segmentation (CD-FSMIS) task, aiming to develop a generalized model capable of adapting to a broader range of medical image segmentation scenarios with limited labeled data from the novel target domain.\nInspired by the characteristics of frequency domain similarity across different domains, we propose a Frequency-aware Matching Network (FAMNet), which includes two key\ncomponents: a Frequency-aware Matching (FAM) module and a Multi-Spectral Fusion (MSF) module. The FAM module tackles two problems during the meta-learning phase: 1) intra-domain variance caused by the inherent support-query bias, due to the different appearances of organs and lesions, and 2) inter-domain variance caused by different medical imaging techniques. Additionally, we design an MSF module to integrate the different frequency features decoupled by the FAM module, and further mitigate the impact of inter-domain variance on the model's segmentation performance.\nCombining these two modules, our FAMNet surpasses existing FSMIS models and Cross-domain Few-shot Semantic Segmentation models on three cross-domain datasets, achieving state-of-the-art performance in the CD-FSMIS task.",
+      "authors": [
+        "Yuntian Bo",
+        "Yazhou Zhu",
+        "Lunbo Li",
+        "Haofeng Zhang"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 2",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 2"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32184",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32184/34339",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2025-32482",
+      "source": "AAAI-2025-Accepted",
+      "title": "ConDSeg: A General Medical Image Segmentation Framework via Contrast-Driven Feature Enhancement",
+      "abstract": "Medical image segmentation plays an important role in clinical decision making, treatment planning, and disease tracking. However, it still faces two major challenges. On the one hand, there is often a \"soft boundary\" between foreground and background in medical images, with poor illumination and low contrast further reducing the distinguishability of foreground and background within the image. On the other hand, co-occurrence phenomena are widespread in medical images, and learning these features is misleading to the model's judgment. To address these challenges, we propose a general framework called Contrast-Driven Medical Image Segmentation (ConDSeg). First, we develop a contrastive training strategy called Consistency Reinforcement. It is designed to improve the encoder's robustness in various illumination and contrast scenarios, enabling the model to extract high-quality features even in adverse environments. Second, we introduce a Semantic Information Decoupling module, which is able to decouple features from the encoder into foreground, background, and uncertainty regions, gradually acquiring the ability to reduce uncertainty during training. The Contrast-Driven Feature Aggregation module then contrasts the foreground and background features to guide multi-level feature fusion and key feature enhancement, further distinguishing the entities to be segmented. We also propose a Size-Aware Decoder to solve the scale singularity of the decoder. It accurately locate entities of different sizes in the image, thus avoiding erroneous learning of co-occurrence features. Extensive experiments on five datasets across three scenarios demonstrate the state-of-the-art performance of our method, proving its advanced nature and general applicability to various medical image segmentation scenarios.",
+      "authors": [
+        "Mengqi Lei",
+        "Haochen Wu",
+        "Xinhua Lv",
+        "Xin Wang"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 5",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 5"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32482",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32482/34637",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2025-32402",
+      "source": "AAAI-2025-Accepted",
+      "title": "Generative Medical Segmentation",
+      "abstract": "Rapid advancements in medical image segmentation performance have been significantly driven by the development of Convolutional Neural Networks (CNNs) and Vision Transformers (ViTs). These models follow discriminative pixel-wise classification learning paradigm and often have limited ability to generalize across diverse medical imaging datasets. In this manuscript, we introduce Generative Medical Segmentation (GMS), a novel generative approach to perform image segmentation. GMS employs a robust pre-trained vision foundation model to extract latent representations for images and corresponding ground truth masks, followed by a lightweight model that learns a mapping function from the image to the mask in the latent space. Once trained, the model can generate estimated segmentation masks using the pre-trained vision foundation model to decode the predicted latent mask representation back into image space. The design of GMS leads to fewer trainable parameters in the model, reducing the risk of overfitting and enhancing its generalization capability. Our experimental analysis across five open-source datasets in different medical imaging domains demonstrates GMS outperforms existing discriminative and generative segmentation models. Furthermore, GMS is able to generalize well across datasets of the same imaging modality from different centers. Our experiments suggest GMS offers a scalable and effective solution for medical image segmentation.",
+      "authors": [
+        "Jiayu Huo",
+        "Xi Ouyang",
+        "Sébastien Ourselin",
+        "Rachel Sparks"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 4",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 4"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32402",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32402/34557",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "cvpr-2025-guo-take-the-bull-by-the-horns-learning-to-segment-hard-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Take the Bull by the Horns: Learning to Segment Hard Samples",
+      "abstract": "Medical image segmentation is vital for clinical applications, with hard samples playing a key role in segmentation accuracy. We propose an effective image segmentation framework that includes mechanisms for identifying and segmenting hard samples. It derives a novel image segmentation paradigm: 1) Learning to identify hard samples: automatically selecting inherent hard samples from different datasets, and 2) Learning to segment hard samples: achieving the segmentation of hard samples through effective feature augmentation on dedicated networks. We name our method `Learning to Segment hard samples' (L2S). The hard sample identification module comprises a backbone model and a classifier, which dynamically uncovers inherent dataset patterns. The hard sample segmentation module utilizes the diffusion process for feature augmentation and incorporates a more sophisticated segmentation network to achieve precise segmentation. We justify our motivation through solid theoretical analysis and extensive experiments. Evaluations across various modalities show that our L2S outperforms other SOTA methods, particularly by substantially improving the segmentation accuracy of hard samples. On ISIC dataset, our L2S improves the Dice score on hard samples and overall segmentation by 8.97% and 1.01%, respectively, compared to SOTA methods. The code is available at \\href https://github.com/TqlYuanGie/L2S https://github.com/TqlYuanGie/L2S.",
+      "authors": [
+        "Guo, Yuan",
+        "Kong, Jingyu",
+        "Wang, Yu",
+        "Duan, Yuping"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Guo_Take_the_Bull_by_the_Horns_Learning_to_Segment_Hard_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-38109",
+      "source": "AAAI-2026-Accepted",
+      "title": "EccoMamba: Enhanced Cross-hierarchical Continuity Orthogonal Mamba for Medical Image Segmentation",
+      "abstract": "Medical image segmentation plays a crucial role in clinical diagnosis, lesion quantification, and preoperative planning. However, existing Mamba-based architectures, which rely on fixed-direction sequence modeling and flatten images into one-dimensional (1D) sequences, struggle to capture hierarchical anatomical features and spatial dependencies, thereby limiting their representational capacity for complex medical structures. To address these limitations, we propose EccoMamba (Enhanced Cross-hierarchical Continuity Orthogonal Mamba), a U-shaped encoder--decoder framework designed for medical image segmentation. In the encoder's downsampling path, we introduce a Hierarchical Aggregation Enhancement (HAE) module that integrates multi-scale convolutions with hierarchical attention mechanisms. The attention branch further incorporates cross-channel interactions, allowing the model to selectively enhance semantically relevant features while suppressing irrelevant background responses. For skip connections, we design a Structural Continuity Orthogonal (SCO) module to preserve spatial continuity by modeling cross-dimensional dependencies via orthogonal Axial Shifts (AS), thereby mitigating directional bias and improving anatomical consistency. Extensive experiments on four benchmark datasets---ISIC 2018, ISIC 2017, Synapse, and ACDC---show that EccoMamba consistently outperforms state-of-the-art methods in both segmentation accuracy and structural fidelity.",
+      "authors": [
+        "Junlin Xu",
+        "Jincan Li",
+        "Feifei Cui",
+        "Zhuang Zhang",
+        "Jialiang Yang",
+        "Shuting Jin",
+        "Qiangguo Jin",
+        "Yajie Meng"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 13",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 13"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38109",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38109/42071",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Show and Segment: Universal Medical Image Segmentation via In-Context Learning",
+      "abstract": "Medical image segmentation remains challenging due to the vast diversity of anatomical structures, imaging modalities, and segmentation tasks. While deep learning has made significant advances, current approaches struggle to generalize as they require task-specific training or fine-tuning on unseen classes. We present Iris, a novel In-context Reference Image guided Segmentation framework that enables flexible adaptation to novel tasks through the use of reference examples without fine-tuning. At its core, Iris features a lightweight context task encoding module that distills task-specific information from reference context image-label pairs. This rich context embedding information is used to guide the segmentation of target objects. Given a decoupled architecture on 3D data processing, Iris supports diverse inference strategies including one-shot inference, context example ensemble, object-level context example retrieval, and in-context tuning. Through comprehensive evaluation across twelve datasets, we demonstrate that Iris performs strongly compared to specialized supervised models on in-distribution tasks. On seven held-out dataset, Iris shows superior generalization to out-of-distribution data and unseen classes. Further, Iris's task encoding module can automatically discover anatomical relationships across datasets and modalities, offering insights into cross-modality medical objects without explicit anatomical supervision.",
+      "authors": [
+        "Gao, Yunhe",
+        "Liu, Di",
+        "Li, Zhuowei",
+        "Li, Yunsheng",
+        "Chen, Dongdong",
+        "Zhou, Mu",
+        "Metaxas, Dimitris N."
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Gao_Show_and_Segment_Universal_Medical_Image_Segmentation_via_In-Context_Learning_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-38161",
+      "source": "AAAI-2026-Accepted",
+      "title": "MedSAMix: A Training-Free Model Merging Approach for Medical Image Segmentation",
+      "abstract": "Universal medical image segmentation models have emerged as a promising paradigm due to their strong generalizability across diverse tasks, showing great potential for a wide range of clinical applications. This potential has been partly driven by the success of general-purpose vision models such as the Segment Anything Model (SAM), which has inspired the development of various fine-tuned variants for medical segmentation tasks. However, fine-tuned variants like MedSAM are trained on comparatively limited medical imaging data that often suffers from heterogeneity, scarce annotations, and distributional shifts. These challenges limit their ability to generalize across a wide range of medical segmentation tasks. In this regard, we propose MedSAMix, a training-free model merging method that integrates the strengths of both generalist models (e.g., SAM) and specialist models (e.g., MedSAM) for medical image segmentation. In contrast to traditional model merging approaches that rely on manual configuration and often result in suboptimal outcomes, we propose a zero-order optimization method to automatically discover optimal layer-wise merging solutions. Furthermore, for clinical applications, we develop two regimes to meet the demand of domain-specificity and generalizability in different scenarios by single-task optimization and multi-objective optimization respectively. Extensive evaluations on 25 medical segmentation tasks demonstrate that MedSAMix effectively mitigates model bias and consistently improves performance in both domain-specific accuracy and generalization, achieving improvements of 6.67% on specialized tasks and 4.37% on multi-task evaluations.",
+      "authors": [
+        "Yanwu Yang",
+        "Guinan Su",
+        "Jiesi Hu",
+        "Francesco Sammarco",
+        "Jonas Geiping",
+        "Thomas Wolfers"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 14",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 14"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38161",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38161/42123",
+      "tags": [
+        "keyword:medical-seg"
+      ]
+    },
+    {
+      "id": "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "DyCON: Dynamic Uncertainty-aware Consistency and Contrastive Learning for Semi-supervised Medical Image Segmentation",
+      "abstract": "Semi-supervised learning in medical image segmentation leverages unlabeled data to reduce annotation burdens through consistency learning. However, current methods struggle with class imbalance and high uncertainty from pathology variations, leading to inaccurate segmentation in 3D medical images. To address these challenges, we present DyCON, a Dynamic Uncertainty-aware Consistency and Contrastive Learning framework that enhances the generalization of consistency methods with two complementary losses: Uncertainty-aware Consistency Loss (UnCL) and Focal Entropy-aware Contrastive Loss (FeCL). UnCL enforces global consistency by dynamically weighting the contribution of each voxel to the consistency loss based on its uncertainty, preserving high-uncertainty regions instead of filtering them out. Initially, UnCL prioritizes learning from uncertain voxels with lower penalties, encouraging the model to explore challenging regions. As training progress, the penalty shift towards confident voxels to refine predictions and ensure global consistency. Meanwhile, FeCL enhances local feature discrimination in imbalanced regions by introducing dual focal mechanisms and adaptive confidence adjustments into the contrastive principle. These mechanisms jointly prioritizes hard positives and negatives while focusing on uncertain sample pairs, effectively capturing subtle lesion variations under class imbalance. Extensive evaluations on four diverse medical image segmentation datasets (ISLES'22, BraTS'19, LA, Pancreas) show DyCON's superior performance against SOTA methods(\\href https://dycon25.github.io/) Project Page: https://dycon25.github.io/ .",
+      "authors": [
+        "Assefa, Maregu",
+        "Naseer, Muzammal",
+        "Ganapathi, Iyyakutti Iyappan",
+        "Ali, Syed Sadaf",
+        "Seghier, Mohamed L",
+        "Werghi, Naoufel"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Assefa_DyCON_Dynamic_Uncertainty-aware_Consistency_and_Contrastive_Learning_for_Semi-supervised_Medical_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-ztgyn0uk94",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Mamba Goes HoME: Hierarchical Soft Mixture-of-Experts for 3D Medical Image Segmentation",
+      "abstract": "In recent years, artificial intelligence has significantly advanced medical image segmentation. Nonetheless, challenges remain, including efficient 3D medical image processing across diverse modalities and handling data variability. In this work, we introduce Hierarchical Soft Mixture-of-Experts (HoME), a two-level token-routing layer for efficient long-context modeling, specifically designed for 3D medical image segmentation. Built on the Mamba Selective State Space Model (SSM) backbone, HoME enhances sequential modeling through adaptive expert routing. In the first level, a Soft Mixture-of-Experts (SMoE) layer partitions input sequences into local groups, routing tokens to specialized per-group experts for localized feature extraction. The second level aggregates these outputs through a global SMoE layer, enabling cross-group information fusion and global context refinement. This hierarchical design, combining local expert routing with global expert refinement, enhances generalizability and segmentation performance, surpassing state-of-the-art results across datasets from the three most widely used 3D medical imaging modalities and varying data qualities. The code is publicly available at https://github.com/gmum/MambaHoME.",
+      "authors": [
+        "Szymon Plotka",
+        "Gizem Mert",
+        "Maciej Chrabaszcz",
+        "Ewa Szczurek",
+        "Arkadiusz Sitek"
+      ],
+      "primary_category": "mixture of experts",
+      "categories": [
+        "mixture of experts",
+        "state-space models",
+        "segmentation",
+        "medical imaging"
+      ],
+      "published": "2025-09-18T17:41:20.466+00:00",
+      "link": "https://openreview.net/forum?id=ztgYn0Uk94",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-40079",
+      "source": "AAAI-2026-Accepted",
+      "title": "Medical Image Segmentation with Minimal Labeling Effort: How Far Can We Push the Limits?",
+      "abstract": "We demonstrate for the first time that a medical image segmentation model can achieve near fully supervised performance using only a single annotated image and abundant unlabeled data. We present MedSMILE, a novel framework that synergistically integrates transductive and inductive learning for this extreme one-label semi-supervised setting. Its core novelty lies in an iterative loop where a foundation model both bootstraps and refines pseudo-labels for an inductive segmentation model. This process begins with the foundation model performing transductive inference to generate an initial set of pseudo-labels for the unlabeled data pool. This bootstraps an iterative self-training process where the segmentation model is trained and used to generate progressively better labels, with an inter-round refinement step that re-leverages the foundation model to correct errors in uncertain predictions. Experiments on seven datasets across four modalities show MedSMILE recovers 90%–95% of the fully supervised Dice score while decisively outperforming existing semi-supervised techniques that require substantially more annotation. MedSMILE sets a new standard for label-efficient learning in medical image segmentation.",
+      "authors": [
+        "Yizhe Zhang"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 34",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 34"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/40079",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/40079/44040",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-38239",
+      "source": "AAAI-2026-Accepted",
+      "title": "DSFedMed: Dual-Scale Federated Medical Image Segmentation via Mutual Distillation Between Foundation and Lightweight Models",
+      "abstract": "Foundation Models (FMs) have demonstrated strong generalization across diverse vision tasks. However, their deployment in federated settings is hindered by high computational demands, substantial communication overhead, and significant inference costs. We propose DSFedMed, a dual-scale federated framework that enables mutual knowledge distillation between a centralized foundation model and lightweight client models for medical image segmentation. To support knowledge distillation, a set of high-quality medical images is generated to replace real public datasets, and a learnability-guided sample selection strategy is proposed to enhance efficiency and effectiveness in dual-scale distillation. This mutual distillation enables the foundation model to transfer general knowledge to lightweight clients, while also incorporating client-specific insights to refine the foundation model. Evaluations on five medical imaging segmentation datasets show that DSFedMed achieves an average 2 percent improvement in Dice score while reducing communication costs and inference time by nearly 90 percent compared to existing federated foundation model baselines. These results demonstrate significant efficiency gains and scalability for resource-limited federated deployments.",
+      "authors": [
+        "Hanwen Zhang",
+        "Qiaojin Shen",
+        "Yuxi Liu",
+        "Yuesheng Zhu",
+        "Guibo Luo"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 15",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 15"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38239",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38239/42201",
+      "tags": [
+        "keyword:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2025-32627",
+      "source": "AAAI-2025-Accepted",
+      "title": "Rethinking U-Net: Task-Adaptive Mixture of Skip Connections for Enhanced Medical Image Segmentation",
+      "abstract": "U-Net is a widely used model for medical image segmentation, renowned for its strong feature extraction capabilities and U-shaped design, which incorporates skip connections to preserve critical information. However, its decoders exhibit information-specific preferences for the supplementary content provided by skip connections, instead of adhering to a strict one-to-one correspondence, which limits its flexibility across diverse tasks. To address this limitation, we propose the Task-Adaptive Mixture of Skip Connections (TA-MoSC) module, inspired by the Mixture of Experts (MoE) framework. TA-MoSC innovatively reinterprets skip connections as a task allocation problem, employing a routing mechanism to adaptively select expert combinations at different decoding stages. By introducing MoE, our approach enhances the sparsity of the model, and lightweight convolutional experts are shared across all skip connection stages, with a Balanced Expert Utilization (BEU) strategy ensuring that all experts are effectively trained, maintaining training balance and preserving computational efficiency. Our approach introduces minimal additional parameters to the original U-Net but significantly enhances its performance and stability. Experiments on GlaS, MoNuSeg, Synapse, and ISIC16 datasets demonstrate state-of-the-art accuracy and better generalization across diverse tasks. Moreover, while this work focuses on medical image segmentation, the proposed method can be seamlessly extended to other segmentation tasks, offering a flexible and efficient solution for diverse applications.",
+      "authors": [
+        "Zichen Luo",
+        "Xinshan Zhu",
+        "Lan Zhang",
+        "Biao Sun"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 6",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 6"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32627",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32627/34782",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-38235",
+      "source": "AAAI-2026-Accepted",
+      "title": "Decoding with Structured Awareness: Integrating Directional, Frequency-Spatial, and Structural Attention for Medical Image Segmentation",
+      "abstract": "To address the limitations of Transformer decoders in capturing edge details, recognizing local textures and modeling spatial continuity, this paper proposes a novel decoder framework specifically designed for medical image segmentation, comprising three core modules. First, the Adaptive Cross-Fusion Attention (ACFA) module integrates channel feature enhancement with spatial attention mechanisms and introduces learnable guidance in three directions (planar, horizontal, and vertical) to enhance responsiveness to key regions and structural orientations. Second, the Triple Feature Fusion Attention (TFFA) module fuses features from Spatial, Fourier and Wavelet domains, achieving joint frequency-spatial representation that strengthens global dependency and structural modeling while preserving local information such as edges and textures, making it particularly effective in complex and blurred boundary scenarios. Finally, the Structural-aware Multi-scale Masking Module (SMMM) optimizes the skip connections between encoder and decoder by leveraging multi-scale context and structural saliency filtering, effectively reducing feature redundancy and improving semantic interaction quality. Working synergistically, these modules not only address the shortcomings of traditional decoders but also significantly enhance performance in high-precision tasks such as tumor segmentation and organ boundary extraction, improving both segmentation accuracy and model generalization. Experimental results demonstrate that this framework provides an efficient and practical solution for medical image segmentation.",
+      "authors": [
+        "Fan Zhang",
+        "Zhiwei Gu",
+        "Hua Wang"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 15",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 15"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38235",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38235/42197",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2025-32491",
+      "source": "AAAI-2025-Accepted",
+      "title": "U-KAN Makes Strong Backbone for Medical Image Segmentation and Generation",
+      "abstract": "U-Net has become a cornerstone in various visual applications such as image segmentation and diffusion probability models. While numerous innovative designs and improvements have been introduced by incorporating transformers or MLPs, the networks are still limited to linearly modeling patterns as well as the deficient interpretability. To address these challenges, our intuition is inspired by the impressive results of the Kolmogorov-Arnold Networks (KANs) in terms of accuracy and interpretability, which reshape the neural network learning via the stack of non-linear learnable activation functions derived from the Kolmogorov-Anold representation theorem. Specifically, in this paper, we explore the untapped potential of KANs in improving backbones for vision tasks. We investigate, modify and re-design the established U-Net pipeline by integrating the dedicated KAN layers on the tokenized intermediate representation, termed U-KAN. Rigorous medical image segmentation benchmarks verify the superiority of UKAN by higher accuracy even with less computation cost. We further delved into the potential of U-KAN as an alternative U-Net noise predictor in diffusion models, demonstrating its applicability in generating task-oriented model architectures.",
+      "authors": [
+        "Chenxin Li",
+        "Xinyu Liu",
+        "Wuyang Li",
+        "Cheng Wang",
+        "Hengyu Liu",
+        "Yifan Liu",
+        "Zhen Chen",
+        "Yixuan Yuan"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 5",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 5"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32491",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32491/34646",
+      "tags": [
+        "keyword:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-38122",
+      "source": "AAAI-2026-Accepted",
+      "title": "CNM-UNet: Continuous Ordinary Differential Equations for Medical Image Segmentation",
+      "abstract": "Integrating Ordinary Differential Equations (ODEs) with U-shaped neural networks has emerged as a novel direction in medical image segmentation. Current networks predominantly employ discretization methods incorporating ODEs. However, these methods face inherent trade-offs between model compactness, computational accuracy, and efficiency. Continuous ODE solutions were rarely studied because they face three limitations: high computational costs, long training time, and poor generalization ability. To address these limitations, we propose an innovative Continuous Neural Memory ODE UNet (CNM-UNet), which replaces all hierarchical decoder layers in vanilla UNet with a single Continuous Neural Memory ODEs Block (CNM-Block) decoder, significantly reducing computation costs and improving training efficiency. CNM-UNet leverages ODEs' dynamic properties to establish continuous temporal feature extraction. For alleviating the generalization problem, a DUal SElf-updated (DUSE) strategy based on test-time adaptation principles is introduced to enhance cross-domain generalization. Experimental results demonstrate CNM-UNet's comprehensive advantages in computational capacity, convergence speed, and cross-domain adaptability, offering new insights for practical deployment of continuous ODE methodologies for medical image segmentation.",
+      "authors": [
+        "Tianqi Xu",
+        "Yashi Zhu",
+        "Quansong He",
+        "Yue Cao",
+        "Kaishen Wang",
+        "Zhang Yi",
+        "Tao He"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 14",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 14"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38122",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38122/42084",
+      "tags": [
+        "keyword:medical-seg"
+      ]
+    },
+    {
+      "id": "cvpr-2025-zhou-nnwnet-rethinking-the-use-of-transformers-in-biomedical-image-segmentation-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "nnWNet: Rethinking the Use of Transformers in Biomedical Image Segmentation and Calling for a Unified Evaluation Benchmark",
+      "abstract": "Semantic segmentation is a crucial prerequisite in clinical applications and computer-aided diagnosis. With the development of deep neural networks, biomedical image segmentation has achieved remarkable success. Encoder-decoder architectures that integrate convolutions and transformers are gaining attention for their potential to capture both global and local features. However, current designs face the contradiction that these two features cannot be continuously transmitted. In addition, some models lack a unified and standardized evaluation benchmark, leading to significant discrepancies in the experimental setup. In this study, we review and summarize these architectures and analyze their contradictions in design. We modify UNet and propose WNet to combine transformers and convolutions, addressing the transmission issue effectively. WNet captures long-range dependencies and local details simultaneously while ensuring their continuous transmission and multi-scale fusion. We integrate WNet into the nnUNet framework for unified benchmarking. Our model achieves state-of-the-art performance in biomedical image segmentation. Extensive experiments demonstrate their effectiveness on four 2D datasets (DRIVE, ISIC-2017, Kvasir-SEG, and CREMI) and four 3D datasets (Parse2022, AMOS22, BTCV, and ImageCAS). The code is available at https://github.com/Yanfeng-Zhou/nnWNet.",
+      "authors": [
+        "Zhou, Yanfeng",
+        "Li, Lingrui",
+        "Lu, Le",
+        "Xu, Minfeng"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Zhou_nnWNet_Rethinking_the_Use_of_Transformers_in_Biomedical_Image_Segmentation_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-tbhehymg1m",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Neighborhood Self-Dissimilarity Attention for Medical Image Segmentation",
+      "abstract": "Medical image segmentation based on neural networks is pivotal in promoting digital health equity. The attention mechanism increasingly serves as a key component in modern neural networks, as it enables the network to focus on regions of interest, thus improving the segmentation accuracy in medical images.  However, current attention mechanisms confront an accuracy-complexity trade-off paradox: accuracy gains demand higher computational costs, while reducing complexity sacrifices model accuracy. Such a contradiction inherently restricts the real-world deployment of attention mechanisms in resource-limited settings, thus exacerbating healthcare disparities. To overcome this dilemma, we propose a parameter-free Neighborhood Self-Dissimilarity Attention (NSDA), inspired by radiologists' diagnostic patterns of prioritizing regions exhibiting substantial differences during clinical image interpretation.  Unlike pairwise-similarity-based self-attention mechanisms, NSDA constructs a size-adaptive local dissimilarity measure that quantifies element-neighborhood differences. By assigning higher attention weights to regions with larger feature differences, NSDA directs the neural network to focus on high-discrepancy regions, thus improving segmentation accuracy without adding trainable parameters directly related to computational complexity.  The experimental results demonstrate the effectiveness and generalization of our method. This study presents a parameter-free attention paradigm, designed with clinical prior knowledge, to improve neural network performance for medical image analysis and contribute to digital health equity in low-resource settings. The code is available at [https://github.com/ChenJunren-Lab/Neighborhood-Self-Dissimilarity-Attention](https://github.com/ChenJunren-Lab/Neighborhood-Self-Dissimilarity-Attention).",
+      "authors": [
+        "Chen Junren",
+        "Rui Chen",
+        "Wang-wei",
+        "Junlong Cheng",
+        "Gang Liang",
+        "zhanglei-scu",
+        "Liangyin Chen"
+      ],
+      "primary_category": "Digital Health Equity",
+      "categories": [
+        "Digital Health Equity",
+        "Medical Image Segmentation",
+        "Prior Knowledge for AI",
+        "Efficient and Scalable Vision",
+        "Attention Mechanism"
+      ],
+      "published": "2025-09-18T17:30:31.302+00:00",
+      "link": "https://openreview.net/forum?id=tBhEHymG1m",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-42490",
+      "source": "AAAI-2026-Accepted",
+      "title": "Medverse: A Universal Model for Full-Resolution 3D Medical Image Segmentation, Transformation and Enhancement",
+      "abstract": "In-context learning (ICL) offers a promising paradigm for universal medical image analysis, enabling models to perform diverse image processing tasks without retraining. However, current ICL models for medical imaging remain limited in two critical aspects: they cannot simultaneously achieve high-fidelity predictions and global anatomical understanding, and there is no unified model trained across diverse medical imaging tasks (e.g., segmentation and enhancement) and anatomical regions. As a result, the full potential of ICL in medical imaging remains underexplored. Thus, we present Medverse, a universal ICL model for 3D medical imaging, trained on 22 datasets covering diverse tasks in universal image segmentation, transformation, and enhancement across multiple organs, imaging modalities, and clinical centers. Medverse employs a next-scale autoregressive in-context learning framework that progressively refines predictions from coarse to fine, generating consistent, full-resolution volumetric outputs and enabling multi-scale anatomical awareness. We further propose a blockwise cross-attention module that facilitates long-range interactions between context and target inputs while preserving computational efficiency through spatial sparsity. Medverse is extensively evaluated on a broad collection of held-out datasets covering previously unseen clinical centers, organs, species, and imaging modalities. Results demonstrate that Medverse substantially outperforms existing ICL baselines and establishes a novel paradigm for in-context learning.",
+      "authors": [
+        "Jiesi Hu",
+        "Jianfeng Cao",
+        "Yanwu Yang",
+        "Chenfei Ye",
+        "Yixuan Zhang",
+        "Hanyang Peng",
+        "Ting Ma"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 6",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 6"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/42490",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/42490/46451",
+      "tags": [
+        "keyword:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2025-33911",
+      "source": "AAAI-2025-Accepted",
+      "title": "Multi-view Evidential Learning-based Medical Image Segmentation",
+      "abstract": "Medical image segmentation provides useful information about the shape and size of organs, which is beneficial for improving diagnosis, analysis, and treatment. Despite traditional deep learning-based models can extract domain-specific knowledge, they face a generalization bottleneck due to the limited embedded knowledge scope. Vision foundation models have been demonstrated to be effective in extracting generalizable knowledge, but they cannot extract domain-specific knowledge without fine-tuning. In this work, we propose a novel multi-view evidential learning-based framework, which can extract both domain-specific and generalizable knowledge from multi-view features by combining the advantages of traditional and vision foundation models. Specifically, a novel multi-view state space model (MV-SSM) is designed to extract task-related knowledge while removing redundant information within multi-view features. The proposed MV-SSM utilizes Mamba, a state space model, to model cross-view contextual dependencies between domain-specific and generalizable features. Additionally, evidential learning is adopted to quantify the segmentation uncertainty of the model for boundary. In special, variational Dirichlet is introduced to characterize the distribution of the result probabilities, parameterized with collected evidence to quantify uncertainty. As a result, the model can reduce the segmentation uncertainties of boundaries by optimizing the parameters of the Dirichlet distribution. Experimental results on three datasets show that our method obtains superior segmentation performance.",
+      "authors": [
+        "Chao Huang",
+        "Yushu Shi",
+        "Waikeung Wong",
+        "Chengliang Liu",
+        "Wei Wang",
+        "Zhihua Wang",
+        "Jie Wen"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 16",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 16"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/33911",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/33911/36066",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-whx7uurm7g",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Segment Anything Model Meets Semi-supervised Medical Image Segmentation: A Novel Perspective",
+      "abstract": "The scarcity of annotated medical imaging data has driven significant progress in semi-supervised learning to alleviate reliance on expensive expert labeling. While foundational vision models such as the Segment Anything Model (SAM) exhibit robust generalization in generic segmentation tasks, their direct application to medical images often results in suboptimal performance. To address this challenge, in this work, we propose a novel fully SAM-based semi-supervised medical image segmentation framework and develop the corresponding knowledge distillation-based learning strategy. Specifically, we first employ an efficient SAM variant as the backbone network of the semi‑supervised framework and update the default prompt embedding of SAM to unleash its full potential. Then, we utilize an original SAM, which is rich in prior knowledge, as the teacher to optimize our efficient student SAM backbone through hierarchical knowledge distillation and a dynamic loss weighting strategy. Extensive experiments on various medical datasets demonstrate that our method outperforms state-of-the-art semi-supervised segmentation approaches. Especially, our model requires less than 10% of the parameter size of the original SAM, enabling substantially lower deployment and storage overhead in real-world clinical settings.",
+      "authors": [
+        "Haifeng Zhao",
+        "Haiyang Li",
+        "Leilei Ma",
+        "Dengdi Sun"
+      ],
+      "primary_category": "Semi-supervised Segmentation",
+      "categories": [
+        "Semi-supervised Segmentation",
+        "Segment Anything Model",
+        "Knowledge Distillation"
+      ],
+      "published": "2025-09-18T17:42:00.856+00:00",
+      "link": "https://openreview.net/forum?id=wHx7UuRm7G",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-39970",
+      "source": "AAAI-2026-Accepted",
+      "title": "Make Foundation Models Trustworthy Again: Causal Fine-Adaptation for Medical Image Segmentation",
+      "abstract": "Vision foundation models (e.g., SAM2, CLIP) show strong generalization in natural image analysis but degrade significantly in specialized domains like medical imaging. This is critical for tasks such as brain tumor segmentation, where errors directly affect surgical planning and patient outcomes. In such contexts, segmentation must be highly reliable and structurally precise, underscoring the need for adaptable methods with low error tolerance. While fine-tuning is the dominant strategy, it is computationally expensive and prone to forgetting. To address this, we propose CausalBridgeNet, a causality-guided correction framework for medical image segmentation. Inspired by predictive coding theories of the Bayesian brain, our method introduces a Predictive Causal Reasoning Unit (PCRU) that estimates structured error maps and delivers targeted feedback to iteratively refine predictions. This forms a closed-loop, error-aware correction mechanism without modifying the foundation model. By keeping the backbone frozen, CausalBridgeNet preserves general visual priors while enhancing task-specific accuracy. On the BraTS 2025 benchmark, it achieves an average Dice score of 84.48 and HD95 of 5.48 across tumor subregions, demonstrating its effectiveness for high-precision medical segmentation.",
+      "authors": [
+        "Hongpeng Yang",
+        "Yingxin Chen",
+        "Shiqiang Ma",
+        "Fei Guo"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 32",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 32"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/39970",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/39970/43931",
+      "tags": [
+        "keyword:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2025-32674",
+      "source": "AAAI-2025-Accepted",
+      "title": "DuSSS: Dual Semantic Similarity-Supervised Vision-Language Model for Semi-Supervised Medical Image Segmentation",
+      "abstract": "Semi-supervised medical image segmentation (SSMIS) uses consistency learning to regularize model training, which alleviates the burden of pixel-wise manual annotations. However, it often suffers from error supervision from low-quality pseudo labels. Vision-Language Model (VLM) has great potential to enhance pseudo labels by introducing text prompt guided multimodal supervision information. It nevertheless faces the cross-modal problem: the obtained messages tend to correspond to multiple targets. To address aforementioned problems, we propose a Dual Semantic Similarity-Supervised VLM (DuSSS) for SSMIS. Specifically, 1) a Dual Contrastive Learning (DCL) is designed to improve cross-modal semantic consistency by capturing intrinsic representations within each modality and semantic correlations across modalities. 2) To encourage the learning of multiple semantic correspondences, a Semantic Similarity-Supervision strategy (SSS) is proposed and injected into each contrastive learning process in DCL, supervising semantic similarity via the distribution-based uncertainty levels. Furthermore, a novel VLM-based SSMIS network is designed to compensate for the quality deficiencies of pseudo-labels. It utilizes the pretrained VLM to generate text prompt guided supervision information, refining the pseudo label for better consistency regularization. Experimental results demonstrate that our DuSSS achieves outstanding performance with Dice of 82.52%, 74.61% and 78.03% on three public datasets (QaTa-COV19, BM-Seg and MoNuSeg).",
+      "authors": [
+        "Qingtao Pan",
+        "Wenhao Qiao",
+        "Jingjiao Lou",
+        "Bing Ji",
+        "Shuo Li"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 6",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 6"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32674",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32674/34829",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2025-32956",
+      "source": "AAAI-2025-Accepted",
+      "title": "A Unified Loss for Handling Inter-Class and Intra-Class Imbalance in Medical Image Segmentation",
+      "abstract": "In utilizing deep learning techniques for medical image segmentation, two types of imbalance issues are observed: inter-class imbalance between majority and minority classes and intra-class imbalance between easy and hard samples. However, existing loss functions typically confuse these issues, leading to enhancements that cater to only one aspect. Moreover, loss functions optimized for specific tasks often exhibit limited generalizability. To address these issues, we propose Inter-class and Intra-class Balance loss, as well as a unified loss termed Balance loss. The Inter-class Balance loss controls the extent of hard sample mining for majority class samples by considering the frequency of minority classes present in each input image. This approach requires no manual adjustment weights and adapts automatically to different datasets. The Intra-class Balance loss enhances the network's ability to learn from hard samples by performing mining on hard samples within each class. We evaluate our loss functions on five segmentation tasks with varying degrees of class imbalance. The experimental results show that our proposed Balance loss enhances segmentation performance compared with the current loss functions and exhibits superior robustness.",
+      "authors": [
+        "Feilong Xu",
+        "Feiyang Yang",
+        "Xiongfei Li",
+        "Xiaoli Zhang"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 8",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 8"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32956",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32956/35111",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "cvpr-2025-rahman-effidec3d-an-optimized-decoder-for-high-performance-and-efficient-3d-medical-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "EffiDec3D: An Optimized Decoder for High-Performance and Efficient 3D Medical Image Segmentation",
+      "abstract": "Recent 3D deep networks such as SwinUNETR, SwinUNETRv2, and 3D UX-Net have shown promising performance by leveraging self-attention and large-kernel convolutions to capture the volumetric context. However, their substantial computational requirements limit their use in real-time and resource-constrained environments. The high #FLOPs and #Params in these networks stem largely from complex decoder designs with high-resolution layers and excessive channel counts. In this paper, we propose EffiDec3D, an optimized 3D decoder that employs a channel reduction strategy across all decoder stages, which sets the number of channels to the minimum needed for accurate feature representation. Additionally, EffiDec3D removes the high-resolution layers when their contribution to segmentation quality is minimal. Our optimized EffiDec3D decoder achieves a 96.4% reduction in #Params and a 93.0% reduction in #FLOPs compared to the decoder of original 3D UX-Net. Similarly, for SwinUNETR and SwinUNETRv2 (which share an identical decoder), we observe reductions of 94.9% in #Params and 86.2% in #FLOPs. Our extensive experiments on 12 different medical imaging tasks confirm that EffiDec3D not only significantly reduces the computational demands, but also maintains a performance level comparable to original models, thus establishing a new standard for efficient 3D medical image segmentation. Our implementation is available at https://github.com/SLDGroup/EffiDec3D.",
+      "authors": [
+        "Rahman, Md Mostafijur",
+        "Marculescu, Radu"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Rahman_EffiDec3D_An_Optimized_Decoder_for_High-Performance_and_Efficient_3D_Medical_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "cvpr-2025-qiu-noise-consistent-siamese-diffusion-for-medical-image-synthesis-and-segmentation-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Noise-Consistent Siamese-Diffusion for Medical Image Synthesis and Segmentation",
+      "abstract": "Deep learning has revolutionized medical image segmentation, yet its full potential remains constrained by the paucity of annotated datasets. While diffusion models have emerged as a promising approach for generating synthetic image-mask pairs to augment these datasets, they paradoxically suffer from the same data scarcity challenges they aim to mitigate. Traditional mask-only models frequently yield low-fidelity images due to their inability to adequately capture morphological intricacies, which can critically compromise the robustness and reliability of segmentation models. To alleviate this limitation, we introduce Siamese-Diffusion, a novel dual-component model comprising Mask-Diffusion and Image-Diffusion. During training, a Noise Consistency Loss is introduced between these components to enhance the morphological fidelity of Mask-Diffusion in the parameter space. During sampling, only Mask-Diffusion is used, ensuring diversity and scalability. Comprehensive experiments demonstrate the superiority of our method. Siamese-Diffusion boosts SANet's mDice and mIoU by 3.6% and 4.4% on the Polyps, while UNet improves by 1.52% and 1.64% on the ISIC2018.",
+      "authors": [
+        "Qiu, Kunpeng",
+        "Gao, Zhiqiang",
+        "Zhou, Zhiying",
+        "Sun, Mingjie",
+        "Guo, Yongxin"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Qiu_Noise-Consistent_Siamese-Diffusion_for_Medical_Image_Synthesis_and_Segmentation_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "aaai-2026-39554",
+      "source": "AAAI-2026-Accepted",
+      "title": "Energy-guided Dual Domain-invariant Prompting Framework with Fourier Regularization for Generalized Few-Shot Medical Segmentation",
+      "abstract": "Precise segmentation of organ and tissue lesions is essential for clinical diagnosis and treatment. Despite the progress of deep learning and foundation segmentation models, their domain generalization capability remains limited particularly when dealing with cross-domain scenarios or unseen data, leading to significant performance degradation. Current medical SAM-based generalization methods face two primary challenges: First, existing prompt-tuning strategies inadequately capture key domain-invariant features; Second, the reliance on fully labeled source domain data is unrealistic in clinical practice. To address these challenges, we propose a novel Dual domain-Invariant Prompt Optimization (DIPO) enhanced by energy-guided augmentation and frequency consistency regularization for few-shot medical image segmentation generalization. Our approach introduces a multi-band momentum enhancement strategy to dynamically augment source data by leveraging diverse frequency bands of the Fourier amplitude spectrum. Furthermore, we integrate multiscale geometric representation-based non-subsampled shearlet transform and text prompts to strengthen the extraction of shape- and texture-related domain-invariant features. Finally, we employ frequency consistency regularization to refine model robustness using predictions from unlabeled data. Experimental results in prostate and fundus datasets demonstrate that our method significantly outperforms current state-of-the-art methods.",
+      "authors": [
+        "Shaolei Liu",
+        "Yuting Wu",
+        "Dongchen Zhu",
+        "Jiamao Li"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 28",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 28"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/39554",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/39554/43515",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-87c2jwnja0",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "LoMix: Learnable Weighted Multi-Scale Logits Mixing for Medical Image Segmentation",
+      "abstract": "U-shaped networks output logits at multiple spatial scales, each capturing a different blend of coarse context and fine detail. Yet, training still treats these logits in isolation—either supervising only the final, highest-resolution logits or applying deep supervision with identical loss weights at every scale—without exploring mixed-scale combinations. Consequently, the decoder output misses the complementary cues that arise only when coarse and fine predictions are fused. To address this issue, we introduce LoMix (Logits Mixing), a Neural Architecture\nSearch (NAS)-inspired, differentiable plug-and-play module that generates new mixed-scale outputs and learns how exactly each of them should guide the training process. More precisely, LoMix mixes the multi-scale decoder logits with four lightweight fusion operators: addition, multiplication, concatenation, and attention-based weighted fusion, yielding a rich set of synthetic “mutant” maps. Every original or mutant map is given a softplus loss weight that is co-optimized with network parameters, mimicking a one-step architecture search that automatically discovers the most useful scales, mixtures, and operators. Plugging LoMix into recent U-shaped architectures (i.e., PVT-V2-B2 backbone with EMCAD decoder) on Synapse 8-organ dataset improves DICE by +4.2% over single-output supervision, +2.2% over deep supervision, and +1.5% over equally weighted additive fusion, all with zero inference overhead. When training data are scarce (e.g., one or two labeled scans, 5% of the trainset), the advantage grows to +9.23%, underscoring LoMix’s data efficiency. Across four benchmarks and diverse U-shaped networks, LoMiX improves DICE by up to +13.5% over single-output supervision, confirming that learnable weighted mixed-scale fusion generalizes broadly while remaining data efficient, fully interpretable, and overhead-free at inference. Our implementation is available at https://github.com/SLDGroup/LoMix.",
+      "authors": [
+        "Md Mostafijur Rahman",
+        "Radu Marculescu"
+      ],
+      "primary_category": "LoMix Supervision",
+      "categories": [
+        "LoMix Supervision",
+        "Medical Image Segmentation",
+        "U-shaped Network",
+        "Combinatorial Multi-scale Fusion",
+        "Logits Mixing"
+      ],
+      "published": "2025-09-18T17:42:59.247+00:00",
+      "link": "https://openreview.net/forum?id=87c2JwNJa0",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    },
+    {
+      "id": "cvpr-2025-fang-minding-fuzzy-regions-a-data-driven-alternating-learning-paradigm-for-stable-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Minding Fuzzy Regions: A Data-driven Alternating Learning Paradigm for Stable Lesion Segmentation",
+      "abstract": "Deep learning has achieved significant advancements in medical image segmentation, but existing models still face challenges in accurately segmenting lesion regions. The main reason is that some lesion regions in medical images have unclear boundaries, irregular shapes, and small tissue density differences, leading to label ambiguity. However, the existing model treats all data equally without taking quality differences into account in the training process, resulting in noisy labels negatively impacting model training and unstable feature representations. In this paper, a **d**ata-driven **a**lternating **le**arning (**DALE**) paradigm is proposed to optimize the model's training process, achieving stable and high-precision segmentation. The paradigm focuses on two key points: (1) reducing the impact of noisy labels, and (2) calibrating unstable representations. To mitigate the negative impact of noisy labels, a loss consistency-based collaborative optimization method is proposed, and its effectiveness is theoretically demonstrated. Specifically, the label confidence parameters are introduced to dynamically adjust the influence of labels of different confidence levels during model training, thus reducing the influence of noise labels. To calibrate the learning bias of unstable representations, a distribution alignment method is proposed. This method restores the underlying distribution of unstable representations, thereby enhancing the discriminative capability of fuzzy region representations. Extensive experiments on various benchmarks and model backbones demonstrate the superiority of the DALE paradigm, achieving an average performance improvement of up to 7.16%.",
+      "authors": [
+        "Fang, Lexin",
+        "Xu, Yunyang",
+        "Ma, Xiang",
+        "Li, Xuemei",
+        "Zhang, Caiming"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Fang_Minding_Fuzzy_Regions_A_Data-driven_Alternating_Learning_Paradigm_for_Stable_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "type": "intent_query",
+      "tag": "medical-seg",
+      "paper_tag": "query:medical-seg",
+      "query_text": "medical image segmentation using deep learning",
+      "sim_scores": {
+        "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper": {
+          "score": 0.03200204813108039,
+          "rank": 1
+        },
+        "aaai-2025-33911": {
+          "score": 0.0315136476426799,
+          "rank": 2
+        },
+        "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.02938045560996381,
+          "rank": 3
+        },
+        "aaai-2026-39554": {
+          "score": 0.029273504273504274,
+          "rank": 4
+        },
+        "aaai-2025-32402": {
+          "score": 0.01639344262295082,
+          "rank": 5
+        },
+        "cvpr-2025-qiu-noise-consistent-siamese-diffusion-for-medical-image-synthesis-and-segmentation-cvpr-2025-paper": {
+          "score": 0.015625,
+          "rank": 7
+        },
+        "aaai-2025-32956": {
+          "score": 0.015625,
+          "rank": 8
+        },
+        "openreview-neurips-2025-87c2jwnja0": {
+          "score": 0.015151515151515152,
+          "rank": 9
+        },
+        "aaai-2025-32627": {
+          "score": 0.014925373134328358,
+          "rank": 11
+        },
+        "aaai-2025-32482": {
+          "score": 0.014492753623188406,
+          "rank": 13
+        },
+        "aaai-2026-40079": {
+          "score": 0.014285714285714285,
+          "rank": 14
+        },
+        "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper": {
+          "score": 0.013513513513513514,
+          "rank": 17
+        },
+        "aaai-2026-38235": {
+          "score": 0.013157894736842105,
+          "rank": 19
+        },
+        "aaai-2025-32184": {
+          "score": 0.01282051282051282,
+          "rank": 20
+        },
+        "aaai-2026-38109": {
+          "score": 0.012345679012345678,
+          "rank": 23
+        },
+        "openreview-neurips-2025-whx7uurm7g": {
+          "score": 0.012195121951219513,
+          "rank": 24
+        },
+        "aaai-2025-32674": {
+          "score": 0.010752688172043012,
+          "rank": 35
+        },
+        "openreview-neurips-2025-tbhehymg1m": {
+          "score": 0.010526315789473684,
+          "rank": 37
+        },
+        "cvpr-2025-fang-minding-fuzzy-regions-a-data-driven-alternating-learning-paradigm-for-stable-cvpr-2025-paper": {
+          "score": 0.01020408163265306,
+          "rank": 40
+        },
+        "cvpr-2025-rahman-effidec3d-an-optimized-decoder-for-high-performance-and-efficient-3d-medical-cvpr-2025-paper": {
+          "score": 0.010101010101010102,
+          "rank": 41
+        },
+        "cvpr-2025-zhou-nnwnet-rethinking-the-use-of-transformers-in-biomedical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.009174311926605505,
+          "rank": 51
+        }
+      },
+      "ranked": [
+        {
+          "paper_id": "aaai-2025-33911",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-32402",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2026-38109",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-fang-minding-fuzzy-regions-a-data-driven-alternating-learning-paradigm-for-stable-cvpr-2025-paper",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-qiu-noise-consistent-siamese-diffusion-for-medical-image-synthesis-and-segmentation-cvpr-2025-paper",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32956",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-39554",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-40079",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-whx7uurm7g",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32627",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-ztgyn0uk94",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-guo-take-the-bull-by-the-horns-learning-to-segment-hard-cvpr-2025-paper",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32674",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-39970",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38239",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-rahman-effidec3d-an-optimized-decoder-for-high-performance-and-efficient-3d-medical-cvpr-2025-paper",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38161",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32482",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-zhou-nnwnet-rethinking-the-use-of-transformers-in-biomedical-image-segmentation-cvpr-2025-paper",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-87c2jwnja0",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38122",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-42490",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32491",
+          "score": 0.5495495495495496,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38235",
+          "score": 0.5495495495495496,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32184",
+          "score": 0.5213675213675214,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-tbhehymg1m",
+          "score": 0.5213675213675214,
+          "star_rating": 4
+        }
+      ]
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "automated organ segmentation from medical scans",
+      "sim_scores": {
+        "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "aaai-2025-32402": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "aaai-2025-32627": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "aaai-2026-40079": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "aaai-2025-33911": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "aaai-2025-32184": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "aaai-2026-38235": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2025-32482": {
+          "score": 0.012048192771084338,
+          "rank": 23
+        },
+        "aaai-2026-39554": {
+          "score": 0.011764705882352941,
+          "rank": 25
+        },
+        "openreview-neurips-2025-whx7uurm7g": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "aaai-2026-38161": {
+          "score": 0.010869565217391304,
+          "rank": 32
+        },
+        "aaai-2026-42490": {
+          "score": 0.010638297872340425,
+          "rank": 34
+        },
+        "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.010101010101010102,
+          "rank": 39
+        },
+        "aaai-2026-38109": {
+          "score": 0.009523809523809525,
+          "rank": 45
+        },
+        "cvpr-2025-rahman-effidec3d-an-optimized-decoder-for-high-performance-and-efficient-3d-medical-cvpr-2025-paper": {
+          "score": 0.009433962264150943,
+          "rank": 46
+        },
+        "openreview-neurips-2025-tbhehymg1m": {
+          "score": 0.009174311926605505,
+          "rank": 49
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "deep learning based medical image segmentation",
+      "sim_scores": {
+        "aaai-2025-32402": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "aaai-2025-33911": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "aaai-2025-32627": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2025-32956": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2025-32482": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "aaai-2026-40079": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "aaai-2026-39554": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "aaai-2026-38235": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-whx7uurm7g": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "aaai-2025-32184": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "aaai-2026-38109": {
+          "score": 0.0125,
+          "rank": 20
+        },
+        "aaai-2025-32674": {
+          "score": 0.01098901098901099,
+          "rank": 31
+        },
+        "openreview-neurips-2025-tbhehymg1m": {
+          "score": 0.010416666666666666,
+          "rank": 36
+        },
+        "cvpr-2025-fang-minding-fuzzy-regions-a-data-driven-alternating-learning-paradigm-for-stable-cvpr-2025-paper": {
+          "score": 0.010101010101010102,
+          "rank": 39
+        },
+        "cvpr-2025-rahman-effidec3d-an-optimized-decoder-for-high-performance-and-efficient-3d-medical-cvpr-2025-paper": {
+          "score": 0.00980392156862745,
+          "rank": 42
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "deep learning segmentation",
+      "sim_scores": {
+        "cvpr-2025-fang-minding-fuzzy-regions-a-data-driven-alternating-learning-paradigm-for-stable-cvpr-2025-paper": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "cvpr-2025-qiu-noise-consistent-siamese-diffusion-for-medical-image-synthesis-and-segmentation-cvpr-2025-paper": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "aaai-2025-32956": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2026-39554": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "aaai-2025-33911": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "i",
+      "sim_scores": {}
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "image segmentation",
+      "sim_scores": {
+        "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "aaai-2025-32184": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "aaai-2025-32482": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "aaai-2025-32402": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "cvpr-2025-guo-take-the-bull-by-the-horns-learning-to-segment-hard-cvpr-2025-paper": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "aaai-2026-38109": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "aaai-2026-38161": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "openreview-neurips-2025-ztgyn0uk94": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "aaai-2026-40079": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2026-38239": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "aaai-2025-32627": {
+          "score": 0.011764705882352941,
+          "rank": 25
+        },
+        "aaai-2026-38235": {
+          "score": 0.011627906976744186,
+          "rank": 26
+        },
+        "aaai-2025-32491": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "aaai-2026-38122": {
+          "score": 0.011235955056179775,
+          "rank": 29
+        },
+        "cvpr-2025-zhou-nnwnet-rethinking-the-use-of-transformers-in-biomedical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.011111111111111112,
+          "rank": 30
+        },
+        "openreview-neurips-2025-tbhehymg1m": {
+          "score": 0.010869565217391304,
+          "rank": 32
+        },
+        "aaai-2026-42490": {
+          "score": 0.010526315789473684,
+          "rank": 35
+        },
+        "aaai-2025-33911": {
+          "score": 0.01020408163265306,
+          "rank": 38
+        },
+        "openreview-neurips-2025-whx7uurm7g": {
+          "score": 0.01,
+          "rank": 40
+        },
+        "aaai-2026-39970": {
+          "score": 0.009174311926605505,
+          "rank": 49
+        },
+        "aaai-2025-32674": {
+          "score": 0.00909090909090909,
+          "rank": 50
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "medical image segmentation",
+      "sim_scores": {
+        "aaai-2026-38109": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "aaai-2025-32184": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-tbhehymg1m": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "aaai-2025-32482": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2026-38161": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2025-33911": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "openreview-neurips-2025-ztgyn0uk94": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "aaai-2026-38239": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "aaai-2025-32627": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "aaai-2026-38235": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "aaai-2026-40079": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "aaai-2026-38122": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2025-32402": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "openreview-neurips-2025-whx7uurm7g": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "aaai-2025-32674": {
+          "score": 0.011627906976744186,
+          "rank": 26
+        },
+        "aaai-2025-32956": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "aaai-2026-39970": {
+          "score": 0.01098901098901099,
+          "rank": 31
+        },
+        "cvpr-2025-rahman-effidec3d-an-optimized-decoder-for-high-performance-and-efficient-3d-medical-cvpr-2025-paper": {
+          "score": 0.010309278350515464,
+          "rank": 37
+        },
+        "aaai-2025-32491": {
+          "score": 0.01020408163265306,
+          "rank": 38
+        },
+        "aaai-2026-42490": {
+          "score": 0.00980392156862745,
+          "rank": 42
+        },
+        "cvpr-2025-qiu-noise-consistent-siamese-diffusion-for-medical-image-synthesis-and-segmentation-cvpr-2025-paper": {
+          "score": 0.009615384615384616,
+          "rank": 44
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "medical image segmentation techniques and methods",
+      "sim_scores": {
+        "aaai-2025-32482": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "aaai-2025-33911": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "aaai-2026-38235": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "aaai-2025-32627": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2025-32402": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2025-32184": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "aaai-2026-40079": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "aaai-2025-32956": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "aaai-2026-38109": {
+          "score": 0.0125,
+          "rank": 20
+        },
+        "cvpr-2025-fang-minding-fuzzy-regions-a-data-driven-alternating-learning-paradigm-for-stable-cvpr-2025-paper": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "openreview-neurips-2025-tbhehymg1m": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "aaai-2026-38161": {
+          "score": 0.011111111111111112,
+          "rank": 30
+        },
+        "openreview-neurips-2025-whx7uurm7g": {
+          "score": 0.010638297872340425,
+          "rank": 34
+        },
+        "aaai-2026-39554": {
+          "score": 0.010101010101010102,
+          "rank": 39
+        },
+        "openreview-neurips-2025-ztgyn0uk94": {
+          "score": 0.009900990099009901,
+          "rank": 41
+        },
+        "cvpr-2025-guo-take-the-bull-by-the-horns-learning-to-segment-hard-cvpr-2025-paper": {
+          "score": 0.009174311926605505,
+          "rank": 49
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "organ segmentation",
+      "sim_scores": {
+        "aaai-2026-38235": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "aaai-2026-39554": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2026-42490": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "aaai-2025-33911": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "aaai-2025-32184": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "openreview-neurips-2025-87c2jwnja0": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "semantic segmentation",
+      "sim_scores": {}
+    },
+    {
+      "type": "keyword",
+      "tag": "medical-seg",
+      "paper_tag": "keyword:medical-seg",
+      "query_text": "semantic segmentation for medical images",
+      "sim_scores": {
+        "aaai-2025-33911": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "aaai-2025-32482": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "aaai-2025-32184": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2025-32674": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "aaai-2025-32402": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "aaai-2025-32627": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-whx7uurm7g": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "aaai-2026-40079": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "aaai-2026-38235": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "aaai-2026-38109": {
+          "score": 0.010526315789473684,
+          "rank": 35
+        },
+        "openreview-neurips-2025-tbhehymg1m": {
+          "score": 0.010309278350515464,
+          "rank": 37
+        },
+        "aaai-2026-38161": {
+          "score": 0.010101010101010102,
+          "rank": 39
+        },
+        "aaai-2025-32956": {
+          "score": 0.009345794392523364,
+          "rank": 47
+        },
+        "openreview-neurips-2025-ztgyn0uk94": {
+          "score": 0.009174311926605505,
+          "rank": 49
+        }
+      }
+    }
+  ],
+  "global_candidate_ids": [
+    "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper",
+    "aaai-2025-33911",
+    "openreview-neurips-2025-mos4p8ziem",
+    "aaai-2025-32402",
+    "cvpr-2025-fang-minding-fuzzy-regions-a-data-driven-alternating-learning-paradigm-for-stable-cvpr-2025-paper",
+    "cvpr-2025-qiu-noise-consistent-siamese-diffusion-for-medical-image-synthesis-and-segmentation-cvpr-2025-paper",
+    "aaai-2026-40706",
+    "aaai-2026-38963",
+    "cvpr-2025-tang-prototype-based-image-prompting-for-weakly-supervised-histopathological-image-segmentation-cvpr-2025-paper",
+    "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper",
+    "aaai-2026-38109",
+    "aaai-2025-32184",
+    "aaai-2026-37864",
+    "aaai-2025-32482",
+    "cvpr-2025-zhang-a-semantic-knowledge-complementarity-based-decoupling-framework-for-semi-supervised-class-imbalanced-cvpr-2025-paper",
+    "cvpr-2025-konwer-enhancing-sam-with-efficient-prompting-and-preference-optimization-for-semi-supervised-cvpr-2025-paper",
+    "cvpr-2025-zhao-bfanet-revisiting-3d-semantic-segmentation-with-boundary-feature-analysis-cvpr-2025-paper",
+    "cvpr-2025-xie-mass13k-a-matting-level-semantic-segmentation-benchmark-cvpr-2025-paper",
+    "aaai-2026-38235",
+    "aaai-2025-32627",
+    "cvpr-2025-cheng-interactive-medical-image-segmentation-a-benchmark-dataset-and-baseline-cvpr-2025-paper",
+    "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper",
+    "aaai-2025-32776",
+    "aaai-2026-40079",
+    "aaai-2026-38406",
+    "openreview-neurips-2025-7lulwi9qjy",
+    "openreview-neurips-2025-whx7uurm7g",
+    "aaai-2026-39554",
+    "openreview-neurips-2025-tbhehymg1m",
+    "aaai-2025-32956",
+    "aaai-2025-32408",
+    "aaai-2025-32244",
+    "openreview-neurips-2025-gt8ikyg12u",
+    "aaai-2025-32678",
+    "aaai-2025-32591",
+    "aaai-2026-37503",
+    "aaai-2025-32986",
+    "aaai-2026-39819",
+    "aaai-2025-32466",
+    "aaai-2026-38161",
+    "aaai-2025-32674",
+    "aaai-2025-32545",
+    "aaai-2026-37417",
+    "aaai-2026-37292",
+    "openreview-neurips-2025-ztgyn0uk94",
+    "aaai-2025-32335",
+    "aaai-2026-42490",
+    "cvpr-2025-chang-unified-medical-lesion-segmentation-via-self-referring-indicator-cvpr-2025-paper",
+    "openreview-neurips-2025-9ednyughn1",
+    "aaai-2026-37303",
+    "aaai-2026-38246",
+    "cvpr-2025-rahman-effidec3d-an-optimized-decoder-for-high-performance-and-efficient-3d-medical-cvpr-2025-paper",
+    "aaai-2025-32323",
+    "aaai-2025-33022",
+    "aaai-2025-33919",
+    "aaai-2025-32306",
+    "aaai-2026-38334",
+    "openreview-neurips-2025-crbrksp3yt",
+    "aaai-2026-37532",
+    "cvpr-2025-mei-cross-modal-interactive-perception-network-with-mamba-for-lung-tumor-segmentation-cvpr-2025-paper",
+    "cvpr-2025-jiang-advancing-generalizable-tumor-segmentation-with-anomaly-aware-open-vocabulary-attention-maps-and-cvpr-2025-paper",
+    "aaai-2026-37344",
+    "cvpr-2025-choe-universal-domain-adaptation-for-semantic-segmentation-cvpr-2025-paper",
+    "openreview-neurips-2025-87c2jwnja0",
+    "cvpr-2025-lv-test-time-domain-generalization-via-universe-learning-a-multi-graph-matching-approach-cvpr-2025-paper",
+    "aaai-2026-38239",
+    "aaai-2026-40008",
+    "aaai-2025-32708",
+    "aaai-2025-32700",
+    "cvpr-2025-nordstrom-the-impact-label-noise-and-choice-of-threshold-has-on-cvpr-2025-paper",
+    "aaai-2026-38122",
+    "cvpr-2025-vincent-high-temporal-consistency-through-semantic-similarity-propagation-in-semi-supervised-video-cvpr-2025-paper",
+    "aaai-2025-32731",
+    "cvpr-2025-guo-take-the-bull-by-the-horns-learning-to-segment-hard-cvpr-2025-paper",
+    "cvpr-2025-lu-improving-semi-supervised-semantic-segmentation-with-sliced-wasserstein-feature-alignment-and-uniformity-cvpr-2025-paper",
+    "aaai-2026-38301",
+    "aaai-2025-32491",
+    "aaai-2025-32526",
+    "aaai-2026-37752",
+    "cvpr-2025-li-segearth-ov-towards-training-free-open-vocabulary-segmentation-for-remote-sensing-images-cvpr-2025-paper",
+    "aaai-2025-32903",
+    "aaai-2025-32498",
+    "aaai-2026-39970",
+    "aaai-2026-37502",
+    "cvpr-2025-zhou-nnwnet-rethinking-the-use-of-transformers-in-biomedical-image-segmentation-cvpr-2025-paper",
+    "cvpr-2025-basak-semidavil-semi-supervised-domain-adaptation-with-vision-language-guidance-for-semantic-segmentation-cvpr-2025-paper",
+    "cvpr-2025-ding-csc-pa-cross-image-semantic-correlation-via-prototype-attentions-for-single-network-semi-supervised-cvpr-2025-paper",
+    "aaai-2026-37517",
+    "aaai-2025-34295",
+    "aaai-2026-38989",
+    "aaai-2026-40243",
+    "cvpr-2025-wang-vidseg-training-free-video-semantic-segmentation-based-on-diffusion-models-cvpr-2025-paper",
+    "aaai-2025-33670",
+    "openreview-neurips-2025-dflqhts0js",
+    "aaai-2025-34427",
+    "aaai-2025-34739",
+    "aaai-2025-34198",
+    "openreview-neurips-2025-kwnabnuuct",
+    "aaai-2026-40649",
+    "openreview-neurips-2025-qpirwmubs9",
+    "openreview-neurips-2025-rud3m6wlxh",
+    "aaai-2025-32969",
+    "aaai-2025-33135",
+    "aaai-2025-34770",
+    "cvpr-2025-li-docsam-unified-document-image-segmentation-via-query-decomposition-and-heterogeneous-cvpr-2025-paper",
+    "cvpr-2025-xi-3d-dental-model-segmentation-with-geometrical-boundary-preserving-cvpr-2025-paper",
+    "aaai-2025-33654",
+    "aaai-2026-38227",
+    "cvpr-2025-zhao-convex-combination-star-shape-prior-for-data-driven-image-semantic-segmentation-cvpr-2025-paper",
+    "aaai-2026-38584",
+    "openreview-neurips-2025-x8xtrq5gik",
+    "aaai-2025-33007",
+    "aaai-2025-34013",
+    "aaai-2026-38055",
+    "openreview-neurips-2025-on6hf0kp20",
+    "aaai-2025-32557",
+    "aaai-2026-37675",
+    "cvpr-2025-mehrab-fish-vista-a-multi-purpose-dataset-for-understanding-identification-of-traits-cvpr-2025-paper",
+    "openreview-neurips-2025-ttwzhy8jqy",
+    "aaai-2025-32675"
+  ],
+  "global_pool_lane_top_k": 30,
+  "global_pool_limit": 120,
+  "global_pool_guaranteed_per_lane": 2,
+  "global_pool_effective_size": 120,
+  "reranked_at": "2026-07-06T03:10:24.390734+00:00",
+  "llm_ranked": [
+    {
+      "paper_id": "aaai-2025-32627",
+      "score": 10.0,
+      "evidence_en": "medical image segmentation with task-adaptive skip connections",
+      "evidence_cn": "任务自适应跳跃连接的医学图像分割",
+      "canonical_evidence": "任务自适应跳跃连接的医学图像分割",
+      "tldr_en": "Proposes TA-MoSC module to adaptively select skip connections in U-Net, improving flexibility and performance across diverse medical segmentation tasks.",
+      "tldr_cn": "针对U-Net中跳跃连接与解码器信息偏好不匹配的问题，提出任务自适应混合跳跃连接模块(TA-MoSC)，将跳跃连接重新解释为任务分配问题，通过路由机制自适应选择专家，在多个医学图像分割数据集上显著提升分割精度，为U-Net架构提供了灵活高效的改进方案。",
+      "title_zh": "重新思考U-Net：用于增强医学图像分割的任务自适应混合跳跃连接",
+      "motivation_cn": "U-Net的跳跃连接提供补充信息，但解码器对不同任务的信息偏好不同，严格的一对一连接限制了灵活性。",
+      "method_cn": "借鉴混合专家框架，提出TA-MoSC模块，将跳跃连接视为任务分配问题，通过路由机制自适应选择专家。",
+      "result_cn": "在多个医学分割数据集上，TA-MoSC显著提升了分割性能，验证了其有效性和泛化能力。",
+      "conclusion_cn": "TA-MoSC为U-Net提供了一种灵活、自适应的跳跃连接机制，有助于提升多种医学分割任务的表现。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-40079",
+      "score": 10.0,
+      "evidence_en": "extreme semi-supervised medical image segmentation with one labeled image",
+      "evidence_cn": "仅单张标注图像的极端半监督医学图像分割",
+      "canonical_evidence": "仅单张标注图像的极端半监督医学图像分割",
+      "tldr_en": "MedSMILE achieves near fully-supervised performance using only one labeled image and abundant unlabeled data by integrating transductive and inductive learning.",
+      "tldr_cn": "针对医学图像标注成本高的问题，提出MedSMILE框架，在极端的单标注图像半监督设置下，通过基础模型的直推推理生成伪标签，再迭代自训练，首次实现接近全监督性能，极大降低了标注成本。",
+      "title_zh": "最小标注努力下的医学图像分割：我们能将极限推到多远？",
+      "motivation_cn": "医学图像标注昂贵，希望用极少量标注数据达到全监督性能。",
+      "method_cn": "MedSMILE融合直推与归纳学习，利用基础模型生成伪标签，迭代自训练优化分割模型。",
+      "result_cn": "仅用单张标注图像，在多个数据集上达到接近全监督的分割性能。",
+      "conclusion_cn": "极端的半监督学习可以大幅减少医学图像分割的标注需求，具有重要实用价值。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "cvpr-2025-rahman-effidec3d-an-optimized-decoder-for-high-performance-and-efficient-3d-medical-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "efficient 3D medical image segmentation decoder",
+      "evidence_cn": "高效3D医学图像分割解码器",
+      "canonical_evidence": "高效3D医学图像分割解码器",
+      "tldr_en": "EffiDec3D optimizes 3D decoder by reducing channels and removing high-resolution layers, achieving high performance with lower FLOPs and parameters.",
+      "tldr_cn": "针对3D医学分割网络计算量大的问题，提出EffiDec3D优化解码器，通过通道缩减和去除高分辨率层，在保持高性能的同时大幅降低FLOPs和参数量，使3D分割在资源受限环境下更可用。",
+      "title_zh": "EffiDec3D：面向高性能与高效3D医学图像分割的优化解码器",
+      "motivation_cn": "现有3D分割网络如SwinUNETR计算成本高，难以用于实时和资源受限场景。",
+      "method_cn": "提出EffiDec3D解码器，在所有阶段进行通道缩减并移除高分辨率层，最小化所需通道数。",
+      "result_cn": "在多个3D分割数据集上，EffiDec3D以更低计算量达到与SwinUNETR等相当或更优的性能。",
+      "conclusion_cn": "通过解码器优化可以显著提升3D医学分割的效率，促进实际部署。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "cvpr-2025-qiu-noise-consistent-siamese-diffusion-for-medical-image-synthesis-and-segmentation-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "diffusion model for medical image segmentation and synthesis",
+      "evidence_cn": "扩散模型用于医学图像分割与合成",
+      "canonical_evidence": "扩散模型用于医学图像分割与合成",
+      "tldr_en": "Siamese-Diffusion generates high-fidelity image-mask pairs using dual diffusion components, improving segmentation with synthetic data.",
+      "tldr_cn": "针对医学图像标注数据稀缺的问题，提出Siamese-Diffusion，包含Mask-Diffusion和Image-Diffusion双组件，通过噪声一致性约束生成逼真的图像-掩码对，有效扩充训练集，提升了分割模型的鲁棒性和准确性。",
+      "title_zh": "噪声一致孪生扩散模型用于医学图像合成与分割",
+      "motivation_cn": "现有扩散模型生成医学图像-掩码对时因数据稀缺难以保持保真度，影响分割效果。",
+      "method_cn": "提出双组分的Siamese-Diffusion模型，利用噪声一致性约束协同训练Mask-Diffusion和Image-Diffusion。",
+      "result_cn": "在多个医学分割基准上，生成的合成数据显著提升了分割性能，尤其在小样本场景下。",
+      "conclusion_cn": "生成高质量合成图像-掩码对是缓解医学标注稀缺的有效手段。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-38239",
+      "score": 10.0,
+      "evidence_en": "federated medical image segmentation with foundation model distillation",
+      "evidence_cn": "基于基础模型蒸馏的联邦医学图像分割",
+      "canonical_evidence": "基于基础模型蒸馏的联邦医学图像分割",
+      "tldr_en": "DSFedMed enables mutual knowledge distillation between a centralized foundation model and lightweight client models for efficient federated medical segmentation.",
+      "tldr_cn": "针对联邦学习中部署基础模型计算开销大的问题，提出DSFedMed双尺度联邦框架，通过中央基础模型与轻量客户端模型之间的相互知识蒸馏，在保护隐私的同时实现高效医学图像分割，并利用生成的高质量图像替代公有数据集。",
+      "title_zh": "DSFedMed：基于基础模型与轻量模型相互蒸馏的双尺度联邦医学图像分割",
+      "motivation_cn": "基础模型在联邦场景中计算、通信和推理成本高，难以直接部署。",
+      "method_cn": "提出双尺度联邦框架，中央基础模型与客户端轻量模型通过生成的高质量图像进行相互知识蒸馏。",
+      "result_cn": "在多个联邦医学分割数据集上，DSFedMed在降低通信成本的同时保持了高分割性能。",
+      "conclusion_cn": "相互蒸馏策略能有效融合基础模型能力与轻量模型效率，推动联邦医学分割实用化。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-39554",
+      "score": 10.0,
+      "evidence_en": "few-shot medical segmentation with domain generalization",
+      "evidence_cn": "少样本医学分割与域泛化",
+      "canonical_evidence": "少样本医学分割与域泛化",
+      "tldr_en": "Proposes dual domain-invariant prompt optimization with Fourier regularization for generalized few-shot medical segmentation across domains.",
+      "tldr_cn": "针对医学分割在跨域场景下泛化不足的问题，提出能量引导的双域不变提示优化框架，结合傅里叶正则化，在少样本设置下有效提取域不变特征，显著提升了对未见领域的分割性能。",
+      "title_zh": "能量引导的双域不变提示优化框架及傅里叶正则化用于泛化少样本医学分割",
+      "motivation_cn": "现有医学SAM泛化方法在跨域场景下性能下降，且依赖全标注源域数据不现实。",
+      "method_cn": "提出双域不变提示优化框架，利用能量引导和傅里叶正则化增强域不变特征学习。",
+      "result_cn": "在多个跨域少样本分割任务上取得了最优性能，尤其对未见领域泛化能力强。",
+      "conclusion_cn": "结合提示优化和正则化策略可有效提升医学分割模型的域泛化能力。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-whx7uurm7g",
+      "score": 10.0,
+      "evidence_en": "SAM-based semi-supervised medical image segmentation",
+      "evidence_cn": "基于SAM的半监督医学图像分割",
+      "canonical_evidence": "基于SAM的半监督医学图像分割",
+      "tldr_en": "Proposes a fully SAM-based semi-supervised medical image segmentation framework with knowledge distillation to overcome domain gaps.",
+      "tldr_cn": "针对SAM直接应用于医学图像性能欠佳的问题，提出完全基于SAM的半监督分割框架，采用高效SAM变体作为骨干，并通过知识蒸馏策略更新提示嵌入，在少量标注数据下取得了优于传统方法的半监督分割性能。",
+      "title_zh": "Segment Anything模型遇见半监督医学图像分割：一种新视角",
+      "motivation_cn": "标注数据稀缺，SAM在医学图像上泛化不足，需要适应半监督设置。",
+      "method_cn": "采用高效SAM变体作为骨干，通过知识蒸馏更新提示嵌入，实现半监督学习。",
+      "result_cn": "在多个医学分割数据集上，用少量标注数据达到接近全监督的性能。",
+      "conclusion_cn": "SAM通过适当适应可以成为半监督医学图像分割的有效工具。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2025-32956",
+      "score": 10.0,
+      "evidence_en": "loss function for class imbalance in medical image segmentation",
+      "evidence_cn": "针对医学图像分割类别不平衡的损失函数",
+      "canonical_evidence": "针对医学图像分割类别不平衡的损失函数",
+      "tldr_en": "Proposes a unified loss function to address both inter-class and intra-class imbalance in medical image segmentation, improving generalizability.",
+      "tldr_cn": "针对医学图像分割中常见的类别间和类别内不平衡问题，提出了一种统一损失函数Balance Loss，通过分别控制多数类的难样本挖掘和易样本权重，有效兼顾两类不平衡，在多个分割任务上优于现有损失函数。",
+      "title_zh": "处理医学图像分割中类别间和类别内不平衡的统一损失函数",
+      "motivation_cn": "现有损失函数通常只针对一种不平衡，难以同时处理两类不平衡且泛化性差。",
+      "method_cn": "提出Inter-class和Intra-class平衡损失，再统一为Balance Loss，结合频率和难易程度调整权重。",
+      "result_cn": "在多个医学分割基准上，Balance Loss显著提升了分割准确性和鲁棒性。",
+      "conclusion_cn": "统一处理两类不平衡是提升医学分割损失函数泛化能力的关键。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "cvpr-2025-fang-minding-fuzzy-regions-a-data-driven-alternating-learning-paradigm-for-stable-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "stable lesion segmentation by data-driven alternating learning",
+      "evidence_cn": "通过数据驱动交替学习实现稳定病变分割",
+      "canonical_evidence": "通过数据驱动交替学习实现稳定病变分割",
+      "tldr_en": "DALE paradigm uses data-driven alternating learning to handle fuzzy lesion regions, improving segmentation stability and accuracy.",
+      "tldr_cn": "针对病变区域边界模糊、标签噪声导致分割不稳定问题，提出数据驱动交替学习范式DALE，通过动态区分样本质量并交替优化，有效缓解噪声标签影响，实现了稳定高精度的病变分割。",
+      "title_zh": "关注模糊区域：面向稳定病变分割的数据驱动交替学习范式",
+      "motivation_cn": "病变区域边界模糊导致标签歧义，现有模型平等对待所有样本，受噪声标签影响。",
+      "method_cn": "提出DALE范式，根据样本质量差异动态调整训练过程，交替优化模型。",
+      "result_cn": "在多个病变分割数据集上，DALE取得了更稳定和更精确的分割结果。",
+      "conclusion_cn": "考虑样本质量差异的交替学习能有效提升病变分割的鲁棒性。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2025-32491",
+      "score": 10.0,
+      "evidence_en": "KAN-based backbone for medical image segmentation",
+      "evidence_cn": "基于KAN的医学图像分割骨干网络",
+      "canonical_evidence": "基于KAN的医学图像分割骨干网络",
+      "tldr_en": "U-KAN replaces MLP/Transformer with KAN in U-Net backbone, improving accuracy and interpretability for medical segmentation and generation.",
+      "tldr_cn": "针对U-Net线性建模能力有限和可解释性不足，受KAN网络启发提出U-KAN，将非线性可学习激活函数堆叠引入骨干网络，在医学图像分割和生成任务上展现出更优的精度和可解释性，为医学视觉骨干提供了新思路。",
+      "title_zh": "U-KAN：为医学图像分割与生成打造强大骨干网络",
+      "motivation_cn": "U-Net及其变种线性建模能力有限且可解释性差。",
+      "method_cn": "利用KAN的非线性可学习激活函数堆叠重构U-Net骨干，提出U-KAN。",
+      "result_cn": "在多个医学分割和生成任务上，U-KAN优于传统U-Net和基于Transformer的变体。",
+      "conclusion_cn": "KAN的引入为医学图像分析骨干网络带来了精度与可解释性的双重提升。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-38109",
+      "score": 10.0,
+      "evidence_en": "Medical image segmentation with enhanced Mamba architecture",
+      "evidence_cn": "增强Mamba架构的医学图像分割",
+      "canonical_evidence": "增强Mamba架构的医学图像分割",
+      "tldr_en": "Proposes EccoMamba, a U-shaped encoder-decoder with Hierarchical Aggregation Enhancement for medical image segmentation, addressing limitations of fixed-direction sequence modeling.",
+      "tldr_cn": "针对现有Mamba架构在医学图像分割中无法捕捉层次化解剖特征的问题，提出EccoMamba，一种U型编解码器框架，引入层次聚合增强模块，通过跨层次连续性正交建模提升对复杂结构的表示能力，在多个数据集上取得优异性能。",
+      "title_zh": "EccoMamba：增强跨层次连续性正交Mamba用于医学图像分割",
+      "motivation_cn": "现有Mamba架构依赖固定方向序列建模，难以捕捉层次化解剖特征和空间依赖，限制了复杂医学结构的分割能力。",
+      "method_cn": "提出U型编解码器EccoMamba，在编码器下采样路径中引入层次聚合增强模块，实现跨层次连续性正交建模。",
+      "result_cn": "在多个医学图像分割基准上超越现有Mamba和卷积方法。",
+      "conclusion_cn": "EccoMamba通过层次化连续正交建模有效提升了医学图像分割的精度和鲁棒性。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-38122",
+      "score": 10.0,
+      "evidence_en": "Medical image segmentation using continuous ODEs in UNet",
+      "evidence_cn": "使用连续常微分方程的UNet医学图像分割",
+      "canonical_evidence": "使用连续常微分方程的UNet医学图像分割",
+      "tldr_en": "Proposes CNM-UNet, replacing all decoder layers with a single Continuous Neural Memory ODEs Block for efficient and accurate medical image segmentation.",
+      "tldr_cn": "针对离散化ODE方法在模型紧凑性、计算精度和效率间的权衡，提出CNM-UNet，用单个连续神经记忆ODE块替换全部解码层，在保持精度的同时显著降低计算开销，在多个医学分割任务上取得领先性能。",
+      "title_zh": "CNM-UNet：连续常微分方程用于医学图像分割",
+      "motivation_cn": "现有离散ODE方法在模型紧凑性、计算精度和效率之间存在固有权衡，连续ODE解决方案因高计算成本、长训练时间和泛化性差而鲜有研究。",
+      "method_cn": "提出连续神经记忆ODE UNet，用单个CNM块替换所有解码层，实现连续ODE集成。",
+      "result_cn": "在医学图像分割任务中实现了更优的精度-效率平衡。",
+      "conclusion_cn": "CNM-UNet验证了连续ODE在医学图像分割中的有效性和高效性。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "cvpr-2025-kumari-annotation-ambiguity-aware-semi-supervised-medical-image-segmentation-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "Semi-supervised medical image segmentation addressing annotation ambiguity",
+      "evidence_cn": "半监督医学图像分割，解决标注歧义问题",
+      "canonical_evidence": "半监督医学图像分割，解决标注歧义问题",
+      "tldr_en": "Proposes AmbiSSL, a semi-supervised method that handles annotation ambiguity by combining a small amount of multi-annotator data with unlabeled data.",
+      "tldr_cn": "针对医学图像分割中标注歧义和标注数据稀缺的问题，提出AmbiSSL，利用少量多标注者数据与大量无标注数据，通过不确定性建模和一致性正则化生成更鲁棒的分割结果，在多个数据集上超越现有半监督方法。",
+      "title_zh": "标注歧义感知的半监督医学图像分割",
+      "motivation_cn": "获取大量精确标注困难，且不同专家对同一图像的标注存在歧义，现有方法只产生单一确定分割掩膜。",
+      "method_cn": "提出AmbiSSL框架，结合少量多标注者数据与无标注数据，通过不确定性感知的半监督学习处理歧义。",
+      "result_cn": "在多个医学分割基准上显著提升了分割质量和鲁棒性。",
+      "conclusion_cn": "AmbiSSL有效解决了标注歧义问题，推动了半监督医学图像分割的实用性。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2025-32184",
+      "score": 10.0,
+      "evidence_en": "Few-shot medical image segmentation with cross-domain adaptation",
+      "evidence_cn": "跨域小样本医学图像分割",
+      "canonical_evidence": "跨域小样本医学图像分割",
+      "tldr_en": "Proposes FAMNet with Frequency-aware Matching to handle domain shift in few-shot medical image segmentation across different imaging modalities.",
+      "tldr_cn": "针对现有小样本医学图像分割模型无法处理不同成像技术导致的域偏移问题，提出FAMNet，利用频域相似性进行跨域匹配，结合频率感知匹配模块和多尺度特征，在少量标注数据下实现跨域泛化分割。",
+      "title_zh": "FAMNet：频率感知匹配网络用于跨域小样本医学图像分割",
+      "motivation_cn": "不同成像技术带来域偏移，现有小样本分割模型无法泛化到新目标域。",
+      "method_cn": "提出频率感知匹配网络，包含频率感知匹配模块和多尺度特征融合，利用频域相似性适应跨域差异。",
+      "result_cn": "在跨域小样本医学分割任务上显著优于现有方法。",
+      "conclusion_cn": "FAMNet通过频域对齐有效缓解了域偏移，拓展了小样本分割的适用性。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "cvpr-2025-guo-take-the-bull-by-the-horns-learning-to-segment-hard-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "Learning to segment hard samples in medical images",
+      "evidence_cn": "学习分割医学图像中的困难样本",
+      "canonical_evidence": "学习分割医学图像中的困难样本",
+      "tldr_en": "Proposes a framework that identifies and segments hard samples in medical images through dedicated feature augmentation.",
+      "tldr_cn": "针对医学图像分割中困难样本影响整体精度的问题，提出L2S框架，首先自动识别数据集中的固有困难样本，然后通过特征增强网络专门学习分割困难样本，在多个医学图像数据集上有效提升了分割性能。",
+      "title_zh": "迎难而上：学习分割困难样本",
+      "motivation_cn": "医学图像分割中困难样本对精度影响关键，现有方法未专门处理。",
+      "method_cn": "提出L2S框架，包括困难样本识别模块（基于骨干网络和分类器）和困难样本分割模块（通过特征增强网络）。",
+      "result_cn": "在多个医学图像分割基准上显著提升了困难样本的分割精度。",
+      "conclusion_cn": "L2S通过专门识别和学习困难样本，有效提高了医学图像分割的整体性能。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-87c2jwnja0",
+      "score": 10.0,
+      "evidence_en": "Medical image segmentation with multi-scale logits mixing",
+      "evidence_cn": "医学图像分割中的多尺度logits混合",
+      "canonical_evidence": "医学图像分割中的多尺度logits混合",
+      "tldr_en": "Proposes LoMix, a differentiable plug-and-play module that learns to fuse multi-scale logits for improved medical image segmentation training.",
+      "tldr_cn": "针对U型网络仅单独监督各尺度logits而忽略跨尺度互补信息的问题，提出LoMix模块，受NAS启发可学习生成混合尺度输出并自动调整训练权重，作为即插即用组件显著提升多种医学图像分割网络的性能。",
+      "title_zh": "LoMix：可学习加权多尺度Logits混合用于医学图像分割",
+      "motivation_cn": "U型网络各尺度logits包含不同信息，但训练时孤立处理，缺失跨尺度互补线索。",
+      "method_cn": "提出LoMix模块，基于可微NAS，自动学习生成混合尺度输出并分配训练权重。",
+      "result_cn": "在多个医学分割任务上提升了主流U型网络的精度。",
+      "conclusion_cn": "LoMix通过可学习的多尺度logits融合有效增强了医学图像分割表现。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-39970",
+      "score": 10.0,
+      "evidence_en": "Causal fine-adaptation for medical image segmentation foundation models",
+      "evidence_cn": "医学图像分割基础模型的因果微调适应",
+      "canonical_evidence": "医学图像分割基础模型的因果微调适应",
+      "tldr_en": "Proposes CausalBridgeNet, a causality-guided framework for trustworthy fine-adaptation of vision foundation models to medical image segmentation.",
+      "tldr_cn": "针对视觉基础模型在医学图像分割中性能退化且微调易遗忘的问题，提出CausalBridgeNet因果引导校正框架，借鉴预测编码理论实现高效且可解释的微调，在脑肿瘤分割等任务上保证了可靠性和结构精度。",
+      "title_zh": "让基础模型再次可信：用于医学图像分割的因果微适应",
+      "motivation_cn": "视觉基础模型在医学图像分割中性能显著下降，且微调成本高、易遗忘。",
+      "method_cn": "提出CausalBridgeNet因果引导校正框架，基于贝叶斯大脑的预测编码理论进行适应。",
+      "result_cn": "在医学分割任务上有效提升了基础模型的精度和可靠性。",
+      "conclusion_cn": "CausalBridgeNet通过因果机制实现了基础模型在医学分割中的可信适应。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "cvpr-2025-gao-show-and-segment-universal-medical-image-segmentation-via-in-context-learning-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "Universal medical image segmentation via in-context learning",
+      "evidence_cn": "基于上下文学习的通用医学图像分割",
+      "canonical_evidence": "基于上下文学习的通用医学图像分割",
+      "tldr_en": "Presents Iris, an in-context reference image guided segmentation framework that adapts to novel medical segmentation tasks without fine-tuning.",
+      "tldr_cn": "针对医学图像分割中任务多样、难以泛化的问题，提出Iris框架，通过上下文参考图像引导，无需微调即可适应新分割任务，利用轻量级上下文任务编码模块从参考图像-标签对中提取任务信息指导目标分割。",
+      "title_zh": "展示与分割：基于上下文学习的通用医学图像分割",
+      "motivation_cn": "现有方法需要任务特定训练或微调，难以泛化到新类别。",
+      "method_cn": "提出Iris框架，通过上下文参考图像引导，包含轻量级上下文任务编码模块提取任务信息。",
+      "result_cn": "在多种医学分割任务上无需微调即可实现有竞争力的性能。",
+      "conclusion_cn": "Iris为通用医学图像分割提供了一种高效、灵活的解决方案。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "cvpr-2025-zhou-nnwnet-rethinking-the-use-of-transformers-in-biomedical-image-segmentation-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "Biomedical image segmentation with transformer and CNN integration",
+      "evidence_cn": "结合Transformer和CNN的生物医学图像分割",
+      "canonical_evidence": "结合Transformer和CNN的生物医学图像分割",
+      "tldr_en": "Reviews transformer-CNN architectures for biomedical image segmentation and proposes nnWNet with improved feature transmission and a unified benchmark.",
+      "tldr_cn": "针对当前卷积和Transformer混合架构中全局与局部特征无法连续传输的问题，回顾总结现有架构，提出nnWNet实现特征连续传输，并呼吁建立统一的评估基准，以推动生物医学图像分割的标准化发展。",
+      "title_zh": "nnWNet：重新思考Transformer在生物医学图像分割中的应用并呼吁统一评估基准",
+      "motivation_cn": "现有CNN-Transformer混合架构无法实现全局与局部特征的连续传输，且缺乏统一评估基准。",
+      "method_cn": "提出nnWNet架构，通过改进特征传输机制实现连续特征传递，并倡导统一评估标准。",
+      "result_cn": "在多个数据集上验证了nnWNet的性能优势。",
+      "conclusion_cn": "nnWNet和统一基准有助于推动生物医学图像分割的可靠比较和发展。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-38161",
+      "score": 10.0,
+      "evidence_en": "Training-free model merging for medical image segmentation",
+      "evidence_cn": "无需训练的模型合并用于医学图像分割",
+      "canonical_evidence": "无需训练的模型合并用于医学图像分割",
+      "tldr_en": "Proposes MedSAMix, a training-free model merging approach that combines fine-tuned SAM variants to improve generalization across diverse medical segmentation tasks.",
+      "tldr_cn": "针对现有医学SAM微调变体因训练数据有限而泛化不足的问题，提出MedSAMix无需训练即可合并多个微调模型，通过模型合并增强对多样医学分割任务的泛化能力，实验证明在多个任务上超过单一微调模型。",
+      "title_zh": "MedSAMix：一种无需训练的模型合并方法用于医学图像分割",
+      "motivation_cn": "微调SAM变体受限于有限医学数据，泛化能力不足。",
+      "method_cn": "提出MedSAMix模型合并方法，无需训练即可融合多个微调SAM变体。",
+      "result_cn": "在多种医学分割任务中超越了单一微调模型。",
+      "conclusion_cn": "MedSAMix为提升医学分割模型的通用性提供了一种轻量级解决方案。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-ztgyn0uk94",
+      "score": 9.0,
+      "evidence_en": "3D medical image segmentation using Mamba SSM and Mixture-of-Experts",
+      "evidence_cn": "基于Mamba SSM和混合专家模型的3D医学图像分割",
+      "canonical_evidence": "基于Mamba SSM和混合专家模型的3D医学图像分割",
+      "tldr_en": "Proposes HoME, a hierarchical soft mixture-of-experts layer on Mamba SSM for efficient 3D medical image segmentation across modalities.",
+      "tldr_cn": "针对3D医学图像分割中跨模态处理和数据变异性挑战，本文提出基于Mamba状态空间模型的层次化软混合专家（HoME）框架。HoME通过两级令牌路由机制实现长上下文高效建模，第一层利用软混合专家进行局部特征提取。在多个3D医学图像分割任务上验证了其有效性，提升了模型对不同模态的泛化能力。",
+      "title_zh": "Mamba走进HoME：用于3D医学图像分割的层次化软混合专家",
+      "motivation_cn": "现有3D医学图像分割面临跨模态效率低和数据变异性大问题，需高效长上下文建模方法。",
+      "method_cn": "提出基于Mamba SSM的HoME框架，采用两级令牌路由：第一层为软混合专家进行局部特征提取，第二层进一步处理。",
+      "result_cn": "在多个3D医学图像分割数据集上取得了优于现有方法的性能，验证了跨模态泛化能力。",
+      "conclusion_cn": "HoME为3D医学图像分割提供了一种高效的长上下文建模方案，融合了Mamba和混合专家的优势。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-tbhehymg1m",
+      "score": 9.0,
+      "evidence_en": "Novel attention mechanism for medical image segmentation",
+      "evidence_cn": "提出邻域自差异性注意力机制用于医学图像分割",
+      "canonical_evidence": "提出邻域自差异性注意力机制用于医学图像分割",
+      "tldr_en": "Proposes a parameter-free Neighborhood Self-Dissimilarity Attention mechanism to break the accuracy-complexity trade-off in medical image segmentation.",
+      "tldr_cn": "针对医学图像分割中注意力机制精度与计算复杂度难以兼得的困境，本文提出一种无需参数的邻域自差异性注意力机制。该方法通过度量邻域特征差异来聚焦感兴趣区域，在不增加参数的情况下提升分割精度。在多个医学图像分割数据集上实验表明，该注意力机制在保持低计算成本的同时显著提高了分割准确率。",
+      "title_zh": "邻域自差异性注意力用于医学图像分割",
+      "motivation_cn": "现有注意力机制存在精度与复杂度的矛盾，阻碍了在资源受限场景中的部署。",
+      "method_cn": "提出一种参数免费的邻域自差异性注意力，通过计算局部邻域特征差异来生成注意力权重。",
+      "result_cn": "在多个医学图像分割数据集上实现了高精度且低计算成本的分割结果。",
+      "conclusion_cn": "该注意力机制有效平衡了精度与复杂度，适用于资源受限的医疗设备。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-42490",
+      "score": 9.0,
+      "evidence_en": "Universal model for 3D medical image segmentation, transformation, and enhancement",
+      "evidence_cn": "通用3D医学图像分割、变换与增强模型",
+      "canonical_evidence": "通用3D医学图像分割、变换与增强模型",
+      "tldr_en": "Medverse is a universal in-context learning model for 3D medical imaging, trained on 22 datasets to perform segmentation, transformation, and enhancement tasks.",
+      "tldr_cn": "针对现有医学图像分析模型任务单一、难以泛化的问题，本文提出Medverse通用模型。基于上下文学习范式，Medverse在22个数据集上联合训练，可同时完成3D医学图像分割、变换和增强等任务。实验表明，该模型在多任务上达到了高保真度预测，并具备全局解剖理解能力。",
+      "title_zh": "Medverse：全分辨率3D医学图像分割、变换与增强的通用模型",
+      "motivation_cn": "现有模型无法同时实现高保真预测和全局解剖理解，缺乏多任务统一模型。",
+      "method_cn": "采用上下文学习范式，在22个数据集上训练通用模型，支持分割、变换和增强。",
+      "result_cn": "在多种医学图像处理任务上取得了高保真度结果，具备全局解剖理解能力。",
+      "conclusion_cn": "Medverse展示了上下文学习在统一医学图像分析任务上的巨大潜力。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2026-38235",
+      "score": 9.0,
+      "evidence_en": "Novel decoder with directional, frequency-spatial, and structural attention for medical image segmentation",
+      "evidence_cn": "集成方向、频率空间和结构注意力的新解码器用于医学图像分割",
+      "canonical_evidence": "集成方向、频率空间和结构注意力的新解码器用于医学图像分割",
+      "tldr_en": "Proposes a decoder framework with Adaptive Cross-Fusion Attention and Triple Feature Fusion Attention to enhance edge and texture capture in medical image segmentation.",
+      "tldr_cn": "针对Transformer解码器在捕捉边缘细节和纹理方面的不足，本文提出一种结构化感知解码框架。包含自适应交叉融合注意力和三重特征融合注意力模块，分别从方向、频率空间和结构三个维度增强特征表达。在医学图像分割任务上显著提升了边缘和纹理的分割精度。",
+      "title_zh": "结构化感知解码：集成方向、频率空间和结构注意力用于医学图像分割",
+      "motivation_cn": "Transformer解码器在医学图像分割中难以捕捉边缘细节和纹理。",
+      "method_cn": "提出自适应交叉融合注意力和三重特征融合注意力，分别增强方向、频率空间和结构特征。",
+      "result_cn": "在多个医学图像分割基准上取得了优于现有解码器的性能。",
+      "conclusion_cn": "结构化感知解码有效提升了分割质量，尤其对边缘和纹理区域。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2025-32674",
+      "score": 9.0,
+      "evidence_en": "Semi-supervised medical image segmentation using vision-language model",
+      "evidence_cn": "使用视觉语言模型的半监督医学图像分割",
+      "canonical_evidence": "使用视觉语言模型的半监督医学图像分割",
+      "tldr_en": "Proposes DuSSS, a dual semantic similarity-supervised VLM for semi-supervised medical image segmentation, addressing error from low-quality pseudo labels via contrastive learning.",
+      "tldr_cn": "半监督医学图像分割常受低质量伪标签误差影响。本文提出DuSSS，利用视觉语言模型通过双重对比学习增强跨模态语义一致性，改善伪标签质量。在多个医学图像数据集上的实验表明，DuSSS有效提升了分割精度，减轻了对像素级标注的依赖。",
+      "title_zh": "DuSSS：基于双重语义相似性监督的视觉语言模型用于半监督医学图像分割",
+      "motivation_cn": "半监督医学图像分割中伪标签质量差，跨模态信息利用不足。",
+      "method_cn": "提出双重对比学习和双重语义相似性监督的视觉语言模型框架DuSSS。",
+      "result_cn": "在多个半监督医学图像分割任务上取得了最优性能。",
+      "conclusion_cn": "DuSSS有效结合了视觉和语言信息，提升了半监督分割质量。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2025-32402",
+      "score": 9.0,
+      "evidence_en": "Generative approach to medical image segmentation using latent mapping",
+      "evidence_cn": "使用潜空间映射的生成式医学图像分割方法",
+      "canonical_evidence": "使用潜空间映射的生成式医学图像分割方法",
+      "tldr_en": "Introduces Generative Medical Segmentation (GMS), which learns a latent mapping from image to mask using a pre-trained vision foundation model, enabling better generalization.",
+      "tldr_cn": "传统鉴别式分割在跨数据集泛化上受限。本文提出生成式医学分割（GMS），利用预训练视觉基础模型提取图像和掩码的潜表征，并学习从图像到掩码的轻量级映射函数。该方法在多个医学图像分割数据集上展示了更强的泛化能力。",
+      "title_zh": "生成式医学分割",
+      "motivation_cn": "传统鉴别式分割模型泛化能力有限，难以适应多样数据集。",
+      "method_cn": "基于预训练视觉基础模型，在潜空间中学习图像到掩码的映射函数。",
+      "result_cn": "在多个数据集上表现优于传统鉴别式方法，尤其跨数据集泛化。",
+      "conclusion_cn": "生成式范式为医学图像分割提供了新思路，提升了泛化性。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2025-32482",
+      "score": 9.0,
+      "evidence_en": "Contrast-driven feature enhancement for medical image segmentation",
+      "evidence_cn": "对比驱动特征增强的通用医学图像分割框架",
+      "canonical_evidence": "对比驱动特征增强的通用医学图像分割框架",
+      "tldr_en": "Proposes ConDSeg, a general medical image segmentation framework with a contrastive training strategy and feature enhancement to handle soft boundaries and co-occurrence phenomena.",
+      "tldr_cn": "针对医学图像中软边界和共现现象导致的误判，本文提出ConDSeg通用框架。通过一致性强化对比训练策略增强特征区分性，并设计特征增强模块。在多个医学图像分割任务上验证了框架的有效性，显著提升了前景背景区分能力。",
+      "title_zh": "ConDSeg：基于对比驱动特征增强的通用医学图像分割框架",
+      "motivation_cn": "医学图像存在软边界和共现现象，影响模型判断。",
+      "method_cn": "提出一致性强化对比训练策略和特征增强模块，改善特征可区分性。",
+      "result_cn": "在多个医学图像分割基准上取得了显著性能提升。",
+      "conclusion_cn": "对比驱动特征增强有效应对了医学图像分割中的特殊挑战。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "cvpr-2025-assefa-dycon-dynamic-uncertainty-aware-consistency-and-contrastive-learning-for-semi-supervised-medical-cvpr-2025-paper",
+      "score": 9.0,
+      "evidence_en": "Dynamic uncertainty-aware consistency and contrastive learning for semi-supervised medical image segmentation",
+      "evidence_cn": "动态不确定性感知的一致性和对比学习用于半监督医学图像分割",
+      "canonical_evidence": "动态不确定性感知的一致性和对比学习用于半监督医学图像分割",
+      "tldr_en": "DyCON introduces uncertainty-aware consistency loss and focal entropy-aware contrastive loss to improve semi-supervised 3D medical image segmentation under class imbalance.",
+      "tldr_cn": "半监督3D医学图像分割面临类别不平衡和病理变异导致的高不确定性。本文提出DyCON框架，包含不确定性感知一致性损失（UnCL）和焦点熵感知对比损失（FeCL），分别动态加权体素贡献和增强特征区分。在3D医学图像数据集上较现有方法有显著提升。",
+      "title_zh": "DyCON：动态不确定性感知的一致性和对比学习用于半监督医学图像分割",
+      "motivation_cn": "半监督3D医学图像分割受类别不平衡和病理变异影响，结果不准确。",
+      "method_cn": "提出不确定性感知一致性损失和焦点熵感知对比损失，动态调整学习权重。",
+      "result_cn": "在多个3D医学图像数据集上性能优于现有半监督方法。",
+      "conclusion_cn": "DyCON有效缓解了类别不平衡和高不确定性问题，提升了分割鲁棒性。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2025-33911",
+      "score": 9.0,
+      "evidence_en": "Multi-view evidential learning combining traditional and foundation models for medical image segmentation",
+      "evidence_cn": "结合传统模型和基础模型的多视角证据学习医学图像分割",
+      "canonical_evidence": "结合传统模型和基础模型的多视角证据学习医学图像分割",
+      "tldr_en": "Proposes a multi-view evidential learning framework that combines domain-specific knowledge from traditional models and generalizable knowledge from vision foundation models for medical image segmentation.",
+      "tldr_cn": "传统深度学习模型缺乏泛化性，基础模型缺乏领域特异性。本文提出多视图证据学习框架，融合多视角特征的领域特异性和通用知识。通过证据学习整合不同模型优势，在多个医学图像分割数据集上实现更优的准确率和鲁棒性。",
+      "title_zh": "基于多视角证据学习的医学图像分割",
+      "motivation_cn": "传统模型与基础模型各有局限，如何结合两者优势是挑战。",
+      "method_cn": "提出多视角证据学习框架，同时提取领域特异性和通用知识并融合。",
+      "result_cn": "在多个数据集上分割性能优于单独使用传统或基础模型。",
+      "conclusion_cn": "多视角证据学习有效整合了不同来源的知识，提升了分割泛化性。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; medical image segmentation using deep learning."
+    }
+  ],
+  "llm_ranked_at": "2026-07-06T03:12:15.874797+00:00",
+  "display_min_score": 4.0,
+  "pruned_at": "2026-07-06T03:12:15.916864+00:00"
+}
