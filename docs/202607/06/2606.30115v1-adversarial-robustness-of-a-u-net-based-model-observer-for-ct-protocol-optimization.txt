@@ -1,0 +1,330 @@
+Title: Adversarial robustness of a U-Net-based model observer for CT protocol optimization
+
+URL Source: https://arxiv.org/pdf/2606.30115v1
+
+Published Time: Tue, 30 Jun 2026 02:05:14 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# Adversarial robustness of a U-Net-based model observer for CT protocol optimization 
+
+## Filippo Maria Balli 1, Giorgia Stendardo 2, Sandra Doria 3,4 , Michele Ginolfi 1, Alessio Gnerucci 1, Diego Sona 5, Adriana Taddeucci 6, Cesare Gori 1, and Evaristo Cisbani 21Department of Physics and Astronomy, Universit` a degli Studi di Firenze (UNIFI), Via Giovanni Sansone 1, Sesto Fiorentino, 50019 - Florence - Italy 
+
+> 2
+
+## Istituto Superiore di Sanit` a, Centro Nazionale Intelligenza Artificiale e Tecnologie Innovative per la Salute (ISS-IATIS), Viale Regina Elena 299 - 00161 - Rome - Italy 
+
+> 3
+
+## Institute of Chemistry of Organometallic Compounds, National Research Council (ICCOM-CNR), Via Madonna del Piano 10, Sesto Fiorentino, 50019 - Florence - Italy 
+
+> 4
+
+## European Laboratory For Non Linear Spectroscopy (LENS), Universit` a degli Studi di Firenze (UNIFI), Via Nello Carrara 1, Sesto Fiorentino, 50019 - Florence - Italy 
+
+> 5
+
+## Fondazione Bruno Kessler (FBK), Via Sommarive 18, Povo, 38123 - Trento - Italy 
+
+> 6
+
+## Ospedale Santa Maria Annunziata, Azienda USL Toscana Centro, Italy, Via Antella 58, Bagno a Ripoli, 50012 - Florence - Italy 
+
+## June 30, 2026 
+
+Abstract 
+
+Artificial intelligence is increasingly used in medical imaging, yet its robustness to input perturba-tions remains a critical concern for a wide clinical adoption. To this end, we used adversarial examples to systematically probe vulnerabilities of a U-Net-based model observer for computed tomography protocol optimization, performing detection and localization of low-contrast objects in a phantom dataset. Adversarial attacks were generated using both gradient-based and optimization-based white-box methods. Fast gradient perturbations produced high misclassification rates, reaching up to 75% at intermediate perturbation levels while remaining visually imperceptible. Localization was more robust, with success rates of about 25% for small perturbations and 42% at moderate levels. In contrast, optimization-based attack achieved success rates close to 50% for both tasks. To mitigate these vulnerabilities, dynamic adversarial training was implemented. This reduced the success rate of optimization-based attacks to 7% for classification and 13% when including localization-specific training, demonstrating a substantial robustness improvement without compromising task perfor-mances, confirmed by localization receiver operating characteristic analysis. To further interpret model behavior, radiomic texture analysis was performed on original and adversarial images. While most global image statistics remain stable, specific texture-related features exhibit consistent changes in successful attacks, highlighting the model’s sensitivity to subtle local intensity patterns. Overall, adversarial training improves robustness without degrading performance, while radiomic analysis re-veals interpretable links between texture alterations and prediction failures, supporting more reliable and explainable AI systems for medical imaging. 
+
+# 1 Introduction 
+
+Artificial intelligence (AI) is rapidly emerging as a transformative technology across numerous domains, including healthcare, due to the capacity of deep learning (DL) to model complex statistical systems and analyze large-scale datasets. For clinical adoption, however, data-driven DL tools require rigorous quantitative validation across experimental contexts and methodological variations. Two key properties warrant particular attention: robustness and generalizability. Robustness refers to an algorithm’s re-silience to deviations from underlying assumptions, specifically its ability to maintain performance under perturbations or noise in input data. Generalizability describes the algorithm’s capacity to perform ef-fectively on previously unseen data, such as datasets from different populations or production protocols. These properties are closely interrelated and intertwined with explainability [16]. 1
+
+> arXiv:2606.30115v1 [physics.med-ph] 29 Jun 2026
+
+Definitions of robustness vary widely. A broad, generic definition provided by ISO/IEC TR 24029-1:2021 describes it as [26]: The ability of an AI system to maintain its level of performance under any circumstances . In practice, validation under such broad conditions is unfeasible. A more operational definition was proposed by [7]: When deployed in a production environment, a ML model is considered robust if variations of input data, as specified by a domain of potential changes, do not degrade the model’s predictive performance below the permitted tolerance level. This emphasizes the need to define an input data acceptance domain, assessing robustness against data shifts likely to occur in real-world scenarios. One approach to quantify robustness involves adversarial examples (AEs) [40, 36] and the related notion of universal adversarial perturbations [31, 23], which exploit specific vulnerabilities of deep neural networks, such as evasion [6] or poisoning attacks. These methods enable the identification of input regions that maintain a desired performance level, indirectly informing generalizability. At the same time, adversarial examples are closely related to counterfactual explanations [49, 17, 30]—both involve input modifications that change a model prediction, though they differ in their objectives, constraints, and interpretability requirements—and can therefore also enhance interpretability by revealing conditions under which a model fails or succeeds. These examples are inputs deliberately designed to mislead deep learning models via imperceptible perturbations. Most deep learning models exhibit significant performance degradation when exposed to adversarial attacks, which can be mitigated through strategies such as re-training or transfer learning. In the medical imaging domain, deep learning models can rely on spurious features or shortcuts [18, 12], and are specifically vulnerable to adversarial attacks that raise concerns for clinical reliability [15, 34, 13]. In this work, we exploit AEs on a case study involving an AI-based model observer (MO), previously proposed by [46], with the ultimate goal of evaluating and improving robustness. A model observer in medical imaging is designed to assess image quality by quantifying performance according to a predefined figure-of-merit (FOM) for a specific clinical task [5, 4, 22]. In [46], the authors developed and trained a U-Net-based MO to replicate human observer performance in confidence score prediction—implemented as a classification task—and localization of low-contrast objects in computed tomography (CT) scans obtained from a reference phantom. The clinical application focuses on optimizing CT protocols in terms of patient radiation dose, in line with the ALARA principle [25] and relevant international and national regulations [11]. We constructed various adversarial attacks targeting the MO algorithm, specifically designed to chal-lenge both classification and localization tasks. Success rates of these attacks were evaluated across different perturbation levels, enabling identification of vulnerabilities and robustness breaks in the algo-rithm. Finally, we performed radiomic analysis on original and adversarially perturbed CT images to iden-tify features affecting the model predictions. Radiomic features—capturing intensity, shape, and texture patterns—link quantitative image descriptors to clinical data and are used in oncology for tumor char-acterization, prognosis, and treatment planning [1, 19, 29, 48]. This analysis helps separate perturbation effects: uninformative features the model wrongly relies on and subtle features containing exploitable information invisible to humans [24, 8]. By comparing features from original and adversarial images, we reveal characteristics driving misclassification and enhance model explainability. To improve MO robustness, we implemented different adversarial defense strategies across classifica-tion and localization tasks, identifying dynamic generation of adversarial examples during training as the most effective approach. Finally, the model’s robustness and task performance were re-evaluated after adversarial training. The workflow of the adopted methodology is illustrated in Fig. 1. 
+
+# 2 Materials and methods 
+
+## 2.1 U-Net-based model observer 
+
+In this section, we briefly review the main features of the CT dataset and AI-based MO algorithm developed by [46], including its training methodology and details on its U-Net architecture. The dataset used to train, validate, and test the MO algorithm is a subset of a larger dataset described in a precedent work by [14]. It comprises CT images of a custom polymethyl methacrylate (PMMA) phantom with 10 cylindrical inserts of five different diameters (3 mm to 7 mm) and two contrast levels (45 HU and 55 HU). The phantom consists of three ellipsoidal blocks, two containing inserts and one homogeneous block providing background images. CT acquisitions were performed using a 128-slice CT scanner (Somatom Definition Flash, Siemens Healthcare) and selecting the standard oncological protocol 2Adversarial Images 
+
+# Localization 
+
+(Decoder) 
+
+# Classification 
+
+(Encoder) 
+
+# U-Net Training 
+
+# Adversarial Training 
+
+Figure 1: Schematic representation of the analysis workflow: the U-Net encoder performs the classifica-tion task while its decoder performs insert localization as described in the text; both are considered for the adversarial attack, analysis and defense (across adversarial training). for abdomen, at eight different CT dose index (CTDI) settings (4 .4 mGy to 10 .2 mGy). Both filtered back projection (FBP) and iterative reconstruction (IR) techniques were used to reconstruct the acquired dataset. The CT image reconstruction field of view (RFoV) was set to 5 cm 2 (512 × 512 pixels per image, then reduced to 256 × 256 pixels to optimize computational resources) to produce reconstructed images containing a single insert each. Similarly, images without inserts were reconstructed and added to the dataset. To further increase dataset variability, data augmentation techniques such as rotations and flips were applied to all images. From this extensive dataset, 30,000 images were selected for analysis. For more details on image acquisition, including the distribution of images based on insert diameter and contrast, refer to [14]. Figure 2 shows selected reconstructed images at different CTDI and containing inserts of different sizes. To generate labels for training the MOs, a multiclass ranking approach was employed. Human observers assessed each image on a 4-point scale from 0 (object not present) to 3 (object certainly present), reflecting their confidence in the recognition of inserts. Additionally, for each image classified from 1 to 3, they pointed at the center of the identified potential insert providing the corresponding coordinates. These information were used as labels for MO training and testing [46]. The MO task in [46] implemented a customized U-Net-based convolutional neural network (CNN) trained to perform both object localization and confidence score prediction. The U-Net, a CNN based on an autoencoder architecture (see Fig. 1), is well-documented for its effectiveness in medical image segmentation and localization tasks [38, 41]. In the MO implementation, the U-Net architecture consisted of nine layers with four skip connections [38]. The encoder output is passed to a dense layer with a sigmoid activation, producing a scalar confidence score between 0 and 1. This continuous score is then discretized into four classes (0, 1, 2, 3) for evaluation, while the model is trained using a mean squared error loss on the normalized score. The decoder block focuses on localization, employing the autoencoder structure to generate heatmaps for position estimation [32, 35]. The model was optimized using a composite loss function: 
+
+LU-Net = λMO LMO + λLOC LLOC + λKLD LKLD (1) where LMO is a mean squared error (MSE) loss between the predicted and target confidence scores, LLOC 
+
+is a MSE loss between predicted and ground-truth coordinates, and LKLD is a Kullback-Leibler divergence (KLD) loss enforcing alignment between predicted and reference Gaussian maps. The loss weights 
+
+λMO , λ LOC and λKLD were optimized during training. For further details on architecture parameters, optimization settings, and training protocol, refer to [46]. The results demonstrated that the combined classification and localization predictions from the CNN achieved excellent overall performance, measured in terms of Receiver-Operator-Characteristic (ROC) analysis, demonstrating the potential to employ the proposed methodology for CT protocols optimization. 3CTDI = 4.4 mGy CTDI = 7.8 mGy CTDI = 10.2 mGy Diameter = 7 mm Diameter = 4 mm 
+
+Figure 2: Examples of reconstructed images from phantom CT dataset used in [46] and [14]. 
+
+## 2.2 Adversarial examples 
+
+Adversarial examples are inputs intentionally crafted to mislead deep learning models by introducing small, often imperceptible, modifications to otherwise correctly classified data. Since their first char-acterization by [43], such examples have been shown to reliably induce misclassification, with success rates—defined as the fraction of perturbed inputs that cause incorrect predictions—approaching 100% even in state-of-the-art architectures [20, 27]. Conceptually, adversarial perturbations operate by shifting data points within the high-dimensional feature space from the decision region of the true class into that of another, leading to erroneous predictions. In the following, we formalize the notation adopted for adversarial analysis. Consider a multi-task model represented by a function f performing both classification and localization, consistent with the CNN architecture introduced in Sec. 2.1: (ℓ, y) = f (x, θ) (2) where the input x is a vector of n pixel intensities, y = ( y1, y 2) denotes the predicted coordinates for object localization, and ℓ is the predicted class label (score prediction). θ is the set of trainable parameters adjusted during training; we will omit them in the following. An adversarial example is obtained by applying the minimal perturbation η to a clean input x such that the model produces an incorrect prediction on the target task(s): min  
+
+> η
+
+∥η∥p s.t. f (x)̸ = f (xadv ) (3) where xadv = x+η denotes the adversarial example, and ∥η∥p is the Lp-norm of the perturbation. 1 Find-ing the exact minimal perturbation is generally challenging due to the non-linear and high-dimensional nature of modern deep networks [43]. As a result, adversarial examples are often generated by constrain-ing the perturbation magnitude within a fixed bound [20], 
+
+∥η∥p ≤ δ,                  
+
+> 1For a perturbation vector η= ( η1, . . . , η n), the Lp-norm is defined as ∥η∥p= P ni=1 |ηi|p1/p for p≥1. Common choices in adversarial analysis are p= 2, corresponding to the Euclidean norm, and p=∞, which measures the maximum absolute perturbation over all pixels.
+
+4while still enforcing a change in the model’s prediction. In many adversarial applications, it is further required that the perturbation remains imperceptible to human observers. Defining the human-perceived classification and localization outputs as (ℓhum , yhum ) = h(x) (4) this condition can be expressed as the invariance of h(x) under the perturbation introduced in (3), namely h(x) = h(xadv ). This requirement ensures that the adversarial perturbation does not alter the perceptual or semantic content of the input, while still inducing an incorrect prediction by the model. 
+
+2.2.1 Implementation of adversarial attacks on U-Net-based model observer 
+
+Numerous algorithms for generating adversarial images have been developed and are well-documented in the literature [51, 2]. The adversarial attacks used in this work are white-box , meaning that internal structure and parameters of the attacked model are known to the attacker. All attacks in this study are untargeted , intended only to induce an incorrect prediction rather than to force a particular target class. While targeted attacks can offer insight into class-specific decision boundaries, they are outside the scope of this work, oriented to the evaluation of MO general robustness and prediction stability. In the following, two representative white-box attacks are considered: the fast gradient method (FGM) and the Carlini-Wagner L2 attack (CW-L2), briefly described in this section. The fast gradient method attack used here corresponds to the sign variant introduced by [20] as the 
+
+fast gradient sign method (FGSM) : a fast and effective algorithm for generating adversarial images. It operates on the assumption that small perturbations, applied in the direction of the gradient of the loss function L(x, ℓ ) with respect to the input x (pixels of the image), can significantly increase the loss and potentially lead to misclassification. Formally, the perturbation η is defined as: 
+
+η = ε sign ( ∇xL(x, ℓ )) (5) where ε > 0 is a parameter that controls the magnitude of the perturbation. In the above expression, 
+
+ε represents the perturbation added per pixel to the original normalized image, where the size of the perturbation is considered over the entire image, and serves as an upper bound for the total perturbation. Adversarial examples were generated for different levels of perturbation ε and using the model’s own predictions as labels, to ensure that the generated examples were truly adversarial with respect to the target model. We separated the FGM attacks on the MO into two parts, in order to independently assess the robustness of the two main components of the U-Net-like architecture: 1. FGM attack on the MO encoder : the attack was applied to the MO encoder using only the confi-dence score prediction loss LMO , while the localization loss was excluded. Since FGM is commonly implemented for classifiers with vectorial outputs, the scalar sigmoid confidence is mapped into a four-component representation that mimics a classifier output, with argmax corresponding to the discretization into the four classes introduced above. The perturbation is then driven by the gradient of the MSE loss LMO used in training, and acts on the input image so as to shift the predicted confidence score into a different class. 2. FGM attack on the MO decoder : attacking the MO decoder, which is responsible for the insert localization task, required the problem to be reformulated as a classification one, similarly to the score prediction mentioned above for the classification task. To this end, we implemented a 
+
+localization classifier , shown in Fig. 3, based on the distance between human-selected coordinates and model-predicted coordinates, which outputs a score, ranging from 0 (insert correctly localized) to 2 (insert not localized). This score is computed by taking the maximum cumulative probability over three discretized intervals, for a normal distribution centered on the model predicted position relative to the human one, with a standard deviation proportional to the insert diameter. The size of the spatial intervals is defined according to specific thresholds computed from the analysis of human localization distribution for each insert diameter [46, Supplementary Materials]. To avoid zero-probability assignments when intervals contain only Gaussian tails (corresponding to cases where the model prediction is quite far from the human-selected position), due to numerical precision limits, a minimum probability value was imposed on each interval before the subsequent argmax step. This prevents ambiguous cases from being assigned to the default first interval (score 0) and ensures assignment to the worst-case last interval (score 2). Furthermore, when the 5Model–human distance   
+
+> 0
+> th 2th 3th
+
+0 1 2
+
+> th
+> ∆
+
+d
+
+Figure 3: Approach used for the localization classifier. For each image, the distance ∆ between the model-predicted and the human-selected coordinates is computed (blue). A Gaussian centered on ∆ with standard deviation proportional to the insert diameter d (yellow) is then integrated over three consecutive intervals of width th (green), where th is an insert-size-dependent threshold derived from the distribution of human-observer localization errors. The localization score (0, 1, or 2) is assigned as the interval yielding the largest cumulative probability. Gaussian distribution is centered on the boundary between two intervals, symmetry produces equal probabilities for adjacent classes, and due to the argmax operation these cases are assigned to the lower-score interval. However, this is a limited issue, since the prediction is equally compatible with both classes. The resulting score is then subjected to the FGM attack, which drives the model to predict insert coordinates on adversarial images that deviate from the original predictions. In this case, the image perturbation was generated considering only the component of the loss function related to coordinate regression. To complement the gradient-sign attack, we also evaluated the robustness of the MO encoder using the Carlini-Wagner L2 attack [9], a strong optimization-based adversarial method widely adopted as a benchmark for model robustness. In contrast to single-step approaches such as FGM, the CW-L2 attack searches iteratively for a minimal perturbation that induces misclassification while keeping the L2 norm of the perturbation as small as possible. In our setting, the attack was applied to both the classification component, i.e. the encoder that predicts the confidence score, and the localization component, i.e. the decoder that predicts insert coordinates, of the MO. Given an input CT image x, the adversarial example xadv = x + η is obtained by solving the optimization problem min 
+
+> η
+
+ ∥η∥22 + c · g(x + η) (6) where c > 0 balances perturbation magnitude and the misclassification objective. Following [9], the function g(·) is defined in terms of the model pseudo -logits (discretization of the continuous encoder output) Z(x) as 
+
+g(xadv ) = max 
+
+
+
+Zℓ(xadv ) − max  
+
+> i̸=ℓ
+
+Zi(xadv ), −κ
+
+
+
+(7) where ℓ denotes the true class label and κ ≥ 0 is the confidence parameter . The condition g(xadv ) ≤ 0ensures misclassification, while larger values of κ enforce a margin between the pseudo -logits of the predicted class and that of the true class, producing higher-confidence adversarial examples at the cost of larger perturbations. We investigated the effect of the confidence parameter κ on the MO encoder. The attack success rate remained nearly constant up to approximately κ ≃ 0.5. This plateau is attributed to the fact that, for small κ, the adversarial examples found by the optimizer already exhibit a natural margin between the predicted and true class pseudo-logits that exceeds the specific constraint; consequently, increasing 
+
+κ within this range does not further restrict the set of admissible solutions. For κ ≃ 0.5, the required margin surpasses the pseudo-logit separation that the optimizer can achieve, and the success rate drops sharply [9]. Based on this analysis, κ was fixed to a representative value for all subsequent evaluations. 6All adversarial examples were generated using the Adversarial Robustness Toolbox (ART, [33]), a Python library developed for evaluating and improving machine learning model security. We employed the TensorFlowClassifier estimator, which provides a standardized interface for gradient-based attacks by exposing the model’s input, output, and loss tensors, along with the model definition. This configuration enables attacks such as the FGM and CW-L2 to compute gradients with respect to the model input. 
+
+2.2.2 Implementation of adversarial defense on U-Net-based model observer 
+
+In the adversarial learning literature, numerous strategies have been proposed to enhance model ro-bustness and ensure reliable inference in the presence of adversarial perturbations [10, 37, 3]. Common defense mechanisms include input pre-processing (e.g., denoising or input transformations), information hiding (reducing model sensitivity to easily exploitable features), and model hardening (improving resis-tance to small perturbations)—see [40] for a comprehensive review. In this work, we adopt adversarial training [28], a well-established defense that improves robustness to small worst-case input perturbations and may also enhance generalization to CT images from different scanners and protocols. A naive strategy of augmenting the dataset with pre-generated adversarial samples is ineffective [28], as it only broadens input diversity without addressing the model’s specific vulnerabilities. We confirmed this in preliminary experiments on our dataset by iteratively retraining the model on adversarial examples generated by the previous iteration, observing no robustness gain. Instead, following [20], we employ 
+
+dynamic adversarial training , in which adversarial examples are generated on-the-fly during training. In our setup, the overall loss function consists of multiple terms, as defined in (1). To improve robustness against attacks targeting the MO encoder, i.e. the classification task, the adversarial training strategy is applied specifically to the classification loss term LMO . In this case, adversarial examples are generated by backpropagating the gradients of LMO with respect to the input image, and the resulting perturbed samples are used to update the network parameters while preserving the original targets. Formally, the classification component of the loss is replaced by ¯LMO = α L MO (x, ℓ ) + (1 − α) LMO (xcls adv , ℓ ) (8) where xcls adv denotes adversarial examples crafted to maximize the classification error of the encoder. We set α = 0 .5 to balance the contribution of clean and adversarial examples. Analogously, to enhance robustness against attacks targeting the localization task, adversarial train-ing is applied to the decoder by generating adversarial examples with respect to the localization loss 
+
+LLOC . In this case, perturbations are computed by exploiting the gradients of LLOC , yielding adversarial samples xloc adv that aim to disrupt the predicted insert position. The localization loss is then reformulated as ¯LLOC = α L LOC (x, y) + (1 − α) LLOC (xloc adv , y) (9) where y denotes the ground-truth localization targets. Again, α was set to α = 0 .5 to balance the contribution of clean and adversarial examples. Depending on the experiment, adversarial training is applied either to the classification term alone or jointly to both classification and localization terms, while the remaining components of the total loss, including the regularization term LKLD , are computed on clean inputs only. This design choice allows us to isolate and analyze the contribution of adversarial training to the robustness of each task indepen-dently, as well as to study potential cross-task robustness effects between classification and localization within the U-Net-based MO framework. 
+
+## 2.3 Radiomic features analysis 
+
+Ideally the MO should exploit the task relevant image features not affected by small, human irrelevant perturbations, to make the correct prediction and avoid to consider irrelevant features; the identification of the image features correlated to the success of the adversarial attacks may help to explain the MO behavior. In this direction we have developed a Python based code to extract and compare radiomic features from every original and adversarial image using the open-source package PyRadiomics [47, 53]. The choice of the radiomic features has originated by two main considerations: the radiomic features represent a large, rather exhaustive, class of image features and they are also exploited in medical images to extract potential clinical information generally not detectable by human eyes. A total of 93 features were considered, including first-order statistics (describing intensity distribu-tions), second-order texture features (capturing spatial relationships between neighboring pixels) [21], 7Original ε = 10 −2 ε = 10 −1 ε = 1    
+
+> Score = 3 Score = 0 Score = 0 Score = 3
+
+Figure 4: FGM attacks on classification. Increasing ε causes misclassification and degradation; predicted classification scores are reported below each image. and gray-level size zone matrix (GLSZM) descriptors [44]. The full feature set was selected to pro-vide a comprehensive representation of image characteristics potentially relevant to the model observer predictions. The analysis was conducted on a subset of 723 original-adversarial image pairs extracted from a test dataset of 5,910 images. AEs were generated using the model trained on the first fold, with FGM (ε = 0 .001) and CW-L2 (κ = 0 .01) attacks, ensuring perturbations that are visually imperceptible while maintaining comparable attack success rates across settings. For each feature, the deviation from the corresponding original image was computed and compared between successful and unsuccessful attacks. Features were considered relevant when the difference in mean deviation between the two groups exceeded 3%. This criterion enables the identification of features associated with model vulnerability (non-robust) or stability (robust) under adversarial perturbations. 
+
+# 3 Results 
+
+In this section, we quantify the effect of adversarial attacks on the model observer, evaluate the impact of adversarial training, and report radiomic variations induced by adversarial perturbations. 
+
+## 3.1 FGM attacks on model observer 
+
+We first evaluate FGM attacks on both the encoder (classification) and decoder (localization) of the MO. Models are trained and evaluated within a 5-fold cross-validation framework: the dataset of 30,000 CT images is split into five folds—ensuring that images from the same slit are assigned to the same fold to avoid leakage bias—and five independent models are trained, each using four folds for training and one for validation. Adversarial examples were generated using the ART toolbox for multiple perturbation magnitudes ε.Figure 4 shows representative FGM perturbations on the classification task. While the MO correctly identifies the target in the original image, small perturbations ( ε = 10 −2) are sufficient to induce mis-classification despite being visually imperceptible. At larger ε, image quality deteriorates substantially. A similar behavior is observed for the localization task (Fig. 5): as the perturbation ε increases, the decoder heatmaps lose their localized peak around the insert and the predicted coordinates drift away from the true position. In order to quantify the adversarial effect, attack success rates were computed per fold and averaged across models. Figure 6 summarizes classification and localization performance as a function of ε.For classification, success rates increase rapidly in the intermediate regime ( ε ≈ 0.002–0 .05), reaching up to ∼ 0.75, while remaining imperceptible. For larger perturbations ( ε ≳ 0.2), performance collapses due to severe image distortion. Localization shows lower sensitivity at small ε (< 10 −3), but increases up to ∼ 42% at moderate perturbations and approaches 100% at ε = 1. 8Original ε = 10 −2 ε = 10 −1 ε = 1    
+
+> Localized Not localized Not localized Not localized
+
+Figure 5: FGM attacks on localization. Top row: adversarial input images at increasing ε. Bottom row: heatmaps output by the last decoder layer, whose soft-maximum yields the predicted coordinates of the low-contrast object. The localization status assigned by the MO (Localized / Not localized) is reported below each column. 10 5 10 4 10 3 10 2 10 1 10 0
+
+Attack Parameter (Log Scale) 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Attack Success Rate
+> Classification
+> Localization
+
+Figure 6: FGM success rates for classification and localization tasks (mean over 5 folds). 9(a) 10 5 10 4 10 3 10 2 10 1 10 0 
+
+> Attack Parameter (Log Scale)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Attack Success Rate
+> Original
+> Adv. trained (cls.)
+
+(b) 10 5 10 4 10 3 10 2 10 1 10 0
+
+> Attack Parameter (Log Scale)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Attack Success Rate
+> Original
+> Adv. trained (cls.)
+
+Figure 7: FGM attack success rates on original and classification-adversarially trained models (classification-only objective) for (a) classification and (b) localization. Mean ± standard error of the mean (SEM) over 5-fold cross-validation; logarithmic ε scale. 
+
+## 3.2 CW-L2 attacks on model observer 
+
+The CW-L2 attack was applied to both the MO encoder (classification task) and the MO decoder (localization task). As explained in Sec. 2.2.1, the confidence parameter κ was fixed to a representative value of κ = 0 .01. The attack on the MO encoder achieved a mean success rate (across the 5-folds splitting) of 
+
+Sorig  
+
+> CL 2M, class
+
+= 0 .523 ± 0.035 (10) The localization attack achieves: 
+
+Sorig  
+
+> CL 2M, loc
+
+= 0 .55 ± 0.11 (11) Compared to FGM, CW-L2 generates lower success rates but produces less perceptible perturbations due to its optimization-based formulation. 
+
+## 3.3 Adversarial training effects 
+
+We evaluate the effect of adversarial training (Sec. 2.2.2) on the robustness of the model observer against gradient-based attacks. Figure 7 shows the FGM attack effect on the model trained dynamically with adversarial examples specifically crafted to fool the classification task, compared to the original MO. Classification attack success rate in Fig. 7a shows that for small perturbations ( ε ≲ 0.01), adversarial training provides near-complete robustness, with almost zero attack success. In the intermediate regime, the success rate increases but remains consistently lower than the original model, peaking at ∼ 0.6 around ε = 0 .1. For large perturbations ( ε ≳ 0.2), both models converge to similar behavior, as strong distortions dominate the input distribution. Interestingly, as shown in Fig. 7b, classification-only objective adversarial training improves not only classification robustness but also localization performance, particularly in the low-perturbation regime (ε = 10 −3–10 −1), suggesting more general robustness in shared feature representations. Extending training with a localization-specific adversarial loss further reduces attack success on lo-calization while preserving classification robustness, as shown in Fig. 8 We further evaluate robustness using the CW-L2 attack. For classification-only adversarial training, the attack success rate drops to 
+
+Sadv-class  
+
+> CL 2M
+
+= 0 .0726 ± 0.0031 (12) showing a strong suppression of gradient-based optimization attacks. 10 (a) 10 5 10 4 10 3 10 2 10 1 10 0 
+
+> Attack Parameter (Log Scale)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Attack Success Rate
+> Original
+> Adv. trained (cls. + loc.)
+
+(b) 10 5 10 4 10 3 10 2 10 1 10 0
+
+> Attack Parameter (Log Scale)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Attack Success Rate
+> Original
+> Adv. trained (cls. + loc.)
+
+Figure 8: FGM attack success rates for original and jointly adversarially trained models for (a) classifi-cation and (b) localization. Mean ± SEM over 5-fold cross-validation; logarithmic ε scale. Including localization-aware adversarial loss yields 
+
+Sadv-loc  
+
+> CL 2M
+
+= 0 .125 ± 0.017 (13) which remains significantly lower than the original model and comparable to the classification-only case. Overall, both strategies confirm that adversarial training substantially improves robustness of the encoder and generalizes across tasks. 
+
+## 3.4 Effect on model performance 
+
+We next assess whether the robustness gains achieved through adversarial training affect the primary task performance of the model observer, namely CT image quality assessment for protocol optimization. Diagnostic performance of the original and adversarially trained models is evaluated against human observers using localization receiver operating characteristic (LROC) analysis and the corresponding area under the curve (LAUC) [42], shown in Fig. 9 as a function of CTDI. Results are reported as mean curves over a 5-fold cross-validation. The LROC curves of the adversarially trained model closely match those of the original network and remain consistent with human performance. Correspondingly, LAUC values show no statistically significant difference after adversarial training, indicating preservation of both detection sensitivity and localization accuracy. Overall, these results indicate that the robustness improvements reported in the previous section are achieved without degradation of task-specific performance. 
+
+## 3.5 Radiomic characterization of adversarial perturbations 
+
+Radiomic analysis of the 93 extracted features shows that most descriptors exhibit negligible variation between original and adversarial images, with mean deviations close to zero for both successful and unsuccessful attacks. Overall, global intensity statistics are largely preserved under adversarial pertur-bations. However, a subset of features shows consistent differences between successful and unsuccessful attacks, mainly among second-order texture descriptors. The observed feature distributions for FGM and CW-L2
+
+attacks are reported in Fig. 10 and Fig. 11 respectively. In particular, ClusterShade is the most sensitive feature across all settings. For classification attacks, successful perturbations induce a positive shift of approximately +35% for FGM and +20% for CW-L2
+
+(Fig. 10(a) and Fig. 11(a), respectively). In contrast, localization attacks show minimal variation in the same feature (Fig. 10(b) and Fig. 11(b)). 11 5 6 7 8 9 10 
+
+> CTDI vol (mGy )
+> 0.60
+> 0.65
+> 0.70
+> 0.75
+> 0.80
+> 0.85
+> 0.90
+> 0.95
+> 1.00
+> LAUC
+> Adv. trained (cls.)
+> Adv. trained (cls. + loc.)
+> Human
+> Original
+
+Figure 9: LROC curves comparing human observers with the original and adversarially trained models. Results are averaged over a 5-fold cross-validation.  
+
+> (a) (b)
+
+Figure 10: Mean relative variation (adversarial-original) of selected radiomic features for FGM at-tacks ( ε = 0 .001): (a) classification and (b) localization. CS = ClusterShade , ZV = ZoneVariance ,LALGLE = LargeAreaLowGrayLevelEmphasis , LAHGLE = LargeAreaHighGrayLevelEmphasis , LAE = 
+
+LargeAreaEmphasis .For CW-L2 classification attacks, the first-order feature Skewness shows a moderate increase (ap-proximately 5%) (Fig. 11(a)). Additional changes are observed in GLSZM-based features: FGM localization attacks produce a negative shift of approximately −17% (Fig. 10(b)), while CW-L2 induces weaker and less consistent variations. For CW-L2 classification attacks, a small positive shift of approximately 4% is observed in one GLSZM descriptor (Fig. 11(a)). Overall, radiomic variations are concentrated in second-order texture features, altering spatial inten-sity relationships while preserving global image and first-order intensity statistics. 
+
+# 4 Discussion 
+
+CNN-based model observers are highly effective for CT image quality assessment but remain vulnerable to adversarial perturbations, which can compromise both classification and localization performance under clinically realistic conditions. Our results demonstrate that FGM and CW-L2 attacks expose distinct failure modes: FGM efficiently identifies decision boundaries via gradient steps, while CW-L2 produces smaller but more controlled perturbations at higher computational cost. A consistent observation is that localization is more robust than classification at low perturbation lev-els (Fig. 6), likely due to the spatial inductive bias of the U-Net architecture. However, when comparing 12 (a) (b) 
+
+Figure 11: Mean relative variation (adversarial-original) of selected radiomic features for CW-L2 at-tacks ( κ = 0 .01): (a) classification and (b) localization. CS = ClusterShade , SK = Skewness , ZV = 
+
+ZoneVariance , LALGLE = LargeAreaLowGrayLevelEmphasis , SALGLE = SmallAreaLowGrayLevelEm-phasis , LAE = LargeAreaEmphasis .attacks across methods, CW-L2 achieves comparable localization success rates at lower and less percep-tible perturbation magnitudes than FGM, which typically requires larger, visually noticeable distortions. This indicates that optimization-based attacks are more efficient in generating subtle yet effective per-turbations for spatial prediction tasks. Adversarial training substantially improves the robustness of the model observer against gradient-based attacks (Fig. 7 and Fig. 8). In particular, training with adversarial examples crafted for the classification task not only increases resistance to classification attacks, but also enhances resilience to localization perturbations, especially in the low-perturbation regime ( ε = 0 .001–0 .1), where distortions remain imperceptible (Fig. 7). This indicates that adversarial training promotes a more general robust-ness in the shared feature representation learned by the network. This improved robustness is further confirmed when considering the CW-L2 attack. The marked reduction in attack success rate demonstrates that adversarial training effectively suppresses the op-timizer’s ability to identify crafted perturbations that induce misclassification. Moreover, extending adversarial training to include both classification and localization objectives yields comparable suppres-sion of CW-L2 attacks, indicating that robustness generalizes across tasks and confirming the stability of the encoder under both defense strategies. The ROC analysis in Fig. 9 highlights a crucial finding: while adversarial training improves robust-ness to perturbations and adversarial noise, it does not compromise the model’s interpretability or its task-specific performance. A trade-off between adversarial robustness and standard accuracy has been reported in the literature [45, 52], although its extent is known to depend on the model architecture, the training regime, and the specific task. The stability of the LAUC metric in our setting suggests that, under the conditions examined here, robustness and task effectiveness can coexist when adversarial defenses are properly integrated into the training pipeline. Radiomic analysis shows that adversarial vulnerability is primarily associated with specific second-order texture features rather than global intensity statistics. In particular, variations in ClusterShade indicate that changes in local intensity relationships are key to misleading the encoder (Fig. 10). In contrast, localization failures show minimal variation in this feature, suggesting lower sensitivity of spatial prediction to such local texture perturbations. For CW-L2 attacks, additional effects are observed in first-order statistics (Fig. 11), where shifts in Skewness suggest that global intensity asymmetry may contribute to misclassification. Moreover, features derived from GLSZM, which describe the spatial distribution of homogeneous intensity regions, show consistent variations, indicating that reorganization of spatial intensity structure also contributes to prediction failures. Overall, these findings suggest that the model observer is particularly sensitive to subtle modifications of local texture patterns, which are not perceptible to human observers but are sufficient to alter model predictions. Radiomic analysis therefore provides a means to distinguish between non-robust features, which vary significantly between successful and unsuccessful attacks and likely drive misclassification, and robust features, which remain stable and are less associated with prediction changes. This distinction offers an interpretable framework for understanding model vulnerabilities and can guide the design of model observers that rely more strongly on stable image descriptors, improving robustness to small 13 perturbations. 
+
+# 5 Conclusion 
+
+CNN-based models achieve strong performance in medical imaging but remain sensitive to small ad-versarial perturbations, raising concerns for safety-critical applications such as clinical decision support and CT protocol optimization under the ALARA principle. In this study, we evaluate adversarial train-ing to improve the robustness of a U-Net-based model observer for CT image quality assessment and low-contrast object detection and localization. Adversarial perturbations are used to systematically probe model sensitivity to targeted input changes. After adversarial training, the model shows substantially increased robustness to both gradient-based and optimization-based attacks, while preserving its primary task performance. This is confirmed by stable LROC curves and unchanged area under the LROC metric compared to the original model and human observers, indicating no degradation in clinical utility. These results demonstrate that robustness and task performance can be jointly achieved when ad-versarial defenses are properly integrated into training. More broadly, adversarial training supports the development of more reliable and generalizable medical imaging AI systems capable of maintaining per-formance under realistic data variability, an important requirement for clinical translation and regulatory standards. Additionally, adversarial perturbations provide insight into model behavior by revealing sensitive input regions, while radiomic analysis helps identify texture features associated with failure modes, supporting improved interpretability and feature robustness [50]. Future work will extend these findings to other architectures and investigate explainability methods, including activation mapping and feature attribution [39], to better understand how adversarial perturbations affect internal representations and decision mechanisms. 
+
+# Declaration of competing interest 
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. 
+
+# Acknowledgments 
+
+This work was carried out within the framework of an inter-institutional collaboration agreement involv-ing Azienda Ospedaliero-Universitaria Careggi, Department of Physics and Astronomy of the Universit` adegli Studi di Firenze, Istituto Superiore di Sanit` a, Azienda USL Toscana Centro, Fondazione Bruno Kessler, National Research Council of Italy, and UNISER Pistoia. The authors acknowledge the finan-cial support provided by Careggi and AUSL Toscana Centro through research fellowships, as well as the computational infrastructure made available by UNISER Pistoia and by Istituto Superiore di Sanit` a as a partner of Project ECS 0000024 Rome Technopole, – CUP B83C22002820006, NRP Mission 4 Com-ponent 2 Investment 1.5, funded by the European Union – NextGenerationEU. The contribution of all researchers and professionals involved in the collaboration is gratefully acknowledged, with particular recognition of the interdisciplinary exchanges and staff mobility across the participating institutions, which enabled the sharing of expertise and the advancement of the different research lines leading to these results. 
+
+# Data Availability 
+
+The datasets generated and/or analyzed during the current study are not publicly available due to ongoing research activities but are available from the corresponding author on reasonable request. 
+
+# References 
+
+[1] Hugo J. W. L. Aerts, Emmanuel Rios Velazquez, Ralph T. H. Leijenaar, Chintan Parmar, Patrick Grossmann, Sara Carvalho, Johan Bussink, Ren´ e Monshouwer, Benjamin Haibe-Kains, Derek Ri-14 etveld, et al. Decoding tumour phenotype by noninvasive imaging using a quantitative radiomics approach. Nature Communications , 5:4006, 2014. [2] Naveed Akhtar and Ajmal Mian. Threat of adversarial attacks on deep learning in computer vision: a survey. IEEE Access , 6:14410–14430, 2018. [3] Hubert Baniecki and Przemyslaw Biecek. Adversarial attacks and defenses in explainable artificial intelligence: a survey. Information Fusion , 107:102303, 2024. [4] Harrison H. Barrett and Kyle J. Myers. Foundations of Image Science . Wiley, 2004. [5] Harrison H. Barrett, Jie Yao, Jannick P. Rolland, and Kyle J. Myers. Model observers for assessment of image quality. Proceedings of the National Academy of Sciences , 90(21):9758–9765, 1993. [6] Battista Biggio, Igino Corona, Davide Maiorca, Blaine Nelson, Nedim Srndic, Pavel Laskov, Giorgio Giacinto, and Fabio Roli. Evasion attacks against machine learning at test time. In ECML PKDD ,pages 387–402, 2013. [7] Houssem Ben Braiek and Foutse Khomh. Machine learning robustness: A primer. In Trustworthy AI in Medical Imaging , pages 37–71. Elsevier, 2025. [8] C. Buckner. Understanding adversarial examples requires a theory of artefacts for deep learning. 
+
+Nature Machine Intelligence , 2:731–736, 2020. [9] Nicholas Carlini and David Wagner. Towards evaluating the robustness of neural networks. In 2017 IEEE Symposium on Security and Privacy , pages 39–57, 2017. [10] Anirban Chakraborty, Manaar Alam, Vishal Dey, Anupam Chattopadhyay, and Debdeep Mukhopadhyay. A survey on adversarial attacks and defences. CAAI Transactions on Intelligence Technology , 6(1):25–45, 2021. [11] Council of the European Union. Council directive 2013/59/euratom, 2013. [12] Alex J. DeGrave, Joseph D. Janizek, and Su-In Lee. AI for radiographic covid-19 detection selects shortcuts over signal. Nature Machine Intelligence , 3:610–619, 2021. [13] Junhao Dong, Junxi Chen, Xiaohua Xie, Jianhuang Lai, and Hao Chen. Survey on adversarial attack and defense for medical image analysis: Methods and challenges. ACM Comput. Surv. , 57(3):1–38, 2024. [14] Sandra Doria, Federico Valeri, Lorenzo Lasagni, Valentina Sanguineti, Ruggero Ragonesi, Muham-mad Usman Akbar, Alessio Gnerucci, Alessio Del Bue, Alessandro Marconi, Guido Risaliti, et al. Addressing signal alterations induced in CT images by deep learning processing: a preliminary phantom study. Physica Medica , 83:88–100, 2021. [15] Samuel G. Finlayson, John D. Bowers, Joichi Ito, Jonathan L. Zittrain, Andrew L. Beam, and Isaac S. Kohane. Adversarial attacks on medical machine learning. Science , 363(6433):1287–1289, 2019. [16] T. Freiesleben and T. Grote. Beyond generalization: a theory of robustness in machine learning. 
+
+Synthese , 202, 2023. [17] Timo Freiesleben. The intriguing relation between counterfactual explanations and adversarial examples. Minds and Machines , 32(1):77–109, 2022. [18] Robert Geirhos, J¨ orn-Henrik Jacobsen, Claudio Michaelis, Richard Zemel, Wieland Brendel, Matthias Bethge, and Felix A. Wichmann. Shortcut learning in deep neural networks. Nature Machine Intelligence , 2(11):665–673, 2020. [19] Robert J. Gillies, Paul E. Kinahan, and Hedvig Hricak. Radiomics: images are more than pictures, they are data. Radiology , 278(2):563–577, 2016. [20] Ian J. Goodfellow, Jonathon Shlens, and Christian Szegedy. Explaining and harnessing adversarial examples. arXiv preprint arXiv:1412.6572 , 2014. 15 [21] Robert M. Haralick, K. Shanmugam, and Its’hak Dinstein. Textural features for image classification. 
+
+IEEE Transactions on Systems, Man, and Cybernetics , SMC-3(6):610–621, 1973. [22] Xin He and Subok Park. Model observers in medical imaging research. Theranostics , 3:774–786, 2013. [23] H. Hirano, A. Minagi, and K. Takemoto. Universal adversarial attacks on deep neural networks for medical image classification. BMC Medical Imaging , 21(9), 2021. [24] Andrew Ilyas, Shibani Santurkar, Dimitris Tsipras, Logan Engstrom, Brandon Tran, and Aleksander Madry. Adversarial examples are not bugs, they are features. In Advances in Neural Information Processing Systems , 2019. [25] International Commission on Radiological Protection. Recommendations of the ICRP. ICRP pub-lication 26. Ann. ICRP , 1(3), 1977. [26] ISO/IEC. Artificial intelligence (AI) – assessment of the robustness of neural networks – part 1: Overview. Technical Report TR 24029-1, ISO/IEC, 2021. [27] Alexey Kurakin, Ian Goodfellow, and Samy Bengio. Adversarial examples in the physical world. 
+
+arXiv preprint arXiv:1607.02533 , 2016. [28] Aleksander Madry, Aleksandar Makelov, Ludwig Schmidt, Dimitris Tsipras, and Adrian Vladu. Towards deep learning models resistant to adversarial attacks. In International Conference on Learning Representations (ICLR) , 2018. [29] Marius E. Mayerhoefer, Andrzej Materka, Georg Langs, Ida H¨ aggstr¨ om, Piotr Szczypi´ nski, Peter Gibbs, and Gary Cook. Introduction to radiomics. Journal of Nuclear Medicine , 61(4):488–495, 2020. [30] Christoph Molnar. Interpretable Machine Learning . Leanpub, 2025. [31] Seyed-Mohsen Moosavi-Dezfooli, Alhussein Fawzi, Omar Fawzi, and Pascal Frossard. Universal adversarial perturbations. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 86–94, 2017. [32] Alejandro Newell, Kaiyu Yang, and Jia Deng. Stacked hourglass networks for human pose estimation. In European Conference on Computer Vision (ECCV) , pages 483–499, 2016. [33] Maria-Irina Nicolae, Mathieu Sinn, Minh Ngoc Tran, Beat Buesser, Ambrish Rawat, Martin Wis-tuba, Valentina Zantedeschi, Nathalie Baracaldo, Bryant Chen, Heiko Ludwig, Ian Molloy, and Ben Edwards. Adversarial Robustness Toolbox v1.0.0, 2018. [34] Magdalini Paschali, Sailesh Conjeti, Fernando Navarro, and Nassir Navab. Generalizability vs robustness: investigating medical imaging networks using adversarial examples. In Medical Image Computing and Computer-Assisted Intervention (MICCAI) , pages 493–501, 2018. [35] Christian Payer, Darko ˇStern, Horst Bischof, and Martin Urschler. Integrating spatial configuration into heatmap regression cnns for landmark localization. Medical Image Analysis , 54:207–219, 2019. [36] Anibal Pedraza et al. On the relationship between generalization and robustness to adversarial examples. Symmetry , 13(5):817, 2021. [37] Sotiris Pelekis, Thanos Koutroubas, Afroditi Blika, Anastasis Berdelis, Evangelos Karakolis, Chris-tos Ntanos, Evangelos Spiliotis, and Dimitris Askounis. Adversarial machine learning: a review of methods, tools, and critical industry sectors. Artificial Intelligence Review , 2025. [38] Olaf Ronneberger, Philipp Fischer, and Thomas Brox. U-Net: Convolutional networks for biomedical image segmentation. In Medical Image Computing and Computer-Assisted Intervention (MICCAI) ,Lecture Notes in Computer Science, pages 234–241. Springer, 2015. [39] Ramprasaath R. Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. Grad-cam: visual explanations from deep networks via gradient-based local-ization. In Proceedings of the IEEE International Conference on Computer Vision (ICCV) , pages 618–626, 2017. 16 [40] Alexandru Constantin Serban, Erik Poll, and Joost Visser. Adversarial examples—a complete characterisation of the phenomenon. arXiv preprint arXiv:1810.01185 , 2018. [41] Nahian Siddique, Sidike Paheding, Colin P. Elkin, and Vijay Devabhaktuni. U-Net and its variants for medical image segmentation: A review of theory and applications. IEEE Access , 9:82031–82057, 2021. [42] Richard G. Swensson. Unified measurement of observer performance in detecting and localizing target objects on images. Medical Physics , 23(10):1709–1725, 1996. [43] Christian Szegedy et al. Intriguing properties of neural networks. arXiv preprint arXiv:1312.6199 ,2014. [44] G. Thibault, B. Fertil, C. Navarro, S. Pereira, P. Cau, N. Levy, J. Sequeira, and J.-L. Mari. Texture indexes and gray level size zone matrix. In Proceedings of PRIP 2009 , pages 140–145, 2009. [45] Dimitris Tsipras, Shibani Santurkar, Logan Engstrom, Alexander Turner, and Aleksander Madry. Robustness may be at odds with accuracy. In International Conference on Learning Representations (ICLR) , 2019. [46] Federico Valeri, Maurizio Bartolucci, Elena Cantoni, Roberto Carpi, Evaristo Cisbani, Ilaria Cup-paro, Sandra Doria, Cesare Gori, Mauro Grigioni, Lorenzo Lasagni, et al. U-Net and MobileNet CNN-based model observers for CT protocol optimization: comparative performance evaluation by means of phantom CT images. Journal of Medical Imaging , 10(S1):S11904, 2023. [47] Joost JM Van Griethuysen et al. Computational radiomics system to decode the radiographic phenotype. Cancer Research , 77(21):e104–e107, 2017. [48] Janita E. van Timmeren, Davide Cester, Stephanie Tanadini-Lang, Hatem Alkadhi, and Bettina Baessler. Radiomics in medical imaging: How-to guide and critical reflection. Insights into Imaging ,11(1):91, 2020. [49] Sandra Wachter, Brent Mittelstadt, and Chris Russell. Counterfactual explanations without opening the black box: automated decisions and the gdpr. Harvard Journal of Law & Technology , 31(2):841– 887, 2018. [50] Mattea L. Welch, Chris McIntosh, Benjamin Haibe-Kains, Michael F. Milosevic, Leonard Wee, Andre Dekker, Shao Hui Huang, Thomas G. Purdie, Brian O’Sullivan, Hugo J. W. L. Aerts, and David A. Jaffray. Vulnerabilities of radiomic signature development: the need for safeguards. Ra-diotherapy and Oncology , 130:2–9, 2019. [51] Han Xu, Yao Ma, Hao-Chen Liu, Debayan Deb, Hui Liu, Ji-Liang Tang, and Anil K. Jain. Adversar-ial attacks and defenses in images, graphs and text: a review. International Journal of Automation and Computing , 17(2):151–178, 2020. [52] Hongyang Zhang, Yaodong Yu, Jiantao Jiao, Eric P. Xing, Laurent El Ghaoui, and Michael I. Jordan. Theoretically principled trade-off between robustness and accuracy. In International Conference on Machine Learning (ICML) , pages 7472–7482, 2019. [53] Alex Zwanenburg, Martin Vallieres, Mahmoud A. Abdalah, Hugo J. W. L. Aerts, Vincent Andrea-rczyk, Aditya Apte, Saeed Ashrafinia, Spyridon Baez, Roelof Bakr, et al. The image biomarker standardization initiative: standardized quantitative radiomics for high-throughput image-based phenotyping. Radiology , 295(2):328–338, 2020. 17
