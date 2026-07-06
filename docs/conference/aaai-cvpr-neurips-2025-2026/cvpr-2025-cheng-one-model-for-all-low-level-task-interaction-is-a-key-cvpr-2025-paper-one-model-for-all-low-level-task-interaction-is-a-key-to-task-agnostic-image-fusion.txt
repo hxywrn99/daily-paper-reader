@@ -1,0 +1,463 @@
+Title: One Model for ALL: Low-Level Task Interaction Is a Key to Task-Agnostic Image Fusion
+
+URL Source: https://openaccess.thecvf.com/content/CVPR2025/papers/Cheng_One_Model_for_ALL_Low-Level_Task_Interaction_Is_a_Key_CVPR_2025_paper.pdf
+
+Published Time: Mon, 02 Jun 2025 13:49:56 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+# One Model for ALL: Low-Level Task Interaction Is a Key to Task-Agnostic Image Fusion 
+
+## Chunyang Cheng 1, Tianyang Xu 1, Zhenhua Feng 1, Xiaojun Wu 1* , ZhangyongTang 1, Hui Li 1,Zeyang Zhang 1, Sara Atito 2, Muhammad Awais 2, Josef Kittler 2
+
+> 1
+
+School of Artificial Intelligence and Computer Science, Jiangnan University, Wuxi, China 
+
+> 2
+
+Centre for Vision, Speech and Signal Processing (CVSSP), University of Surrey, Guildford, UK 
+
+{chunyang cheng, zhangyong tang, zeyang zhang }@stu.jiangnan.edu.cn 
+
+{tianyang xu, fengzhenhua, wu xiaojun, lihui.cv }@jiangnan.edu.cn 
+
+{sara.atito, muhammad.awais, j.kittler }@surrey.ac.uk 
+
+## Abstract 
+
+Advanced image fusion methods mostly prioritise high-level missions, where task interaction struggles with semantic gaps, requiring complex bridging mechanisms. In contrast, we propose to leverage low-level vision tasks from digital photography fusion, allowing for effective feature interac-tion through pixel-level supervision. This new paradigm provides strong guidance for unsupervised multimodal fu-sion without relying on abstract semantics, enhancing task-shared feature learning for broader applicability. Own-ing to the hybrid image features and enhanced universal representations, the proposed GIFNet supports diverse fu-sion tasks, achieving high performance across both seen and unseen scenarios with a single model. Uniquely, ex-perimental results reveal that our framework also supports single-modality enhancement, offering superior flexibility for practical applications. Our code will be available at 
+
+https://github.com/AWCXV/GIFNet .
+
+## 1. Introduction 
+
+Image fusion combines critical information from multiple sources to produce an output that is more informative and contextually rich, enhancing both human visual interpreta-tion and the performance of downstream computer vision tasks [24, 32]. This technique has been shown to be valu-able in remote sensing [13], medical imaging [1], and re-lated fields [32, 40]. Typically, image fusion is divided into multi-modal fusion and digital photography fusion, based on the properties of the source images [15, 20]. Multi-modal fusion combines complementary information from different sensors, such as Infrared and Visible Image Fu-                
+
+> *Corresponding Author [A] IR-VIS [B] Medical [C] NIR-VIS [D] MEIF [E] MFIF [F] Remote
+> (a) [24’ CVPR] Text-IF (b) [23’ TPAMI] MURF (c) [Ours] GIFNet
+> Fusion + ViLT Fusion + Registration Fusion + Fusion
+> 82.85 GFLOPs 266.75 GFLOPs 9.96 GFLOPs
+> × 1 × 3 ×
+> One Model
+> For All Tasks
+> Unseen
+> …
+> [Validated]
+> [Tasks]
+> X Models for
+> X Tasks
+> X Models for
+> X Tasks
+> [G]
+> [A] [A][B][C] [A][B][C][D][E][F][G] 6
+
+Figure 1. A comparison of the versatility and efficiency of ad-vanced multi-task fusion methods. The indices in the arrows are the fusion tasks validated by the corresponding methods. 
+
+sion (IVIF), where the infrared channel highlights targets against backgrounds and visible images convey texture de-tails. Due to the lack of Ground Truth in such tasks, unsu-pervised approaches are commonly employed [31, 49]. In contrast, digital photography fusion, such as Multi-Focus Image Fusion (MFIF) and Multi-Exposure Image Fusion (MEIF), addresses degradations caused by the limitations of the depth of field and inappropriate exposure within a sin-gle image [48]. For these tasks, Ground Truth data can be generated artificially, for instance, by synthetically blurring regions or adjusting exposure, making supervised learning feasible. Currently, a task-interaction mechanism is widely used in advanced image fusion methods. A typical approach adopted by advanced multi-modal image fusion research is to draw on high-level visual tasks for supervisory signals to direct the fusion. As a downstream task, these high-level models are usually equipped with a fusion model and re-ceive the fused image as input for iteratively optimising the fusion model and high-level models. High-level tasks, such This CVPR paper is the Open Access version, provided by the Computer Vision Foundation. Except for this watermark, it is identical to the accepted version; the final published version of the proceedings is available on IEEE Xplore. 28102 (a) IVIF + Detection    
+
+> (b) IVIF + ViLT (d) IVIF + MFIF (Ours)
+> Visible and Infrared Images
+> Clear
+> Texture Visibility
+> Saliency
+> Saliency
+> Multi-Modal
+> Features
+> Task-Shared
+> Features
+> Digital Photography
+> Features
+> Task-Shared
+> Features
+> Learn More Enhance
+> Enhance Only
+> Coarse-grained
+> Supervision Pixel-focused
+> Supervision
+> Semantic-focused
+> Supervision
+> VS.
+> Detect
+> MFIF
+> High-level
+> Task
+> Low-level
+> Task
+
+Figure 2. Comparison of advanced multi-task fusion methods rely-ing on high-level tasks and the proposed low-level task interaction paradigm. These semantic-focused paradigms cannot consistently ensure the robust fusion quality as our paradigm does, which pro-vides the pixel-level supervision and presents clear texture details. 
+
+as object detection or semantic segmentation [21, 30, 42], introduce abstract semantic information that can be used to guide task-specific feature learning and improve the fusion performance. Meanwhile, the improved scene representa-tion derived from the fused image also helps to realise the high-level task better by virtue of the mutual reinforcement mechanism established in this way. However, such high-level supervision is somewhat di-vorced from the underlying image fusion problem. As shown in Fig. 1, when addressing a different image fusion task, this indirect formulation requires training a new fusion model that is tailored to specific features of each task. This additional requirement can hinder the deployment of image fusion algorithms on small footprint devices, e.g. , mobile phone, which have limited computational resources, as ev-ery application requires a different model to solve it. Moreover, the semantic gap between a high level down-stream task and the low level image fusion renders the high level supervision signal less than optimal for guiding pixel-focused fusion learning, as it tends to encode features re-lated to object categories, shapes, and scene layouts, rather than fine-grained image details. This mismatch results in unwanted reliance on complex bridging modules [39] or computationally intensive pre-trained models [7] for differ-ent fusion contexts (Fig. 1 (a) and (b)), both of which are resource-heavy and fail to generalise effectively across var-ious fusion contexts. Also, as shown in Fig. 2, paradigms (a) [21] and (b) [41] achieve increased saliency for detected objects or text-prompted regions, yet the fused images are often unable to consistently maintain high visual quality, which is significant for other fusion tasks. We argue that, this phenomenon can be attributed to the absence of pixel-level supervision. In this work, we aim to address these limitations by promoting cross-task interaction without relying on high-level semantics. Instead, we use low-level digital photog-raphy fusion tasks as a more natural alternative for provid-ing supervisory signals. Digital photography fusion shares its characteristics with multi-modal fusion, emphasising the preservation of details and focusing on pixel-level feature alignment, rendering it better equipped for enhancing task-shared image features without the semantic mismatch inher-ent to interacting with high-level tasks. To this end, we introduce the Generalised Image Fusion Network (GIFNet), a three-branch architecture that sup-ports low-level task interaction for effective fusion. GIFNet comprises a main task branch, an auxiliary task branch, and a reconciling branch. The main and auxiliary task branches, which alternately focus on the multi-modal and digital pho-tography features, promote effective cross-task interaction. While the reconciling branch, centred on a shared recon-struction task, encourages the network to learn a universal feature representation [54]. This branch harmonises the op-timisation directions of the multi-modal and digital photog-raphy branches, preventing divergent task-specific adapta-tions. Additionally, our model incorporates a cross-fusion gating mechanism that iteratively refines each task-specific branch, integrating multi-modal and digital photography features to deliver the fusion result. To minimise the data domain gap between multi-modal and digital photography tasks, we create an RGB-based joint dataset based on the augmentation technique. With the shared RGB modality de-rived from identical scenes, the proposed model can focus on consistent feature extraction across the adopted tasks in a unified context, thereby harmonising the training process. Finally, as shown in Fig. 1 (c), the limited computational cost of low-level fusion tasks in GIFNet reduces GFLOPs by more than 96% compared to the advanced image fu-sion method. Unlike current approaches that focus heavily on high-level vision tasks, prioritising a single category fu-sion, GIFNet’s integration of both multi-modal and digital photography tasks broadens its applicability across various fusion scenarios with a single model (task-agnostic image fusion). Besides, rather than amplifying task-specific fea-tures, our low-level task interaction enhances task-shared foundational features that are crucial for general image pro-cessing, allowing GIFNet to function as a versatile enhancer even for single-modality inputs. The main contributions of the proposed method include the following: • We uniquely demonstrate that collaborative training be-tween low-level fusion tasks, a strategy whose importance was previously not recognised, yields significant perfor-mance gains by harnessing cross-task synergies. • The reconstruction task and an augmented RGB-focused joint dataset are introduced to align features of different fusion tasks and to address the data support. • Our method significantly enhances the versatility of the 28103 fusion system, eliminating the need for time-consuming task-specific adaptation. • GIFNet pioneers the integration of image fusion and single-modality enhancement processes, extending the scope of image fusion models beyond the multi-modal domain. 
+
+## 2. Related work 
+
+2.1. Image Fusion and Downstream Tasks 
+
+With the increased interest in learning-based image fusion, mainstream approaches aim to improve fusion performance by introducing high-level semantics to multi-modal image fusion tasks [30, 51, 55]. This paradigm can enhance the performance of downstream multimodal tasks using the improved fusion results [21]. Additionally, these meth-ods achieve promising objectively measured performance in various image fusion assessments. However, the reliance on labels from downstream de-tection or segmentation tasks makes the performance gains costly and compromises their relevance for new fusion tasks. Besides, the computational burden incurred by in-volving a relatively large high-level vision model in a low-level image processing technique seems an inappropriate use of resources. The semantic gap between the features re-quired for image fusion and high-level visual tasks also im-pairs the quality of fused images [51]. In FusionBooster [6], Cheng et.al. identify this discrepancy and propose using an enhancer designed specifically to avoid the injection of incompatible semantic information. Despite the signif-icant performance improvements, this boosting paradigm requires extra training for each fusion task. Additionally, the commonalities among different fusion tasks are ignored, and the potential of specific features derived from different missions is not fully exploited. Inspired by this analysis, we propose GIFNet. It only combines the low-level vision tasks to establish the cross-task interaction and diverse image fusion tasks are used to extract foundational and targeted features. Thanks to the carefully designed task combination, scenario-specific co-operation mechanisms aimed to reduce the semantic gaps are not required in GIFNet, enabling a more effective multi-task learning paradigm. 
+
+2.2. Generalised Image Fusion Methods 
+
+Some existing studies also aim to develop a generalised im-age fusion method that performs well across various fu-sion tasks with different input modalities or image types. In U2Fusion [38], Xu et.al. proposed a unified image fu-sion method based on continual learning, capable of han-dling multiple fusion tasks. This work addresses con-flicts among different fusion subtasks but fails to promote task interaction during training. Subsequently, more algo-rithms have been developed simultaneously to improve im-age fusion performance and generalisation ability, includ-ing CNN-based methods [5, 43], Transformer-based solu-tions [27, 57], Mamba-based algorithms [36], and some frequency-based approaches [12, 56]. However, these paradigms rely heavily on extensive training data spanning diverse fusion tasks and cannot achieve true generalisation without further training on task-specific datasets. Typically, they depend on multiple image fusion models or specific fusion rule designs [4] to manage different fusion tasks ef-fectively. In our work, we address this limitation by designing a cross-fusion gating mechanism, involving only the inter-action of two representative image fusion tasks from the multi-modal image fusion and the digital photography im-age fusion. The learned hybrid image features and enhanced low-level representations enable us to use a single model for achieving task-independent and generalised image fusion. 
+
+## 3. The Proposed GIFNet 
+
+3.1. Formulation 
+
+The image fusion paradigm can generally be defined as: 
+
+If = F (I1, I 2), (1) where I1 and I2 are input images, F denotes an im-age fusion approach, and If is the fused image. Recent methods often incorporate semantic information from high-level vision tasks for the multi-modal image fusion (IVIF) model [7, 21], aiming to improve performance. How-ever, this paradigm raises risks of degraded image qual-ity, increased computational cost, and limited generalisation (Fig. 1 and Fig. 2). We propose a novel approach by introducing two inno-vative ideas. The first is a cross-task interaction mecha-nism that leverages low-level processing operations across various fusion tasks. Specifically, we use digital photogra-phy image fusion tasks to provide additional task-specific features and supervision signals for the unsupervised IVIF task, thereby improving the generalisation and robustness of the fusion model. We select Multi-Focus Image Fusion (MFIF) as a representative example of digital photography fusion to demonstrate our GIFNet model, as it performed best among available fusion tasks in our interaction abla-tion experiments (Sec. 4.2). The second innovative feature of our method is the in-corporation of single-modality image enhancement capabil-ity. Introducing digital photography fusion tasks (one image with different settings), the model learns to enhance features without relying on multi-modal input. By setting both in-puts to the same image, we simulate a fusion-like enhance-ment, focusing on refining details within the single image. 28104 This inference process is formulated as: 
+
+ˆX = F (X, X ), (2) where X denotes the single modality input, ˆX is the en-hanced output. Applications of existing image fusion meth-ods are only restricted to the multi-modal scenarios. While this new feature enables us to take advantage of the en-hanced results for boosting mainstream RGB vision tasks. 
+
+3.2. Measures to Mitigate the Domain Gap and the Task Differences 
+
+Our multi-task learning framework requires the model to extract and learn distinct features from input images for each task. Without taking explicit measures, this diver-sity can misalign the model’s learning objectives, making it challenging to develop a unified representation that per-forms effectively across all tasks. To address this issue, we employ a data augmentation technique to generate an RGB-focused joint dataset from an IVIF benchmark [14]. This augmented dataset consists of aligned RGB, infrared, far-focused and near-focused im-ages. The multi-focus data is obtained by partially blur-ring clear RGB images ( details are provided in the sup-plement ). Since the data is derived from the same scene within a single dataset, the domain gap is effectively re-duced. In addition, we introduce a reconstruction (REC) task in the cross-task interaction. The REC task facilitates feature alignment across different tasks by focusing on fea-tures that are beneficial universally. This approach ensures that features learned for one task remain relevant and com-patible with other tasks, promoting a more coherent and ef-fective interaction among tasks. 
+
+3.3. Model Architecture 
+
+Contemporary image fusion methods often struggle with collaborative learning due to their monolithic network de-signs, where multiple tasks depend on a singular encoder-decoder structure [5, 9, 43]. To address this, our frame-work introduces a three-branch architecture (as illustrated in Fig. 3 (a)), which decouples the feature extraction pro-cess and facilitates interaction between low-level tasks. In our model, only the foundational feature extraction part is shared across different tasks. By focusing on the interaction among low-level tasks, our approach allows task-specific features to be combined directly within the network, removing the need for addi-tional modules to bridge feature or semantic gaps. This in-teraction occurs between the Multi-Modal (MM) and Dig-ital Photography (DP) branches, where a cross-task mech-anism alternates the roles of main and auxiliary branches (Fig. 3 (d)). A gating module then selectively routes the main branch’s hybrid features to the global decoder (G-Dec) for delivering fusion results. The reconstruction (REC) branch supports this process by extracting task-agnostic fea-tures. Reconstruction Branch: As shown in Fig. 3 (b) (II), the REC branch employs an autoencoder to derive universal features from various image fusion tasks. By targeting the common RGB modality within our augmented data for the reconstruction, we ensure the effective extraction of task-shared features. Dense connections in the shared encoder (S-Enc) maximize the feature utilisation, enabling the trans-mission of the original visual signals to the other branches. Cross-Fusion Gating Mechanism: After obtaining these shared features, the MM and DP branches proceed to extract task-specific features of different fusion types(Fig. 3 (b) (I)). The proposed Cross-Fusion Gating Mechanism (CFGM) serves as the core technique for controlling these branches, enabling them to fuse task-specific features and stabilise cross-task interaction adaptively. In view of its well-known robust global feature extraction ability and its success in capturing task-aware features [17, 27], we use the efficient SwinTransformer block [25] to formulate the CFGM. Within the CFGM, main and auxiliary branches are al-ternately trained by updating one while freezing the other (Fig. 3 (c)). In each training step, we have: 
+
+ˆxm = Self-Att (xm), (3) 
+
+xm = ˆxm + λ · Cross-Att ( ˆ xm, x a), (4) where xm and xa represent the main and auxiliary task rep-resentations, respectively, and λ is a learnable parameter that controls the degree of auxiliary task influence. Self-Att and Cross-Att denote the self attention and cross attention operations. The interaction is confined to the odd layers to avoid interfering with the SwinTransformer’s window shift operation [25]. 
+
+3.4. Training and Inference 
+
+In the training process, we adopt two loss functions, i.e. ,the public loss Lpub and the private loss Lpri , defined by the outputs of the REC branch Ir and the fused image If. The total loss for each task branch is: 
+
+Ltotal = Lpub + Lpri . (5) The public loss Lpub guides the foundational feature extrac-tion by enforcing consistency between the REC branch out-put and the shared RGB modality ( Ivis ): 
+
+Lpub = Lssim (Ir , I vis ) + Lmse (Ir , I vis ), (6) where Lssim and Lmse denote the structural similarity loss and mean squared error loss, respectively. The structural similarity loss is defined as: 
+
+Lssim (IX , I Y ) = 1 − SSIM (IX , I Y ). (7) 28105 𝑄𝑄 𝑚𝑚  Self  
+
+> Attention
+> 𝐾𝐾 𝑚𝑚 𝑉𝑉 𝑚𝑚
+> Q
+
+𝝀𝝀        
+
+> Cross
+> Attention
+> :Learnable Parameter
+> Conv
+> Conv
+> Conv
+> S-Enc
+> Embed
+> SwinTransformer
+> Blocks
+> Multi-Modal (MM)
+> Digital Photography (DP)
+> N-Focused F-Focused
+> RGB Infrared
+> MM Branch
+> DP Branch
+> REC Branch
+> G-
+> Dec
+> CFGM
+
+on 
+
+𝐼𝐼 f
+
+> Fused
+
+off S-
+
+Enc 
+
+> Recons
+> (REC
+> Bran
+> S-
+> Enc
+> R-
+> Dec
+> Main Task Images
+> Rebuild
+> Unembed
+
+𝐼𝐼 r
+
+> MM or DP
+> Task-Shared
+> Features
+> Task-Specific
+> Features
+
+SwinTr 
+
+B   
+
+> i-th Transformer Layer (Frozen )
+> 𝐾𝐾 𝑎𝑎 𝑉𝑉 𝑎𝑎 𝑄𝑄 𝑎𝑎
+> KV
+> Self
+> Attention
+> Skip Connection
+
+S-
+
+Enc 
+
+> (i+1) -th
+> Layer
+> (i+1) -th
+> Layer
+
+(a) The overall architecture 
+
+(c) Cross-Fusion Gating Mechanism (CFGM) 
+
+(b) Details of the three-branch design 
+
+> Main Branch
+> MM
+> DP
+> DP
+> MM
+> Auxiliary Branch
+
+𝑥𝑥 𝑚𝑚 
+
+𝑥𝑥 𝑎𝑎 
+
+> Main
+> Branch
+> Aux.
+> Branch
+> G-
+> Dec
+
+Main: On 
+
+Aux.: Off      
+
+> i-th Transformer Layer (Trainable )
+> MM Branch
+> DP Branch
+> MM Branch
+> DP Branch
+> CFGM CFGM
+
+(d) The proposed iterative training strategy  
+
+> G-
+> Dec
+> R-
+> Dec
+> Conv
+> ReLU
+> Conv
+> ReLU
+> Conv
+> ReLU
+> Conv
+> Tanh
+> Main Branch: MM
+> Auxiliary Branch: DP
+> Main Branch: DP
+> Auxiliary Branch: MM
+
+(e)  (f) & (g) 
+
+: Main Task 
+
+> Pass-only Gating
+
+Conv Lay  
+
+> （f）
+> (e)
+> (e) (g)
+> (CNN)
+
+or   
+
+> Target : Shared RGB
+> Cross
+> Attention
+> MM Branch
+> DP Branch
+
+& 
+
+> REC Branch
+
+𝝀𝝀 
+
+𝑥𝑥 𝑚𝑚 
+
+𝑥𝑥 𝑚𝑚 
+
+CFGM 
+
+⊗ ⊕
+
+（I）
+
+（II ）Figure 3. The network architecture and training process of GIFNet. As shown in diagram (d), the Multi-Modal (MM) and Digital Photog-raphy (DP) branches of our model are trained alternately, based on the specifically designed cross-fusion gating mechanism (c). S-
+
+> Enc
+> MM Branch
+> Input Images
+
+𝐼𝐼 f
+
+> DP Branch
+
+C
+
+> Fusion Result
+> CFGM
+> Skip Connection
+> Inference Phase
+> G-
+> Dec
+
+Figure 4. An illustration of the inference phase of our GIFNet. In this stage, only one pair of images will be used to produce the multi-modal and digital photography features. 
+
+Here, SSIM denotes the structural similarity metric [35] between two images. The private loss is uniquely defined for each task. Dur-ing the iterative task-interaction process, only the main task branch and its private loss will be optimised while the other branch is frozen. Note that, the input for the REC branch is always the main task images. For the MM branch (IVIT task), which requires the fused image to retain the infor-mative content from the input images [5, 49], we employ an information-weighted loss function. Based on the vi-sual explanation studies of convolutional networks [29], the gradients of a feature map indicate how a specific area contributes to the final network decision-making. Using a lightweight DenseNet classification network [11], we deter-mine the mixing proportions wvis and wir :
+
+GradF (X) = X ∇ϕ(X), (8) 
+
+[wir , w vis ] = softmax (GradF (Iir ), GradF (Ivis )) , (9) where ϕ(X) denotes the extracted image features of modal-ity X via the pre-trained DenseNet121 network. The private loss for the MM branch is then defined as: 
+
+LMM pri = wir · L mse (If, I ir ) + wvis · L mse (If, I vis ). (10) For the DP branch (MFIF task), given that the augmented MFIF data is derived from RGB images ( Ivis ), we have ground truth for supervised training (Sec.3.2). Hence, the private loss for this branch is formulated as: 
+
+LDP pri = Lmse (If, I vis ). (11) As shown in Fig. 4, during inference, different from the training process, only one image pair is required for a sin-gle fusion task. We then extract shared image features, use CFGM to fuse the two sets of specific representations, and finally, the global decoder reconstructs the fused image. 
+
+## 4. Experimental Results 
+
+4.1. Experimental Settings 
+
+Training: During the training process, only the IVIF dataset (training set of the LLVIP [14]) and the correspond-ing augmented data for the DP task are used. 
+
+Evaluation: After training, we directly apply the model to various seen and unseen image fusion tasks, without any adaption or fine-tuning . The tasks and datasets used in-clude: the LLVIP and TNO [33] datasets for the IVIF task, the Lytro [28] and MFI-WHU [46] datasets for the MFIF task, the Harvard dataset [5] for the medical image fusion task, the VIS-NIR Scene [39] dataset for the near-infrared 28106 0.40      
+
+> 0.60
+> 0.80
+> 1.00
+> 1.20
+> 1.40
+> 1.60
+> EI / 100 VIF SCD AG / 6
+> Max Sum Adaptive (Ours)
+
+Figure 5. Quantitative results of the CFGM ablation experiments. Input Images  (h) CFGM (Max)  (i) CFGM (Sum)  Ours (Adaptive) 
+
+Figure 6. Visualisation of the CFGM ablation experiments.                                                                                     
+
+> Case MTL CFGM REC EI VIF SCD AG (a) IV only ××24.07 0.35 1.13 2.27 (b) MF only ××54.47 0.55 1.49 5.80 (c) ME only ××24.77 0.45 0.34 2.38 (d) IV only ×✓28.71 0.53 1.45 2.71 (e) MF only ×✓56.14 0.59 1.50 6.00 (f) ME only ×✓47.17 0.61 0.69 4.97 (g) IV+MF ××----(h) IV+MF ✓×49.84 0.52 1.49 5.31 (i) IV+MF ×✓52.56 0.57 1.48 5.65 (j) IV+ ME ✓✓47.69 0.56 0.42 5.08 Ours IV+MF ✓✓62.46 0.73 1.61 6.70
+
+Table 1. The results of the ablation experiments involving different components and task combinations of the proposed GIFNet (MF and ME refer to the multi-focus and mult-exposure image fusion). 
+
+and visible image fusion task, the SCIE dataset [2] for the multi-exposure image fusion task, and the Quickbird 
+
+dataset [45] for the remote sensing image fusion task. We also validate the effectiveness of GIFNet on the classifica-tion task using the CIFAR100 dataset [16]. The evaluation metrics for image fusion include two commonly used correlation-based metrics: Visual Infor-mation Fidelity (VIF) and Sum of Correlation Difference (SCD) [26]. Additionally, we include non-reference image quality assessments [4]: Edge Intensity (EI) and Average Gradient (AG) to measure the clarity of the fusion results. For the classification task, we use top-1 and top-5 accuracy. 
+
+4.2. Ablation Experiments 
+
+In this section, we conduct ablation studies on the IVIF task to demonstrate the efficacy of our GIFNet. We mainly ex-amined the impact of Multi-Task Learning (MTL) strategy, Cross-Fusion Gating Mechanism (CFGM), and the Recon-struction branch (REC). More ablation experiments will be provided in the supplement. 
+
+Main Components: As shown in Table 1, combin-ing single-task training strategy with REC (case (e)), the proposed model already yields impressive results. How-ever, adding another task without the proposed components would prevent the fusion network from converging, i.e. ,the fusion network simply produces non-functional outputs (case (g)). Introducing CFGM or REC independently al-lows the network to produce valid fusion results (cases (h) and (i)). The combination of both components optimises cross-task interaction and enhance the feature alignment, leading to the best performance of our GIFNet. 
+
+Task Combination: The extra supervision signals from the digital photography task help to enhance the fusion per-formance. We further validate this conclusion by employing the supervised MEIF task. Regarding training data, we use the Information Probe module from the FusionBooster [6] to decompose the visible images from the LLVIP dataset, to obtain the overexposed and underexposed images ( ex-amples are provided in the supplementary materials ). The original visible image is regarded as the GT image. As de-picted in case (j), compared with the single task paradigm (setting(d)), the additional supervised task can consistently improve the performance of multi-modal fusion. However, the MEIF task, as an auxiliary task, cannot achieve better performance than that of using the MFIF task. The reason behind this phenomenon may due to the fact that, produc-ing images with higher clarity provides more compatible pixel-level supervision, since there is no conflict between enforcing the fused image to perceive clear content with higher-clarity and preserve as much information as possi-ble. In contrast, MEIF task only involves the adjusting of the overall exposure degree, which is not always align with the objective of IVIF task. 
+
+CFGM Module: Finally, as shown in Fig.5 and Fig.6, replacing the adaptive CFGM strategy (featuring a learnable parameter λ for controlling the mixing ratio) with conven-tional fusion operations demonstrates, both quantitatively and qualitatively, that our adaptive approach provides su-perior control over the interaction process, yielding more robust fused images. 
+
+4.3. Multiple Modalities - Seen Tasks 
+
+In this section, we present the fusion results of our GIFNet on the tasks related to our training data, i.e. , MFIF and IVIF tasks. We compare the proposed method with dedi-cated algorithms for these two tasks, including Text-IF [41], CDDFuse [52], DDFM [53], LRRNet [19], ZMFF [10] and UNIFusion [4]. We also compare with generalised im-age fusion methods, including MURF [39], MUFusion [5], U2Fusion [38], and SDNet [43]. 
+
+MFIF task: As shown in Table 2 (a1) and (a2), our GIFNet achieves promising results in terms of various im-age fusion assessment metrics. For example, the best per-28107 (a1) MFIF Task: Lytro (a2) MFIF Task: MFI-WHU (c) MEIF Task: DSCIE (d) NIR-VIS Task: Scene                                                                                                                                                                                                                                                                
+
+> Method EI VIF SCD AG EI VIF SCD AG Method EI VIF SCD AG Method EI VIF SCD AG U2Fusion 67.20 1.39 0.84 6.34 79.11 1.50 0.56 7.88 U2Fusion 83.00 1.69 0.49 8.71 IFCNN 82.13 0.90 1.14 8.72 UNIFusion* 70.14 1.30 0.60 6.77 66.57 1.01 0.29 7.19 SPD-MEF* 78.17 1.72 0.49 8.12 U2Fusion 80.73 1.07 1.19 8.51 SDNet 62.98 1.12 0.75 6.16 72.98 1.16 0.63 7.98 MEF-GAN* 80.21 1.59 0.63 8.06 SDNet 76.70 0.86 0.72 8.26 MUFusion 70.40 1.34 1.22 6.67 77.72 1.36 1.11 7.92 MUFusion 70.18 1.64 0.96 7.19 MURF* 41.71 0.41 0.19 4.22 ZMFF* 58.97 1.11 0.36 5.48 57.90 1.03 0.33 5.49 IID-MEF* 59.12 1.12 0.36 6.13 Text-IF 88.19 1.49 1.45 9.16
+> GIF (Ours) 80.86 1.74 1.37 7.71 91.61 1.94 1.29 9.25 GIF (Ours) 111.27 2.52 1.04 12.00 GIF (Ours) 101.32 1.51 1.45 10.83
+> (b1) IVIF Task: LLVIP (b2) IVIT Task: TNO (e) Remote Task: QuickBird (f) Medical Task: Harvard
+> Method EI VIF SCD AG EI VIF SCD AG Method EI VIF SCD AG Method EI VIF SCD AG MURF 38.02 0.25 0.56 3.75 45.93 0.94 1.52 4.35 IFCNN 18.30 1.16 0.86 1.73 U2Fusion 73.29 0.78 1.46 7.06 LRRNet* 34.93 0.34 0.95 3.64 36.37 0.75 1.40 3.75 TextFusion 13.73 0.76 0.32 1.29 IFCNN 98.67 0.92 1.33 9.57
+> DDFM* 41.13 0.51 1.55 4.43 31.01 0.67 1.60 3.03 MUFusion 18.45 1.05 -0.02 1.72 SDNet 83.86 0.71 1.60 8.39 CDDFuse* 52.32 0.79 1.58 5.42 43.83 0.91 1.66 4.55 P2Sharpen* 16.66 1.20 0.94 1.56 MUFusion 88.66 0.97 1.23 8.39 Text-IF* 61.30 0.93 1.49 6.33 46.09 1.04 1.53 4.61 ZeroSharpen* 13.20 0.94 0.48 1.26 CoCoNet* 89.55 0.71 1.04 8.84 GIF (Ours) 62.46 0.73 1.61 6.70 52.30 0.99 1.66 5.24 GIF (Ours) 23.02 1.56 1.04 2.16 GIF (Ours) 100.71 1.10 1.68 9.73
+
+Table 2. Quantitative results of the dedicated (*) or unified methods on various image fusion tasks. ( Bold : best, Bold : second best) Far / Near-Focused  ZMFF U2Fusion  SDNet  MUFusion  GIFNet (Ours)         
+
+> GIFNet (Ours) U2Fusion MUFusion IID-MEF SPD-MEF Under / Overexposed
+> GIFNet (Ours) P2Sharpen ZeroSharpen MUFusion IFCNN Pan / MS
+> Near Infrared / RGB U2Fusion SDNet MURF Text-IF GIFNet (Ours)
+> GIFNet (Ours) CoCoNet MUFusion SDNet U2Fusion PET / MRI
+> GIFNet (Ours) Text-IF DDFM LRRNet MURF Infrared / RGB
+
+Figure 7. Qualitative results of the advanced methods on different fusion tasks. ( More results are provided in the supplement )
+
+formance in VIF, with an increase of 25%, demonstrates that our fusion results can effectively enhance the source information, as seen in the first row of Fig. 7. 
+
+IVIF task: For the IVIF task, as shown in the second row of Fig. 7, our fusion results, benefiting from collaborative training, can better adjust the mixing proportion of source modalities. The abundant texture details from the RGB im-age are well-preserved, and the thermal radiation informa-tion contributes to a brighter scene appearance. As a result, in both low-light and common conditions, GIFNet gener-ally achieves the best performance across all these quanti-tative experiments (Table 2 (b1) and (b2)). The relatively poor results on VIF of the LLVIP dataset can be attributed to the “choose-max” fusion strategy in CDDFuse and Text-IF, which retains the source content with the higher pixel value from the input. While this approach ensures high vi-sual fidelity (VIF), the fused images tend to bias towards one input modality, ignoring the information from the other (see the visualisation of Text-IF [41]). 
+
+4.4. Multiple Modalities - Unseen Tasks 
+
+In this section, we present the fusion results of our GIFNet on tasks not involved in training, including multi-exposure image fusion, near-infrared and visible image fu-sion, remote sensing image fusion, and medical image fu-sion tasks. Similarly, we further compare our method with the algorithms designed specifically for these four tasks, including MEF-GAN [37], SPD-MEF [18], IID-MEF [44], MURF [39], P2Sharpen [47], ZeroSharpen [34], CoCoNet [23], TextFusion [7], which incorporates textual information in the image fusion field, and a generalised method IFCNN [50]. 
+
+MEIF Task: Our GIFNet performs well with poorly ex-posed images in the MEIF tasks. As shown in the third row of Fig. 7, in terms of the overall exposure, which is a significant criterion in this task, our result has more appro-priate brightness without serious color distortion (see the highlighted regions). For the quantitative assessment (Ta-ble 2 (c)), compared with advanced approaches, we achieve much higher performance on all image fusion metrics, e.g. ,VIF (+46.7%) and AG (+37.8%). 
+
+NIR-VIS Task: This task is similar to IVIF but replaces the mid-far infrared modality with a near-infrared image. As shown in the fourth row of Fig. 7, the existing fusion methods consistently improve low-light conditions of RGB images using the information conveyed by the NIR modal-ity, while our GIFNet exhibits the clearest texture details. The quantitative results also demonstrate that GIFNet out-performs existing algorithms (Table 2 (d)). Notably, al-though MURF is trained on this task, it focuses more on addressing the registration issue, resulting in relatively poor performance. 
+
+Remote Task: This task, also known as Pansharpening, aims to simultaneously keep the spatial and spectral reso-28108 Method Venue Task Combination Top-1 Acc Top-5 Acc. TarDAL++ [21] 22’ CVPR IVIF+Detect 46.62% 76.11% MURF 23’ TPAMI IVIF+Register 50.04% 79.91% SDNet 21‘ IJCV IVIF 50.28% 79.62% MUFusion 23’ Inf. Fus. IVIF 50.39% 79.59% SDNet † 21’ IJCV MFIF 50.83% 79.56% TextFusion 25’ Inf. Fus. IVIF+ViLT 51.15% 80.81% MUFusion † 23’ Inf. Fus. MFIF 51.50% 79.86% U2Fusion 22’ TPAMI IV+ME+MF 51.58% 80.38% CDDFuse 23’ CVPR IVIF 52.20% 80.00% Text-IF 24’ CVPR IVIF+ViLT 52.57% 80.98% Cifar-original - - 54.11% 83.03% GIFNet Ours IVIF+MFIF 56.18% 84.95% 
+
+Table 3. The classification results of the CIFAR-ResNet56 when using different data for training. The CIFAR100 dataset and en-hanced data delivered by different fusion methods are regarded as the training set. ( †: this method is trained with a different task) 12160    
+
+> RGB CDDFu. GIFNet U2Fus. TextF. MUFus. SDNet
+
+16000   
+
+> Text-IF
+> RGB CDDFu. IMRNet U2Fus. TextF. MUFus SDNet
+
+Figure 8. Visualisations of the advanced image fusion methods on the CIFAR100 single modality enhancement task. 
+
+lution of panchromatic and multispectral images. As illus-trated in the second last row of Fig. 7, like previous tasks, GIFNet obtains fused images with sharper edge information and superior imaging quality. In contrast, competitors fail to maintain the shape of objects from the high-resolution panchromatic modality. Although specifically designed for this task, P2Sharpen and ZeroSharpen are surpassed by our approach across multiple metrics, as shown by the quantita-tive results in Table 2 (e). 
+
+Medical Task: The medical image fusion task aims to preserve salient organ structures from Magnetic Res-onance Imaging (MRI) and clear functional information from Positron Emission Tomography (PET). As shown in Table 2 (f), despite not being trained specifically for this task, GIFNet demonstrates strong visual information fi-delity (VIF) and maintains a high correlation with the source inputs (SCD) in its fusion results. This performance is consistent with the visualisation in the last row of Fig. 7, 
+
+i.e. , with enhanced details, which shows clearly that the re-sults of GIFNet well present the local structure from the MRI modality. 
+
+4.5. Single Modality: the Classification Task 
+
+Our GIFNet’s versatility encompasses both multi-modal image processing and single modality tasks. This experi-ment evaluates GIFNet’s ability to boost RGB image clas-sification using enhanced images as inputs [3]. The original CIFAR100 training set and enhanced data obtained through 
+
+Table 4. An efficiency comparison of multi-task methods.                                   
+
+> Method Venue Task / Technique Model Size (MB) GFLOPs DDFM ICCV 23’ Diffusion model 2211.00 1840.49 SegMiF [22] ICCV 23’ Segmentation 174.37 18.86 MURF TPAMI 23’ Registration 15.55 266.75 Text-IF CVPR 24’ ViLT 580.81 82.85 TC-MoA [57] CVPR 24’ MAE, MoE 426.98 524.28 FILM [55] ICML 24’ Caption, SAM 381.88 747.13 GIFNet Ours Fusion only 3.30 (↓99.1%) 9.96 (↓98.7%)
+
+different image fusion approaches are used to train the CIFAR-ResNet56 network [8] from scratch. Once trained, the classifier is tasked with evaluating the performance on the original test set. As illustrated in Fig. 8, we present original CIFAR100 RGB images alongside enhanced versions produced by dif-ferent approaches. GIFNet demonstrates a notable im-provement in image quality. For instance, in the first row, the blurring present in the original data is mitigated, with clearer information being preserved. In the second exam-ple, our method excels in edge enhancement, outperforming other techniques. Quantitative assessments, as shown in Table 3, indicate that certain fusion methods yield comparable classification performance to the original dataset without improving im-age quality, such as SDNet and MUFusion. Note that, U2Fusion, leveraging even more fusion tasks, suffers from a lack of effective interaction in its sequential training strat-egy, leading to suboptimal enhancement. In contrast, using the task-independent representation from the cross-task in-teraction, GIFNet is the only method to surpass the original training setting. 
+
+4.6. Efficiency Comparison 
+
+In Table 4, we present a detailed comparison of model size and computational overhead against multi-task meth-ods with the code and model available. While these meth-ods demonstrate promising results, their efficiency is lim-ited due to the use of high-level tasks. Our interaction strat-egy exhibits clear advantages, achieving the smallest model size and the lowest computational cost. 
+
+## 5. Conclusion 
+
+This paper introduces a novel approach to low-level task in-teraction for generalised image fusion, addressing a largely overlooked aspect of the field. By integrating a shared re-construction task and an RGB-based joint dataset, we effec-tively reduce task and domain discrepancies, establishing a collaborative training framework. Our model, supported by a cross-fusion gating mechanism, demonstrates superior generalisation and robust fusion performance. Addition-ally, GIFNet pioneers the application of fusion techniques to single-modality enhancement, representing a significant advancement in the image fusion research. 28109 6. Acknowledgement 
+
+This work is supported by the National Key Research and Development Program of China (2023YFE0116300), National Natural Science Foundation of China (62020106012, 62332008, U1836218, 62106089, 62202205), the 111 Project of Ministry of Educa-tion of China (B12018), the Engineering and Physical Sciences Research Council (EPSRC) (EP/V002856/1). 
+
+## References 
+
+[1] Muhammad Adeel Azam, Khan Bahadar Khan, Sana Salahuddin, Eid Rehman, Sajid Ali Khan, Muhammad At-tique Khan, Seifedine Kadry, and Amir H Gandomi. A re-view on multimodal medical image fusion: Compendious analysis of medical modalities, multimodal databases, fusion techniques and quality metrics. Computers in biology and medicine , 144:105253, 2022. 1 [2] Jianrui Cai, Shuhang Gu, and Lei Zhang. Learning a deep single image contrast enhancer from multi-exposure images. 
+
+IEEE Transactions on Image Processing , 27(4):2049–2062, 2018. 6 [3] Ziheng Chen, Tianyang Xu, Xiao-Jun Wu, Rui Wang, and Josef Kittler. Hybrid riemannian graph-embedding metric learning for image set classification. IEEE transactions on big data , 9(1):75–92, 2021. 8 [4] Chunyang Cheng, Xiao-Jun Wu, Tianyang Xu, and Guoyang Chen. Unifusion: A lightweight unified image fusion net-work. IEEE Transactions on Instrumentation and Measure-ment , 70:1–14, 2021. 3, 6 [5] Chunyang Cheng, Tianyang Xu, and Xiao-Jun Wu. Mufu-sion: A general unsupervised image fusion network based on memory unit. Information Fusion , 92:80–92, 2023. 3, 4, 5, 6 [6] Chunyang Cheng, Tianyang Xu, Xiao-Jun Wu, Hui Li, Xi Li, and Josef Kittler. Fusionbooster: A unified image fu-sion boosting paradigm. International Journal of Computer Vision , 2024. 3, 6 [7] Chunyang Cheng, Tianyang Xu, Xiao-Jun Wu, Hui Li, Xi Li, Zhangyong Tang, and Josef Kittler. Textfusion: Unveiling the power of textual semantics for controllable image fusion. 
+
+Information Fusion , 117:102790, 2025. 2, 3, 7 [8] Chenyaofo. Pytorch-cifar-models: Pretrained cifar networks. 
+
+https : / / github . com / chenyaofo / pytorch -cifar-models , 2021. 8 [9] Yanglin Deng, Tianyang Xu, Chunyang Cheng, Xiao-Jun Wu, and Josef Kittler. Mmdrfuse: Distilled mini-model with dynamic refresh for multi-modality image fusion. In Pro-ceedings of the 32nd ACM International Conference on Mul-timedia , pages 7326–7335, 2024. 4 [10] Xingyu Hu, Junjun Jiang, Xianming Liu, and Jiayi Ma. Zmff: Zero-shot multi-focus image fusion. Information Fu-sion , 92:127–138, 2023. 6 [11] Gao Huang, Zhuang Liu, Laurens Van Der Maaten, and Kil-ian Q Weinberger. Densely connected convolutional net-works. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 4700–4708, 2017. 5 [12] Jingjia Huang, Jingyan Tu, Ge Meng, Yingying Wang, Yuhang Dong, Xiaotong Tu, Xinghao Ding, and Yue Huang. Efficient perceiving local details via adaptive spatial-frequency information integration for multi-focus image fu-sion. In Proceedings of the 32nd ACM International Confer-ence on Multimedia , pages 9350–9359, 2024. 3 [13] Farzaneh Dadrass Javan, Farhad Samadzadegan, Soroosh Mehravar, Ahmad Toosi, Reza Khatami, and Alfred Stein. A review of image fusion techniques for pan-sharpening of high-resolution satellite imagery. ISPRS journal of pho-togrammetry and remote sensing , 171:101–117, 2021. 1 [14] Xinyu Jia, Chuang Zhu, Minzhen Li, Wenqi Tang, and Wenli Zhou. Llvip: A visible-infrared paired dataset for low-light vision. In Proceedings of the IEEE/CVF International Con-ference on Computer Vision , pages 3496–3504, 2021. 4, 5 [15] Shahid Karim, Geng Tong, Jinyang Li, Akeel Qadir, Umar Farooq, and Yiting Yu. Current advances and future perspec-tives of image fusion: A comprehensive review. Information Fusion , 90:185–217, 2023. 1 [16] Alex Krizhevsky, Geoffrey Hinton, et al. Learning multiple layers of features from tiny images. 2009. 6 [17] Hui Li and Xiao-Jun Wu. Crossfuse: A novel cross atten-tion mechanism based infrared and visible image fusion ap-proach. Information Fusion , 103:102147, 2024. 4 [18] Hui Li, Kede Ma, Hongwei Yong, and Lei Zhang. Fast multi-scale structural patch decomposition for multi-exposure im-age fusion. IEEE Transactions on Image Processing , 29: 5805–5816, 2020. 7 [19] Hui Li, Tianyang Xu, Xiao-Jun Wu, Jiwen Lu, and Josef Kit-tler. Lrrnet: A novel representation learning guided fusion network for infrared and visible images. IEEE transactions on pattern analysis and machine intelligence , 2023. 6 [20] Hui Li, Haolong Ma, Chunyang Cheng, Zhongwei Shen, Xi-aoning Song, and Xiao-Jun Wu. Conti-fuse: A novel con-tinuous decomposition-based fusion framework for infrared and visible images. Information Fusion , 117:102839, 2025. 1[21] Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and Zhongxuan Luo. Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 5802–5811, 2022. 2, 3, 8 [22] Jinyuan Liu, Zhu Liu, Guanyao Wu, Long Ma, Risheng Liu, Wei Zhong, Zhongxuan Luo, and Xin Fan. Multi-interactive feature learning and a full-time multi-modality benchmark for image fusion and segmentation. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,pages 8115–8124, 2023. 8 [23] Jinyuan Liu, Runjia Lin, Guanyao Wu, Risheng Liu, Zhongxuan Luo, and Xin Fan. Coconet: Coupled con-trastive learning network with multi-level feature ensemble for multi-modality image fusion. International Journal of Computer Vision , 132(5):1748–1775, 2024. 7 [24] Yu Liu, Xun Chen, Zengfu Wang, Z Jane Wang, Rabab K Ward, and Xuesong Wang. Deep learning for pixel-level im-28110 age fusion: Recent advances and future prospects. Informa-tion fusion , 42:158–173, 2018. 1 [25] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 10012–10022, 2021. 4 [26] Jiayi Ma, Han Xu, Junjun Jiang, Xiaoguang Mei, and Xiao-Ping Zhang. Ddcgan: A dual-discriminator conditional gen-erative adversarial network for multi-resolution image fu-sion. IEEE Transactions on Image Processing , 29:4980– 4995, 2020. 6 [27] Jiayi Ma, Linfeng Tang, Fan Fan, Jun Huang, Xiaoguang Mei, and Yong Ma. Swinfusion: Cross-domain long-range learning for general image fusion via swin transformer. 
+
+IEEE/CAA Journal of Automatica Sinica , 9(7):1200–1217, 2022. 3, 4 [28] Mansour Nejati, Shadrokh Samavi, and Shahram Shirani. Multi-focus image fusion using dictionary-based sparse rep-resentation. Information Fusion , 25:72–84, 2015. 5 [29] Ramprasaath R Selvaraju, Michael Cogswell, Abhishek Das, Ramakrishna Vedantam, Devi Parikh, and Dhruv Batra. Grad-cam: Visual explanations from deep networks via gradient-based localization. In Proceedings of the IEEE in-ternational conference on computer vision , pages 618–626, 2017. 5 [30] Linfeng Tang, Jiteng Yuan, and Jiayi Ma. Image fusion in the loop of high-level vision tasks: A semantic-aware real-time infrared and visible image fusion network. Information Fusion , 82:28–42, 2022. 2, 3 [31] Zhangyong Tang, Tianyang Xu, Hui Li, Xiao-Jun Wu, Xue-Feng Zhu, and Josef Kittler. Exploring fusion strategies for accurate rgbt visual object tracking. Information Fusion , 99: 101881, 2023. 1 [32] Zhangyong Tang, Tianyang Xu, Xiaojun Wu, Xue-Feng Zhu, and Josef Kittler. Generative-based fusion mechanism for multi-modal tracking. In Proceedings of the AAAI Confer-ence on Artificial Intelligence , pages 5189–5197, 2024. 1 [33] Alexander Toet et al. Tno image fusion dataset. Figshare. data , 2014. 5 [34] Hebaixu Wang, Hao Zhang, Xin Tian, and Jiayi Ma. Zero-sharpen: A universal pansharpening method across satellites for reducing scale-variance gap via zero-shot variation. In-formation Fusion , 101:102003, 2024. 7 [35] Zhou Wang, A. C. Bovik, H. R. Sheikh, and E. P. Simoncelli. Image quality assessment: from error visibility to structural similarity. IEEE Transactions on Image Processing , 13(4): 600–612, 2004. 5 [36] Xinyu Xie, Yawen Cui, Tao Tan, Xubin Zheng, and Zitong Yu. Fusionmamba: Dynamic feature enhancement for mul-timodal image fusion with mamba. Visual Intelligence , 2(1): 37, 2024. 3 [37] Han Xu, Jiayi Ma, and Xiao-Ping Zhang. Mef-gan: multi-exposure image fusion via generative adversarial networks. 
+
+IEEE Transactions on Image Processing , 29:7203–7216, 2020. 7 [38] Han Xu, Jiayi Ma, Junjun Jiang, Xiaojie Guo, and Haibin Ling. U2fusion: A unified unsupervised image fusion net-work. IEEE transactions on pattern analysis and machine intelligence , 44(1):502–518, 2022. 3, 6 [39] Han Xu, Jiteng Yuan, and Jiayi Ma. Murf: Mutually re-inforcing multi-modal image registration and fusion. IEEE Transactions on Pattern Analysis and Machine Intelligence ,2023. 2, 5, 6, 7 [40] Tianyang Xu, Zhen-Hua Feng, Xiao-Jun Wu, and Josef Kit-tler. An accelerated correlation filter tracker. Pattern recog-nition , 102:107172, 2020. 1 [41] Xunpeng Yi, Han Xu, Hao Zhang, Linfeng Tang, and Ji-ayi Ma. Text-if: Leveraging semantic text guidance for degradation-aware and interactive image fusion. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 27026–27035, 2024. 2, 6, 7 [42] Donglin Zhang, Xiao-Jun Wu, Tianyang Xu, and Josef Kit-tler. Watch: Two-stage discrete cross-media hashing. IEEE Transactions on Knowledge and Data Engineering , 35(6): 6461–6474, 2022. 2 [43] Hao Zhang and Jiayi Ma. Sdnet: A versatile squeeze-and-decomposition network for real-time image fusion. Interna-tional Journal of Computer Vision , pages 1–25, 2021. 3, 4, 6[44] Hao Zhang and Jiayi Ma. Iid-mef: A multi-exposure fusion network based on intrinsic image decomposition. Informa-tion Fusion , 95:326–340, 2023. 7 [45] Hao Zhang, Han Xu, Yang Xiao, Xiaojie Guo, and Jiayi Ma. Rethinking the image fusion: A fast unified image fusion network based on proportional maintenance of gradient and intensity. In Proceedings of the AAAI Conference on Artifi-cial Intelligence , pages 12797–12804, 2020. 6 [46] Hao Zhang, Zhuliang Le, Zhenfeng Shao, Han Xu, and Jiayi Ma. Mff-gan: An unsupervised generative adversarial net-work with adaptive and gradient joint constraints for multi-focus image fusion. Information Fusion , 66:40–53, 2021. 5[47] Hao Zhang, Hebaixu Wang, Xin Tian, and Jiayi Ma. P2sharpen: A progressive pansharpening network with deep spectral transformation. Information Fusion , 91:103–122, 2023. 7 [48] Xingchen Zhang. Deep learning-based multi-focus image fusion: A survey and a comparative study. IEEE Transac-tions on Pattern Analysis and Machine Intelligence , 44(9): 4819–4838, 2021. 1 [49] Xingchen Zhang and Yiannis Demiris. Visible and infrared image fusion using deep learning. IEEE Transactions on Pat-tern Analysis and Machine Intelligence , 2023. 1, 5 [50] Yu Zhang, Yu Liu, Peng Sun, Han Yan, Xiaolin Zhao, and Li Zhang. Ifcnn: A general image fusion framework based on convolutional neural network. Information Fusion , 54: 99–118, 2020. 7 [51] Wenda Zhao, Shigeng Xie, Fan Zhao, You He, and Huchuan Lu. Metafusion: Infrared and visible image fusion via meta-feature embedding from object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 13955–13965, 2023. 3 28111 [52] Zixiang Zhao, Haowen Bai, Jiangshe Zhang, Yulun Zhang, Shuang Xu, Zudi Lin, Radu Timofte, and Luc Van Gool. Cddfuse: Correlation-driven dual-branch feature decompo-sition for multi-modality image fusion. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 5906–5916, 2023. 6 [53] Zixiang Zhao, Haowen Bai, Yuanzhi Zhu, Jiangshe Zhang, Shuang Xu, Yulun Zhang, Kai Zhang, Deyu Meng, Radu Timofte, and Luc Van Gool. Ddfm: Denoising diffusion model for multi-modality image fusion. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 8082–8093, 2023. 6 [54] Zixiang Zhao, Haowen Bai, Jiangshe Zhang, Yulun Zhang, Kai Zhang, Shuang Xu, Dongdong Chen, Radu Timofte, and Luc Van Gool. Equivariant multi-modality image fusion. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vi-sion and Pattern Recognition (CVPR) , pages 25912–25921, 2024. 2 [55] Zixiang Zhao, Lilun Deng, Haowen Bai, Yukun Cui, Zhipeng Zhang, Yulun Zhang, Haotong Qin, Dongdong Chen, Jiangshe Zhang, Peng Wang, and Luc Van Gool. Im-age fusion via vision-language model. In Proceedings of the International Conference on Machine Learning (ICML) ,2024. 3, 8 [56] Man Zhou, Jie Huang, Keyu Yan, Danfeng Hong, Xiuping Jia, Jocelyn Chanussot, and Chongyi Li. A general spatial-frequency learning framework for multimodal image fusion. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelli-gence , 2024. 3 [57] Pengfei Zhu, Yang Sun, Bing Cao, and Qinghua Hu. Task-customized mixture of adapters for general image fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 7099–7108, 2024. 3, 8 28112

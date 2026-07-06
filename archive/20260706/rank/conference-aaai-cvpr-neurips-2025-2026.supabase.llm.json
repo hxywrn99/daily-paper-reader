@@ -1,0 +1,3202 @@
+{
+  "top_k": 200,
+  "generated_at": "2026-07-06T05:37:07.928037+00:00",
+  "papers": [
+    {
+      "id": "openreview-neurips-2025-sygoqxyoaq",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Efficient Rectified Flow for Image Fusion",
+      "abstract": "Image fusion is a fundamental and important task in computer vision, aiming to combine complementary information from different modalities to fuse images. In recent years, diffusion models have made significant developments in the field of image fusion. However, diffusion models often require complex computations and redundant inference time, which reduces the applicability of these methods. To address this issue, we propose RFfusion, an efficient one-step diffusion model for image fusion based on Rectified Flow. We incorporate Rectified Flow into the image fusion task to straighten the sampling path in the diffusion model, achieving one-step sampling without the need for additional training, while still maintaining high-quality fusion results. Furthermore, we propose a task-specific variational autoencoder (VAE) architecture tailored for image fusion, where the fusion operation is embedded within the latent space to further reduce computational complexity. To address the inherent discrepancy between conventional reconstruction-oriented VAE objectives and the requirements of image fusion, we introduce a two-stage training strategy. This approach facilitates the effective learning and integration of complementary information from multi-modal source images, thereby enabling the model to retain fine-grained structural details while significantly enhancing inference efficiency. Extensive experiments demonstrate that our method outperforms other state-of-the-art methods in terms of both inference speed and fusion quality.",
+      "authors": [
+        "Zirui Wang",
+        "Jiayi Zhang",
+        "Tianwei Guan",
+        "Yuhan Zhou",
+        "Xingyuan Li",
+        "Minjing Dong",
+        "Jinyuan Liu"
+      ],
+      "primary_category": "Image Fusion",
+      "categories": [
+        "Image Fusion",
+        "Multi-modality Image Fusion",
+        "Infrared and Visible Image Fusion"
+      ],
+      "published": "2025-09-18T17:31:00.354+00:00",
+      "link": "https://openreview.net/forum?id=SYgoqXyoaQ",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-38009",
+      "source": "AAAI-2026-Accepted",
+      "title": "SigFusion: Unified Signal-Level Self-Supervised Learning Paradigm for Image Fusion",
+      "abstract": "Image Fusion (IF) aims to integrate complementary features from multiple source images into a single image. However, a key challenge in this field is the lack of large-scale real-world training datasets. Existing models typically rely on either small datasets or synthetic, less realistic datasets. To address this, we propose SigFusion, a unified signal-level self-supervised learning paradigm for various IF tasks.The core idea is to use signal-level Pseudo-Label Generation Networks (PLGN) to automatically synthesize training sets and pseudo labels with real multi-source signal characteristics from vast unlabeled natural images.PLGN includes two critical components: learnable 1D Signal Modulators (SM) and SigFormer. SM learns implicit 1D signal patterns across various source images and embeds them into natural images, reducing the domain gap between synthetic and real datasets. SigFormer integrates Transformer with signal processing methods, establishing an appropriate signal representation space for SM. Its cascaded, multi-level design allows hierarchical feature learning from coarse to fine detail. Moreover, SigFormer can serve as a flexible backbone for IF, as its design adheres to the classic decomposition-reconstruction paradigm. Experimental results demonstrate that SigFusion achieves state-of-the-art performance across multiple IF tasks, including medical image fusion, infrared-visible image fusion, multi-focus image fusion, and multi-exposure image fusion.",
+      "authors": [
+        "Zeyu Wang",
+        "Jiawei Feng",
+        "Jiayu Wang",
+        "Pengjie Wang",
+        "Haiyu Song"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 12",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 12"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38009",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38009/41971",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-38126",
+      "source": "AAAI-2026-Accepted",
+      "title": "Dream-IF: Dynamic Relative EnhAnceMent for Image Fusion",
+      "abstract": "Image fusion aims to integrate comprehensive information from images acquired through multiple sources. However, images captured by diverse sensors often encounter various degradations that can negatively affect fusion quality. Traditional fusion methods generally treat image enhancement and fusion as separate processes, overlooking the inherent correlation between them; notably, the dominant regions in one modality of a fused image often indicate areas where the other modality might benefit from enhancement. Inspired by this observation, we introduce the concept of dominant regions for image enhancement and present a Dynamic Relative EnhAnceMent framework for Image Fusion (Dream-IF). This framework quantifies the relative dominance of each modality across different layers and leverages this information to facilitate reciprocal cross-modal enhancement. By integrating the relative dominance derived from image fusion, our approach supports not only image restoration but also a broader range of image enhancement applications. Furthermore, we employ prompt-based encoding to capture degradation-specific details, which dynamically steer the restoration process and promote coordinated enhancement in both multi-modal image fusion and image enhancement scenarios. Extensive experimental results demonstrate that Dream-IF consistently outperforms its counterparts.",
+      "authors": [
+        "Xingxin Xu",
+        "Bing Cao",
+        "Dongdong Li",
+        "Qinghua Hu",
+        "Pengfei Zhu"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 14",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 14"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38126",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38126/42088",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-38932",
+      "source": "AAAI-2026-Accepted",
+      "title": "Self-supervised Multiplex Consensus Mamba for General Image Fusion",
+      "abstract": "Image fusion integrates complementary information from different modalities to generate high-quality fused images, thereby enhancing downstream tasks such as object detection and semantic segmentation. Unlike task-specific techniques that primarily focus on consolidating inter-modal information, general image fusion needs to address a wide range of tasks while improving performance without increasing complexity. To achieve this, we propose SMC-Mamba, a Self-supervised Multiplex Consensus Mamba framework for general image fusion. Specifically, the Modality-Agnostic Feature Enhancement (MAFE) module preserves fine details through adaptive gating and enhances global representations via spatial-channel and frequency rotational scanning. The Multiplex Consensus Cross-modal Mamba (MCCM) module enables dynamic collaboration among experts, reaching a consensus to efficiently integrate complementary information from multiple modalities. The cross-modal scanning within MCCM further strengthens feature interactions across modalities, facilitating seamless integration of critical information from both sources. Additionally, we introduce a Bi-level Self-supervised Contrastive Learning Loss (BSCL), which preserves high-frequency information without increasing computational overhead while simultaneously boosting performance in downstream tasks. Extensive experiments demonstrate that our approach outperforms state-of-the-art (SOTA) image fusion algorithms in tasks such as infrared-visible, medical, multi-focus, and multi-exposure fusion, as well as downstream visual tasks.",
+      "authors": [
+        "Yingying Wang",
+        "Rongjin Zhuang",
+        "Hui Zheng",
+        "Xuanhua He",
+        "Ke Cao",
+        "Xiaotong Tu",
+        "Xinghao Ding"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 22",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 22"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38932",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38932/42894",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-wvcyiead5x",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Revisiting Generative Infrared and Visible Image Fusion Based on Human Cognitive Laws",
+      "abstract": "Existing infrared and visible image fusion methods often face the dilemma of balancing modal information. Generative fusion methods reconstruct fused images by learning from data distributions, but their generative capabilities remain limited. Moreover, the lack of interpretability in modal information selection further affects the reliability and consistency of fusion results in complex scenarios. This manuscript revisits the essence of generative image fusion under the inspiration of human cognitive laws and proposes a novel infrared and visible image fusion method, termed HCLFuse. First, HCLFuse investigates the quantification theory of information mapping in unsupervised fusion networks, which leads to the design of a multi-scale mask-regulated variational bottleneck encoder. This encoder applies posterior probability modeling and information decomposition to extract accurate and concise low-level modal information, thereby supporting the generation of high-fidelity structural details. Furthermore, the probabilistic generative capability of the diffusion model is integrated with physical laws, forming a time-varying physical guidance mechanism that adaptively regulates the generation process at different stages, thereby enhancing the ability of the model to perceive the intrinsic structure of data and reducing dependence on data quality. Experimental results show that the proposed method achieves state-of-the-art fusion performance in qualitative and quantitative evaluations across multiple datasets and significantly improves semantic segmentation metrics. This fully demonstrates the advantages of this generative image fusion method, drawing inspiration from human cognition, in enhancing structural consistency and detail quality.",
+      "authors": [
+        "Lin Guo",
+        "Xiaoqing Luo",
+        "Wei Xie",
+        "Zhancheng Zhang",
+        "Hui Li",
+        "Rui Wang",
+        "Zhenhua Feng",
+        "Xiaoning Song"
+      ],
+      "primary_category": "Human cognitive law",
+      "categories": [
+        "Human cognitive law",
+        "Information bottleneck",
+        "Diffusion model",
+        "Infrared and visible image fusion",
+        "Physical law"
+      ],
+      "published": "2025-09-18T17:38:18.149+00:00",
+      "link": "https://openreview.net/forum?id=wvcYIEaD5X",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-37581",
+      "source": "AAAI-2026-Accepted",
+      "title": "Text-Guided Channel Perturbation and Pre-Trained Knowledge Integration for Unified Multi-Modality Image Fusion",
+      "abstract": "Multi-modality image fusion enhances scene perception by combining complementary information. Unified models aim to share parameters across modalities for multi-modality image fusion, but large modality differences often cause gradient conflicts, limiting performance. Some methods introduce modality-specific encoders to enhance feature perception and improve fusion quality. However, this strategy reduces generalisation across different fusion tasks. To overcome this limitation, we propose a unified multi-modality image fusion framework based on channel perturbation and pre-trained knowledge integration (UP-Fusion). To suppress redundant modal information and emphasize key features, we propose the Semantic-Aware Channel Pruning Module (SCPM), which leverages the semantic perception capability of a pre-trained model to filter and enhance multi-modality feature channels. Furthermore, we proposed the Geometric Affine Modulation Module (GAM), which uses original modal features to apply affine transformations on initial fusion features to maintain the feature encoder modal discriminability. Finally, we apply a Text-Guided Channel Perturbation Module (TCPM) during decoding to reshape the channel distribution, reducing the dependence on modality-specific channels. Extensive experiments demonstrate that the proposed algorithm outperforms existing methods on both multi-modality image fusion and downstream tasks.",
+      "authors": [
+        "Xilai Li",
+        "Xiaosong Li",
+        "Weijun Jiang"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 8",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 8"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/37581",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/37581/41543",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-37548",
+      "source": "AAAI-2026-Accepted",
+      "title": "MdaIF: Robust One-Stop Multi-Degradation-Aware Image Fusion with Language-Driven Semantics",
+      "abstract": "Infrared and visible image fusion aims to integrate complementary multi-modal information into a single fused result. However, existing methods 1) fail to account for the degradation visible images under adverse weather conditions, thereby compromising fusion performance; and 2) rely on fixed network architectures, limiting their adaptability to diverse degradation scenarios. To address these issues, we propose a one-stop degradation-aware image fusion framework for multi-degradation scenarios driven by a large language model (MdaIF). Given the distinct scattering characteristics of different degradation scenarios (e.g., haze, rain, and snow) in atmospheric transmission, a mixture-of-experts (MoE) system is introduced to tackle image fusion across multiple degradation scenarios. To adaptively extract diverse weather-aware degradation knowledge and scene feature representations, collectively referred to as the semantic prior, we employ a pre-trained vision-language model (VLM) in our framework. Guided by the semantic prior, we propose degradation-aware channel attention module (DCAM), which employ degradation prototype decomposition to facilitate multi-modal feature interaction in channel domain. In addition, to achieve effective expert routing, the semantic prior and channel-domain modulated features are utilized to guide the MoE, enabling robust image fusion in complex degradation scenarios. Extensive experiments validate the effectiveness of our MdaIF, demonstrating superior performance over SOTA methods.",
+      "authors": [
+        "Jing Li",
+        "Yifan Wang",
+        "Jiafeng Yan",
+        "Renlong Zhang",
+        "Bin Yang"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 8",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 8"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/37548",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/37548/41510",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2025-32933",
+      "source": "AAAI-2025-Accepted",
+      "title": "SMR-Net: Semantic-Guided Mutually Reinforcing Network for Cross-Modal Image Fusion and Salient Object Detection",
+      "abstract": "This paper introduces a lightweight Semantic-guided Mutually Reinforcing network (SMR-Net) for the tasks of cross-modal image fusion and salient object detection (SOD). The core concept of SMR-Net is to leverage semantics for directing the mutual reinforcing between image fusion and SOD. Specifically, a Progressive Cross-modal Interaction (PCI) image fusion subnetwork is designed to exploit local interactions via convolution operations and extend to global interactions utilizing spatial and channel attention mechanisms. Subsequently, a cross-modal Bit-Plane Slicing-based SOD subnetwork (BPS) is developed by incorporating the fused image as a third modality. This component employs bit-plane slicing and the deformable convolution technique to effectively extract irregular semantic information embedded in fusion features. The refined semantic information then guides the feature extraction process of the source modalities in a reweighted fashion. By cascading these two subnetworks, BPS leverages final semantic results to direct PCI towards focusing more on semantic information. Ultimately, through this semantic-guided mutual enhancement process, SMR-Net excels in both producing high-quality fused images and achieving effective salient object detection. Our extensive experiments on image fusion and SOD tasks convincingly demonstrate the superiority of our network over existing state-of-the-art alternatives without introducing noticeable computational costs. Compared to nearest competitors, our method demonstrates a stronger generalization ability with 26% fewer parameters.",
+      "authors": [
+        "Guobao Xiao",
+        "Xinyu Liu",
+        "Zebin Lin",
+        "Rui Ming"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 8",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 8"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32933",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32933/35088",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2025-33048",
+      "source": "AAAI-2025-Accepted",
+      "title": "OTPNet: ODE-inspired Tuning-free Proximal Network for Remote Sensing Image Fusion",
+      "abstract": "Remote sensing image fusion aims to reconstruct a high spatial and spectral resolution image by integrating the spatial and spectral information from multiple remote sensing sensor data. Despite the remarkable progress of deep learning-based fusion methods, most existing methods rely on manual network architecture design and hyperparameter tuning, lacking sufficient interpretability and adaptability. To address this limitation, we propose a novel neural Ordinary Differential Equation (ODE)-inspired tuning-free proximal splitting algorithm, which splits remote sensing image fusion as two optimization problems regularized by deep priors to model the fusion of spatial and spectral. Firstly, based on the physical properties of spatial and spectral information, the two problems are optimized by two proximal splitting operators to iteratively integrate spatial-spectral complementary information, eliminating or suppressing redundant information to reduce fusion errors. Secondly, considering the efficiency of neural ODE in reducing optimization error, we utilize a high-order numerical scheme to customize the proximal operator theoretically without additional handcrafted design and parameter tuning. Finally, by incorporating the numerical scheme as a solver into the proximal optimization algorithm, we derive an ODE-inspired Tuning-free Proximal Network, dubbed OTPNet, which achieves efficient and robust fusion reconstruction. Extensive experiments on nine datasets across three different remote sensing image fusion tasks show that our OTPNet outperforms existing state-of-the-art approaches, which validates the effectiveness of our method.",
+      "authors": [
+        "Wei Yu",
+        "Zonglin Li",
+        "Qinglin Liu",
+        "Xin Sun"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 9",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 9"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/33048",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/33048/35203",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-36ckp4tshf",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Deno-IF: Unsupervised Noisy Visible and Infrared Image Fusion Method",
+      "abstract": "Most image fusion methods are designed for ideal scenarios and struggle to handle noise. Existing noise-aware fusion methods are supervised and heavily rely on constructed paired data, limiting performance and generalization. This paper proposes a novel unsupervised noisy visible and infrared image fusion method, comprising two key modules. First, when only noisy source images are available, a convolutional low-rank optimization module decomposes clean components based on convolutional low-rank priors, guiding subsequent optimization. The unsupervised approach eliminates data dependency and enhances generalization across various and variable noise. Second, a unified network jointly realizes denoising and fusion. It consists of both intra-modal recovery and inter-modal recovery and fusion, also with a convolutional low-rankness loss for regularization. By exploiting the commonalities of denoising and fusion, the joint framework significantly reduces network complexity while expanding functionality. Extensive experiments validate the effectiveness and generalization of the proposed method for image fusion under various and variable noise conditions. The code is publicly available at https://github.com/hanna-xu/Deno-IF.",
+      "authors": [
+        "Han Xu",
+        "Yuyang Li",
+        "Yunfei Deng",
+        "Jiayi Ma",
+        "Guangcan Liu"
+      ],
+      "primary_category": "Unsupervised learning",
+      "categories": [
+        "Unsupervised learning",
+        "image fusion",
+        "infrared",
+        "convolutional low-rankness"
+      ],
+      "published": "2025-09-18T17:36:40.522+00:00",
+      "link": "https://openreview.net/forum?id=36cKp4tsHF",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Task-driven Image Fusion with Learnable Fusion Loss",
+      "abstract": "Multi-modal image fusion aggregates information from multiple sensor sources, achieving superior visual quality and perceptual features compared to single-source images, often improving downstream tasks. However, current fusion methods for downstream tasks still use predefined fusion objectives that potentially mismatch the downstream tasks, limiting adaptive guidance and reducing model flexibility. To address this, we propose Task-driven Image Fusion (TDFusion), a fusion framework incorporating a learnable fusion loss guided by task loss. Specifically, our fusion loss includes learnable parameters modeled by a neural network called the loss generation module. This module is supervised by the downstream task loss in a meta-learning manner. The learning objective is to minimize the task loss of fused images after optimizing the fusion module with the fusion loss. Iterative updates between the fusion module and the loss module ensure that the fusion network evolves toward minimizing task loss, guiding the fusion process toward the task objectives. TDFusion's training relies entirely on the downstream task loss, making it adaptable to any specific task. It can be applied to any architecture of fusion and task networks. Experiments demonstrate TDFusion's performance through fusion experiments conducted on four different datasets, in addition to evaluations on semantic segmentation and object detection tasks. The code is available at https://github.com/HaowenBai/TDFusion.",
+      "authors": [
+        "Bai, Haowen",
+        "Zhang, Jiangshe",
+        "Zhao, Zixiang",
+        "Wu, Yichen",
+        "Deng, Lilun",
+        "Cui, Yukun",
+        "Feng, Tao",
+        "Xu, Shuang"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Bai_Task-driven_Image_Fusion_with_Learnable_Fusion_Loss_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "DCEvo: Discriminative Cross-Dimensional Evolutionary Learning for Infrared and Visible Image Fusion",
+      "abstract": "Infrared and visible image fusion integrates information from distinct spectral bands to enhance image quality by leveraging the strengths and mitigating the limitations of each modality. Existing approaches typically treat image fusion and subsequent high-level tasks as separate processes, resulting in fused images that offer only marginal gains in task performance and fail to provide constructive feedback for optimizing the fusion process. To overcome these limitations, we propose a Discriminative Cross-Dimension Evolutionary Learning Framework, termed DCEvo, which simultaneously enhances visual quality and perception accuracy. Leveraging the robust search capabilities of Evolutionary Learning, our approach formulates the optimization of dual tasks as a multi-objective problem by employing an Evolutionary Algorithm (EA) to dynamically balance loss function parameters. Inspired by visual neuroscience, we integrate a Discriminative Enhancer (DE) within both the encoder and decoder, enabling the effective learning of complementary features from different modalities. Additionally, our Cross-Dimensional Embedding (CDE) block facilitates mutual enhancement between high-dimensional task features and low-dimensional fusion features, ensuring a cohesive and efficient feature integration process. Experimental results on three benchmarks demonstrate that our method significantly outperforms state-of-the-art approaches, achieving an average improvement of 9.32% in visual quality while also enhancing subsequent high-level tasks. The code is available at https://github.com/Beate-Suy-Zhang/DCEvo.",
+      "authors": [
+        "Liu, Jinyuan",
+        "Zhang, Bowei",
+        "Mei, Qingyun",
+        "Li, Xingyuan",
+        "Zou, Yang",
+        "Jiang, Zhiying",
+        "Ma, Long",
+        "Liu, Risheng",
+        "Fan, Xin"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Liu_DCEvo_Discriminative_Cross-Dimensional_Evolutionary_Learning_for_Infrared_and_Visible_Image_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-37884",
+      "source": "AAAI-2026-Accepted",
+      "title": "CtrlFuse: Mask-Prompt Guided Controllable Infrared and Visible Image Fusion",
+      "abstract": "Infrared and visible image fusion generates all-weather perception-capable images by combining complementary modalities, enhancing environmental awareness for intelligent unmanned systems. Existing methods either focus on pixel-level fusion while overlooking downstream task adaptability or implicitly learn rigid semantics through cascaded detection/segmentation models, unable to interactively address diverse semantic target perception needs. We propose CtrlFuse, a controllable image fusion framework that enables interactive dynamic fusion guided by mask prompts. The model integrates a multi-modal feature extractor, a reference prompt encoder (RPE), and a prompt-semantic fusion module (PSFM). The RPE dynamically encodes task-specific semantic prompts by fine-tuning pre-trained segmentation models with input mask guidance, while the PSFM explicitly injects these semantics into fusion features. Through synergistic optimization of parallel segmentation and fusion branches, our method achieves mutual enhancement between task performance and fusion quality. Experiments demonstrate state-of-the-art results in both fusion controllability and segmentation accuracy, with the adapted task branch even outperforming the original segmentation model.",
+      "authors": [
+        "Yiming Sun",
+        "Yuan Ruan",
+        "Qinghua Hu",
+        "Pengfei Zhu"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 11",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 11"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/37884",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/37884/41846",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-rqe5plqsu5",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Projection-Manifold Regularized Latent Diffusion for Robust General Image Fusion",
+      "abstract": "This study proposes PDFuse, a robust, general training-free image fusion framework built on pre-trained latent diffusion models with projection–manifold regularization. By redefining fusion as a diffusion inference process constrained by multiple source images, PDFuse can adapt to varied image modalities and produce high-fidelity outputs utilizing the diffusion prior. To ensure both source consistency and full utilization of generative priors, we develop novel projection–manifold regularization, which consists of two core mechanisms. On the one hand, the Multi-source Information Consistency Projection (MICP) establishes a projection system between diffusion latent representations and source images, solved efficiently via conjugate gradients to inject multi-source information into the inference. On the other hand, the Latent Manifold-preservation Guidance (LMG) aligns the latent distribution of diffusion variables with that of the sources, guiding generation to respect the model’s manifold prior. By alternating these mechanisms, PDFuse strikes an optimal balance between fidelity and generative quality, achieving superior fusion performance across diverse tasks. Moreover, PDFuse constructs a canonical interference operator set. It synergistically incorporates it into the aforementioned dual mechanisms, effectively leveraging generative priors to address various degradation issues during the fusion process without requiring clean data for supervising training. Extensive experimental evidence substantiates that PDFuse achieves highly competitive performance across diverse image fusion tasks. The code is publicly available at https://github.com/Leiii-Cao/PDFuse.",
+      "authors": [
+        "Lei Cao",
+        "Hao Zhang",
+        "Chunyu Li",
+        "Jiayi Ma"
+      ],
+      "primary_category": "Image fusion",
+      "categories": [
+        "Image fusion",
+        "general image fusion",
+        "multimodal image fusion",
+        "latent diffusion models"
+      ],
+      "published": "2025-09-18T17:42:07.318+00:00",
+      "link": "https://openreview.net/forum?id=RqE5PlQsU5",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "One Model for ALL: Low-Level Task Interaction Is a Key to Task-Agnostic Image Fusion",
+      "abstract": "Advanced image fusion methods mostly prioritise high-level missions, where task interaction struggles with semantic gaps, requiring complex bridging mechanisms. In contrast, we propose to leverage low-level vision tasks from digital photography fusion, allowing for effective feature interaction through pixel-level supervision. This new paradigm provides strong guidance for unsupervised multimodal fusion without relying on abstract semantics, enhancing task-shared feature learning for broader applicability. Owning to the hybrid image features and enhanced universal representations, the proposed GIFNet supports diverse fusion tasks, achieving high performance across both seen and unseen scenarios with a single model. Uniquely, experimental results reveal that our framework also supports single-modality enhancement, offering superior flexibility for practical applications. Our code will be available at https://github.com/AWCXV/GIFNet.",
+      "authors": [
+        "Cheng, Chunyang",
+        "Xu, Tianyang",
+        "Feng, Zhenhua",
+        "Wu, Xiaojun",
+        "Tang, Zhangyong",
+        "Li, Hui",
+        "Zhang, Zeyang",
+        "Atito, Sara",
+        "Awais, Muhammad",
+        "Kittler, Josef"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Cheng_One_Model_for_ALL_Low-Level_Task_Interaction_Is_a_Key_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-38078",
+      "source": "AAAI-2026-Accepted",
+      "title": "A Hybrid Space Model for Misaligned Multi-modality Image Fusion",
+      "abstract": "Infrared and visible image fusion aims to integrate complementary information, such as thermal saliency from infrared imagery and fine-grained texture details from visible imagery. However, real-world multi-modal misalignment and geometric deformation often introduce severe artifacts. Most existing methods focus on feature extraction within Euclidean space, thereby neglecting the inherent hierarchical structures embedded in multimodal representations. While Euclidean space excels at preserving local structural details and supporting efficient computation, hyperbolic space is naturally suited for modeling hierarchical relationships due to its geometric properties. Building upon these observations, this paper proposes a unified framework that jointly optimizes image registration and fusion through a dual-space architecture. This architecture synergistically combines the local fidelity of Euclidean geometry with the hierarchical modeling capability of hyperbolic geometry to enhance multimodal representation learning. Specifically, this paper introduces Hyperbolic Coupled Contrastive Learning Optimization (HCCLO), which aligns and optimizes the hierarchical structures of infrared and visible embeddings in hyperbolic space. Moreover, this paper designs a task-adaptive dual-space features fusion mechanism, which dynamically balances and fuses Euclidean local features with hyperbolic hierarchical representations, thereby improving adaptability for downstream tasks. Extensive experiments on misaligned multimodal datasets demonstrate that our method achieves state-of-the-art performance, while effectively capturing both spatial dependencies and hierarchical semantics.",
+      "authors": [
+        "Yi Xiao",
+        "Jia Wang",
+        "Zhu Liu",
+        "Di Wang",
+        "Jinyuan Liu",
+        "Risheng Liu"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 13",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 13"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38078",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38078/42040",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "cvpr-2025-liu-a-selective-re-learning-mechanism-for-hyperspectral-fusion-imaging-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "A Selective Re-learning Mechanism for Hyperspectral Fusion Imaging",
+      "abstract": "Hyperspectral fusion imaging is challenged by high computational cost due to the abundant spectral information. We find that pixels in regions with smooth spatial-spectral structure can be reconstructed well using a shallow network, while only those in regions with complex spatial-spectral structure require a deeper network. However, existing methods process all pixels uniformly, which ignores this property. To leverage this property, we propose a Selective Re-learning Fusion Network (SRLF) that initially extracts features from all pixels uniformly and then selectively refines distorted feature points. Specifically, SRLF first employs a Preliminary Fusion Module with robust global modeling capability to generate a preliminary fusion feature. Afterward, it applies a Selective Re-learning Module to focus on improving distorted feature points in the preliminary fusion feature. To achieve targeted learning, we present a novel Spatial-Spectral Structure-Guided Selective Re-learning Mechanism (SSG-SRL) that integrates the observation model to identify the feature points with spatial or spectral distortions. Only these distorted points are sent to the corresponding re-learning blocks, reducing both computational cost and the risk of overfitting. Finally, we develop an SRLF-Net, composed of multiple cascaded SRLFs, which surpasses multiple state-of-the-art methods on several datasets with minimal computational cost.",
+      "authors": [
+        "Liu, Yuanye",
+        "Liu, Jinyang",
+        "Dian, Renwei",
+        "Li, Shutao"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Liu_A_Selective_Re-learning_Mechanism_for_Hyperspectral_Fusion_Imaging_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-38321",
+      "source": "AAAI-2026-Accepted",
+      "title": "ControlFuse: Instruction-guided Multi-Granularity Controllable Image Fusion",
+      "abstract": "Infrared and Visible Image Fusion (IVIF) produces enhanced images by fusing complementary visual information. However, most existing methods generate fixed outputs and cannot flexibly adapt to user-specific requirements. Recent text-guided approaches offer partial control but are limited to global or semantic levels, lacking instance-level control. This limitation arises from two challenges: first, the lack of datasets that directly link textual instructions with corresponding spatial annotations, and second, the use of coarse cross-modal alignment methods that struggle to precisely match textual instructions with visual features. To overcome these challenges, we propose ControlFuse, a controllable IVIF framework enabling multi-granularity fusion across global, semantic, and instance levels, guided by user instructions. First, we construct an automated multi-granularity dataset that provides explicit textual-mask correspondences at these three levels. Second, inspired by manifold geometry, we design a Multimodal Feature Interaction Module (MFIM) comprising Feature Manifold Converter (FMC) and Curvature-Guided Interaction (CGI). FMC projects textual and visual features into a unified manifold space, while CGI leverages manifold curvature as a geometric cue to refine cross-modal alignment. Extensive experiments validate ControlFuse, outperforming state-of-the-art methods in robustness and flexibility.",
+      "authors": [
+        "Libo Zhao",
+        "Xiaoli Zhang",
+        "Zeyu Wang"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 16",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 16"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38321",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38321/42283",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2025-32504",
+      "source": "AAAI-2025-Accepted",
+      "title": "A²RNet: Adversarial Attack Resilient Network for Robust Infrared and Visible Image Fusion",
+      "abstract": "Infrared and visible image fusion (IVIF) is a crucial technique for enhancing visual performance by integrating unique information from different modalities into one fused image. Exiting methods pay more attention to conducting fusion with undisturbed data, while overlooking the impact of deliberate interference on the effectiveness of fusion results. To investigate the robustness of fusion models, in this paper, we propose a novel adversarial attack resilient network, called A2RNet. Specifically, we develop an adversarial paradigm with an anti-attack loss function to implement adversarial attacks and training. It is constructed based on the intrinsic nature of IVIF and provide a robust foundation for future research advancements. We adopt a Unet as the pipeline with a transformer-based defensive refinement module (DRM) under this paradigm, which guarantees fused image quality in a robust coarse-to-fine manner. Compared to previous works, our method mitigates the adverse effects of adversarial perturbations, consistently maintaining high-fidelity fusion results. Furthermore, the performance of downstream tasks can also be well maintained under adversarial attacks.",
+      "authors": [
+        "Jiawei Li",
+        "Hongwei Yu",
+        "Jiansheng Chen",
+        "Xinlong Ding",
+        "Jinlong Wang",
+        "Jinyuan Liu",
+        "Bochao Zou",
+        "Huimin Ma"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 5",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 5"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32504",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32504/34659",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-38261",
+      "source": "AAAI-2026-Accepted",
+      "title": "CO²IF: Language-Bridging Hyperspectral-Multispectral Image Fusion with Coordinated and Cross-modal Optimal Transport",
+      "abstract": "Due to the difficulties of directly obtaining high-resolution hyperspectral images (HR-HSI), the fusion of low-resolution hyperspectral images (LR-HSI) and high-resolution multispectral images (HR-MSI) has emerged as an effective approach. While existing methods leverage image-level priors from HR-MSI, they often lack explicit semantic guidance for precise detail reconstruction. Recognizing that textual scene descriptions encapsulate valuable object attributes and contextual information, we introduce the first Language-Bridging framework for Hyperspectral and Multispectral image fusion (CO²IF). CO²IF leverages language semantics as prior knowledge to explicitly guide the reconstruction process. To bridge the modality gap between textual descriptions and high-dimensional hyperspectral data, we design a Cross-modal Optimal Transport (COT) module. COT establishes precise semantic correspondences between language features and the visual cues of individual spectral bands. Building upon this semantic alignment, we develop a Multimodal Coordinated State Space Model (CoMamba). CoMamba effectively integrates the language-derived priors with spatial information from HR-MSI and spectral information from LR-HSI. This language-guided reconstruction significantly enhances the extraction of crucial spatial-spectral details, leading to superior fidelity in the generated HR-HSI. In addition, this paper adds text descriptions for three widely used datasets. Both qualitative and quantitative experimental results on the public datasets confirm the superiority of the proposed method compared to the SOTA methods.",
+      "authors": [
+        "Mingjin Zhang",
+        "Zhongkai Yang",
+        "Fei Gao"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 15",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 15"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38261",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38261/42223",
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2025-32714",
+      "source": "AAAI-2025-Accepted",
+      "title": "Multi-Focus Image Fusion via Explicit Defocus Blur Modelling",
+      "abstract": "Multi-focus image fusion (MFIF) enhances depth of field in photography by generating an all-in-focus image from multiple images captured at different focal lengths. While deep learning has shown promise in MFIF, most existing methods overlooked the physical properties of defocus blurring in their network design, limiting their interoperability and generalization. This paper introduces a novel framework that integrates explicit defocus blur modelling into the MFIF process, improving both interpretability and performance. Using an atom-based spatially-varying parameterized defocus blurring model, our approach calculates pixel-wise defocus descriptors and initial focused images from multi-focus source images in a scale-recurrent manner to estimate soft decision maps. Fusion is then performed using masks derived from these decision maps, with special treatment for pixels likely defocused in all source images or near boundaries of defocused/focused regions. The model is trained with a fusion loss and a cross-scale defocus estimation loss. Extensive experiments on benchmark datasets demonstrated the effectiveness of our approach.",
+      "authors": [
+        "Yuhui Quan",
+        "Xi Wan",
+        "Zitao Tang",
+        "Jinxiu Liang",
+        "Hui Ji"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 6",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 6"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32714",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32714/34869",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-37519",
+      "source": "AAAI-2026-Accepted",
+      "title": "PIF-Net: Ill-Posed Prior Guided Multispectral and Hyperspectral Image Fusion via Invertible Mamba and Fusion-Aware LoRA",
+      "abstract": "The goal of multispectral and hyperspectral image fusion (MHIF) is to generate high-quality images that simultaneously possess rich spectral information and fine spatial details. However, due to the inherent trade-off between spectral and spatial information and the limited availability of observations, this task is fundamentally ill-posed. Previous studies have not effectively addressed the ill-posed nature caused by data misalignment. To tackle this challenge, we propose a fusion framework named PIF-Net, which explicitly incorporates ill-posed priors to effectively fuse multispectral images and hyperspectral images. To balance global spectral modeling with computational efficiency, we design a method based on an invertible Mamba architecture that maintains information consistency during feature transformation and reconstruction, ensuring stable gradient flow and process reversibility.\nFurthermore, we introduce a novel fusion module called the Fusion-Aware Low-Rank Adaptation module, which dynamically calibrates spectral and spatial features while keeping the model lightweight. Extensive experiments on multiple benchmark datasets demonstrate that PIF-Net achieves significantly better image restoration performance than current state-of-the-art methods while maintaining model efficiency.",
+      "authors": [
+        "Baisong Li",
+        "Xingwang Wang",
+        "Haixiao Xu"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 8",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 8"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/37519",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/37519/41481",
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2025-32499",
+      "source": "AAAI-2025-Accepted",
+      "title": "BSAFusion: A Bidirectional Stepwise Feature Alignment Network for Unaligned Medical Image Fusion",
+      "abstract": "If unaligned multimodal medical images can be simultaneously aligned and fused using a single-stage approach within a unified processing framework, it will not only achieve mutual promotion of dual tasks but also help reduce the complexity of the model. However, the design of this model faces the challenge of incompatible requirements for feature fusion and alignment. To address this challenge, this paper proposes an unaligned medical image fusion method called Bidirectional Stepwise Feature Alignment and Fusion (BSFA-F) strategy. To reduce the negative impact of modality differences on cross-modal feature matching, we incorporate the Modal Discrepancy-Free Feature Representation (MDF-FR) method into BSFA-F. MDF-FR utilizes a Modality Feature Representation Head (MFRH) to integrate the global information of the input image. By injecting the information contained in MFRH of the current image into other modality images, it effectively reduces the impact of modality differences on feature alignment while preserving the complementary information carried by different images. In terms of feature alignment, BSFA-F employs a bidirectional stepwise alignment deformation field prediction strategy based on the path independence of vector displacement between two points. This strategy solves the problem of large spans and inaccurate deformation field prediction in single-step alignment. Finally, Multi-Modal Feature Fusion block achieves the fusion of aligned features. The experimental results across multiple datasets demonstrate the effectiveness of our method.",
+      "authors": [
+        "Huafeng Li",
+        "Dayong Su",
+        "Qing Cai",
+        "Yafei Zhang"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 5",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 5"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32499",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32499/34654",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-alha7ayllr",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "ControlFusion: A Controllable Image Fusion Network with Language-Vision Degradation Prompts",
+      "abstract": "Current image fusion methods struggle with real-world composite degradations and lack the flexibility to accommodate user-specific needs. To address this, we propose ControlFusion, a controllable fusion network guided by language-vision prompts that adaptively mitigates composite degradations. On the one hand, we construct a degraded imaging model based on physical mechanisms, such as the Retinex theory and atmospheric scattering principle, to simulate composite degradations and provide a data foundation for addressing realistic degradations. On the other hand, we devise a prompt-modulated restoration and fusion network that dynamically enhances features according to degradation prompts, enabling adaptability to varying degradation levels. To support user-specific preferences in visual quality, a text encoder is incorporated to embed user-defined degradation types and levels as degradation prompts. Moreover, a spatial-frequency collaborative visual adapter is designed to autonomously perceive degradations from source images, thereby reducing complete reliance on user instructions. Extensive experiments demonstrate that ControlFusion outperforms SOTA fusion methods in fusion quality and degradation handling, particularly under real-world and compound degradations.",
+      "authors": [
+        "Linfeng Tang",
+        "Yeda Wang",
+        "Zhanchuan Cai",
+        "Junjun Jiang",
+        "Jiayi Ma"
+      ],
+      "primary_category": "Image fusion",
+      "categories": [
+        "Image fusion",
+        "multimodal images",
+        "degradation"
+      ],
+      "published": "2025-09-18T17:41:13.892+00:00",
+      "link": "https://openreview.net/forum?id=aLhA7AYLLR",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-37309",
+      "source": "AAAI-2026-Accepted",
+      "title": "Revisiting Network Inertia: Dynamic Inertia Inhibition Coupled Multidimensional Periodicity for Infrared and Visible Image Fusion",
+      "abstract": "Infrared and visible image fusion (IVIF) technology has become a frontier of great interest due to the ability to integrate information from multiple sources. However, the progressive slowdown of weight updates in deep networks (i.e., “network laziness” phenomenon), makes existing methods far from realizing the full characterization potential. To this end, we propose a lightweight fusion method for IVIF, Anti-Inert Dynamic Fusion (AIDFusion), to fully utilize the potential of the network at all levels. Specifically, by progressively regulating the collaborative Learning process of multi-level prediction in the network, Dynamic Inertia Inhibition Learning Strategy (DIILS) is proposed to adaptively and efficiently inhibit inertia accumulation. Subsequently, to deeply explore the representation potential while breaking through the performance threshold, lightweight Multi-dimensional modulation fusion module (MMFM) is specifically proposed to capture comprehensive multi-view and multi-scale features efficiently. Finally, considering the semantic bias between the prediction maps of DIILS and the fusion feature of MMFM, Fourier Analysis Convolution (FAConv) is designed in feature recovery as a bridge between prediction and fusion to accomplish the implicit periodic modeling. Based on the above study, extensive experiments on three public IVIF datasets demonstrate the dual advantages of AIDFusion in terms of fusion performance and computational overhead compared to state-of-the-art baseline methods.",
+      "authors": [
+        "Yufeng Chen",
+        "Yuan Sun",
+        "Hao Pan",
+        "Xujian Zhao",
+        "Jian Dai",
+        "Zhenwen Ren",
+        "Xingfeng Li"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 4",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 4"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/37309",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/37309/41271",
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Every SAM Drop Counts: Embracing Semantic Priors for Multi-Modality Image Fusion and Beyond",
+      "abstract": "Multi-modality image fusion, particularly infrared and visible, plays a crucial role in integrating diverse modalities to enhance scene understanding. Although early research prioritized visual quality, preserving fine details and adapting to downstream tasks remains challenging. Recent approaches attempt task-specific design but rarely achieve \"The Best of Both Worlds\" due to inconsistent optimization goals. To address these issues, we propose a novel method that leverages the semantic knowledge from the Segment Anything Model (SAM) to grow the quality of fusion results and enable downstream task adaptability, namely SAGE. Specifically, we design a Semantic Persistent Attention (SPA) Module that efficiently maintains source information via the persistent repository while extracting high-level semantic priors from SAM. More importantly, to eliminate the impractical dependence on SAM during inference, we introduce a bi-level optimization-driven distillation mechanism with triplet losses, which allow the student network to effectively extract knowledge. Extensive experiments show that our method achieves a balance between high-quality visual results and downstream task adaptability while maintaining practical deployment efficiency. The code is available at https://github.com/RollingPlain/SAGE_IVIF.",
+      "authors": [
+        "Wu, Guanyao",
+        "Liu, Haoyu",
+        "Fu, Hongming",
+        "Peng, Yichuan",
+        "Liu, Jinyuan",
+        "Fan, Xin",
+        "Liu, Risheng"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Wu_Every_SAM_Drop_Counts_Embracing_Semantic_Priors_for_Multi-Modality_Image_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2025-32224",
+      "source": "AAAI-2025-Accepted",
+      "title": "Ultra-High-Definition Dynamic Multi-Exposure Image Fusion via Infinite Pixel Learning",
+      "abstract": "With the continuous improvement of device imaging resolution, the popularity of Ultra-High-Definition (UHD) images is increasing. Unfortunately, existing methods for fusing multi-exposure images in dynamic scenes are designed for low-resolution images, which makes them inefficient for generating high-quality UHD images on a resource-constrained device. To alleviate the limitations of extremely long-sequence inputs, inspired by the Large Language Model (LLM) for processing infinitely long texts, we propose a novel learning paradigm to achieve UHD multi-exposure dynamic scene image fusion on a single consumer-grade GPU, named Infinite Pixel Learning (IPL). The design of our approach comes from three key components: The first step is to slice the input sequences to relieve the pressure generated by the model processing the data stream; Second, we develop an attention cache technique, which is similar to the KV cache for infinite data stream processing; Finally, we design a method for attention cache compression to alleviate the storage burden of the cache on the device. In addition, we provide a new UHD benchmark to evaluate the effectiveness of our method. Extensive experimental results show that our method maintains high-quality visual performance while fusing UHD dynamic multi-exposure images in real-time (>40fps) on a single consumer-grade GPU.",
+      "authors": [
+        "Xingchi Chen",
+        "Zhuoran Zheng",
+        "Xuerui Li",
+        "Yuying Chen",
+        "Shu Wang",
+        "Wenqi Ren"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 2",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 2"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32224",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32224/34379",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "cvpr-2025-zhu-self-learning-hyperspectral-and-multispectral-image-fusion-via-adaptive-residual-guided-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Self-Learning Hyperspectral and Multispectral Image Fusion via Adaptive Residual Guided Subspace Diffusion Model",
+      "abstract": "Hyperspectral and multispectral image (HSI-MSI) fusion involves combining a low-resolution hyperspectral image (LR-HSI) with a high-resolution multispectral image (HR-MSI) to generate a high-resolution hyperspectral image (HR-HSI). Most deep learning-based methods for HSI-MSI fusion rely on large amounts of hyperspectral data for supervised training, which is often scarce in practical applications. In this paper, we propose a self-learning Adaptive Residual Guided Subspace Diffusion Model (ARGS-Diff), which only utilizes the observed images without any extra training data. Specifically, as the LR-HSI contains spectral information and the HR-MSI contains spatial information, we design two lightweight spectral and spatial diffusion models to separately learn the spectral and spatial distributions from them. Then, we use these two models to reconstruct HR-HSI from two low-dimensional components, i.e, the spectral basis and the reduced coefficient, during the reverse diffusion process. Furthermore, we introduce an Adaptive Residual Guided Module (ARGM), which refines the two components through a residual guided function at each sampling step, thereby stabilizing the sampling process. Extensive experimental results demonstrate that ARGS-Diff outperforms existing state-of-the-art methods in terms of both performance and computational efficiency in the field of HSI-MSI fusion.",
+      "authors": [
+        "Zhu, Jian",
+        "Wang, He",
+        "Xu, Yang",
+        "Wu, Zebin",
+        "Wei, Zhihui"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Zhu_Self-Learning_Hyperspectral_and_Multispectral_Image_Fusion_via_Adaptive_Residual_Guided_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2025-32912",
+      "source": "AAAI-2025-Accepted",
+      "title": "PanAdapter: Two-Stage Fine-Tuning with Spatial-Spectral Priors Injecting for Pansharpening",
+      "abstract": "Pansharpening is a challenging image fusion task that involves restoring images using two different modalities: low-resolution multispectral images (LRMS) and high-resolution panchromatic (PAN). Many end-to-end specialized models based on deep learning (DL) have been proposed, yet the scale and performance of these models are limited by the size of dataset. Given the superior parameter scales and feature representations of pre-trained models, they exhibit outstanding performance when transferred to downstream tasks with small datasets. Therefore, we propose an efficient fine-tuning method, namely PanAdapter, which utilizes additional advanced semantic information from pre-trained models to alleviate the issue of small-scale datasets in pansharpening tasks. Specifically, targeting the large domain discrepancy between image restoration and pansharpening tasks, the PanAdapter adopts a two-stage training strategy for progressively adapting to the downstream task. In the first stage, we fine-tune the pre-trained CNN model and extract task-specific priors at two scales by proposed Local Prior Extraction (LPE) module. In the second stage, we feed the extracted two-scale priors into two branches of cascaded adapters respectively. At each adapter, we design two parameter-efficient modules for allowing the two branches to interact and be injected into the frozen pre-trained VisionTransformer (ViT) blocks. We demonstrate that by only training the proposed LPE modules and adapters with a small number of parameters, our approach can benefit from pre-trained image restoration models and achieve state-of-the-art performance in several benchmark pansharpening datasets.",
+      "authors": [
+        "RuoCheng Wu",
+        "Zien Zhang",
+        "Shangqi Deng",
+        "Yule Duan",
+        "Liang-Jian Deng"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 8",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 8"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/32912",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/32912/35067",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-zqqdqfja4y",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "Depth-Supervised Fusion Network for Seamless-Free Image Stitching",
+      "abstract": "Image stitching synthesizes images captured from multiple perspectives into a single image with a broader field of view. The significant variations in object depth often lead to large parallax, resulting in ghosting and misalignment in the stitched results. To address this, we propose a depth-consistency-constrained seamless-free image stitching method. First, to tackle the multi-view alignment difficulties caused by parallax, a multi-stage mechanism combined with global depth regularization constraints is developed to enhance the alignment accuracy of the same apparent target across different depth ranges. Second, during the multi-view image fusion process, an optimal stitching seam is determined through graph-based low-cost computation, and a soft-seam region is diffused to precisely locate transition areas, thereby effectively mitigating alignment errors induced by parallax and achieving natural and seamless stitching results. Furthermore, considering the computational overhead in the shift regression process, a reparameterization strategy is incorporated to optimize the structural design, significantly improving algorithm efficiency while maintaining optimal performance. Extensive experiments demonstrate the superior performance of the proposed method against the existing methods. Code is available at https://github.com/DLUT-YRH/DSFN.",
+      "authors": [
+        "Zhiying Jiang",
+        "Ruhao Yan",
+        "Zengxi Zhang",
+        "Bowei Zhang",
+        "Jinyuan Liu"
+      ],
+      "primary_category": "Image Fusion",
+      "categories": [
+        "Image Fusion"
+      ],
+      "published": "2025-09-18T17:38:26.313+00:00",
+      "link": "https://openreview.net/forum?id=zQqDqfja4Y",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "openreview-neurips-2025-nlqrra0olh",
+      "source": "NeurIPS-2025-Accepted",
+      "title": "A Unified Solution to Video Fusion: From Multi-Frame Learning to Benchmarking",
+      "abstract": "The real world is dynamic, yet most image fusion methods process static frames independently, ignoring temporal correlations in videos and leading to flickering and temporal inconsistency. To address this, we propose Unified Video Fusion (UniVF), a novel and unified framework for video fusion that leverages multi-frame learning and optical flow-based feature warping for informative, temporally coherent video fusion. To support its development, we also introduce Video Fusion Benchmark (VF-Bench), the first comprehensive benchmark covering four video fusion tasks: multi-exposure, multi-focus, infrared-visible, and medical fusion. VF-Bench provides high-quality, well-aligned video pairs obtained through synthetic data generation and rigorous curation from existing datasets, with a unified evaluation protocol that jointly assesses the spatial quality and temporal consistency of video fusion. Extensive experiments show that UniVF achieves state-of-the-art results across all tasks on VF-Bench. Project page: [vfbench.github.io](https://vfbench.github.io).",
+      "authors": [
+        "Zixiang Zhao",
+        "Haowen Bai",
+        "Bingxin Ke",
+        "Yukun Cui",
+        "Lilun Deng",
+        "Yulun Zhang",
+        "Kai Zhang",
+        "Konrad Schindler"
+      ],
+      "primary_category": "image fusion",
+      "categories": [
+        "image fusion",
+        "video fusion",
+        "low-level vision"
+      ],
+      "published": "2025-09-18T17:28:25.338+00:00",
+      "link": "https://openreview.net/forum?id=nlQRra0OLH",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "cvpr-2025-hou-binarized-neural-network-for-multi-spectral-image-fusion-cvpr-2025-paper",
+      "source": "CVPR-2025-Accepted",
+      "title": "Binarized Neural Network for Multi-spectral Image Fusion",
+      "abstract": "Pan-sharpening technology refers to generating a high-resolution (HR) multi-spectral (MS) image with broad applications by fusing a low-resolution (LR) MS image and HR panchromatic (PAN) image. While deep learning approaches have shown impressive performance in pan-sharpening, they generally require extensive hardware with high memory and computational power, limiting their deployment on resource-constrained satellites. In this study, we investigate the use of binary neural networks (BNNs) for pan-sharpening and observe that binarization leads to distinct information degradation across different frequency components of an image. Building on this insight, we propose a novel binary pan-sharpening network, termed BNNPan, structured around the Prior-Integrated Binary Frequency (PIBF) module that features three key ingredients: Binary Wavelet Transform Convolution, Latent Diffusion Prior Compensation, and Channel-wise Distribution Calibration. Specifically, the first decomposes input features into distinct frequency components using Wavelet Transform, then applies a \"divide-and-conquer\" strategy to optimize binary feature learning for each component, informed by the corresponding full-precision residual statistics. The second integrates a latent diffusion prior to compensate for compromised information during binarization, while the third performs channel-wise calibration to further refine feature representation. Our BNNPan, developed with the proposed techniques, achieves promising pan-sharpening performance on multiple remote sensing datasets, surpassing state-of-the-art binarization algorithms.",
+      "authors": [
+        "Hou, Junming",
+        "Chen, Xiaoyu",
+        "Ran, Ran",
+        "Cong, Xiaofeng",
+        "Liu, Xinyang",
+        "You, Jian Wei",
+        "Deng, Liang-Jian"
+      ],
+      "primary_category": "CVPR-2025",
+      "categories": [
+        "CVPR-2025"
+      ],
+      "published": "2025-06-01T00:00:00+00:00",
+      "link": "https://openaccess.thecvf.com/content/CVPR2025/html/Hou_Binarized_Neural_Network_for_Multi-spectral_Image_Fusion_CVPR_2025_paper.html",
+      "pdf_url": null,
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-37635",
+      "source": "AAAI-2026-Accepted",
+      "title": "Frequency-Aligned Cross-Modal Learning with Top-K Wavelet Fusion and Dynamic Expert Routing for Enhanced Retinal Disease Diagnosis",
+      "abstract": "Multimodal fusion of color fundus photography (CFP) and optical coherence tomography (OCT) B-scan images has demonstrated superior diagnostic potential for retinal diseases compared to single-modality approaches. However, existing fusion paradigms - whether through naive concatenation or attention mechanisms - treat cross-modal interactions indiscriminately, lacking adaptive modulation of modality-specific contributions under varying clinical scenarios. We propose an adaptive fusion framework that dynamically routes and refines multimodal signals for enhancing disease recognition. The framework comprises two key components: 1) Dynamic Cross-Modal Expert Routing (CMER), which selectively activates convolutional neural network (CNN) experts from one modality based on contextual guidance from the other, ensuring only the most relevant feature extractors contribute to fusion; and 2) Top-K Expert-Guided Wavelet Fusion (TEWF), which performs discrete wavelet transform (DWT) to decompose selected features into low- and high-frequency subbands. Cross-modal attention is then applied specifically to high-frequency components, where lesion-specific microstructures reside, enabling frequency-aware fusion. Finally, inverse DWT (IDWT) reconstructs the fused representation, weighted by CMER-derived importance scores to amplify informative modality cues while suppressing redundancy. Experimental validation on two multimodal retinal datasets demonstrates that our method achieves state-of-the-art performance, outperforming existing fusion strategies by significant margins in disease classification accuracy and robustness.",
+      "authors": [
+        "Yuxin Lin",
+        "Haoran Li",
+        "Haoyu Cao",
+        "Yongting Hu",
+        "Qihao Xu",
+        "Chengliang Liu",
+        "Xiaoling Luo",
+        "Zhihao Wu",
+        "Yong Xu",
+        "Wei Wang"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 9",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 9"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/37635",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/37635/41597",
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-38933",
+      "source": "AAAI-2026-Accepted",
+      "title": "MMMamba: A Versatile Cross-Modal in Context Fusion Framework for Pan-Sharpening and Zero-Shot Image Enhancement",
+      "abstract": "Pan-sharpening aims to generate high-resolution multispectral (HRMS) images by integrating a high-resolution panchromatic (PAN) image with its corresponding low-resolution multispectral (MS) image. To achieve effective fusion, it is crucial to fully exploit the complementary information between the two modalities. Traditional CNN-based methods typically rely on channel-wise concatenation with fixed convolutional operators, which limits their adaptability to diverse spatial and spectral variations. While cross-attention mechanisms enable global interactions, they are computationally inefficient and may dilute fine-grained correspondences, making it difficult to capture complex semantic relationships. Recent advances in the Multimodal Diffusion Transformer (MMDiT) architecture have demonstrated impressive success in image generation and editing tasks. Unlike cross-attention, MMDiT employs in-context conditioning to facilitate more direct and efficient cross-modal information exchange. In this paper, we propose MMMamba, a cross-modal in-context fusion framework for pan-sharpening, with the flexibility to support image super-resolution in a zero-shot manner. Built upon the Mamba architecture, our design ensures linear computational complexity while maintaining strong cross-modal interaction capacity. Furthermore, we introduce a novel multimodal interleaved (MI) scanning mechanism that facilitates effective information exchange between the PAN and MS modalities. Extensive experiments demonstrate the superior performance of our method compared to existing state-of-the-art (SOTA) techniques across multiple tasks and benchmarks.",
+      "authors": [
+        "Yingying Wang",
+        "Xuanhua He",
+        "Chen Wu",
+        "Jialing Huang",
+        "Suiyun Zhang",
+        "Rui Liu",
+        "Xinghao Ding",
+        "Haoxuan Che"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 22",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 22"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38933",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38933/42895",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2026-38135",
+      "source": "AAAI-2026-Accepted",
+      "title": "SpaCRD: Multimodal Deep Fusion of Histology and Spatial Transcriptomics for Cancer Region Detection",
+      "abstract": "Accurate detection of cancer tissue regions (CTR) enables deeper analysis of the tumor microenvironment and offers crucial insights into treatment response. Traditional CTR detection methods, which typically rely on the rich cellular morphology in histology images, are susceptible to a high rate of false positives due to morphological similarities across different tissue regions. The groundbreaking advances in spatial transcriptomics (ST) provide detailed cellular phenotypes and spatial localization information, offering new opportunities for more accurate cancer region detection. However, current methods are unable to effectively integrate histology images with ST data, especially in the context of cross-sample and cross-platform/batch settings for accomplishing the CTR detection. To address this challenge, we propose SpaCRD, a transfer learning-based method that deeply integrates histology images and ST data to enable reliable CTR detection across diverse samples, platforms, and batches. Once trained on source data, SpaCRD can be readily generalized to accurately detect cancerous regions across samples from different platforms and batches. The core of SpaCRD is a category-regularized variational reconstruction-guided bidirectional cross-attention fusion network, which enables the model to adaptively capture latent co-expression patterns between histological features and gene expression from multiple perspectives. Extensive benchmark analysis on 23 matched histology-ST datasets spanning various disease types, platforms, and batches demonstrates that SpaCRD consistently outperforms existing eight state-of-the-art methods in CTR detection.",
+      "authors": [
+        "Shuailin Xue",
+        "Jun Wan",
+        "Lihua Zhang",
+        "Wenwen Min"
+      ],
+      "primary_category": "AAAI-26 Technical Tracks 14",
+      "categories": [
+        "AAAI-2026",
+        "AAAI-26 Technical Tracks 14"
+      ],
+      "published": "2026-03-17T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/38135",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/38135/42097",
+      "tags": [
+        "keyword:image-fusion"
+      ]
+    },
+    {
+      "id": "aaai-2025-33042",
+      "source": "AAAI-2025-Accepted",
+      "title": "SGFormer: Semantic-Geometry Fusion Transformer for Multi-modal 3D Panoptic Segmentation",
+      "abstract": "Modern methods for autonomous driving perception widely adopt multi-modal fusion to enhance 3D scene understanding. However, existing methods suffer from inferior semantic extraction in image encoders that treat all pixels equally, ignoring contextual differences. The generated multi-modal representations also typically lack comprehensive semantic and spatial geometry information, which is crucial for the 3D panoptic segmentation task. In this paper, we propose a novel Semantic-Geometry Fusion Transformer (SGFormer) that extracts adaptive semantic contexts, aggregates geometric information and captures the semantic-geometry fusion. First,  in the Image Branch, we tailor semantic contexts for each pixel with context-guided attention and spatial context alignment to refine semantic details. Second, we transform image and voxel features into point-pixel geometry representations, simultaneously learning  semantic category priors as embeddings to better represent scene geometry and semantics. Finally, to aggregate semantic information with related geometry, we design a semantic-geometry fusion that combines the transformer, effectively capturing semantic-geometry relationships into multi-modal panoptic representations. Notably, SGFormer achieves the state-of-the-art (SOTA)  results on the nuScenes and SemanticPOSS, as well as yielding competitive performance on the SemanticKITTI. Moreover, SGFormer exhibits superior robustness  compared to leading methods, marking an improvement of 2% to 10%.",
+      "authors": [
+        "Hongqi Yu",
+        "Sixian Chan",
+        "Xiaolong Zhou",
+        "Xiaoqin Zhang"
+      ],
+      "primary_category": "AAAI-25 Technical Tracks 9",
+      "categories": [
+        "AAAI-2025",
+        "AAAI-25 Technical Tracks 9"
+      ],
+      "published": "2025-04-11T00:00:00+00:00",
+      "link": "https://ojs.aaai.org/index.php/AAAI/article/view/33042",
+      "pdf_url": "https://ojs.aaai.org/index.php/AAAI/article/download/33042/35197",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "type": "intent_query",
+      "tag": "image-fusion",
+      "paper_tag": "query:image-fusion",
+      "query_text": "find deep learning papers on image fusion",
+      "sim_scores": {
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "aaai-2026-38009": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2025-32714": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "aaai-2026-38078": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "aaai-2026-38932": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "openreview-neurips-2025-rqe5plqsu5": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "aaai-2026-38321": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2026-37548": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "aaai-2026-38126": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.011494252873563218,
+          "rank": 27
+        },
+        "aaai-2025-32224": {
+          "score": 0.01098901098901099,
+          "rank": 31
+        },
+        "aaai-2025-33048": {
+          "score": 0.010869565217391304,
+          "rank": 32
+        },
+        "openreview-neurips-2025-36ckp4tshf": {
+          "score": 0.010752688172043012,
+          "rank": 33
+        },
+        "aaai-2025-32504": {
+          "score": 0.010526315789473684,
+          "rank": 35
+        },
+        "aaai-2026-38933": {
+          "score": 0.009174311926605505,
+          "rank": 49
+        },
+        "openreview-neurips-2025-nlqrra0olh": {
+          "score": 0.00909090909090909,
+          "rank": 50
+        }
+      },
+      "ranked": [
+        {
+          "paper_id": "aaai-2025-33048",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-zhu-self-learning-hyperspectral-and-multispectral-image-fusion-via-adaptive-residual-guided-cvpr-2025-paper",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-32714",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-32224",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-32912",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2026-37309",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38009",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-liu-a-selective-re-learning-mechanism-for-hyperspectral-fusion-imaging-cvpr-2025-paper",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-hou-binarized-neural-network-for-multi-spectral-image-fusion-cvpr-2025-paper",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32933",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37884",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-rqe5plqsu5",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-nlqrra0olh",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38932",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-36ckp4tshf",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37581",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37519",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-wvcyiead5x",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32504",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-alha7ayllr",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37548",
+          "score": 0.5495495495495496,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37635",
+          "score": 0.5495495495495496,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38126",
+          "score": 0.5213675213675214,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38261",
+          "score": 0.5213675213675214,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38933",
+          "score": 0.46719946719946726,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "openreview-neurips-2025-sygoqxyoaq",
+          "score": 0.46719946719946726,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2025-32499",
+          "score": 0.4411571334648256,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "openreview-neurips-2025-zqqdqfja4y",
+          "score": 0.4411571334648256,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-38321",
+          "score": 0.41577409931840303,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-38078",
+          "score": 0.3910256410256411,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2025-33042",
+          "score": 0.32035835650293487,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-38135",
+          "score": 0.21328671328671328,
+          "star_rating": 3
+        }
+      ]
+    },
+    {
+      "type": "intent_query",
+      "tag": "image-fusion",
+      "paper_tag": "query:image-fusion",
+      "query_text": "image fusion survey deep learning",
+      "sim_scores": {
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "aaai-2026-38009": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2026-37581": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "aaai-2026-38932": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2026-38078": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "aaai-2025-32714": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "aaai-2026-37548": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "aaai-2025-32224": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.0125,
+          "rank": 20
+        },
+        "aaai-2025-32912": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2026-38321": {
+          "score": 0.012048192771084338,
+          "rank": 23
+        },
+        "aaai-2026-38126": {
+          "score": 0.011764705882352941,
+          "rank": 25
+        },
+        "aaai-2025-32933": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "aaai-2025-33048": {
+          "score": 0.011235955056179775,
+          "rank": 29
+        },
+        "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper": {
+          "score": 0.010752688172043012,
+          "rank": 33
+        },
+        "openreview-neurips-2025-36ckp4tshf": {
+          "score": 0.010309278350515464,
+          "rank": 37
+        },
+        "openreview-neurips-2025-rqe5plqsu5": {
+          "score": 0.009708737864077669,
+          "rank": 43
+        },
+        "aaai-2026-37884": {
+          "score": 0.009615384615384616,
+          "rank": 44
+        },
+        "aaai-2026-38933": {
+          "score": 0.009523809523809525,
+          "rank": 45
+        },
+        "aaai-2025-32504": {
+          "score": 0.009433962264150943,
+          "rank": 46
+        }
+      },
+      "ranked": [
+        {
+          "paper_id": "cvpr-2025-zhu-self-learning-hyperspectral-and-multispectral-image-fusion-via-adaptive-residual-guided-cvpr-2025-paper",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-hou-binarized-neural-network-for-multi-spectral-image-fusion-cvpr-2025-paper",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-33048",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-32224",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-32714",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-32912",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2026-37309",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-liu-a-selective-re-learning-mechanism-for-hyperspectral-fusion-imaging-cvpr-2025-paper",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37884",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-zqqdqfja4y",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38009",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-rqe5plqsu5",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37581",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38932",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-36ckp4tshf",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-sygoqxyoaq",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-nlqrra0olh",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-alha7ayllr",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38321",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38078",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38126",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38933",
+          "score": 0.5495495495495496,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32499",
+          "score": 0.5495495495495496,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37519",
+          "score": 0.5213675213675214,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38135",
+          "score": 0.5213675213675214,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32933",
+          "score": 0.49392712550607265,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-37548",
+          "score": 0.46719946719946726,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-38261",
+          "score": 0.4411571334648256,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2025-33042",
+          "score": 0.4411571334648256,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2025-32504",
+          "score": 0.3910256410256411,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-37635",
+          "score": 0.3668882557771445,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "openreview-neurips-2025-wvcyiead5x",
+          "score": 0.3433395872420263,
+          "star_rating": 3
+        }
+      ]
+    },
+    {
+      "type": "intent_query",
+      "tag": "image-fusion",
+      "paper_tag": "query:image-fusion",
+      "query_text": "multimodal image fusion using deep neural networks",
+      "sim_scores": {
+        "aaai-2026-37581": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "aaai-2026-38078": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2026-38932": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "aaai-2025-32714": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2026-38009": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "aaai-2026-38321": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "aaai-2026-37548": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-rqe5plqsu5": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "aaai-2026-38933": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2025-32499": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "aaai-2026-38126": {
+          "score": 0.011764705882352941,
+          "rank": 25
+        },
+        "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper": {
+          "score": 0.011494252873563218,
+          "rank": 27
+        },
+        "aaai-2025-32933": {
+          "score": 0.01098901098901099,
+          "rank": 31
+        },
+        "aaai-2025-32224": {
+          "score": 0.010309278350515464,
+          "rank": 37
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.009900990099009901,
+          "rank": 41
+        },
+        "aaai-2025-33042": {
+          "score": 0.009615384615384616,
+          "rank": 44
+        },
+        "aaai-2025-32912": {
+          "score": 0.009174311926605505,
+          "rank": 49
+        }
+      },
+      "ranked": [
+        {
+          "paper_id": "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2025-32933",
+          "score": 1.0,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2026-37581",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-zhu-self-learning-hyperspectral-and-multispectral-image-fusion-via-adaptive-residual-guided-cvpr-2025-paper",
+          "score": 0.9586435070306036,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2026-38932",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "aaai-2026-37309",
+          "score": 0.9185999185999183,
+          "star_rating": 5
+        },
+        {
+          "paper_id": "cvpr-2025-hou-binarized-neural-network-for-multi-spectral-image-fusion-cvpr-2025-paper",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper",
+          "score": 0.8798076923076922,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37548",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32714",
+          "score": 0.8422090729783037,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-33048",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38078",
+          "score": 0.8057498057498057,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38933",
+          "score": 0.7703788748564866,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37884",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "cvpr-2025-liu-a-selective-re-learning-mechanism-for-hyperspectral-fusion-imaging-cvpr-2025-paper",
+          "score": 0.73604826546003,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32504",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37519",
+          "score": 0.702712746191007,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38261",
+          "score": 0.6703296703296702,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-alha7ayllr",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-rqe5plqsu5",
+          "score": 0.6388587937883712,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32912",
+          "score": 0.608262108262108,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-36ckp4tshf",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-37635",
+          "score": 0.578503688092729,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-33042",
+          "score": 0.5495495495495496,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2025-32499",
+          "score": 0.5495495495495496,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "openreview-neurips-2025-zqqdqfja4y",
+          "score": 0.5213675213675214,
+          "star_rating": 4
+        },
+        {
+          "paper_id": "aaai-2026-38009",
+          "score": 0.49392712550607265,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2025-32224",
+          "score": 0.4411571334648256,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "openreview-neurips-2025-wvcyiead5x",
+          "score": 0.4411571334648256,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper",
+          "score": 0.41577409931840303,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "openreview-neurips-2025-sygoqxyoaq",
+          "score": 0.3910256410256411,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-38135",
+          "score": 0.3433395872420263,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-38321",
+          "score": 0.29792429792429775,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "openreview-neurips-2025-nlqrra0olh",
+          "score": 0.23371647509578536,
+          "star_rating": 3
+        },
+        {
+          "paper_id": "aaai-2026-38126",
+          "score": 0.21328671328671328,
+          "star_rating": 3
+        }
+      ]
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "CNN for image fusion",
+      "sim_scores": {
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "aaai-2026-38009": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2026-38078": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "aaai-2026-37581": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "aaai-2026-37548": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "aaai-2025-32714": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "aaai-2026-38932": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "aaai-2025-32933": {
+          "score": 0.011627906976744186,
+          "rank": 26
+        },
+        "aaai-2025-32912": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper": {
+          "score": 0.011111111111111112,
+          "rank": 30
+        },
+        "aaai-2026-38126": {
+          "score": 0.010869565217391304,
+          "rank": 32
+        },
+        "aaai-2026-37884": {
+          "score": 0.010526315789473684,
+          "rank": 35
+        },
+        "aaai-2025-33048": {
+          "score": 0.010101010101010102,
+          "rank": 39
+        },
+        "aaai-2025-32224": {
+          "score": 0.01,
+          "rank": 40
+        },
+        "aaai-2026-38321": {
+          "score": 0.00980392156862745,
+          "rank": 42
+        },
+        "openreview-neurips-2025-rqe5plqsu5": {
+          "score": 0.009708737864077669,
+          "rank": 43
+        },
+        "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper": {
+          "score": 0.009433962264150943,
+          "rank": 46
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "GAN for image fusion",
+      "sim_scores": {
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "aaai-2025-32504": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "aaai-2026-38078": {
+          "score": 0.011627906976744186,
+          "rank": 26
+        },
+        "aaai-2026-38009": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "aaai-2025-32714": {
+          "score": 0.010752688172043012,
+          "rank": 33
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.01,
+          "rank": 40
+        },
+        "aaai-2026-38126": {
+          "score": 0.00980392156862745,
+          "rank": 42
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.009523809523809525,
+          "rank": 45
+        },
+        "aaai-2026-37548": {
+          "score": 0.009345794392523364,
+          "rank": 47
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "deep learning for image fusion",
+      "sim_scores": {
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "aaai-2026-38009": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "aaai-2026-38078": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2025-32714": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "aaai-2026-37581": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "aaai-2026-37548": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "aaai-2026-38932": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "aaai-2025-33048": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "aaai-2025-32912": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2026-38126": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "aaai-2026-38321": {
+          "score": 0.011764705882352941,
+          "rank": 25
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.011494252873563218,
+          "rank": 27
+        },
+        "openreview-neurips-2025-rqe5plqsu5": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "aaai-2025-32224": {
+          "score": 0.011235955056179775,
+          "rank": 29
+        },
+        "aaai-2026-37884": {
+          "score": 0.010869565217391304,
+          "rank": 32
+        },
+        "aaai-2025-32933": {
+          "score": 0.010638297872340425,
+          "rank": 34
+        },
+        "openreview-neurips-2025-36ckp4tshf": {
+          "score": 0.010416666666666666,
+          "rank": 36
+        },
+        "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper": {
+          "score": 0.010101010101010102,
+          "rank": 39
+        },
+        "aaai-2025-33042": {
+          "score": 0.009523809523809525,
+          "rank": 45
+        },
+        "aaai-2026-38933": {
+          "score": 0.00909090909090909,
+          "rank": 50
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "deep learning fusion",
+      "sim_scores": {
+        "aaai-2025-33048": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "cvpr-2025-zhu-self-learning-hyperspectral-and-multispectral-image-fusion-via-adaptive-residual-guided-cvpr-2025-paper": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2025-32714": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "aaai-2025-32912": {
+          "score": 0.011235955056179775,
+          "rank": 29
+        },
+        "cvpr-2025-hou-binarized-neural-network-for-multi-spectral-image-fusion-cvpr-2025-paper": {
+          "score": 0.010869565217391304,
+          "rank": 32
+        },
+        "aaai-2026-37309": {
+          "score": 0.010309278350515464,
+          "rank": 37
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "diffusion models",
+      "sim_scores": {}
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "feature fusion network",
+      "sim_scores": {
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "cvpr-2025-liu-a-selective-re-learning-mechanism-for-hyperspectral-fusion-imaging-cvpr-2025-paper": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "aaai-2025-32499": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "aaai-2026-37635": {
+          "score": 0.010526315789473684,
+          "rank": 35
+        },
+        "aaai-2026-38135": {
+          "score": 0.010309278350515464,
+          "rank": 37
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "feature level fusion in deep learning",
+      "sim_scores": {
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "generative adversarial network fusion",
+      "sim_scores": {}
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "image fusion",
+      "sim_scores": {
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "aaai-2026-38009": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "aaai-2026-38126": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "aaai-2026-38932": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "aaai-2026-37581": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2026-37548": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "aaai-2025-32933": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "aaai-2025-33048": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "openreview-neurips-2025-36ckp4tshf": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper": {
+          "score": 0.0136986301369863,
+          "rank": 13
+        },
+        "aaai-2026-37884": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "openreview-neurips-2025-rqe5plqsu5": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "aaai-2026-38078": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "cvpr-2025-liu-a-selective-re-learning-mechanism-for-hyperspectral-fusion-imaging-cvpr-2025-paper": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "aaai-2026-38321": {
+          "score": 0.0125,
+          "rank": 20
+        },
+        "aaai-2025-32504": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2026-38261": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "aaai-2025-32714": {
+          "score": 0.012048192771084338,
+          "rank": 23
+        },
+        "aaai-2026-37519": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "aaai-2025-32499": {
+          "score": 0.011764705882352941,
+          "rank": 25
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.011627906976744186,
+          "rank": 26
+        },
+        "aaai-2026-37309": {
+          "score": 0.011494252873563218,
+          "rank": 27
+        },
+        "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper": {
+          "score": 0.011235955056179775,
+          "rank": 29
+        },
+        "aaai-2025-32224": {
+          "score": 0.011111111111111112,
+          "rank": 30
+        },
+        "cvpr-2025-zhu-self-learning-hyperspectral-and-multispectral-image-fusion-via-adaptive-residual-guided-cvpr-2025-paper": {
+          "score": 0.010869565217391304,
+          "rank": 32
+        },
+        "aaai-2025-32912": {
+          "score": 0.010526315789473684,
+          "rank": 35
+        },
+        "openreview-neurips-2025-zqqdqfja4y": {
+          "score": 0.010416666666666666,
+          "rank": 36
+        },
+        "openreview-neurips-2025-nlqrra0olh": {
+          "score": 0.010101010101010102,
+          "rank": 39
+        },
+        "cvpr-2025-hou-binarized-neural-network-for-multi-spectral-image-fusion-cvpr-2025-paper": {
+          "score": 0.01,
+          "rank": 40
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "image fusion techniques",
+      "sim_scores": {
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "aaai-2026-38078": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "aaai-2026-38126": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2026-37548": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "aaai-2026-38932": {
+          "score": 0.014492753623188406,
+          "rank": 9
+        },
+        "aaai-2026-38009": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "aaai-2026-38321": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "aaai-2026-37581": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "aaai-2026-37884": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "openreview-neurips-2025-36ckp4tshf": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.01282051282051282,
+          "rank": 18
+        },
+        "aaai-2025-32714": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "aaai-2025-33048": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "openreview-neurips-2025-rqe5plqsu5": {
+          "score": 0.012195121951219513,
+          "rank": 22
+        },
+        "openreview-neurips-2025-zqqdqfja4y": {
+          "score": 0.012048192771084338,
+          "rank": 23
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.011904761904761904,
+          "rank": 24
+        },
+        "aaai-2025-32933": {
+          "score": 0.011363636363636364,
+          "rank": 28
+        },
+        "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper": {
+          "score": 0.011235955056179775,
+          "rank": 29
+        },
+        "aaai-2026-37519": {
+          "score": 0.01098901098901099,
+          "rank": 31
+        },
+        "aaai-2025-32224": {
+          "score": 0.010752688172043012,
+          "rank": 33
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "multimodal image fusion",
+      "sim_scores": {
+        "aaai-2025-32499": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "aaai-2026-37635": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "aaai-2026-38078": {
+          "score": 0.014084507042253521,
+          "rank": 11
+        },
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.013513513513513514,
+          "rank": 14
+        },
+        "aaai-2026-38933": {
+          "score": 0.013157894736842105,
+          "rank": 16
+        },
+        "aaai-2026-38135": {
+          "score": 0.010526315789473684,
+          "rank": 35
+        },
+        "aaai-2026-38261": {
+          "score": 0.01,
+          "rank": 40
+        }
+      }
+    },
+    {
+      "type": "keyword",
+      "tag": "image-fusion",
+      "paper_tag": "keyword:image-fusion",
+      "query_text": "multimodal image fusion using deep learning",
+      "sim_scores": {
+        "aaai-2026-37581": {
+          "score": 0.01639344262295082,
+          "rank": 1
+        },
+        "aaai-2026-38078": {
+          "score": 0.016129032258064516,
+          "rank": 2
+        },
+        "openreview-neurips-2025-sygoqxyoaq": {
+          "score": 0.015873015873015872,
+          "rank": 3
+        },
+        "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper": {
+          "score": 0.015625,
+          "rank": 4
+        },
+        "openreview-neurips-2025-wvcyiead5x": {
+          "score": 0.015384615384615385,
+          "rank": 5
+        },
+        "aaai-2026-38009": {
+          "score": 0.015151515151515152,
+          "rank": 6
+        },
+        "aaai-2026-38932": {
+          "score": 0.014925373134328358,
+          "rank": 7
+        },
+        "aaai-2025-32714": {
+          "score": 0.014705882352941176,
+          "rank": 8
+        },
+        "aaai-2026-38321": {
+          "score": 0.014285714285714285,
+          "rank": 10
+        },
+        "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper": {
+          "score": 0.013888888888888888,
+          "rank": 12
+        },
+        "aaai-2026-37548": {
+          "score": 0.013333333333333334,
+          "rank": 15
+        },
+        "openreview-neurips-2025-rqe5plqsu5": {
+          "score": 0.012987012987012988,
+          "rank": 17
+        },
+        "aaai-2026-38933": {
+          "score": 0.012658227848101266,
+          "rank": 19
+        },
+        "aaai-2026-38126": {
+          "score": 0.012345679012345678,
+          "rank": 21
+        },
+        "aaai-2025-32224": {
+          "score": 0.011494252873563218,
+          "rank": 27
+        },
+        "aaai-2025-33042": {
+          "score": 0.011235955056179775,
+          "rank": 29
+        },
+        "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper": {
+          "score": 0.010869565217391304,
+          "rank": 32
+        },
+        "aaai-2025-32912": {
+          "score": 0.010638297872340425,
+          "rank": 34
+        },
+        "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper": {
+          "score": 0.010101010101010102,
+          "rank": 39
+        },
+        "openreview-neurips-2025-alha7ayllr": {
+          "score": 0.00980392156862745,
+          "rank": 42
+        },
+        "aaai-2025-32499": {
+          "score": 0.009433962264150943,
+          "rank": 46
+        },
+        "aaai-2026-37884": {
+          "score": 0.00909090909090909,
+          "rank": 50
+        }
+      }
+    }
+  ],
+  "global_candidate_ids": [
+    "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper",
+    "openreview-neurips-2025-sygoqxyoaq",
+    "aaai-2026-37581",
+    "aaai-2026-38078",
+    "openreview-neurips-2025-mddnt1gxbi",
+    "cvpr-2025-wang-style-quantization-for-data-efficient-gan-training-cvpr-2025-paper",
+    "aaai-2025-33048",
+    "cvpr-2025-radman-tsam-temporal-sam-augmented-with-multimodal-prompts-for-referring-audio-visual-cvpr-2025-paper",
+    "openreview-neurips-2025-vgv5y60sxc",
+    "cvpr-2025-mcallister-decentralized-diffusion-models-cvpr-2025-paper",
+    "cvpr-2025-wang-boosting-domain-incremental-learning-selecting-the-optimal-parameters-is-all-cvpr-2025-paper",
+    "aaai-2026-38847",
+    "aaai-2026-39564",
+    "openreview-neurips-2025-0kofauihua",
+    "aaai-2025-34028",
+    "aaai-2025-32955",
+    "aaai-2026-38009",
+    "openreview-neurips-2025-wvcyiead5x",
+    "aaai-2025-32499",
+    "aaai-2026-37404",
+    "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper",
+    "aaai-2025-32714",
+    "aaai-2026-37548",
+    "openreview-neurips-2025-alha7ayllr",
+    "aaai-2026-38932",
+    "aaai-2026-38240",
+    "aaai-2026-38126",
+    "cvpr-2025-ren-improving-adversarial-transferability-on-vision-transformers-via-forward-propagation-refinement-cvpr-2025-paper",
+    "cvpr-2025-yang-dnlut-ultra-efficient-color-image-denoising-via-channel-aware-lookup-tables-cvpr-2025-paper",
+    "aaai-2026-38515",
+    "openreview-neurips-2025-91gzt22sef",
+    "aaai-2026-42435",
+    "aaai-2026-38321",
+    "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper",
+    "openreview-neurips-2025-rqe5plqsu5",
+    "aaai-2025-32764",
+    "aaai-2025-32224",
+    "openreview-neurips-2025-i4qafv04rz",
+    "aaai-2025-32912",
+    "cvpr-2025-chen-easy-editable-image-vectorization-with-multi-layer-multi-scale-distributed-visual-feature-embedding-cvpr-2025-paper",
+    "aaai-2026-40064",
+    "cvpr-2025-evani-chebyshev-attention-depth-permutation-texture-network-with-latent-texture-attribute-cvpr-2025-paper",
+    "aaai-2025-32933",
+    "aaai-2025-32756",
+    "aaai-2026-37691",
+    "aaai-2026-39463",
+    "openreview-neurips-2025-wq5g71w7zx",
+    "aaai-2026-37884",
+    "aaai-2026-38933",
+    "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper",
+    "openreview-neurips-2025-36ckp4tshf",
+    "cvpr-2025-dong-exploring-semantic-feature-discrimination-for-perceptual-image-super-resolution-and-opinion-unaware-cvpr-2025-paper",
+    "aaai-2026-37355",
+    "cvpr-2025-mehri-libragrad-balancing-gradient-flow-for-universally-better-vision-transformer-attributions-cvpr-2025-paper",
+    "cvpr-2025-wang-layered-image-vectorization-via-semantic-simplification-cvpr-2025-paper",
+    "aaai-2026-39346",
+    "aaai-2025-32504",
+    "aaai-2026-37739",
+    "aaai-2026-42471",
+    "openreview-neurips-2025-y8vwyf5cvi",
+    "openreview-neurips-2025-64wevllqjq",
+    "aaai-2026-39519",
+    "aaai-2026-38054",
+    "cvpr-2025-shrivastava-self-supervised-spatial-correspondence-across-modalities-cvpr-2025-paper",
+    "cvpr-2025-bilecen-reference-based-3d-aware-image-editing-with-triplanes-cvpr-2025-paper",
+    "cvpr-2025-mao-sir-diff-sparse-image-sets-restoration-with-multi-view-diffusion-model-cvpr-2025-paper",
+    "aaai-2025-33042",
+    "cvpr-2025-cai-keep-the-balance-a-parameter-efficient-symmetrical-framework-for-rgbx-semantic-cvpr-2025-paper",
+    "cvpr-2025-liu-a-selective-re-learning-mechanism-for-hyperspectral-fusion-imaging-cvpr-2025-paper",
+    "aaai-2025-33914",
+    "cvpr-2025-zhu-self-learning-hyperspectral-and-multispectral-image-fusion-via-adaptive-residual-guided-cvpr-2025-paper",
+    "cvpr-2025-zhu-exploring-sparse-moe-in-gans-for-text-conditioned-image-synthesis-cvpr-2025-paper",
+    "aaai-2026-37410",
+    "aaai-2026-38358",
+    "aaai-2026-37635",
+    "openreview-neurips-2025-ewgzitwahh",
+    "openreview-neurips-2025-fgw3izzxme",
+    "openreview-neurips-2025-xpi6yxnsii",
+    "aaai-2026-40927",
+    "openreview-neurips-2025-gqhuet0v6f",
+    "cvpr-2025-jang-vl2lite-task-specific-knowledge-distillation-from-large-vision-language-models-to-lightweight-cvpr-2025-paper",
+    "aaai-2026-37067",
+    "aaai-2026-37519",
+    "openreview-neurips-2025-zqqdqfja4y",
+    "aaai-2026-38261",
+    "cvpr-2025-jiang-visual-and-semantic-prompt-collaboration-for-generalized-zero-shot-learning-cvpr-2025-paper",
+    "aaai-2026-37309",
+    "aaai-2026-40165",
+    "aaai-2026-40013",
+    "cvpr-2025-xing-luminet-latent-intrinsics-meets-diffusion-models-for-indoor-scene-relighting-cvpr-2025-paper",
+    "cvpr-2025-liu-generative-photomontage-cvpr-2025-paper",
+    "cvpr-2025-li-nvcomposer-boosting-generative-novel-view-synthesis-with-multiple-sparse-and-cvpr-2025-paper",
+    "openreview-neurips-2025-0owhzjrnb6",
+    "cvpr-2025-hou-binarized-neural-network-for-multi-spectral-image-fusion-cvpr-2025-paper",
+    "aaai-2026-38135",
+    "aaai-2026-37827",
+    "cvpr-2025-wang-lavin-dit-large-vision-diffusion-transformer-cvpr-2025-paper",
+    "aaai-2025-33096",
+    "cvpr-2025-pu-art-anonymous-region-transformer-for-variable-multi-layer-transparent-image-generation-cvpr-2025-paper",
+    "openreview-neurips-2025-crbrksp3yt",
+    "openreview-neurips-2025-nlqrra0olh",
+    "aaai-2026-37539",
+    "aaai-2026-37255",
+    "aaai-2026-39594",
+    "cvpr-2025-kong-generative-sparse-view-gaussian-splatting-cvpr-2025-paper",
+    "cvpr-2025-huynh-collm-a-large-language-model-for-composed-image-retrieval-cvpr-2025-paper",
+    "cvpr-2025-zhong-hierarchical-features-matter-a-deep-exploration-of-progressive-parameterization-method-cvpr-2025-paper",
+    "openreview-neurips-2025-0suihptncp",
+    "openreview-neurips-2025-nhw8muiacl",
+    "aaai-2025-33823",
+    "aaai-2025-34801",
+    "aaai-2026-37679",
+    "cvpr-2025-zhang-weakly-supervised-temporal-action-localization-via-dual-prior-collaborative-learning-guided-cvpr-2025-paper",
+    "openreview-neurips-2025-jobcakbcpc",
+    "openreview-neurips-2025-zsrb8rth9m",
+    "aaai-2025-32265",
+    "aaai-2026-40023",
+    "cvpr-2025-zhang-energymogen-compositional-human-motion-generation-with-energy-based-diffusion-model-in-cvpr-2025-paper",
+    "aaai-2025-33599",
+    "cvpr-2025-wang-sleepermark-towards-robust-watermark-against-fine-tuning-text-to-image-diffusion-models-cvpr-2025-paper"
+  ],
+  "global_pool_lane_top_k": 30,
+  "global_pool_limit": 120,
+  "global_pool_guaranteed_per_lane": 2,
+  "global_pool_effective_size": 120,
+  "reranked_at": "2026-07-06T05:37:58.710851+00:00",
+  "llm_ranked": [
+    {
+      "paper_id": "openreview-neurips-2025-sygoqxyoaq",
+      "score": 10.0,
+      "evidence_en": "one-step diffusion model for image fusion",
+      "evidence_cn": "一步扩散模型用于图像融合",
+      "canonical_evidence": "一步扩散模型用于图像融合",
+      "tldr_en": "Proposes RFfusion, a one-step diffusion model for image fusion using Rectified Flow, achieving efficient and high-quality fusion without additional training.",
+      "tldr_cn": "该论文针对扩散模型在图像融合中复杂计算和冗余推理时间的问题，提出RFFusion，基于Rectified Flow的一步扩散模型。通过将Rectified Flow引入图像融合，拉直采样路径，实现无需额外训练的一步采样，同时保持高质量融合结果。实验表明该方法在效率和性能上均优于现有方法。",
+      "title_zh": "面向图像融合的高效整流流方法",
+      "motivation_cn": "扩散模型在图像融合中计算复杂且推理时间长，限制了实用性。",
+      "method_cn": "提出RFFusion，基于Rectified Flow实现一步采样，无需额外训练。",
+      "result_cn": "在多个数据集上达到最先进融合质量且推理速度显著提升。",
+      "conclusion_cn": "RFFusion为图像融合提供了高效且高质量的新范式。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-37581",
+      "score": 10.0,
+      "evidence_en": "unified multi-modality image fusion framework with channel perturbation and pre-trained knowledge",
+      "evidence_cn": "统一多模态图像融合框架，通道扰动与预训练知识整合",
+      "canonical_evidence": "统一多模态图像融合框架，通道扰动与预训练知识整合",
+      "tldr_en": "Proposes UP-Fusion, a unified multi-modality image fusion framework using channel perturbation and pretrained knowledge to handle modality differences and improve generalization across fusion tasks.",
+      "tldr_cn": "现有统一多模态图像融合方法因模态差异大导致梯度冲突，泛化性差。本文提出UP-Fusion，通过语义感知通道扰动抑制冗余信息，并利用预训练知识整合强化关键特征，构建统一融合框架。在多种多模态图像融合任务（如可见光-红外、医学图像）上的实验结果表明，该方法在融合质量和泛化性方面均优于现有方法，验证了通道扰动和知识整合策略的有效性。",
+      "title_zh": "基于文本引导的通道扰动与预训练知识整合的统一多模态图像融合",
+      "motivation_cn": "解决统一多模态图像融合中模态差异导致的梯度冲突和泛化性差的问题。",
+      "method_cn": "提出语义感知通道扰动模块和预训练知识整合策略，构建统一的融合框架。",
+      "result_cn": "在多个融合任务上性能提升，并验证了泛化能力。",
+      "conclusion_cn": "UP-Fusion有效统一了多模态图像融合，兼顾性能与泛化性。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2025-32499",
+      "score": 10.0,
+      "evidence_en": "medical image fusion with bidirectional stepwise feature alignment",
+      "evidence_cn": "医学图像融合，双向逐步特征对齐",
+      "canonical_evidence": "医学图像融合，双向逐步特征对齐",
+      "tldr_en": "Proposes BSAFusion for unaligned medical image fusion, using a bidirectional stepwise feature alignment and fusion strategy with modal discrepancy-free representation.",
+      "tldr_cn": "未对齐多模态医学图像的同时对齐与融合面临兼容性挑战。本文提出BSAFusion，采用双向逐步特征对齐与融合策略，逐步减少模态差异，并引入模态差异无关特征表示以提升匹配鲁棒性。在多种未对齐医学图像数据集上，该方法实现了精确对齐和高质量融合，优于分步处理方案，为医学图像融合提供了高效端到端解决方案。",
+      "title_zh": "BSAFusion：面向未对齐医学图像融合的双向逐步特征对齐网络",
+      "motivation_cn": "解决未对齐医学图像融合中特征对齐与融合的不兼容问题。",
+      "method_cn": "提出双向逐步特征对齐与融合策略，结合模态差异无关特征表示。",
+      "result_cn": "在医学图像融合任务上有效对齐并提升融合质量。",
+      "conclusion_cn": "BSAFusion实现了未对齐医学图像的高效同步对齐与融合。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-36ckp4tshf",
+      "score": 10.0,
+      "evidence_en": "unsupervised noisy visible and infrared image fusion",
+      "evidence_cn": "无监督噪点可见光与红外图像融合",
+      "canonical_evidence": "无监督噪点可见光与红外图像融合",
+      "tldr_en": "Proposes an unsupervised method for noisy visible and infrared image fusion using convolutional low-rank optimization and unified denoising-fusion network.",
+      "tldr_cn": "现有图像融合方法在噪声环境下性能下降，且监督方法泛化性差。本文提出无监督噪点融合方法Deno-IF，通过卷积低秩优化从噪声源图像中分解清洁成分，再由统一网络同时进行去噪与融合。无需配对训练数据，在合成和真实噪声场景下均能保持高质量融合，展现了优秀的泛化能力。",
+      "title_zh": "Deno-IF：无监督噪点可见光与红外图像融合方法",
+      "motivation_cn": "现有图像融合方法难以处理噪声，且监督方法泛化性差。",
+      "method_cn": "提出卷积低秩优化分解噪声图像，并构建统一去噪融合网络。",
+      "result_cn": "在噪声条件下融合质量提升，且无需训练数据。",
+      "conclusion_cn": "该方法实现了噪声环境下鲁棒的无监督图像融合。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "cvpr-2025-zhu-self-learning-hyperspectral-and-multispectral-image-fusion-via-adaptive-residual-guided-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "self-learning hyperspectral and multispectral image fusion using diffusion model",
+      "evidence_cn": "自学习高光谱与多光谱图像融合，扩散模型",
+      "canonical_evidence": "自学习高光谱与多光谱图像融合，扩散模型",
+      "tldr_en": "Proposes ARGS-Diff, a self-learning subspace diffusion model for HSI-MSI fusion using only observed images without extra training data.",
+      "tldr_cn": "高光谱与多光谱图像融合通常依赖大量超光谱数据进行监督训练，实际中数据获取困难。本文提出ARGS-Diff，一种仅利用观测图像的自学习扩散模型，通过轻量光谱空间分支提取特征，并设计自适应残差引导子空间扩散实现融合。无需任何额外训练数据，在多个公开数据集上性能超越监督方法，为数据受限场景提供了有效方案。",
+      "title_zh": "基于自适应残差引导子空间扩散模型的自学习高光谱与多光谱图像融合",
+      "motivation_cn": "解决高光谱图像融合中训练数据不足的问题。",
+      "method_cn": "设计轻量光谱空间分支和自适应残差引导的子空间扩散模型。",
+      "result_cn": "无需额外训练数据，融合性能超越监督方法。",
+      "conclusion_cn": "ARGS-Diff实现了数据高效的高光谱图像融合。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-37548",
+      "score": 10.0,
+      "evidence_en": "degradation-aware infrared and visible image fusion with language-driven semantics",
+      "evidence_cn": "退化感知的红外与可见光图像融合，语言驱动语义",
+      "canonical_evidence": "退化感知的红外与可见光图像融合，语言驱动语义",
+      "tldr_en": "Proposes MdaIF, a one-stop degradation-aware image fusion framework using large language model and mixture-of-experts to handle diverse weather degradations.",
+      "tldr_cn": "现有红外与可见光图像融合方法未考虑恶劣天气导致的退化，且网络结构固定难以适应不同退化场景。本文提出MdaIF，利用大语言模型驱动，采用混合专家系统处理雾、雨、雪等天气退化，实现一站式融合。实验表明该方法在多种退化条件下均能生成高质量融合图像，显著优于传统方法，鲁棒性强。",
+      "title_zh": "MdaIF：基于语言驱动语义的鲁棒一站式多退化感知图像融合",
+      "motivation_cn": "解决现有图像融合方法无法适应不同天气退化的问题。",
+      "method_cn": "提出大语言模型驱动的混合专家系统，实现多退化场景统一处理。",
+      "result_cn": "在多种退化条件下融合质量优于现有方法。",
+      "conclusion_cn": "MdaIF实现了鲁棒的多退化场景图像融合。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2025-32224",
+      "score": 10.0,
+      "evidence_en": "UHD dynamic multi-exposure image fusion using infinite pixel learning",
+      "evidence_cn": "超高清动态多曝光图像融合，无限像素学习",
+      "canonical_evidence": "超高清动态多曝光图像融合，无限像素学习",
+      "tldr_en": "Proposes Infinite Pixel Learning (IPL) for UHD multi-exposure dynamic scene fusion, inspired by LLM, enabling fusion on a single consumer GPU.",
+      "tldr_cn": "现有动态多曝光融合方法无法高效处理超高清（UHD）图像，受限于计算资源。本文受大语言模型处理长文本启发，提出无限像素学习（IPL），将图像切分为像素序列进行融合，支持在单消费级GPU上实现UHD图像实时融合。实验证明，该方法在融合质量和效率上均大幅领先现有技术，推动了UHD图像融合的实用化。",
+      "title_zh": "基于无限像素学习的超高清动态多曝光图像融合",
+      "motivation_cn": "现有方法难以在资源受限设备上处理超高清多曝光图像融合。",
+      "method_cn": "模仿大语言模型，将图像分割为像素序列并采用高效学习策略。",
+      "result_cn": "在单消费级GPU上实现高质量UHD融合，速度提升。",
+      "conclusion_cn": "IPL使得UHD动态多曝光融合在消费级硬件上成为可能。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "cvpr-2025-bai-task-driven-image-fusion-with-learnable-fusion-loss-cvpr-2025-paper",
+      "score": 10.0,
+      "evidence_en": "task-driven image fusion with learnable fusion loss",
+      "evidence_cn": "任务驱动图像融合，可学习融合损失",
+      "canonical_evidence": "任务驱动图像融合，可学习融合损失",
+      "tldr_en": "Proposes TDFusion, a multi-modal image fusion framework with a learnable fusion loss guided by downstream task loss in a meta-learning manner.",
+      "tldr_cn": "现有面向下游任务的图像融合方法使用固定融合目标，与任务需求可能不匹配，限制灵活性。本文提出TDFusion，通过元学习方式让融合损失由下游任务损失监督，自动学习最优融合目标。在多个下游任务（如检测、分割）中，该方法显著提升了融合效果，验证了任务自适应融合的有效性。",
+      "title_zh": "任务驱动图像融合中的可学习融合损失",
+      "motivation_cn": "现有图像融合损失与下游任务目标不匹配，影响模型灵活性。",
+      "method_cn": "提出可学习融合损失模块，由下游任务损失通过元学习指导。",
+      "result_cn": "在多个下游任务上融合效果提升。",
+      "conclusion_cn": "TDFusion实现了任务自适应的图像融合。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-38933",
+      "score": 9.0,
+      "evidence_en": "cross-modal fusion framework for pan-sharpening",
+      "evidence_cn": "用于全色锐化的跨模态融合框架",
+      "canonical_evidence": "用于全色锐化的跨模态融合框架",
+      "tldr_en": "Proposes MMMamba, a versatile cross-modal fusion framework using Mamba architecture for pan-sharpening and zero-shot image enhancement.",
+      "tldr_cn": "该论文针对传统CNN融合方法适应性差和注意力计算效率低的问题，提出MMMamba，一种基于Mamba架构的跨模态融合框架，用于全色锐化和零样本图像增强。该方法有效利用互补信息，在多个基准上取得优异性能。",
+      "title_zh": "MMMamba：用于全色锐化和零样本图像增强的通用跨模态上下文融合框架",
+      "motivation_cn": "CNN融合方法适应性差，交叉注意力计算效率低且稀释细粒度对应关系。",
+      "method_cn": "利用Mamba架构构建跨模态融合框架，实现高效全局交互。",
+      "result_cn": "在全色锐化和图像增强任务上达到最优性能。",
+      "conclusion_cn": "MMMamba为多模态融合提供了高效且可扩展的解决方案。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-38135",
+      "score": 9.0,
+      "evidence_en": "cancer region detection via multimodal deep fusion",
+      "evidence_cn": "通过多模态深度融合进行癌症区域检测",
+      "canonical_evidence": "通过多模态深度融合进行癌症区域检测",
+      "tldr_en": "Proposes SpaCRD for cancer region detection by fusing histology and spatial transcriptomics using deep multimodal fusion.",
+      "tldr_cn": "该论文针对传统组织学假阳性率高的问题，提出SpaCRD，通过深度融合组织学图像和空间转录组学数据，实现准确的癌症组织区域检测。该方法有效整合多模态信息，在跨样本和跨平台场景中表现出高鲁棒性。",
+      "title_zh": "SpaCRD：用于癌症区域检测的组织学与空间转录组学多模态深度融合",
+      "motivation_cn": "传统组织学方法假阳性率高，现有方法无法有效整合空间转录组数据。",
+      "method_cn": "设计多模态深度融合网络，联合组织学和ST数据进行癌症检测。",
+      "result_cn": "在多个数据集上检测精度显著优于现有方法。",
+      "conclusion_cn": "多模态融合为癌症区域检测提供了更可靠的解决方案。",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning."
+    },
+    {
+      "paper_id": "aaai-2025-33048",
+      "score": 9.0,
+      "evidence_en": "ODE-inspired network for remote sensing image fusion",
+      "evidence_cn": "基于ODE的遥感图像融合网络",
+      "canonical_evidence": "基于ODE的遥感图像融合网络",
+      "tldr_en": "Proposes OTPNet, an ODE-inspired tuning-free proximal network for remote sensing image fusion, enhancing interpretability and adaptability.",
+      "tldr_cn": "该论文针对深度学习融合方法依赖手动网络设计和调参、缺乏可解释性的问题，提出OTPNet，一种受常微分方程启发的免调参近端网络，将遥感图像融合分解为两个优化问题，通过深度先验正则化，实现了可解释且自适应的融合。",
+      "title_zh": "OTPNet：受ODE启发的免调参近端网络用于遥感图像融合",
+      "motivation_cn": "现有深度方法手动设计网络和调参，可解释性和适应性不足。",
+      "method_cn": "提出ODE启发的近端分裂算法，将融合分解为两个优化子问题。",
+      "result_cn": "在多个遥感数据集上融合质量优于现有方法。",
+      "conclusion_cn": "OTPNet为遥感图像融合提供了可解释且免调参的新途径。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "cvpr-2025-wu-every-sam-drop-counts-embracing-semantic-priors-for-multi-modality-image-cvpr-2025-paper",
+      "score": 9.0,
+      "evidence_en": "multi-modality image fusion with SAM semantic priors",
+      "evidence_cn": "利用SAM语义先验的多模态图像融合",
+      "canonical_evidence": "利用SAM语义先验的多模态图像融合",
+      "tldr_en": "Proposes SAGE, leveraging SAM semantic priors for multi-modality image fusion, achieving high visual quality and downstream task adaptability.",
+      "tldr_cn": "该论文针对多模态图像融合中视觉质量和下游任务适应性难以兼顾的问题，提出SAGE方法，利用SAM的语义知识设计语义持久注意力模块，在保持源信息的同时提升融合质量和任务适应性。实验表明该方法在红外-可见光融合及后续任务中均达最优。",
+      "title_zh": "每个SAM标注都很重要：利用语义先验实现多模态图像融合及其拓展",
+      "motivation_cn": "现有方法难以兼顾融合的视觉质量与下游任务适应性。",
+      "method_cn": "提出语义持久注意力模块，将SAM语义先验融入融合网络。",
+      "result_cn": "在多个融合基准和下游任务中性能最优。",
+      "conclusion_cn": "语义先验能有效桥接融合质量与任务需求之间的鸿沟。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-rqe5plqsu5",
+      "score": 9.0,
+      "evidence_en": "latent diffusion for general image fusion",
+      "evidence_cn": "潜在扩散模型用于通用图像融合",
+      "canonical_evidence": "潜在扩散模型用于通用图像融合",
+      "tldr_en": "Proposes PDFuse, a training-free general image fusion framework using latent diffusion with projection-manifold regularization.",
+      "tldr_cn": "该论文提出PDFuse，一种无需训练的通用图像融合框架，基于预训练潜在扩散模型和投影-流形正则化。通过将融合定义为受多源图像约束的扩散推理过程，并设计多源信息一致性投影和流形一致性保持机制，实现高保真融合，适应多种模态。",
+      "title_zh": "投影-流形正则化潜在扩散用于鲁棒通用图像融合",
+      "motivation_cn": "现有融合方法依赖特定任务训练，缺乏通用性和鲁棒性。",
+      "method_cn": "利用预训练扩散模型，设计投影-流形正则化约束融合过程。",
+      "result_cn": "在多种模态融合任务中无需微调即达最优性能。",
+      "conclusion_cn": "生成先验和一致性约束相结合为通用融合提供了新范式。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-38321",
+      "score": 9.0,
+      "evidence_en": "instruction-guided controllable image fusion",
+      "evidence_cn": "指令引导的可控图像融合",
+      "canonical_evidence": "指令引导的可控图像融合",
+      "tldr_en": "Proposes ControlFuse, an instruction-guided framework for multi-granularity controllable infrared-visible image fusion.",
+      "tldr_cn": "该论文针对现有图像融合方法输出固定、无法满足用户特定需求的问题，提出ControlFuse，一种指令引导的多粒度可控红外-可见光图像融合框架。通过引入文本指令与空间标注的关联数据集和精细跨模态对齐方法，实现实例级控制，赋予融合过程灵活性。",
+      "title_zh": "ControlFuse：指令引导的多粒度可控图像融合",
+      "motivation_cn": "现有方法输出固定，缺乏对用户特定需求的适应能力。",
+      "method_cn": "构建文本指令与空间标注对齐的数据集和精细跨模态对齐网络。",
+      "result_cn": "在可控融合任务中实现高质量的实例级操控。",
+      "conclusion_cn": "指令引导为图像融合提供了灵活且实用的控制方式。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-38009",
+      "score": 9.0,
+      "evidence_en": "self-supervised learning for image fusion",
+      "evidence_cn": "自监督学习用于图像融合",
+      "canonical_evidence": "自监督学习用于图像融合",
+      "tldr_en": "Proposes SigFusion, a signal-level self-supervised learning paradigm that generates pseudo training sets from unlabeled natural images for various fusion tasks.",
+      "tldr_cn": "该论文针对图像融合缺乏大规模真实训练数据的问题，提出SigFusion，一种统一的信号级自监督学习范式，通过可学习的信号调制器和SigFormer从无标签自然图像自动合成具有真实多源信号特征的训练集和伪标签。该方法在多个融合任务上达到有监督方法的性能。",
+      "title_zh": "SigFusion：面向图像融合的统一信号级自监督学习范式",
+      "motivation_cn": "图像融合缺乏大规模真实训练数据集。",
+      "method_cn": "提出信号级伪标签生成网络，从无标签图像合成训练数据。",
+      "result_cn": "在多种融合任务上达到与有监督方法相当的性能。",
+      "conclusion_cn": "自监督信号级合成数据能有效缓解数据稀缺问题。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-37884",
+      "score": 9.0,
+      "evidence_en": "mask-prompt guided controllable image fusion",
+      "evidence_cn": "掩码提示引导的可控图像融合",
+      "canonical_evidence": "掩码提示引导的可控图像融合",
+      "tldr_en": "Proposes CtrlFuse, a controllable image fusion framework that uses mask prompts to guide interactive dynamic fusion of infrared and visible images, integrating multi-modal feature extractor, reference prompt encoder, and prompt-semantic fusion module.",
+      "tldr_cn": "现有红外与可见光图像融合方法难以同时兼顾像素级融合准确性与下游任务适应性。本文提出CtrlFuse框架，通过掩码提示实现交互式动态融合，集成多模态特征提取器、参考提示编码器和提示语义融合模块。实验表明该方法能根据任务需求灵活调整融合策略，提升下游感知表现。",
+      "title_zh": "CtrlFuse：掩码提示引导的可控红外与可见光图像融合",
+      "motivation_cn": "现有融合方法无法根据语义目标需求动态调整融合过程，需实现可控融合。",
+      "method_cn": "提出掩码提示引导的可控融合框架，包括多模态特征提取器、参考提示编码器和提示语义融合模块。",
+      "result_cn": "在多个数据集上验证了融合质量与下游任务性能的提升。",
+      "conclusion_cn": "CtrlFuse实现了灵活可控的融合，能更好适应多样化感知需求。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-wvcyiead5x",
+      "score": 9.0,
+      "evidence_en": "generative image fusion based on human cognitive laws",
+      "evidence_cn": "基于人类认知规律的生成式图像融合",
+      "canonical_evidence": "基于人类认知规律的生成式图像融合",
+      "tldr_en": "Proposes HCLFuse, a generative infrared and visible image fusion method inspired by human cognitive laws, incorporating multi-scale masking and information quantification to improve fusion interpretability and consistency.",
+      "tldr_cn": "现有生成式融合方法在模态信息平衡和可解释性方面存在不足。本文受人类认知规律启发，提出HCLFuse方法，通过多尺度掩码和信息映射量化理论设计无监督融合网络。实验证明该方法能更可靠地选择模态信息，生成一致性更好的融合图像。",
+      "title_zh": "基于人类认知规律的生成式红外与可见光图像融合再探索",
+      "motivation_cn": "生成式融合方法缺乏可解释性，模态信息选择不可靠。",
+      "method_cn": "借鉴人类认知规律，设计多尺度掩码和信息映射量化理论指导无监督融合网络。",
+      "result_cn": "在红外与可见光融合基准上取得更优的视觉效果和定量指标。",
+      "conclusion_cn": "HCLFuse提升了生成式融合的可解释性和鲁棒性。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "cvpr-2025-liu-a-selective-re-learning-mechanism-for-hyperspectral-fusion-imaging-cvpr-2025-paper",
+      "score": 9.0,
+      "evidence_en": "hyperspectral fusion imaging with deep learning",
+      "evidence_cn": "基于深度学习的高光谱融合成像",
+      "canonical_evidence": "基于深度学习的高光谱融合成像",
+      "tldr_en": "Proposes SRLF, a selective re-learning fusion network for hyperspectral imaging that initially extracts features uniformly then selectively refines distorted points, reducing computational cost.",
+      "tldr_cn": "高光谱融合成像计算量大，现有方法对所有像素统一处理。本文提出选择性再学习融合网络SRLF，先均匀提取特征，再有选择地细化扭曲特征点，在保持重建质量的同时降低计算复杂度。实验表明该方法在多个高光谱数据集上提升了效率与性能。",
+      "title_zh": "用于高光谱融合成像的选择性再学习机制",
+      "motivation_cn": "现有方法忽略不同区域对网络深度需求的差异，计算效率低。",
+      "method_cn": "提出选择性再学习机制，先初步融合再选择性细化扭曲特征点。",
+      "result_cn": "在保证重建质量的同时显著降低了计算量。",
+      "conclusion_cn": "SRLF有效利用区域特性提升了高光谱融合的效率和准确性。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2025-32912",
+      "score": 9.0,
+      "evidence_en": "deep learning for pansharpening image fusion",
+      "evidence_cn": "基于深度学习的全色锐化图像融合",
+      "canonical_evidence": "基于深度学习的全色锐化图像融合",
+      "tldr_en": "Proposes PanAdapter, an efficient fine-tuning method for pansharpening that injects spatial-spectral priors from pre-trained models to address small dataset issues.",
+      "tldr_cn": "全色锐化任务中深度学习模型受限于数据集规模。本文提出PanAdapter两阶段微调方法，利用预训练模型的空间-光谱先验知识，在小样本场景下提升融合性能。实验证明该方法在多个基准上优于现有专门模型，尤其适用于数据稀缺情况。",
+      "title_zh": "PanAdapter：结合空间-光谱先验注入的两阶段微调用于全色锐化",
+      "motivation_cn": "现有全色锐化模型受限于数据集大小，难以充分利用预训练知识。",
+      "method_cn": "提出两阶段微调框架，注入预训练模型的空间-光谱先验。",
+      "result_cn": "在多个全色锐化数据集上取得最优结果，尤其在小样本情况下。",
+      "conclusion_cn": "PanAdapter有效缓解了数据不足问题，提升了图像融合迁移能力。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-38078",
+      "score": 9.0,
+      "evidence_en": "multi-modality image fusion with hybrid space modeling",
+      "evidence_cn": "多模态图像融合与混合空间建模",
+      "canonical_evidence": "多模态图像融合与混合空间建模",
+      "tldr_en": "Proposes a unified framework that jointly optimizes Euclidean and hyperbolic spaces for misaligned multi-modality image fusion, modeling hierarchical structures while preserving local details.",
+      "tldr_cn": "多模态图像融合中未对齐和几何变形导致伪影。现有方法局限于欧氏空间，忽略分层结构。本文提出统一框架，联合优化欧氏空间和双曲空间，同时保留局部细节和层次关系。实验证明该模型在多种多模态融合任务上有效抑制了伪影，提升了融合质量。",
+      "title_zh": "用于未对齐多模态图像融合的混合空间模型",
+      "motivation_cn": "现有方法忽略多模态表示中的层次结构，且无法处理未对齐问题。",
+      "method_cn": "联合优化欧氏空间和双曲空间，在统一框架内处理局部细节与层次结构。",
+      "result_cn": "在多种多模态融合任务上有效抑制伪影，提升融合质量。",
+      "conclusion_cn": "混合空间模型为多模态融合提供了新的几何视角，增强了鲁棒性。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "cvpr-2025-cheng-one-model-for-all-low-level-task-interaction-is-a-key-cvpr-2025-paper",
+      "score": 9.0,
+      "evidence_en": "task-agnostic image fusion via low-level task interaction",
+      "evidence_cn": "通过低层任务交互实现任务无关的图像融合",
+      "canonical_evidence": "通过低层任务交互实现任务无关的图像融合",
+      "tldr_en": "Proposes GIFNet, a task-agnostic image fusion model that leverages low-level vision tasks and pixel-level supervision for effective feature interaction across fusion tasks.",
+      "tldr_cn": "现有图像融合方法优先考虑高层任务，导致任务间语义鸿沟。本文提出GIFNet，利用低层视觉任务进行像素级监督，实现跨不同融合任务的有效特征交互。该单一模型在多种融合任务上均取得高性能，包括未见过的场景。实验证明了低层任务交互在通用融合中的关键作用。",
+      "title_zh": "一个模型解决所有：低层任务交互是实现任务无关图像融合的关键",
+      "motivation_cn": "现有方法专注于特定高层任务，难以泛化到多种融合场景。",
+      "method_cn": "利用低层视觉任务进行像素级监督，学习任务共享特征，实现通用融合。",
+      "result_cn": "单个模型在多种融合任务上达到甚至超过专用模型性能。",
+      "conclusion_cn": "低层任务交互范式为通用图像融合提供了新思路。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-38261",
+      "score": 9.0,
+      "evidence_en": "language-bridging hyperspectral-multispectral image fusion",
+      "evidence_cn": "语言桥接的高光谱-多光谱图像融合",
+      "canonical_evidence": "语言桥接的高光谱-多光谱图像融合",
+      "tldr_en": "Introduces CO2IF, the first language-bridging framework for hyperspectral-multispectral fusion, using textual scene descriptions as semantic guidance with cross-modal optimal transport.",
+      "tldr_cn": "高光谱-多光谱融合缺乏明确语义指导。本文首次引入语言桥接框架CO2IF，利用文本场景描述作为先验知识，结合协调跨模态最优传输，引导细节重建。实验表明语言语义显著提升了融合图像的光谱保真度和空间分辨率。",
+      "title_zh": "CO2IF：基于语言桥接与协调跨模态最优传输的高光谱-多光谱图像融合",
+      "motivation_cn": "现有方法缺乏语义指导，细节重建不精确。",
+      "method_cn": "利用语言语义作为先验，结合跨模态最优传输实现语义引导融合。",
+      "result_cn": "在多个数据集上提升了光谱保真度和空间细节。",
+      "conclusion_cn": "语言桥接为多光谱融合提供了新的语义增强途径。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2025-32504",
+      "score": 9.0,
+      "evidence_en": "adversarial attack resilient network for IVIF",
+      "evidence_cn": "用于红外与可见光融合的对抗攻击鲁棒网络",
+      "canonical_evidence": "用于红外与可见光融合的对抗攻击鲁棒网络",
+      "tldr_en": "Proposes A2RNet, an adversarial attack resilient network for IVIF that uses an anti-attack loss function and adversarial training to improve robustness against deliberate interference.",
+      "tldr_cn": "现有融合方法忽略恶意干扰对融合结果的影响。本文提出A2RNet，通过对抗攻击范式与反攻击损失函数进行训练，增强模型对恶意攻击的鲁棒性。实验表明该网络在各种攻击下仍能保持高质量融合，为安全关键应用提供了保障。",
+      "title_zh": "A2RNet：对抗攻击鲁棒网络用于稳健红外与可见光图像融合",
+      "motivation_cn": "现有融合方法缺乏对恶意干扰的鲁棒性考虑。",
+      "method_cn": "设计对抗范式与反攻击损失函数，进行对抗训练增强鲁棒性。",
+      "result_cn": "在多种攻击下融合质量保持稳定，优于现有方法。",
+      "conclusion_cn": "A2RNet为鲁棒图像融合提供了有效防御机制。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-38932",
+      "score": 9.0,
+      "evidence_en": "self-supervised general image fusion with Mamba",
+      "evidence_cn": "基于Mamba的自监督通用图像融合",
+      "canonical_evidence": "基于Mamba的自监督通用图像融合",
+      "tldr_en": "Proposes SMC-Mamba, a self-supervised general image fusion framework using modality-agnostic feature enhancement and multiplex consensus to handle diverse fusion tasks efficiently.",
+      "tldr_cn": "通用图像融合要同时支持多种任务而不增加复杂度。本文提出SMC-Mamba，引入模态无关特征增强模块和多路共识机制，通过自适应门控和频率旋转扫描保持细节并增强全局表征。在多个融合任务上，SMC-Mamba实现了与专用方法相当甚至更好的性能，且模型统一。",
+      "title_zh": "自监督多路共识Mamba用于通用图像融合",
+      "motivation_cn": "专用融合技术针对特定任务，难以泛化到通用场景。",
+      "method_cn": "提出模态无关特征增强和多路共识机制，基于Mamba架构进行自监督学习。",
+      "result_cn": "在多种融合任务上取得最优或相当性能，且模型统一。",
+      "conclusion_cn": "SMC-Mamba为通用图像融合提供了高效且可扩展的解决方案。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2025-32933",
+      "score": 9.0,
+      "evidence_en": "cross-modal image fusion with semantic-guided mutual reinforcement",
+      "evidence_cn": "跨模态图像融合与语义引导相互增强",
+      "canonical_evidence": "跨模态图像融合与语义引导相互增强",
+      "tldr_en": "SMR-Net leverages semantics to guide mutual reinforcement between cross-modal image fusion and SOD, using progressive cross-modal interaction and bit-plane slicing for lightweight high-quality fusion.",
+      "tldr_cn": "该文针对跨模态图像融合与显著目标检测协同不足的问题，提出SMR-Net。核心是语义引导的相互增强机制：渐进式跨模态交互子网络利用卷积和注意力进行局部-全局交互；位平面切片SOD子网络将融合图像作为第三模态。实验表明该方法在融合质量和检测精度上均超越现有方法，且模型轻量。",
+      "title_zh": "SMR-Net：语义引导的相互增强网络用于跨模态图像融合和显著目标检测",
+      "motivation_cn": "现有方法忽略语义对融合和检测的相互促进，导致性能受限。",
+      "method_cn": "设计渐进式跨模态交互子网络和位平面切片SOD子网络，利用语义引导相互增强。",
+      "result_cn": "在多个数据集上融合质量和检测精度显著优于基线。",
+      "conclusion_cn": "语义引导相互增强机制可有效提升跨模态融合和检测性能。",
+      "matched_requirement_id": "req-3",
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-alha7ayllr",
+      "score": 9.0,
+      "evidence_en": "controllable image fusion network with deep learning and degradation prompts",
+      "evidence_cn": "基于深度学习和退化提示的可控图像融合网络",
+      "canonical_evidence": "基于深度学习和退化提示的可控图像融合网络",
+      "tldr_en": "ControlFusion proposes a controllable fusion network guided by language-vision degradation prompts that adaptively mitigates composite degradations using physical degradation models and prompt-modulated feature enhancement.",
+      "tldr_cn": "该文针对现有图像融合方法难以处理真实复合退化且缺乏灵活性的问题，提出ControlFusion。利用物理机制（Retinex、大气散射）构建退化模型生成训练数据，并设计提示调制恢复融合网络，根据退化提示动态增强特征。实验表明该方法在多种退化场景下融合质量优于现有方法，且支持用户自定义控制。",
+      "title_zh": "ControlFusion：一种具有语言视觉退化提示的可控图像融合网络",
+      "motivation_cn": "真实场景复合退化导致融合效果差且缺乏用户可控性。",
+      "method_cn": "构建物理退化模型模拟复合退化，设计提示调制网络动态增强特征。",
+      "result_cn": "在多种退化数据集上融合质量显著提升。",
+      "conclusion_cn": "通过退化提示实现灵活可控的高质量融合。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "deep learning for image fusion"
+    },
+    {
+      "paper_id": "openreview-neurips-2025-nlqrra0olh",
+      "score": 9.0,
+      "evidence_en": "video fusion using multi-frame learning and optical flow warping",
+      "evidence_cn": "基于多帧学习和光流特征扭曲的视频融合",
+      "canonical_evidence": "基于多帧学习和光流特征扭曲的视频融合",
+      "tldr_en": "UniVF proposes a unified framework for video fusion using multi-frame learning and optical-flow warping, and introduces the first comprehensive benchmark VF-Bench covering four video fusion tasks.",
+      "tldr_cn": "该文针对现有图像融合方法忽略视频帧间相关性导致闪烁问题，提出UniVF统一视频融合框架。利用多帧学习和光流特征扭曲生成时间一致的高质量融合视频，并构建首个综合基准VF-Bench，覆盖多曝光、多焦、红外-可见和医学四种视频融合任务。实验表明其在各任务上达到最优性能。",
+      "title_zh": "视频融合的统一解决方案：从多帧学习到基准构建",
+      "motivation_cn": "现有图像融合方法处理视频时忽略时间一致性导致闪烁。",
+      "method_cn": "提出UniVF，利用多帧学习和光流特征扭曲实现时间一致的视频融合。",
+      "result_cn": "在四种视频融合任务上达到最优性能。",
+      "conclusion_cn": "统一框架有效解决视频融合的时序一致性问题。",
+      "matched_requirement_id": "req-1",
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "image fusion techniques"
+    },
+    {
+      "paper_id": "aaai-2025-32714",
+      "score": 9.0,
+      "evidence_en": "multi-focus image fusion with explicit defocus blur modelling",
+      "evidence_cn": "基于显式离焦建模的多焦图像融合",
+      "canonical_evidence": "基于显式离焦建模的多焦图像融合",
+      "tldr_en": "This paper introduces a framework integrating explicit defocus blur modelling into multi-focus image fusion, using atom-based spatially-varying parameterized model and scale-recurrent estimation for improved interpretability and performance.",
+      "tldr_cn": "该文针对现有深度多焦融合方法忽视离焦模糊物理特性的问题，提出显式离焦模糊建模框架。利用原子化空间变化参数化模型计算逐像素离焦描述符，并通过尺度循环方式估计决策图。实验表明该方法在融合质量和可解释性上优于现有方法。",
+      "title_zh": "基于显式离焦模糊建模的多焦点图像融合",
+      "motivation_cn": "深度学习方法忽视离焦模糊物理特性，泛化性受限。",
+      "method_cn": "结合参数化离焦模型和尺度循环估计，显式建模模糊过程。",
+      "result_cn": "在多个多焦数据集上融合结果更清晰、可解释性更强。",
+      "conclusion_cn": "显式物理建模提升了多焦融合的性能和可解释性。",
+      "matched_requirement_id": "req-1",
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "image fusion techniques"
+    },
+    {
+      "paper_id": "aaai-2026-37309",
+      "score": 9.0,
+      "evidence_en": "infrared and visible image fusion with dynamic inertia inhibition",
+      "evidence_cn": "动态惯性抑制的红外与可见光图像融合",
+      "canonical_evidence": "动态惯性抑制的红外与可见光图像融合",
+      "tldr_en": "AIDFusion proposes a lightweight fusion method for IVIF with Dynamic Inertia Inhibition Learning Strategy (DIILS) to counteract network laziness and fully utilize multi-level predictions.",
+      "tldr_cn": "该文发现深度网络在红外与可见光融合中的权重更新减缓现象（网络惰性），提出AIDFusion。通过动态惯性抑制学习策略(DIILS)逐步调节多级预测的协同学习，充分挖掘网络各层潜力。实验表明该方法在轻量模型上取得最优融合质量且计算高效。",
+      "title_zh": "重访网络惰性：动态惯性抑制耦合多维周期性的红外与可见光图像融合",
+      "motivation_cn": "深层网络存在权重更新减慢的网络惰性，限制表征能力。",
+      "method_cn": "设计动态惯性抑制学习策略，逐步调节多级预测的协同学习。",
+      "result_cn": "轻量模型在红外-可见融合基准上达到最优性能。",
+      "conclusion_cn": "抑制网络惰性可有效提升融合任务中深度网络的潜力。",
+      "matched_requirement_id": "req-3",
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning"
+    },
+    {
+      "paper_id": "cvpr-2025-hou-binarized-neural-network-for-multi-spectral-image-fusion-cvpr-2025-paper",
+      "score": 9.0,
+      "evidence_en": "binarized neural network for pan-sharpening (multi-spectral fusion)",
+      "evidence_cn": "二值神经网络用于多光谱图像融合（全色锐化）",
+      "canonical_evidence": "二值神经网络用于多光谱图像融合（全色锐化）",
+      "tldr_en": "BNNPan introduces a binarized neural network for pan-sharpening, addressing frequency-dependent degradation with prior-integrated binary fusion modules for efficient deployment on satellites.",
+      "tldr_cn": "该文针对全色锐化深度模型资源消耗大、难以部署于卫星的问题，提出二值神经网络BNNPAN。发现二值化在不同频率分量上导致不同退化，设计先验集成二值融合模块弥补。实验表明该方法在极低内存和计算需求下达到与全精度方法相当的融合质量，且泛化性强。",
+      "title_zh": "用于多光谱图像融合的二值神经网络",
+      "motivation_cn": "深度学习在全色锐化中计算和内存需求高，限制卫星部署。",
+      "method_cn": "提出先验集成二值融合网络，利用频率感知的二值化补偿。",
+      "result_cn": "在多个数据集上以极低资源消耗达到可比全精度方法的结果。",
+      "conclusion_cn": "二值神经网络可有效实现资源受限场景下的多光谱图像融合。",
+      "matched_requirement_id": "req-2",
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "deep learning for image fusion"
+    },
+    {
+      "paper_id": "aaai-2026-37519",
+      "score": 9.0,
+      "evidence_en": "multispectral and hyperspectral image fusion with invertible Mamba and fusion-aware LoRA",
+      "evidence_cn": "基于可逆Mamba和融合感知LoRA的多光谱/高光谱图像融合",
+      "canonical_evidence": "基于可逆Mamba和融合感知LoRA的多光谱/高光谱图像融合",
+      "tldr_en": "PIF-Net addresses ill-posed multispectral-hyperspectral fusion by incorporating ill-posed priors, using Invertible Mamba for spectral modeling and Fusion-Aware LoRA for efficiency.",
+      "tldr_cn": "该文针对多光谱与高光谱融合中因光谱-空间信息权衡和观测有限导致的不适定问题，提出PIF-Net。显式引入不适定先验，设计可逆Mamba结构实现高效全局光谱建模，并采用融合感知LoRA降低计算量。实验表明该方法在恢复空间细节和光谱保真度上优于现有方法。",
+      "title_zh": "PIF-Net：基于不适定先验引导的可逆Mamba和融合感知LoRA的多光谱与高光谱图像融合",
+      "motivation_cn": "多光谱与高光谱融合任务固有的不适定性未被有效处理。",
+      "method_cn": "引入不适定先验，设计可逆Mamba进行全局光谱建模，结合融合感知LoRA提高效率。",
+      "result_cn": "在空间和光谱质量上均取得最佳性能。",
+      "conclusion_cn": "显式不适定先验引导有效提升了融合质量与鲁棒性。",
+      "matched_requirement_id": "req-3",
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning"
+    },
+    {
+      "paper_id": "cvpr-2025-liu-dcevo-discriminative-cross-dimensional-evolutionary-learning-for-infrared-and-visible-image-cvpr-2025-paper",
+      "score": 9.0,
+      "evidence_en": "infrared-visible image fusion with evolutionary learning for joint optimization",
+      "evidence_cn": "进化学习联合优化的红外与可见光图像融合",
+      "canonical_evidence": "进化学习联合优化的红外与可见光图像融合",
+      "tldr_en": "DCEvo proposes a discriminative cross-dimensional evolutionary learning framework for IVIF that simultaneously optimizes visual quality and perception accuracy using evolutionary search.",
+      "tldr_cn": "该文针对红外与可见光融合中图像融合与高层任务分离导致融合图像任务增益有限的问题，提出DCEvo。利用进化学习的鲁棒搜索能力，交叉维度优化融合和感知精度，实现融合质量与任务性能的协同提升。实验表明在多个基准上融合图像既视觉清晰又对下游任务有益。",
+      "title_zh": "DCEvo：用于红外与可见光图像融合的判别性跨维度进化学习",
+      "motivation_cn": "现有方法将融合与高层任务分离，融合图像对任务性能提升有限。",
+      "method_cn": "提出判别性跨维度进化学习框架，联合优化融合质量和感知精度。",
+      "result_cn": "在视觉质量和下游任务性能上均显著提升。",
+      "conclusion_cn": "进化学习可有效协同融合与高层任务。",
+      "matched_requirement_id": "req-3",
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning"
+    },
+    {
+      "paper_id": "aaai-2026-38126",
+      "score": 8.0,
+      "evidence_en": "dynamic enhancement for image fusion",
+      "evidence_cn": "动态增强用于图像融合",
+      "canonical_evidence": "动态增强用于图像融合",
+      "tldr_en": "Proposes Dream-IF, a dynamic relative enhancement framework that jointly performs enhancement and fusion for multi-source images.",
+      "tldr_cn": "该论文发现融合图像中一个模态的显著区域提示另一模态需要增强，提出Dream-IF框架，量化各模态相对优势并动态增强，实现融合与增强的协同优化。实验表明该方法在多种退化场景下显著提升融合质量。",
+      "title_zh": "Dream-IF：面向图像融合的动态相对增强框架",
+      "motivation_cn": "传统方法将增强和融合分离，忽略了二者之间的内在关联。",
+      "method_cn": "引入显著区域概念，动态增强弱模态以提升融合质量。",
+      "result_cn": "在多个数据集上融合结果质量优于分离方法。",
+      "conclusion_cn": "联合增强与融合是提升图像融合质量的有效策略。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2026-37635",
+      "score": 8.0,
+      "evidence_en": "multimodal fusion using deep learning for medical diagnosis",
+      "evidence_cn": "用于医学诊断的多模态融合深度学习",
+      "canonical_evidence": "用于医学诊断的多模态融合深度学习",
+      "tldr_en": "Proposes an adaptive fusion framework with dynamic cross-modal expert routing and top-k wavelet fusion for multimodal retinal disease diagnosis using CFP and OCT images.",
+      "tldr_cn": "现有视网膜疾病多模态融合方法缺乏对模态贡献的自适应调节。本文提出自适应融合框架，包含动态跨模态专家路由和Top-K小波融合模块，用于彩色眼底照片和OCT图像的融合诊断。实验表明该方法能显著提升疾病识别准确率，优于传统融合策略。",
+      "title_zh": "基于频率对齐跨模态学习与Top-K小波融合和动态专家路由的视网膜疾病诊断增强",
+      "motivation_cn": "现有融合范式无法根据临床场景自适应调节模态贡献。",
+      "method_cn": "提出动态跨模态专家路由和Top-K小波融合模块，自适应优化多模态信号。",
+      "result_cn": "在视网膜疾病诊断任务上取得了更高的识别精度。",
+      "conclusion_cn": "所提框架提高了多模态融合在医学诊断中的适应性和性能。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "openreview-neurips-2025-zqqdqfja4y",
+      "score": 7.0,
+      "evidence_en": "depth-supervised fusion for image stitching",
+      "evidence_cn": "深度监督融合用于图像拼接",
+      "canonical_evidence": "深度监督融合用于图像拼接",
+      "tldr_en": "Proposes a depth-consistency-constrained fusion method for seamless image stitching, addressing parallax with global depth regularization.",
+      "tldr_cn": "该论文针对图像拼接中因深度变化导致的大视差和重影问题，提出深度一致性约束的融合方法。通过多阶段机制结合全局深度正则化提升对齐精度，再通过图割确定最优拼接缝并软融合，实现无缝拼接。实验表明该方法有效消除重影。",
+      "title_zh": "深度监督融合网络用于无缝自由图像拼接",
+      "motivation_cn": "深度变化导致大视差，引起拼接结果重影和错位。",
+      "method_cn": "引入全局深度正则化约束多阶段对齐，并通过图割和软融合实现拼接。",
+      "result_cn": "在多个视差场景中拼接质量优于现有方法。",
+      "conclusion_cn": "深度信息能有效引导对齐和融合，提升拼接鲁棒性。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    },
+    {
+      "paper_id": "aaai-2025-33042",
+      "score": 4.0,
+      "evidence_en": "multi-modal fusion for 3D panoptic segmentation, not primarily image fusion",
+      "evidence_cn": "多模态融合用于3D全景分割，非纯图像融合",
+      "canonical_evidence": "多模态融合用于3D全景分割，非纯图像融合",
+      "tldr_en": "Proposes SGFormer for multi-modal 3D panoptic segmentation, using semantic-geometry fusion but not directly applicable to image fusion tasks.",
+      "tldr_cn": "提出SGFormer模型用于自动驾驶多模态3D全景分割，通过语义-几何融合Transformer提取自适应语义上下文和几何信息，提升分割性能。该模型在nuScenes等数据集上取得最优结果，但方法聚焦于3D点云与图像融合，不直接适用于2D图像融合任务，仅作为多模态特征融合的启发。",
+      "title_zh": "SGFormer：面向多模态3D全景分割的语义-几何融合Transformer",
+      "motivation_cn": "现有方法在多模态3D全景分割中语义提取不足，缺乏空间几何信息。",
+      "method_cn": "提出语义-几何融合Transformer，分别提取语义上下文和几何信息并进行融合。",
+      "result_cn": "在自动驾驶数据集上取得最佳分割性能。",
+      "conclusion_cn": "SGFormer有效利用多模态信息提升3D分割精度，但非图像融合专用方法。",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks."
+    }
+  ],
+  "llm_ranked_at": "2026-07-06T05:40:43.043144+00:00",
+  "display_min_score": 4.0,
+  "pruned_at": "2026-07-06T05:40:43.090788+00:00"
+}

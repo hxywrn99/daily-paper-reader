@@ -1,0 +1,741 @@
+Title: DCEvo: Discriminative Cross-Dimensional Evolutionary Learning for Infrared and Visible Image Fusion
+
+URL Source: https://openaccess.thecvf.com/content/CVPR2025/papers/Liu_DCEvo_Discriminative_Cross-Dimensional_Evolutionary_Learning_for_Infrared_and_Visible_Image_CVPR_2025_paper.pdf
+
+Published Time: Sun, 18 May 2025 21:24:02 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# DCEvo: Discriminative Cross-Dimensional Evolutionary Learning for Infrared and Visible Image Fusion 
+
+Jinyuan Liu 1 , Bowei Zhang 2 , Qingyun Mei 2 , Xingyuan Li 2 , Yang Zou 3 ,Zhiying Jiang 4 , Long Ma 2 , Risheng Liu 2 , Xin Fan 2* 1 School of Mechanical Engineering, Dalian University of Technology 2 School of Software Technology & DUT-RU International School of ISE, Dalian University of Technology 3 School of Computer Science, Northwestern Polytechnical University 4 College of Information Science and Technology, Dalian Maritime University 
+
+atlantis918@hotmail.com xin.fan@dlut.edu.cn      
+
+> : The best solution : Selected superior solution : Crossover result SF : SegMiF (ICCV`2023) CDD : CDDFuse (CVPR`2023) TF : Text-IF (CVPR`2024)
+> Population
+> …
+
+Select Mutation Crossover 
+
+漨漨漨漨漨漨漨漨漨漨漨漨漨漨漨漨漨漨
+
+Fitness test 
+
+δβαγࣦ୊
+
+μθρࣦ
+
+୘
+
+> : Fusion loss F
+
+ख ۴ : Task loss Tख ܂
+
+> mm
+> II
+> mmmm
+> II
+> oo
+
+UU
+
+CC
+
+> aa
+> r
+> aa
+> rrr
+> SSiiggnn
+> BB uu
+> ss
+> OOuurrss
+> SSFF
+> 00..555511
+> OOOOOOuurrss
+> TT
+> FF
+> TTTT
+> FF
+> TT
+> FF
+> CC
+> DD
+> DD
+> 00
+> ..
+> 77
+> 66
+> CC
+> D
+> CC
+> DD
+> D
+> D
+> DD
+> SS
+> FF
+> CC
+> DDDDD
+> DDDD
+> 00
+> ..
+> 55
+> 88
+> 22
+> 00
+> ..
+> 77
+> 22
+> 99
+> 0000000
+> ..
+> 777777
+> 111111
+> 7777
+> 00
+> ..
+> 11
+> 66
+> 22
+> 00
+> ..
+> 55
+> 00
+> 88
+> 00..55
+> 00
+> 66
+> 00..66
+> 22
+> 11
+> SS
+> FF
+> CC DD DDDD
+> SS
+> FF
+> 00 .. 55
+> 11
+> 99
+> 00
+> ..
+> 77
+> 33
+> 44
+> 00
+> ..
+> 55
+> 88
+> 44
+> OOuurrss
+> 00
+> ..
+> 22
+> 44
+> 33
+> 00
+> ..
+> 22
+> TT FF
+> 00 .. 11 22 33
+> OOuurrss
+> 00
+> ..
+> 55
+> 11
+> 44
+> TT
+> FF
+> Fu
+> mm
+> A
+> mmmm
+> A
+> mmmm
+> AA
+
+P
+
+> AA
+
+PP
+
+> AAAA
+
+PP
+
+> 00
+> ..
+> 77
+> 11
+> 88
+> 33 00
+> ..
+> 55
+> 55
+> 33
+> OOuurrss
+> SS
+> FF
+> 00
+> ..
+> 77
+> 11
+> 88
+> 11
+
+PP
+
+ee
+
+> oooo
+> pp
+> oo
+> pppp
+> llllll
+> ee
+> TTTT
+> FFFFF
+> TTTT
+> FF
+> TT
+> r
+> TT
+> r
+> TT
+> r
+> u
+> rrrr
+> u
+> rrrr
+> u
+> n
+> uu
+> n
+> uu
+> n
+
+kn kk
+
+> TT
+> FF
+> CC
+> DD
+> DD
+> OOuurrss
+> SS
+> FF
+> CC
+> D
+> CC
+> DD
+> D
+> D
+> DD
+> SS
+> FF
+> CC
+> DD
+> DD
+> 0000000
+> ..
+> 777777111111
+> 000000000000
+> ..
+> 555555
+> 333333
+> 88888888
+> 00
+> ..
+> 55
+> 44
+> 44
+> 00
+> ..
+> 55
+> 55
+> 11
+> 00000000 ..
+> 6666666
+> 4444444
+> 4444444
+> 00000000
+> ..
+> 66666666
+> 00000000
+> 66666666
+> 000000000
+> ..
+> 6666666
+> 111111
+> 666666
+> 888888888
+> 00..66
+> 22
+> TT
+> FF
+> CCCCCCC DDDDDDDD DDDDDDDD
+> 00000 .. 66 11
+> 66
+> 77
+> SSSSSSSS
+> FFFFFF
+> TT
+> FF
+> CCCCaaaaaaaarr
+> OOOOuurrrrssssOOuurrss
+> 00
+> ..
+> 77
+> 11
+> 55
+> 00
+> ..
+> 66
+> 77
+> 33
+> 00
+> ..
+> 66
+> 88
+> 00
+> ..
+> 66
+> 77
+> 11
+
+EEvvoolluuttiioonnaarryyLLeeaarrnniinngg
+
+Figure 1. The left part presents an illustration of our evolutionary learning strategy. It can cooperatively adjust the loss function, optimizing the model with both fusion performance and its downstream task precision with the evolution of loss function. The right part shows the accuracy comparison of downstream tasks with state-of-the-art methods. Our approach performs the highest accuracy in multiple metrics. 
+
+Abstract 
+
+Infrared and visible image fusion integrates information from distinct spectral bands to enhance image quality by leveraging the strengths and mitigating the limitations of each modality. Existing approaches typically treat image fu-sion and subsequent high-level tasks as separate processes, resulting in fused images that offer only marginal gains in task performance and fail to provide constructive feedback for optimizing the fusion process. To overcome these limita-tions, we propose a Discriminative Cross-Dimension Evo-lutionary Learning Framework, termed DCEvo, which si-multaneously enhances visual quality and perception ac-curacy. Leveraging the robust search capabilities of Evo-lutionary Learning, our approach formulates the optimiza-tion of dual tasks as a multi-objective problem by employ-ing an Evolutionary Algorithm (EA) to dynamically balance loss function parameters. Inspired by visual neuroscience, we integrate a Discriminative Enhancer (DE) within both the encoder and decoder, enabling the effective learning  
+
+> *
+
+Corresponding author. 
+
+of complementary features from different modalities. Ad-ditionally, our Cross-Dimensional Embedding (CDE) block facilitates mutual enhancement between high-dimensional task features and low-dimensional fusion features, ensur-ing a cohesive and efficient feature integration process. Ex-perimental results on three benchmarks demonstrate that our method significantly outperforms state-of-the-art ap-proaches, achieving an average improvement of 9.32% in visual quality while also enhancing subsequent high-level tasks. The code is available at https://github.com/ Beate-Suy-Zhang/DCEvo .
+
+1. Introduction 
+
+Infrared images capture thermal radiation, functioning well in darkness, and through smoke or fog, but suffer from low resolution and limited textures [4, 17]. Conversely, visible images offer high resolution and rich colors with detailed edges, yet falter in low light or adverse weather. Conse-quently, fusing infrared and visible images enhances overall This CVPR paper is the Open Access version, provided by the Computer Vision Foundation. Except for this watermark, it is identical to the accepted version; the final published version of the proceedings is available on IEEE Xplore. 2226 image quality and significantly improves information acqui-sition in complex environments such as autonomous driv-ing [20], remote sensing [42], security surveillance [41], medical imaging [45], and military reconnaissance [18]. To meet diverse application needs, Infrared and Visi-ble Image Fusion (IVIF) aims to create high-quality visual images through pixel-level enhancements, thereby improv-ing clarity and detail for human observers [40, 41]. Ad-ditionally, this fusion technique enhances the accuracy of downstream perception tasks, such as object detection and scene analysis, providing task-level improvements [5, 21]. By achieving both pixel and task-level enhancements, IVIF supports intelligent systems in better environment under-standing and informed decision making. In recent years, rapid advancements in deep learning have significantly propelled the field of IVIF. Deep learn-ing–based methods have markedly surpassed traditional ap-proaches in fusion performance [48]. Despite these ad-vancements, the majority of IVIF approaches still focus on improving visual aesthetics rather than enhancing the ef-fectiveness of subsequent high-level vision tasks, which are vital for numerous practical applications [20]. For instance, existing strategies generally handle image fusion and object detection as distinct problems, treating detection solely as an afterthought. Consequently, the resulting fused images provide only marginal gains in detection accuracy, and the detection outcomes fail to offer insights that could further optimize the fusion process [18, 25, 43]. Instead of adopting a divide-and-conquer approach to handle tasks independently, addressing this integrated prob-lem introduces several challenges. Challenges in Multi-Dimensional Feature Coordination : Each objective lever-ages distinct information during model inference, meaning that features beneficial for image fusion may not be suitable for the subsequent high-level tasks, and vice versa. Difficul-ties in Loss Function Adjustment : A common strategy to achieve dual objectives simultaneously involves linking net-works with a combined weighted loss function. The success of both goals heavily depends on precise parameter tuning. However, this manual method often enhances one objective at the expense of the other, preventing the attainment of op-timal results for both tasks. To address the Multi-Dimensional Feature Coordina-tion and Loss Function Adjustment challenges in IVIF, this paper proposes a Discriminative Cross-Dimensional Evolutionary Learning Framework for harnessing the visual enhancement and accurate perception. Inspired by the pow-erful search capabilities of Evolutionary Learning, we intro-duce a novel approach to address the challenges of collab-orative optimization between dual task learning processes. We frame this as a multi-objective optimization problem, utilizing an Evolutionary Algorithm (EA) to update the co-efficients of cross-task constraints and learn the optimal pa-rameters for each task. To support this framework, we first design a Discriminative Enhancer (DE) based on principles from visual neuroscience and its inherent physical proper-ties. The DE is seamlessly integrated into both the En-coder and Decoder components of our model. Following this, we establish a Cross-Dimensional Embedding (CDE) block that embeds object-aware features generated by high-dimensional tasks into our low-dimensional fusion features. Our contributions are detailed in four aspects as follows: • We propose a Discriminative Cross-Dimensional Evolu-tionary Learning (DCEvo) approach for the fusion of in-frared and visible images, resulting in visually appealing fused images that maintain high accuracy in task perfor-mance. To the best of our knowledge, this is the first study to integrate evolutionary learning into the field of IVIF. • To effectively learn complementary features and enhance the distinctive characteristics of different modalities, we introduce a discriminative enhancer that is seamlessly in-tegrated into both the encoder and decoder. • We establish a cross-dimensional embedding block, where high-dimensional task features can supervise low-dimensional fusion features, and vice versa. This design facilitates comprehensive interaction between features of different dimensions, thereby enabling mutual enhance-ment of both fusion and downstream tasks. • We propose an evolutionary learning strategy to pro-gressively identify hyperparameters balancing two tasks within the loss function. This approach overcomes the challenges associated with empirical hyperparame-ter tuning by systematically optimizing the parameters to achieve equilibrium between the competing objectives. 
+
+2. Related work 2.1. Learning-based IVIF approaches 
+
+IVIF has driven the development of advanced methodolo-gies for multi-modal feature processing, leveraging rapid advancements in deep learning. Techniques such as Au-toencoders (AE) [13, 14, 24], Convolutional Neural Net-works (CNN) [19, 27, 30, 35, 44], Generative Adversarial Networks (GAN) [26, 39], Transformers [22, 28, 45], and Diffusion Models [46] have significantly enhanced IVIF performance. For instance, CDDFuse [45] combines a de-composition network with a Transformer-CNN architecture to extract both global and local features for effective image fusion. Similarly, U2Fusion [40] utilizes a dense network with data-driven weights to evaluate the importance of in-put images during fusion. In recent years, there has been a growing emphasis on task-oriented IVIF methods [18, 20, 43]. TarDAL [18] integrates an object detection network within a cascade framework, optimizing both networks simultaneously for detection-oriented outcomes. MetaFusion [43] introduces 2227 Key KKey K y ey Key Fused image 
+
+Q
+
+> DE-Decoder
+
+K V
+
+> Discriminative Enhancer
+
+Cint CDeco 
+
+CDFL CCls CBox 
+
+  ࣦ
+
+> Cls
+
+ࣦ DFL ࣦBox ࣦ
+
+> int
+
+ࣦGrad ࣦDeco ࣦSSIM 
+
+   
+
+> Evolutionary learning
+
+Evolution Evolution 
+
+CSSIM CGrad 
+
+Backbone 
+
+: Multiplication FC : Full Connections DW : DWConv US : Up Sampling SL : SiLU DS : Down Sampling : Softmax S        
+
+> Features US SL
+> 32 32 16 16 32 32 32 32 DW FC
+> PA Task-Level Features ( High-dimensional )
+> Key KKey Key ey
+> Visible image DS FC DS 128 128 64 64 32 32 64 64 128 128 128 128 SL SL Value SL SL SL FC DW FC SL FC
+
+ S  
+
+> FC
+> Pixel-Level Features ( Low-dimensional )
+> Infrared image Embedding FLW
+> 32 VVa VVuValu uValu Va Va Va Va ue uuulu uuue lu uuue lu uuulu uue eulu uu
+> F
+> DE-Encoder
+> DE-Encoder Query Query Value
+
+ S 
+
+> Task-Level Constraint
+
+GT Task Loss 
+
+> Class 2 Class 3 Class 1
+> Cross-dimensional
+
+Figure 2. An Overall Illustration of our DCEvo architecture. The middle depicts our infrared and visible image fusion network to generate images by coupling pixel-level feature and task-level feature. The upper part denotes the detection network, which embeds the task-level feature for fusion supervision to enable that fused images contain object information. In the cooperative training process of detection and fusion network, we propose an evolutionary learning strategy to search the coefficient of the optimization objectives, as in the bottom part. a detection feature-guided fusion network that learns se-mantic information to enhance fusion quality. Additionally, SegMiF [20] incorporates a segmentation sub-network to improve pixel-level features for both fusion and subsequent segmentation tasks. More methods are surveyed in [23]. 
+
+2.2. Evolutionary learning 
+
+Evolutionary learning, rooted in biological evolution theory, mimics natural evolutionary processes to address complex optimization challenges. Utilizing mechanisms such as se-lection, crossover, and mutation, it iteratively refines can-didate solutions toward optimality. This approach includes heuristic algorithms like Genetic Algorithms (GA) [7], Ant Colony Optimization (ACO) [29], and Particle Swarm Opti-mization (PSO) [11], which are extensively applied in deep learning. Due to its superior performance in optimization tasks, evolutionary learning is widely employed in diverse fields, including disease detection [1, 10, 12], path planning [6, 31], and image fusion [2, 9]. Multi-objective optimization problems (MOPs) involve simultaneously optimizing multiple but often conflicting objectives, resulting in a set of Pareto optimal solutions that represent various trade-offs. Evolutionary learning excels in solving MOPs robustly through its global search capabil-ities and population-based evolution without gradient flow [3, 49]. This effectiveness also makes it a popular choice for hyperparameter optimization [32, 33, 37]. 
+
+3. Motivation 
+
+Evolutionary learning offers significant advantages in com-plex multi-task optimization, including neural architec-ture search [37], hyperparameter tuning [32], and multi-objective optimization [3]. In collaborative optimization of image fusion and downstream perception, severe chal-lenges arise due to typically discrete problems where exist-ing methods fall into local optima, limiting overall perfor-mance. Evolutionary learning excels by simulating natural selection and genetic mechanisms to explore vast solution spaces and identify global optima, converting discrete prob-lems into continuous optimization. We utilize evolutionary learning to adaptively adjust hyperparameters based on the loss functions of image fusion and target detection, employ-ing multi-objective optimization to balance their needs, sur-passing individual task optimization. 
+
+4. Methodology 
+
+This section details our DCEvo framework, including the learning of evolutionary hyperparameters, the discrimina-tive enhancer, and cross-dimensional feature embeddings, as illustrated in Figure 2. 
+
+4.1. Learning evolutionary hyperparameters 
+
+Selecting model hyperparameters remains a significant challenge, traditionally relying on prior knowledge. How-ever, separately optimizing two networks based on dis-2228 Decoder 
+
+Fution Network Detection Network 
+
+> Decoder Encoder
+
+General Fution Network 
+
+> Class Box
+
+ࣦ
+
+> Det
+> Decoder Encoder
+
+Fution Network Detection Network 
+
+> Class Box
+
+ࣦFu 
+
+> Encoder Embed
+
+ࣦ
+
+> Det
+
+ࣦ
+
+> Fu
+
+(c) Our EA-based training approach. (a) IVIF with only general fusion network. (b) Target-aware cascaded IVIF network. Evolution ࣦ 
+
+> Fu
+> Forward Backward
+> EA
+
+Figure 3. The illustration of different network workflows and learning strategies of IVIF towards upper-level tasks. Strategy (a) trains fusion network by only low-level constraints, while (b) cascades a detection network to guide the fusion network with additional high-level constraints. Our (c) training approach deploys an evolutionary algorithm to optimize the two task cooperatively and effectively. 
+
+Algorithm 1 EA for hyperparameter optimization 
+
+Require: Number of population N , Number of iterations 
+
+In, Probability of population individual mutating Pm
+
+Ensure: Global best solution Gb 
+
+> 1:
+
+Start with a random initial population P1 
+
+> 2:
+
+Calculate initial population fitness F1 
+
+> 3:
+
+for t = 1 to In do  
+
+> 4:
+
+Sort (population, descending, Ft)5: Select individuals with high fitness for crossover 6: NewIndividuals ←− Crossover () 
+
+Qt ←− NewIndividuals 7: for k = 1 to N do  
+
+> 8:
+
+x ∼ U (0 , 100)  
+
+> 9:
+
+if x < P m then  
+
+> 10:
+
+Mutation(k-th individual) 11: end if  
+
+> 12:
+
+end for  
+
+> 13:
+
+NewIndividuals ←− Mutate () 14: Qt ←− Qt∪ NewIndividuals 15: Calculate population Mt fitness 16: Calculate selected probability of each individual 
+
+p (xi) = fitness (xi)   
+
+> ∑|Mt|
+> j=1 fitness( xj)
+
+, ∀xi ∈ Mt 
+
+> 17:
+
+Selecting a new generation of population through the roulette wheel , r ∼ U (0 , 1) 
+
+Pt+1 =
+
+{
+
+xi | ∑k−1 
+
+> i=1
+
+p(xi) ≤ r ≤ ∑ki=1 p(xi)
+
+} 
+
+> 18:
+
+end for  
+
+> 19:
+
+return Gb
+
+tinct priors fails to simultaneously satisfy the requirements of both fusion and downstream tasks. Additionally, the total loss function comprises multiple components, creat-ing a multi-objective problem (MOP) where conflicts may arise between different elements. Fortunately, evolutionary learning can concurrently explore diverse regions of the so-lution space and identify multiple non-dominated solutions in a single run, making it well-suited for MOPs. There-fore, we propose an Evolutionary Algorithm (EA) to op-timize loss function coefficients for improved training, as illustrated in Figure 3(c). Our EA employs a genetic al-gorithm that evaluates each solution’s fitness based on its loss value—the lower the loss, the higher the fitness. High-fitness individuals are selected for crossover, increasing the proportion of superior solutions within the population. Mu-tation introduces random variations to explore a broader solution space, and each iteration selects high-fitness indi-viduals via roulette wheel selection for the next generation. The procedure is presented in Algorithm 1. We give the notation of the model formulation. In-frared, visible, and fused images are denoted as Iir , Ivis , If .In the optimization of image fusion, to obtain fused im-ages with high visual quality, multiple constraints are ap-plied. The loss function is LF u = LSSIM + Ldeco +
+
+Lgrad + Lint , where the LSSIM = LSSIM (Iir , If ) + 
+
+LSSIM (Ivis , If ), Lint = 1 
+
+> HW
+
+‖If − max (Iir , Ivis )‖ and 
+
+Lgrad = 1 
+
+> HW
+
+‖|∇ If | − max (|∇ Iir | , |∇ Ivis |)‖. The 
+
+Ldeco is proposed in [45] to correlate basic features from cross-modal inputs. The loss function of the object detection part consists of three parts, i.e., LDet = Lcls + Lbox + Ldf l . The first part is the classification loss, which is calculated as follows: 
+
+Lcls = −
+
+> Ncls
+
+∑
+
+> i=1
+
+[yi log(1+ e−ˆyi )+(1 −yi) log(1+ eˆyi )] , (1) where the ˆy is the predict class label, and the y is the true label. The Ncls is the number of classes. The second part is the Complete Intersection Over Union (CIOU) loss, which is calculated as follows: 
+
+Lbox = 1 − (IOU − d22
+
+d2
+
+> C
+
+− v2
+
+(1 − IOU ) + v ), (2) where v = 4 
+
+> π2
+
+(arctan wg 
+
+> hg
+
+− arctan wp 
+
+> hp
+
+)2, d 2 is the Euclidean distance between the center points of the two boxes, and dC
+
+is the diagonal distance of the smallest bounding rectangle 2229 box. The wg and hg are the width and height of the ground truth box, while wp and hp are the width and height of the predicted box. The third part is the distribution focal loss 
+
+Ldf l , which is used to rapidly focus on the label box [16]. 
+
+4.2. Discriminative enhancer 
+
+In IVIF, the feature extraction network is essential, yet the inherent properties of feature maps are rarely addressed. To this end, we introduce a Discriminative Enhancer (DE) 
+
+to enhance the feature representation, thereby boosting the learning efficiency of networks. In the feature representation, every feature map contains a special semantic information for objects. To formulate the object and background features, for a single feature map 
+
+X ∈ RH×W , assume X = Xo + Xb, where Xo and Xb are the feature maps that only contain object pixels and back-ground pixels. The pixel values in X, Xo, Xb are in [0, 1]. The mean value of X is μ = 1
+
+> M
+
+∑Mi=1 xi, where xi denotes a pixel in the feature map X and M = H × W . Therefore, it is obvious to enlarge the value of difference || Xo − Xb|| 1.The mean value of Xo is μo = 1
+
+> Mo
+
+∑Mo 
+
+> i=1
+
+xo,i ∈ (μ, 1], while the mean value of Xb is μb = 1
+
+> Mb
+
+∑Mb 
+
+> i=1
+
+xb,i ∈ [0, μ). Since the objects with temperature are highlighted in IVIF, we as-sume that μo > μ > μ b. Therefore, to modulate the sur-roundings for objects, we can enlarge the difference D(X)= ∑Mi=1 |xi − μ|. Due to μo > μ > μ b, it can be easily seen that D(X) < ∑Mi=1 | x2 
+
+> i
+> μ
+
+− μ|, which indicate that the value of x2 
+
+> i
+> μ
+
+can serve more modulation than xi.Note that this formulation needs the condition X, Xo,
+
+Xb > 0. the Sigmoid activation S(x) is used for importance value mapping because of its monotonicity and bounded-ness. Therefore, we use the Sigmoid activation to map the pixel values to yi = S(xi) ∈ (0 , 1) whose mean value is μy .We give the importance weight for pixel xi for feature en-hancement. Every enhanced pixel in the enhanced feature map ˜X according to the surrounding of X is as: 
+
+˜xi = xi × S( y2
+
+> i
+
+μy
+
+), (3) where S(·) denotes the Sigmoid activation. we use DE in both fusion encoder and decoder, which is as the surround modulation for objects to generate fused images with prominent-object information. 
+
+4.3. Cross-dimensional feature embedding 
+
+Apart from the prominent object representation, we propose a Cross-Dimensional Embedding (CDE) method, super-vising the fusion network to integrate the cross-task feature. Encoder-decoder networks effectively represent multi-modal features. However, they overlook the impact of fea-ture representations across different tasks. Task-level mod-els can extract high-dimensional information. For exam-               
+
+> TNO RoadScene M 3 FD TarDAL ReCoNet CDDFuse Text IF EMMA Ours
+> TarDAL ReCoNet CDDFuse Text IF EMMA Ours
+> TarDAL ReCoNet CDDFuse Text IF EMMA Ours
+
+Figure 4. Qualitative comparisons of our DCEvo and existing im-age fusion methods. From top to bottom: low-light in TNO, high-brightness in RoadScene and low-quality in M 3FD. ple, in object detection, feature pyramid networks distin-guish objects from their surroundings, providing semantic information for the detection head. Therefore, our DCEvo method leverages detection features by using the CDE mod-ule to integrate features from both tasks. As depicted in Figure 2, the fusion encoder converts the infrared image Iir and the visible image Ivis to features with Fir and Fvis respectively, while the detection network transforms the Ivis into Fdet . Different from feature em-bedding in other tasks, image feature fusion requires the feature maps of two inputs contain the same scene entity. To properly match the represented feature, we conduct Patch Align (PA) by slicing the part of input fusion patch from the detection feature map Fdet . The sliced patch of Fdet 
+
+is Fpdet . Then, Fpdet , Fir and Fvis are fed into separate CNN blocks to obtain ̂ Fpdet ,̂ Fir and ̂ Fvis for feature em-bedding. Let {Q, K, V} = {̂ Fpdet ,̂ Fir ,̂ Fvis }, and then our cross-dimensional embedding operation output ̂ Fca is: ̂
+
+Fca = CDE (Q, K, V), (4) where CDE (·) denotes the cross-dimensional embedding. Through the above feature embedding, the detection fea-tures are integrated into image fusion network, enabling ob-ject awareness for fused images. Subsequently, the feature maps ̂ Fca are fed into the self-attention module. Finally, the fused images are generated by the image decoder. 
+
+5. Experiments 
+
+To evaluate the performance of our proposed methods, we conduct experiments on four datasets, where four (M 3FD [18], RoadScene [38], TNO [36] and FMB [20]) for IVIF, one (M 3FD) for object detection and one (FMB) for image segmentation. Our designed image fusion model of DCEvo are firstly pretrained on MSRS datasets. Then, the DCEvo is trained on the M 3FD datasets by evolutionary 2230 Datasets M3FD RoadScene TNO FMB Methods MI SSIM VIF Qabf MI SSIM VIF Qabf MI SSIM VIF Qabf MI SSIM VIF Qabf DDFM 2.91 0.46 0.70 0.48 1.84 0.04 0.21 0.14 1.94 0.22 0.40 0.25 3.10 0.30 0.68 0.44 YDTR 3.18 0.47 0.70 0.48 3.02 0.48 0.69 0.44 2.82 0.50 0.71 0.41 3.21 0.30 0.68 0.43 ReCoNet 3.06 0.43 0.62 0.49 3.09 0.45 0.64 0.38 2.57 0.42 0.57 0.35 3.17 0.33 0.66 0.50 TarDAL 3.16 0.44 0.63 0.41 3.34 0.45 0.62 0.43 2.85 0.49 0.65 0.40 3.31 0.31 0.60 0.36 LRRNet 2.80 0.39 0.63 0.50 2.79 0.33 0.57 0.35 2.66 0.43 0.62 0.36 2.90 0.28 0.65 0.48 MetaFusion 2.36 0.38 0.87 0.41 2.28 0.41 0.59 0.39 1.71 0.38 0.70 0.29 2.48 0.33 0.77 0.43 SwinFusion 4.16 0.50 0.84 0.61 3.34 0.49 0.73 0.46 3.36 0.52 0.81 0.51 3.09 0.33 0.78 0.59 TIM 2.74 0.40 0.61 0.50 3.62 0.44 0.70 0.39 3.79 0.47 0.78 0.44 2.60 0.27 0.58 0.49 CDDFuse 3.90 0.51 0.85 0.61 3.08 0.48 0.71 0.48 3.23 0.52 0.84 0.52 3.63 0.35 0.80 0.58 SegMiF 3.05 0.48 0.85 0.65 2.75 0.47 0.71 0.53 3.04 0.49 0.87 0.57 3.73 0.34 0.79 0.57 EMMA 3.81 0.45 0.82 0.59 3.18 0.46 0.70 0.45 2.98 0.48 0.75 0.46 3.69 0.35 0.80 0.58 Text-IF 3.68 0.47 0.94 0.68 2.88 0.46 0.73 0.54 3.14 0.48 0.82 0.52 3.37 0.34 0.83 0.61 DCEvo 4.54 0.51 0.87 0.64 3.69 0.51 0.80 0.57 4.22 0.54 0.91 0.57 4.38 0.49 0.97 0.68 
+
+Table 1. Quantitative comparison of infrared and visible image fusion between our DCEvo and state-of-the-art methods on M 3 FD, Road-Scene, TNO and FMB datasets. Boldface shows the best while underline shows the second-best results. Red, light red, blue, and light blue represent the best, second-best, worst, and second-worst results, respectively. 
+
+Missing Car Missing Car Missing Car Missing Car Missing Car Missing Car Missing Car Missing Car Missing Car ALL Detected 
+
+DDFM EMMA Text-IF Ours TarDAL ReCoNet CDDFuse SegMiF Visible 
+
+Missing Lamp Missing Lamp Missing Lamp Nothing Detected Missing Lamp Missing Lamp Missing Lamp Missing Lamp Missing Lamp 
+
+Infrared DDFM EMMA Ours Infrared TarDAL CDDFuse SegMiF Visible ReCoNet 
+
+Text-IF 
+
+Missing Car 
+
+Infrared 
+
+Image Visible Image car 0.93 car 0.94 car 0.92 car 0.94 car 0.92 car 0.93 car 0.93 car 0.93 car 0.84 car 0.86 car 0.93 car 0.93 car 0.93 car 0.92 car 0.93 car 0.94 car 0.93 car 0.93 car 0.92 car 0.47 car 0.95 light 0.76 light 0.71 light 0.77 light 0.81 light 0.71 light 0.69 light 0.83 light 0.83 light 0.80 light 0.84 light 0.80 light 0.74 light 0.80 light 0.77 light 0.76 light 0.83 light 0.82 light 0.74 light 0.77 light 0.70 light 0.77 light 0.77 light 0.77 light 0.73 light 0.81 light 0.83 light 0.77 light 0.57 
+
+ALL Detected 
+
+Figure 5. Qualitative comparison task of our method and existing infrared and visible image fusion methods in downstream object detection on the M 3FD dataset. The objects in our fusion images are fully detected. learning where model trainer are updated every epoch. In our evolutionary algorithm, the population size, number of iterations, and mutation rate are set to 5, 5, and 10, respec-tively. These images are fed to the object detection model and semantic segmentation model for training. All experi-ments are conducted with the PyTorch. 
+
+5.1. Infrared and visible image fusion 
+
+We evaluate the IVIF performance of DCEvo without CDE by comparing with 12 state-of-the-art methods, including YDTR [34], SwinFusion [28], ReCoNet [8], TarDAL [18], SegMiF [20], DDFM [46], LRRNet [15], CDDFuse [45], MetaFusion [43], TIM [25], EMMA [47], Text-IF [41]. 
+
+Qualitative Comparisons . Figure 4 presents qualitative re-sults from four datasets. Our method demonstrates signif-icant advantages over existing approaches. Firstly, DCEvo produces fused images with reduced noise levels. Secondly, thermal objects are distinctly highlighted, ensuring clear and accurate representation. 
+
+Quantitative Comparisons . We compare our DCEvo with the methoned 12 counterparts on M 3FD, RoadScene, TNO and FMB datasets (containing 300, 221, 57 and 280 IVIF images respectively), as shown in Table 1. On the Road-Scene, TNO and FMB datasets, our method shows best on all the four metrics, especially showing significant advan-tages in MI, SSIM and VIF, showing our method can gen-erate high visual quality images. On the M 3FD dataset, our method is also competitive, showing highest MI and SSIM. These promising results indicate that our DCEvo maintains and performs higher fidelity, more edge information, less distortion with input images. 
+
+5.2. Task-driven downstream IVIF applications 
+
+We split the M 3FD dataset with an 80:20 ratio and utilize YOLOv8s for object detection. As shown in Table 2 (left), most fusion methods achieve higher mAP than using only visible or infrared images individually, with our DCEvo method attaining the highest mAP. Figure 5 demonstrates 2231 Datasets M3FD FMB Method People Car Bus Light Moto Trunk mAP Car Person Sky Bus Motor Pole mIoU ReCoNet 54.07 71.24 74.17 53.48 44.18 66.78 60.66 76.86 67.12 91.43 12.91 21.55 37.96 48.98 YDTR 54.82 71.37 74.02 52.82 48.22 67.52 61.46 70.08 64.85 92.25 11.98 23.48 39.13 49.99 SwinFusion 53.61 71.06 74.06 53.25 46.19 68.02 61.03 72.38 67.91 92.68 22.12 20.15 40.24 50.70 DDFM 54.35 71.42 75.18 54.07 46.45 68.06 61.59 72.20 68.59 92.00 17.74 13.64 41.27 50.88 CDDFuse 53.85 71.03 74.44 51.82 45.40 67.10 60.60 72.93 66.92 93.06 16.22 23.36 38.14 51.43 MetaFusion 52.80 70.50 74.15 52.66 45.04 65.90 60.18 73.53 68.50 93.32 26.02 23.85 37.87 51.79 TIM 51.30 70.44 74.83 52.29 44.17 65.34 59.69 74.64 66.80 90.56 21.48 14.78 37.69 51.31 LRRNet 54.27 71.82 74.43 54.25 47.10 68.41 61.71 71.87 68.25 92.80 19.76 15.16 39.56 50.42 TarDAL 55.44 70.58 73.17 52.92 42.82 66.16 60.18 76.04 64.95 92.11 9.63 19.88 34.82 49.39 SegMiF 55.08 71.82 76.69 53.91 46.18 66.46 61.69 73.40 65.98 92.93 20.00 11.71 38.24 50.81 EMMA 54.66 71.70 73.69 54.64 47.04 67.88 61.60 71.55 68.82 92.51 19.19 27.22 36.63 51.55 TextIF 54.37 71.48 75.56 52.91 48.39 67.35 61.68 71.78 67.69 93.57 12.35 26.49 41.07 50.60 DCEvo 54.02 72.00 75.72 55.07 49.94 66.00 62.13 73.57 69.83 93.52 31.45 24.37 41.68 52.52 
+
+Table 2. Quantitative comparison of our DCEvo and existing image fusion methods for downstream detection and segmentation tasks on the M 3FD, and FMB datasets. The best results are in bold , while the second best ones are underlined. Red, light red, blue, and light blue represent the best, second-best, worst, and second-worst results, respectively.                 
+
+> Infrared DDFM EMMA Text-IF Ours Visible TarDAL ReCoNet CDDFuse SegMiF Infrared DDFM EMMA Text-IF Ours Visible TarDAL ReCoNet CDDFuse SegMiF
+
+Smoke Scene Daytime Scene        
+
+> Background Bike Sidewalk Building Traffic Light Traffic Sign People Tree Bus
+
+Figure 6. Qualitative comparison of our DCEvo with the fusion images generated by different fusion methods on the FMB dataset. Our approach performs the best segmentation results in the smock scene and daytime scene. that our fused images detect all objects in the scene, whereas other methods miss some detections. Additionally, DCEvo excels in challenging environments by leveraging DE and CDE to effectively refine and process image features. In semantic segmentation, we use FMB dataset for train-ing and testing. We use Segformer-b1 as the segmentation models, for all methods. The results of the semantic seg-mentation mIoU is shown in the right of Table 2. Notably, our DCEvo outperforms others in terms of mIoU, achieving a 1.4–7.2% improvement over compared approaches. As to qualitative comparisons of segmentation in Figure 6, our method achieves the best segmentation results. 
+
+5.3. Ablation study 
+
+We conduct ablation experiments to evaluate the effective-ness of the three methods. Figure 7 presents the normalized confusion matrices, demonstrating that our complete model achieves the highest precision. 
+
+Study on evolutionary algorithm . Table 3 presents our ablation experiments for the proposed evolutionary learning strategy. We compare our evolutionary algorithm with hy-perparameter settings based on experience and uniform val-ues, as well as our cooperative training method for optimiz-ing both the fusion and detection networks versus separate optimization. Our method achieves the highest quantitative metrics, and the qualitative results in Figure 8 demonstrate superior precision. 
+
+Study on model architectures . Our DCEvo model incor-porates a discriminative enhancer and a cross-dimensional feature embedding module. To assess these enhancements, we conducted ablation experiments presented in Table 4. SP, DE, and DP denote the simple model, encoder-based discriminative enhancer, and projection-based discrimina-tive enhancer, respectively. Base, Cat, CA, and Ours re-fer to the base fusion model, concatenation-based feature embedding, cross-attention only, and our cross- and self-attention feature embedding methods. DCEvo achieves the highest performance on downstream tasks, demonstrating the robustness of our architecture. Additionally, feature ac-tivations validate effectiveness of DE, as shown in Figure 9. 2232 0.02 0.45 0.87 0.75 0.44 0.01 0.05 0.02 0.02 0.93 0.92 0.02 0.90 0.90 0.02 0.12 0.03 0.01 0.07 0.06 0.24 0.06 0.06 True people background car bus light moto trunk Predict people background  car bus light moto trunk 0.02 0.47 0.87 0.80 0.42 0.01 0.07 0.02 0.02 0.94 0.90 0.02 0.89 0.90 0.13 0.01 0.04 0.08 0.08 0.20 0.06 0.04 True people background car bus light moto trunk Predict people background  car bus light moto trunk 
+
+Ours w/o EA 
+
+0.02 0.47 0.87 0.78 0.42 0.01 0.05 0.03 0.02 0.93 0.91 0.02 0.89 0.88 0.13 0.03 0.04 0.08 0.07 0.22 0.06 0.04 True people background car bus light moto trunk Predict people background  car bus light moto trunk 0.02 0.42 0.86 0.78 0.42 0.01 0.06 0.02 0.04 0.93 0.90 0.02 0.87 0.91 0.14 0.01 0.03 0.10 0.07 0.20 0.07 0.05 0.01 0.02 True people background car bus light moto trunk Predict people background  car bus light moto trunk 
+
+w/o CDE w/o DE 
+
+Figure 7. Normalized confusion matrix of our proposed methods in object detection. Our method has the best overall precision. Metrics mAP mIoU Methods Sp Co Sp Co experience 61.70 61.73 51.53 51.58 equals 61.53 61.59 51.27 51.33 Ours / 62.13 / 52.52 
+
+Table 3. Quantitative comparison of our evolutionary algorithm with other training methods. Bold shows the best results. Metrics mAP/mIoU Methods SP DE DE + DP Base 61.23/50.23 61.56/50.89 61.62/51.65 Cat 61.29/50.55 61.63/51.13 61.67/51.78 CA / 61.65/51.68 61.70/51.92 Ours / 61.88/52.24 62.13 /52.52 
+
+Table 4. Ablation results for the proposed cross-dimensional em-bedding approach. Bold shows the best results. 
+
+6. Concluding Remarks 
+
+Within this paper, we introduce the Discriminative Cross-Dimensional Evolutionary Learning Framework (DCEvo) for infrared and visible image fusion, effectively enhanc-ing both visual quality and task accuracy. By integrating discriminative enhancers and a cross-dimensional feature embedding block with an evolutionary learning strategy, DCEvo optimizes feature interactions and balances dual ob-jectives. Experimental results across three tasks’ bench-marks demonstrate that our approach surpasses state-of-the-art methods, offering robust solutions for complex environ-ments and intelligent systems. 
+
+Broader Impacts. DCEvo introduces an evolutionary learning paradigm for IVIF, simultaneously enhancing vi-sual quality and task performance, positioning it as a new direction for perception in modern intelligent systems. Its innovative design leverages evolutionary adaptive hyperpa-rameters to address optimization challenges across multi-dimensional tasks, improving the practicability and effi-ciency of integrated vision applications.   
+
+> people 0.28 people 0.40 people 0.71 people 0.71 people 0.45 people 0.27 people 0.62 people 0.71 people 0.64 people 0.66 people 0.66 people 0.66
+
+Experience Ours Equal-coefficient Separate    
+
+> car 0.92 car 0.91 car 0.90 car 0.91 car 0.91 car 0.93 0.74 car 0.92 0.76 car 0.91 0.40 peo peo peo 0.75
+
+Figure 8. Qualitative results of our evolutionary algorithm and other training methods. Our model shows the best results. 
+
+w/o DE Ours 
+
+Figure 9. Comparison of the visualized feature activations of our DE. The features are filtered by the object detection backbone and shown by Grad-CAM. Our DE helps the network focus on object regions which are close to the ground truth. 
+
+Acknowledgments 
+
+This work is partially supported by the National Natural Science Foundation of China (Nos.62302078, 62372080, 62450072, U22B2052), the Distinguished Youth Funds of the Liaoning Natural Science Foundation (No.2025JH6/101100001), the Distinguished Young Schol-ars Funds of Dalian (No.2024RJ002), the China Postdoc-toral Science Foundation (No.2023M730741) and the Fun-damental Research Funds for the Central Universities. 2233 References 
+
+[1] Yousef Methkal Abd Algani, Orlando Juan Marquez Caro, Liz Maribel Robladillo Bravo, Chamandeep Kaur, Mo-hammed Saleh Al Ansari, and B Kiran Bala. Leaf disease identification and classification using optimized deep learn-ing. Measurement: Sensors , 25:100643, 2023. 3 [2] Muhammad Arif and Guojun Wang. Fast curvelet transform through genetic algorithm for multimodal medical image fu-sion. Soft Computing , 24(3):1815–1836, 2020. 3 [3] Carlos A Coello Coello. Evolutionary algorithms for solving multi-objective problems . Springer, 2007. 3 [4] Wassim A. El Ahmar, Dhanvin Kolhatkar, Farzan Erlik Nowruzi, Hamzah AlGhamdi, Jonathan Hou, and Robert La-ganiere. Multiple object detection and tracking in the thermal spectrum. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops , pages 277–285, 2022. 1 [5] Mengyue Geng, Lin Zhu, Lizhi Wang, Wei Zhang, Ruiqin Xiong, and Yonghong Tian. Event-based visible and in-frared fusion via multi-task collaboration. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 26929–26939, 2024. 2 [6] Peilan He, Guiyuan Jiang, Siew-Kei Lam, and Yidan Sun. Ml-mmas: Self-learning ant colony optimization for multi-criteria journey planning. Information Sciences , 609:1052– 1074, 2022. 3 [7] John H Holland. Adaptation in natural and artificial sys-tems: an introductory analysis with applications to biology, control, and artificial intelligence . MIT press, 1992. 3 [8] Zhanbo Huang, Jinyuan Liu, Xin Fan, Risheng Liu, Wei Zhong, and Zhongxuan Luo. Reconet: Recurrent correction network for fast and efficient multi-modality image fusion. In Computer Vision – ECCV 2022 , pages 539–555, Cham, 2022. Springer Nature Switzerland. 6 [9] Manjit Kaur and Dilbag Singh. Multi-modality medical im-age fusion technique using multi-objective differential evo-lution based deep neural networks. Journal of Ambient Intel-ligence and Humanized Computing , 12(2):2483–2493, 2021. 3[10] R Kavitha, D Kiruba Jothi, K Saravanan, Mahendra Pratap Swain, Jos´ e Luis Arias Gonz´ ales, Rakhi Joshi Bhardwaj, and Elijah Adomako. [retracted] ant colony optimization-enabled cnn deep learning technique for accurate detection of cervical cancer. BioMed Research International , 2023(1): 1742891, 2023. 3 [11] James Kennedy and Russell Eberhart. Particle swarm opti-mization. In Proceedings of ICNN’95-international confer-ence on neural networks , pages 1942–1948. ieee, 1995. 3 [12] Serhat Kilicarslan, Mete Celik, and S ¸ afak Sahin. Hybrid models based on genetic algorithm and deep learning algo-rithms for nutritional anemia disease classification. Biomed-ical Signal Processing and Control , 63:102231, 2021. 3 [13] Hui Li and Xiao-Jun Wu. Densefuse: A fusion approach to infrared and visible images. IEEE Transactions on Image Processing , 28(5):2614–2623, 2018. 2 [14] Hui Li, Xiao-Jun Wu, and Josef Kittler. Rfn-nest: An end-to-end residual fusion network for infrared and visible images. 
+
+Information Fusion , 73:72–86, 2021. 2 [15] Hui Li, Tianyang Xu, Xiao-Jun Wu, Jiwen Lu, and Josef Kit-tler. Lrrnet: A novel representation learning guided fusion network for infrared and visible images. IEEE Transactions on Pattern Analysis and Machine Intelligence , 45(9):11040– 11052, 2023. 6 [16] Xiang Li, Chengqi Lv, Wenhai Wang, Gang Li, Lingfeng Yang, and Jian Yang. Generalized focal loss: Towards ef-ficient representation learning for dense object detection. 
+
+IEEE Transactions on Pattern Analysis and Machine Intel-ligence , 45(3):3139–3153, 2023. 5 [17] Xingyuan Li, Jinyuan Liu, Zhixin Chen, Yang Zou, Long Ma, Xin Fan, and Risheng Liu. Contourlet residual for prompt learning enhanced infrared image super-resolution. In European Conference on Computer Vision , pages 270– 288. Springer, 2024. 1 [18] Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and Zhongxuan Luo. Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 5802–5811, 2022. 2, 5, 6 [19] Jinyuan Liu, Xin Fan, Ji Jiang, Risheng Liu, and Zhongx-uan Luo. Learning a deep multi-scale feature ensemble and an edge-attention guidance for image fusion. IEEE Transac-tions on Circuits and Systems for Video Technology , 32(1): 105–119, 2022. 2 [20] Jinyuan Liu, Zhu Liu, Guanyao Wu, Long Ma, Risheng Liu, Wei Zhong, Zhongxuan Luo, and Xin Fan. Multi-interactive feature learning and a full-time multi-modality benchmark for image fusion and segmentation. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,pages 8115–8124, 2023. 2, 3, 5, 6 [21] Jinyuan Liu, Xingyuan Li, Zirui Wang, Zhiying Jiang, Wei Zhong, Wei Fan, and Bin Xu. Promptfusion: Harmonized semantic prompt learning for infrared and visible image fu-sion. IEEE/CAA Journal of Automatica Sinica , 2024. 2 [22] Jinyuan Liu, Runjia Lin, Guanyao Wu, Risheng Liu, Zhongxuan Luo, and Xin Fan. Coconet: Coupled con-trastive learning network with multi-level feature ensemble for multi-modality image fusion. International Journal of Computer Vision , 132(5):1748–1775, 2024. 2 [23] Jinyuan Liu, Guanyao Wu, Zhu Liu, Di Wang, Zhiying Jiang, Long Ma, Wei Zhong, Xin Fan, and Risheng Liu. Infrared and visible image fusion: From data compatibility to task adaption. IEEE Transactions on Pattern Analysis and Ma-chine Intelligence , 47(4):2349–2369, 2025. 3 [24] Risheng Liu, Zhu Liu, Jinyuan Liu, and Xin Fan. Searching a hierarchically aggregated fusion architecture for fast multi-modality image fusion. In Proceedings of the 29th ACM International Conference on Multimedia , pages 1600–1608, 2021. 2 [25] Risheng Liu, Zhu Liu, Jinyuan Liu, Xin Fan, and Zhongxuan Luo. A task-guided, implicitly-searched and metainitialized deep model for image fusion. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2024. 2, 6 2234 [26] Jiayi Ma, Hao Zhang, Zhenfeng Shao, Pengwei Liang, and Han Xu. Ganmcc: A generative adversarial network with multiclassification constraints for infrared and visible image fusion. IEEE Transactions on Instrumentation and Measure-ment , 70:1–14, 2020. 2 [27] Jiayi Ma, Linfeng Tang, Fan Fan, Jun Huang, Xiaoguang Mei, and Yong Ma. Swinfusion: Cross-domain long-range learning for general image fusion via swin transformer. 
+
+IEEE/CAA Journal of Automatica Sinica , 9(7):1200–1217, 2022. 2 [28] Jiayi Ma, Linfeng Tang, Fan Fan, Jun Huang, Xiaoguang Mei, and Yong Ma. Swinfusion: Cross-domain long-range learning for general image fusion via swin transformer. 
+
+IEEE/CAA Journal of Automatica Sinica , 9(7):1200–1217, 2022. 2, 6 [29] Vittorio Maniezzo, Luca Maria Gambardella, Fabio De Luigi, et al. Ant colony optimization. New optimization techniques in engineering , 141:101–117, 2004. 3 [30] Rencan Nie, Chaozhen Ma, Jinde Cao, Hongwei Ding, and Dongming Zhou. A total variation with joint norms for in-frared and visible image fusion. IEEE Transactions on Mul-timedia , 24:1460–1472, 2021. 2 [31] Yuwen Pan, Yuanwang Yang, and Wenzao Li. A deep learn-ing trained by genetic algorithm to improve the efficiency of path planning for data collection with multi-uav. IEEE Ac-cess , 9:7994–8005, 2021. 3 [32] Hindriyanto Purnomo, Tad Gonsalves, Evangs Mailoa, Fian Julio Santoso, Muhammad Rizky Pribadi, et al. Meta-heuristics approach for hyperparameter tuning of convolu-tional neural network. Jurnal RESTI (Rekayasa Sistem dan Teknologi Informasi) , 8(3):340–345, 2024. 3 [33] Ismail Damilola Raji, Habeeb Bello-Salau, Ime Jarlath Umoh, Adeiza James Onumanyi, Mutiu Adesina Adeg-boye, and Ahmed Tijani Salawudeen. Simple deterministic selection-based genetic algorithm for hyperparameter tuning of machine learning models. Applied Sciences , 12(3):1186, 2022. 3 [34] Wei Tang, Fazhi He, and Yu Liu. Ydtr: Infrared and visible image fusion via y-shape dynamic transformer. IEEE Trans-actions on Multimedia , 25:5413–5428, 2023. 6 [35] Xin Tian, Wei Zhang, Dian Yu, and Jiayi Ma. Sparse tensor prior for hyperspectral, multispectral, and panchromatic im-age fusion. IEEE/CAA Journal of Automatica Sinica , 10(1): 284–286, 2022. 2 [36] Alexander Toet and Maarten A. Hogervorst. Progress in color night vision. Optical Engineering , 51(1):010901, 2012. 5 [37] Ye-Qun Wang, Jian-Yu Li, Chun-Hua Chen, Jun Zhang, and Zhi-Hui Zhan. Scale adaptive fitness evaluation-based particle swarm optimisation for hyperparameter and archi-tecture optimisation in neural networks and deep learning. 
+
+CAAI Transactions on Intelligence Technology , 8(3):849– 862, 2023. 3 [38] Han Xu, Jiayi Ma, Zhuliang Le, Junjun Jiang, and Xiaojie Guo. Fusiondn: A unified densely connected network for image fusion. Proceedings of the AAAI Conference on Arti-ficial Intelligence , 34(07):12484–12491, 2020. 5 [39] Han Xu, Jiayi Ma, and Xiao-Ping Zhang. Mef-gan: Multi-exposure image fusion via generative adversarial networks. 
+
+IEEE Transactions on Image Processing , 29:7203–7216, 2020. 2 [40] Han Xu, Jiayi Ma, Junjun Jiang, Xiaojie Guo, and Haibin Ling. U2fusion: A unified unsupervised image fusion net-work. IEEE Transactions on Pattern Analysis and Machine Intelligence , 44(1):502–518, 2022. 2 [41] Xunpeng Yi, Han Xu, Hao Zhang, Linfeng Tang, and Ji-ayi Ma. Text-if: Leveraging semantic text guidance for degradation-aware and interactive image fusion. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 27026–27035, 2024. 2, 6 [42] Zhenjie Yu, Shuang Li, Yirui Shen, Chi Harold Liu, and Shuigen Wang. On the difficulty of unpaired infrared-to-visible video translation: Fine-grained content-rich patches transfer. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1631– 1640, 2023. 2 [43] Wenda Zhao, Shigeng Xie, Fan Zhao, You He, and Huchuan Lu. Metafusion: Infrared and visible image fusion via meta-feature embedding from object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 13955–13965, 2023. 2, 6 [44] Zixiang Zhao, Shuang Xu, Jiangshe Zhang, Chengyang Liang, Chunxia Zhang, and Junmin Liu. Efficient and model-based infrared and visible image fusion via algorithm un-rolling. IEEE Transactions on Circuits and Systems for Video Technology , 32(3):1186–1196, 2021. 2 [45] Zixiang Zhao, Haowen Bai, Jiangshe Zhang, Yulun Zhang, Shuang Xu, Zudi Lin, Radu Timofte, and Luc Van Gool. Cddfuse: Correlation-driven dual-branch feature decompo-sition for multi-modality image fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 5906–5916, 2023. 2, 4, 6 [46] Zixiang Zhao, Haowen Bai, Yuanzhi Zhu, Jiangshe Zhang, Shuang Xu, Yulun Zhang, Kai Zhang, Deyu Meng, Radu Timofte, and Luc Van Gool. Ddfm: Denoising diffusion model for multi-modality image fusion. In Proceedings of the IEEE/CVF International Conference on Computer Vi-sion , pages 8082–8093, 2023. 2, 6 [47] Zixiang Zhao, Haowen Bai, Jiangshe Zhang, Yulun Zhang, Kai Zhang, Shuang Xu, Dongdong Chen, Radu Timofte, and Luc Van Gool. Equivariant multi-modality image fusion. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vi-sion and Pattern Recognition , pages 25912–25921, 2024. 6 [48] Naishan Zheng, Man Zhou, Jie Huang, Junming Hou, Haoy-ing Li, Yuan Xu, and Feng Zhao. Probing synergistic high-order interaction in infrared and visible image fusion. In Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 26384–26395, 2024. 2 [49] Aimin Zhou, Bo-Yang Qu, Hui Li, Shi-Zheng Zhao, Pon-nuthurai Nagaratnam Suganthan, and Qingfu Zhang. Multi-objective evolutionary algorithms: A survey of the state of the art. Swarm and evolutionary computation , 1(1):32–49, 2011. 3 2235

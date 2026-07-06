@@ -1,0 +1,450 @@
+Title: PanAdapter: Two-Stage Fine-Tuning with Spatial-Spectral Priors Injecting for Pansharpening
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/32912/35067
+
+Number of Pages: 10
+
+Markdown Content:
+# PanAdapter: Two-Stage Fine-Tuning with Spatial-Spectral Priors Injecting for Pansharpening 
+
+# Ruocheng Wu 1* , Zien Zhang 1* , Shangqi Deng 2, Yule Duan 1, Liang-Jian Deng 1† 
+
+> 1
+
+University of Electronic Science and Technology of China, Chengdu 611731, China 
+
+> 2
+
+Xi’an Jiaotong University, Xi’an 710049, China wuruocheng333@outlook.com, zienzhang314@gmail.com, shangqideng0124@gmail.com, duanyll@std.uestc.edu.cn, liangjian.deng@uestc.edu.cn 
+
+Abstract 
+
+Pansharpening is a challenging image fusion task that in-volves restoring images using two different modalities: low-resolution multispectral images (LRMS) and high-resolution panchromatic (PAN). Many end-to-end specialized models based on deep learning (DL) have been proposed, yet the scale and performance of these models are limited by the size of dataset. Given the superior parameter scales and feature representations of pre-trained models, they exhibit outstand-ing performance when transferred to downstream tasks with small datasets. Therefore, we propose an efficient fine-tuning method, namely PanAdapter, which utilizes additional ad-vanced semantic information from pre-trained models to alle-viate the issue of small-scale datasets in pansharpening tasks. Specifically, targeting the large domain discrepancy between image restoration and pansharpening tasks, the PanAdapter adopts a two-stage training strategy for progressively adapt-ing to the downstream task. In the first stage, we fine-tune the pre-trained CNN model and extract task-specific priors at two scales by proposed Local Prior Extraction (LPE) mod-ule. In the second stage, we feed the extracted two-scale pri-ors into two branches of cascaded adapters respectively. At each adapter, we design two parameter-efficient modules for allowing the two branches to interact and be injected into the frozen pre-trained VisionTransformer (ViT) blocks. We demonstrate that by only training the proposed LPE mod-ules and adapters with a small number of parameters, our approach can benefit from pre-trained image restoration mod-els and achieve state-of-the-art performance in several bench-mark pansharpening datasets. 
+
+Code — https://github.com/RC-Wu/PanAdapter 
+
+# Introduction 
+
+Due to the hardware limitations, existing sensors only acquire low-resolution multispectral images (LRMS) and high-resolution panchromatic (PAN) images. Pansharp-ening fuses LRMS and PAN images to produce high-resolution multispectral images (HRMS). Various pansharp-ening methods have been proposed, including traditional 
+
+> *
+
+These authors contributed equally. 
+
+> †
+
+Corresponding author. Copyright © 2025, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. Pretrained CNN    
+
+> Pretrained
+> Transformer
+> CTF CTF
+> CTF CTF
+> CTI
+> CTI
+> Trainable
+> Param.
+> Frozen
+> Param.
+> Spectral
+> Priors
+> Spatial
+> Priors
+> Cascade
+> Token
+> Fusioner
+> CTI
+> Cascade
+> Token
+> Injector
+> CTF
+> LPE
+> LPE
+> LPE Local Prior
+> Extraction
+> Stage 1
+> Stage 2
+
+Figure 1: PanAdapter’s two-stage fine-tuning framework. and deep learning-based methods. Traditional methods in-clude component substitution (CS) techniques (Choi, Yu, and Kim 2010; Vivone 2019), multi-resolution analysis (MRA) methods (Vivone et al. 2013; Vivone, Restaino, and Chanussot 2018), and variational optimization-based (VO) approaches (Palsson, Sveinsson, and Ulfarsson 2013; He et al. 2014; Yan et al. 2022; Zhou et al. 2022). In re-cent years, convolutional neural networks (CNN) have been widely applied to pansharpening (Masi et al. 2016). Benefit-ing from the inductive bias and residual structures of CNNs, increasingly deeper networks have been proposed to address pansharpening tasks, such as PanNet (Yang et al. 2017), MSDCNN (Wei et al. 2017), BDPN (Zhang et al. 2019), DiCNN (He et al. 2019), FusionNet (Deng et al. 2020), MSDRN (Wang et al. 2021) and PMACNet (Liang et al. 2022). However, because CNNs struggle to extract global information and high-level semantic features, researchers explore methods based on Transformers. Leveraging long-range dependencies and scalability to pre-trained models and datasets, models such as full Transformers (Zhou, Liu, and Wang 2022; Meng et al. 2022) and hybrids of CNNs and Transformers (Zhu et al. 2023; Su et al. 2023; Li et al. The Thirty-Ninth AAAI Conference on Artificial Intelligence (AAAI-25) 
+
+8450 2023a, 2022, 2023b) have made progress. Due to the limited size of dataset (500 to 10,000 images), blindly increasing model parameters is likely to lead to overfitting. To benefit from larger datasets and pre-trained models, we introduce the paradigm of pre-training and fine-tuning into pansharp-ening. By fine-tuning upstream image restoration models, we aim to enhance the performance of pansharpening tasks. Recently, the field of image restoration has explored pre-trained models to address various image degradation prob-lems (Chen et al. 2021; Liu et al. 2021; Wang et al. 2022b). Since pansharpening essentially is solving an inverse prob-lem of image degradation, pre-trained image restoration models are helpful in addressing the pansharpening task. IPT (Chen et al. 2021) introduced the first Transformer-based pre-trained model for low-level tasks, followed by approaches like Swin Transformer (Liu et al. 2021), and Uformer (Wang et al. 2022b). To avoid significant param-eter size and high training costs with full fine-tuning, we explore parameter-efficient fine-tuning (PEFT) strategies. In the field of PEFT, the methods of inserting small modules first emerge, such as Adapter (Houlsby et al. 2019) and LoRA (Hu et al. 2021). Prompt-based approaches (Lester, Al-Rfou, and Constant 2021; Li and Liang 2021) add a pre-fix prompt before the input embeddings. BitFit (Zaken, Rav-fogel, and Goldberg 2021) adjusts only the bias terms of the model, while LST (Sung, Cho, and Bansal 2022) constructs side-tuning networks. In the field of computer vision, Adapt-Former (Chen et al. 2022a) adapts pre-trained ViT models, while ViT-Adapter (Chen et al. 2022b) integrates CNNs to capture local priors and compensate for ViT limitations. However, due to two primary reasons, existing models struggle to achieve optimal performance on pansharpen-ing tasks. Firstly, there is a significant domain gap, where models trained on natural image datasets face challenges in restoring satellite images. Secondly, conventional image restoration models lack the capability to effectively handle multi-modal inputs or multi-scale images, limiting their abil-ity to capture the intricate spatial and spectral priors required for pansharpening. Experiments in Sec. demonstrate that existing fine-tuning strategies have shown limited perfor-mance. Inspired by the multi-stage training strategy in image restoration domain (Zamir et al. 2021), we propose a pro-gressive two-stage training strategy to fine-tune a pre-trained CNN model and a pre-trained ViT model addressing the above-mentioned issues. In the first stage, we fine-tune the pre-trained CNN model. Specifically, we insert the Local Prior Extraction (LPE) module to extract spatial features from PAN and spectral features from LRMS, respectively. In the second stage, we inject the priors acquired from the two branches of the CNN network output into the pre-trained ViT using a set of cascaded adapters. Furthermore, inspired by ViT-Adapter (Chen et al. 2022b), we propose two parameter-efficient interaction modules in the second stage: the Cascade Token Fusioner (CTF) module and the Cascade Token Injector (CTI) module. Referring to exist-ing side-tuning fine-tuning methods (Sung, Cho, and Bansal 2022), our adapters adopt a cascaded architecture with inter-mediate results obtained from the backbone network as sup-plementary inputs for feature extraction, as shown in Fig. 1. The main contributions of this paper are as follows: 1. We propose PanAdapter, the first parameter-efficient fine-tuning framework designed specifically for the pan-sharpening task. Successfully, we apply image restora-tion models pre-trained on natural images to the remote sensing images. We evaluate our method on the WV3, QB and GF2 datasets, achieving state-of-the-art perfor-mance compared to various pansharpening methods. 2. We develop a novel two-stage fine-tuning strategy to reduce domain transfer difficulty and address conver-gence issues in the network. In the Local Prior Extraction Stage, we fine-tune a smaller pre-trained CNN network. In the Multiscale Feature Interaction Stage, we construct a dual-branch structure and fine-tune the pre-trained ViT network based on the output from the first stage. 3. We design a set of cascaded dual-branch adapters for fus-ing spatial and spectral priors from the first stage and in-jecting them into the pre-trained ViT. Through the two modules proposed in cascaded adapters, multiscale infor-mation is retained and interacted with intermediate fea-tures of the ViT backbone, which effectively balances the network’s ability to extract spatial details and fuse spec-tral information. 
+
+# Related Works 
+
+DL-Based Pansharpening 
+
+Early attempts for pansharpening primarily focus on using traditional methods (Aiazzi et al. 2002; Palsson, Sveinsson, and Ulfarsson 2013; Vivone 2019). However, these methods are often limited by their ability to extract meaningful fea-tures. PNN (Masi et al. 2016) is one of the earliest works to apply CNNs to pansharpening tasks. To boost performance, more and more researchers are working on creating larger and deeper CNN architectures for pansharpening such as PanNet (Yang et al. 2017), BDPN (Zhang et al. 2019), Fu-sionNet (Deng et al. 2020). Subsequently, to better extract spatial domain information, researchers propose multiscale approaches, such as PMACNet (Liang et al. 2022) and BiM-Pan (Hou et al. 2023). Some adaptive convolution meth-ods have also shown good performance, addressing the spa-tial invariance property of traditional CNNs, such as LAG-Conv (Jin et al. 2022), CANNet (Duan et al. 2024). Transformers (Vaswani et al. 2017) excel in capturing global information and long-range dependencies, which are crucial for pansharpening. PanFormer (Zhou, Liu, and Wang 2022) marks the first application of Transformer in the pan-sharpening domain. Subsequently, researchers construct var-ious structures to learn the global and local feature by com-bining Transformer and CNN, such as MHATP-Net (Zhu et al. 2023), CTCP (Su et al. 2023). However, due to the small size of the dataset, the existing models hold relatively small parameters, and are difficult to scale up to the level of visual backbones. 
+
+PEFT for Vision 
+
+Parameter-efficient fine-tuning (PEFT) aims to adapt pre-trained large models to new tasks by updating or adding 8451 parameters. Due to the similarity between language models and computer vision, large model fine-tuning methods are quickly applied to computer vision tasks. The methods of inserting additional parameters are applied to PEFT firstly, such as Adapters (Houlsby et al. 2019). LoRA (Hu et al. 2021) adds low-rank matrices to key layers of the model to adjust its behavior. In addition, some methods select a sub-set of parameters from the pre-trained model for updating without altering the network structure, such as Bitfit (Za-ken, Ravfogel, and Goldberg 2021). Subsequently, side net-work approaches emerges, which builds a ladder on top of the original large model, such as Side-Tuning (Zhang et al. 2020), LST (Sung, Cho, and Bansal 2022), where part of the output from the large model’s layers serves as the input for the ladder model. Visual adapter (Chen et al. 2022a), Con-vpass (Jie and Deng 2022), ViT-adapter (Chen et al. 2022b) employ fine-tuning methods to effectively adapt pre-trained ViT to various image and video tasks. 
+
+Motivation 
+
+Recently, due to the lack of long-distance modeling and high-level semantic information capture capabilities of CNNs, some works have begun to attempt to use Transform-ers for modeling in the pansharpening task (Zhou, Liu, and Wang 2022; Meng et al. 2022). However, because of the limitation in obtaining remote sensing images, the dataset for the pansharpening task is usually small (typically rang-ing from 500 to 10,000 images), thus scaling up models in the pansharpening task is extremely challenging. There-fore, a natural idea is to search for pre-trained models and fine-tune on pansharpening tasks. Given the similarity in task characteristics, pre-trained image restoration mod-els (Chen et al. 2021; Liu et al. 2021) are the preferred can-didates. Nevertheless, our experiments indicate that existing fine-tuning methods perform poorly when directly adapt-ing image restoration models to pansharpening tasks (re-fer to Sec. ). To address existing difficulties, we propose a two-stage training framework for parameter-efficient fine-tuning. In the first stage, we fine-tune a small pre-trained CNN model by inserting the proposed Local Priors Extrac-tion (LPE) modules to extract spatial and spectral priors at two different scales. In the second stage, based on the fine-tuned CNN model, we construct cascaded adapters for fine-tuning the pre-trained ViT model. Additionally, as the orig-inal ViT network does not contain multi-scale information, we design two branches of different scales for retaining and injecting multi-scale information tailored for pansharpening tasks. To enhance the integration efficiency of two branches, we apply the Implicit Neural Representation paradigm as de-coding module at the tail end of the fusion. 
+
+# Method 
+
+Overall Architecture 
+
+As illustrated in Fig. 1, the overall training process of our fine-tuning method consists of two stages. In the first stage, we fine-tune two pre-trained CNNs trained for super-resolution (Lim et al. 2017) in parallel to obtain two different scales of feature priors. The complete process can be formulated as: 
+
+A, B = SSPEN (Q, M),
+
+where 
+
+Q = Concat (M↑, P).
+
+M ∈ Rh×w×s denotes the LRMS image, M↑ ∈ RH×W ×s
+
+denotes the upsampled LRMS image and P ∈ RH×W ×1
+
+denotes the PAN image. In addition, Concat (·, ·) means the concatenation operation in channel dimension. SSPEN (·, ·)
+
+means the Spatial-Spectral Priors Extraction Network, de-noting the whole pre-trained and fine-tuning network of the first stage, which is illustrated in Fig. 2. A ∈ Rh×w×m and 
+
+B ∈ RH×W ×m are the local spectral prior and the local spatial prior respectively, representing the results of SSPEN. Here m denotes the feature dimension of the acquired pri-ors. After that, A and B are fed into the Tail network for decoding to obtain the predicted image of the first stage O1:
+
+O1 = Tail 1(A, B),
+
+where Tail 1(·, ·) denotes the Tail network of the first stage. In the second stage, we fine-tune a ViT backbone which is pre-trained for image restoration. Q serves as the input of the ViT backbone. Specifically, we retain the network struc-ture and weights of SSPEN in the second stage and inject its outputs A and B into the pre-trained ViT. The whole process can be formulated as: 
+
+bA, bB = MFIN (A, B, Q),
+
+where MFIN (·, ·, ·) means the Multiscale Feature Interaction Network, denoting the whole pre-trained and fine-tuning network of the second stage, which is illustrated in Fig. 3; 
+
+bA and bB represent the results of MFIN at different scales. Similarly, bA and bB are then fed into the Tail network for decoding to obtain the predicted image of the second stage 
+
+O2:
+
+O2 = Tail 2( bA, bB),
+
+where Tail 2(·, ·) denotes the Tail network of the second stage. 
+
+Local Prior Extraction Stage 
+
+Recent works (Wu et al. 2021; Park and Kim 2022; Wang et al. 2022a) have suggested that convolutions can help Transformers capture the local spatial information in a bet-ter way. Inspired by this, we propose to extract local pri-ors from the pre-trained CNN models and inject them to the ViT blocks. The Local Prior Extraction stage network is shown in Fig. 2. To expand the applicability of our method, we aim to fine-tune a simple pre-trained network, with-out complicated scale changes and dense skip connections. Therefore, we choose the EDSR (Lim et al. 2017) network as the pre-trained model which is trained on the DIV2K dataset (Agustsson and Timofte 2017) for the image super-resolution task. In order to keep the prior information at different scales, we independently fine-tune two pre-trained CNNs to obtain spectral features and spatial features from M and Q, respec-tively. Note that the names of the features are literally for 8452 C   
+
+> Upsample Frozen
+> Channel -wise
+> Concat
+> C
+> 1x1
+> Conv GELU 3x3
+> DWConv
+> Spatial -Spectral Priors Extraction Network
+> Local Priors Extraction Block
+> Trainable
+> LRMS
+> PAN Pred.
+> GT
+> MLP
+> CNN
+> Layer
+
+Figure 2: Network structure of the first stage, i.e. , the Local Prior Extraction Stage, and the details about the Local Prior Extraction (LPE) block. The frozen CNN networks are pre-trained EDSR (Lim et al. 2017). distinguishing scales. In detail, each CNN layer uses a sim-ple Local Prior Extraction (LPE) block to extract features with a lower channel dimension, whose structure is shown in Fig. 2. Therefore, taking the spectral branches as an exam-ple, the processing for the i-th layer’s intermediate feature can be formulated as follows: 
+
+bCispe = LPE ispe (Cispe ),
+
+where Cispe denotes the i-th layer’s intermediate spectral fea-ture, LPE ispe (·) denotes the LPE block for processing the 
+
+i-th CNN layer and bCispe ∈ RH×W ×d′
+
+is the extracted inter-mediate spectral feature with a reduced channel dimension 
+
+d′. In this way, we obtain { bC1
+
+> spe
+
+, bC2
+
+> spe
+
+, · · · , bCnspe }, which will be concatecated and down projected by a linear layer: 
+
+A = Proj ↓(Concat ( bC1
+
+> spe
+
+, bC2
+
+> spe
+
+, · · · , bCnspe )) ,
+
+where n is the number of CNN layers and Proj ↓(·) denotes the down projection layer. The same process is applied to 
+
+Cispa to obtain B. All of the above structures are collectively referred to as the Spatial-Spectral Priors Extraction Network (SSPEN), whose structure and weights will be directly trans-ferred to the second stage. The lightweight design of SSPEN allows us to extract priors from different network depths without fine-tuning the entire network. In the Tail network, we apply Implicit Neural Repre-sentation (INR) paradigm (Chen, Liu, and Wang 2021; Tang, Chen, and Zeng 2021; Deng et al. 2023) to per-form multi-scale feature fusion and upsampling. To cap-ture high-frequency components in the network, we employ SIREN (Sitzmann et al. 2020) as the activation function in the INR. Following the common training strategy, the up-sampled LRMS image M↑ is directly added to the INR out-put to obtain the final prediction O1 of this stage, with the complete formula given as: 
+
+O1 = INR (A, B) + M↑,
+
+where INR (·, ·) denotes the INR interpolation framework. 
+
+Multiscale Feature Interaction Stage 
+
+The network structure for the multi-scale feature interaction stage is shown in Fig. 3. In this stage, the network can be roughly divided into two parts: the ViT backbone and the cascaded adapters. To exploit the potential of plain ViT for downstream tasks, we choose the Image Processing Trans-former (IPT) (Chen et al. 2021) as our ViT backbone. The second stage network consists of cascaded identical adapters. Q serves as the input to the ViT backbone, while 
+
+A and B serve as the inputs to the cascaded adapters. Note that due to the different scales of the inputs, the patch sizes are 4 × 4 for Q and B and 1 × 1 for A. As in previous works (Houlsby et al. 2019; Sung, Cho, and Bansal 2022), we only fine-tune a smaller intrinsic dimension k. There-fore, A and B will be linearly projected to k dimensions as inputs to the first layer of adapter, which will be formulated as (taking A as an example): 
+
+F0 
+
+> spe
+
+= Proj ↓(Reshape (A)) ,
+
+where Reshape (·) denotes the reshape operation, F0 
+
+> spe
+
+rep-resents the input of the first adapter. For the j-th cascaded adapter, apart from the two outputs 
+
+Fjspe and Fjspe of the previous adapter serving as inputs, the output of the j-th ViT blocks, i.e. , Fjvit , also serves as inputs. Note that a linear layer is applied in advance to obtain Fjvit ,for projecting the original intermediate feature of ViT to the feature dimension k. The j-th adapter also has three outputs, 
+
+Fj+1  
+
+> spe
+
+and Fj+1  
+
+> spa
+
+, the inputs of the next layer of adapters, and 
+
+bFjvit , which will be injected back into the ViT backbone with a linear layer projecting into original channel dimension. As is shown in Fig. 3, each adapter contains three modules, in-cluding two Cascade Token Fusioner (CTF) modules and one Cascade Token Injector (CTI) module. The two CTF modules can be separately formulated as: 
+
+Fj+1  
+
+> spe
+
+= CTF jspe (Fjspe , Fjspa , Fjvit ),
+
+and 
+
+Fj+1  
+
+> spa
+
+= CTF jspa (Fjspe , Fjspa , Fjvit ),
+
+where CTF jspe (·, ·, ·) is the CTF module to obtain Fj+1  
+
+> spe
+
+and similar to CTF jspa . The CTI module can be formulated as: 
+
+bFjvit = CTI j (Fj+1  
+
+> spe
+
+, Fj+1  
+
+> spa
+
+, Fjvit ),
+
+where CTI jspe (·, ·, ·) denotes the CTI module. The output of the last adapter layer is reshaped and fed into the Tail network for decoding. Besides, to avoid an ex-cessively large number of parameters for fine-tuning, tokens are fed into adapters every t layers. Balancing performance and parameter count, t is ultimately set to 4. An ablation study on t is provided in the Suppl. Mat. 
+
+Cascade Token Fusioner Module. As shown in Fig. 3, CTF module is used to fuse the multi-scale features from two branches and interact with features from ViT. In each adapter, there are two parallel CTF modules, one for pro-cessing Fjspa and the other for Fjspe . Taking the module for 8453 Multiscale Feature Interaction Network  
+
+> C
+> Frozen
+> Tail
+> c
+> Linear GELU
+
+SSPEN 
+
+Cascade Token  Fusioner  (CTF)  
+
+> Trainable
+> LRMS
+> PAN
+> GT
+> ViT Block
+> Pred.
+
+CTF      
+
+> Linear Sigmoid
+> Key /
+> Value
+> Query
+> Cross
+> Attention FFN c
+> Linear Query Cross
+> Attention
+> C
+> Key /
+> Value
+
+Cascade Token Injector (CTI)   
+
+> C
+> CConcat Upsample
+> Addition
+> Element -wise
+> Multiplication
+> ViT Block
+
+CTF 
+
+CTI 
+
+CTF 
+
+CTF   
+
+> R
+> R
+> R
+> R
+> R
+> R
+> Reshape
+> ViT
+> Backbone
+> Cascaded
+> Adapters
+> MLP MLP MLP
+
+Figure 3: Network structure of the second stage, i.e. , the Multiscale Feature Interaction Stage, and the details about the Cascade Token Fusioner (CTF) and the Cascade Token Injector (CTI). The Spatial-Spectral Priors Extraction Network (SSPEN) and the Multiscale Feature Interaction Stage (MFIN) denote the pre-trained and fine-tuning networks of the first stage and the second stage, respectively. The frozen ViT is pre-trained Image Processing Transformer (IPT) (Chen et al. 2021). processing Fjspa as an example, Fjspe goes through a pro-posed weighting network wj (·), and the result is element-wise multiplied with Fjspa , which can be formulated as: 
+
+eFjspa = Fjspa · wj (Fjspe ) + Fjspa ,
+
+where eFjspa serves as the Key and Value and input into a multi-head cross-attention layer. Meanwhile, Fjvit serves as the Query of the multi-head cross-attention. The complete process can be written as: 
+
+bFjspa = Attention ( eFjspa , Fjvit ) + eFjspa ,
+
+where Attention (·) denotes the multi-head cross-attention layer with 4 heads, and the specific structure of wj (·) is shown in Fig. 3. Subsequently, bFjspa is fed into a feed-forward network consisting of a linear layer, a GELU ac-tivation function, and another linear layer. Inspired by the Adapter structure in NLP (Houlsby et al. 2019), the inter-mediate dimension of two linear layers is set relatively low: 
+
+Fj+1  
+
+> spa
+
+= bFjspa + FFN ( bFjspa ),
+
+where FFN (·) denotes the feed-forward network. The ob-tained Fj+1  
+
+> spa
+
+will be used as the input for next adapter layer. 
+
+Cascade Token Injector Module. As shown in Fig. 3, CTI module is used to inject the spatial and spectral priors from the adapters into the ViT. Specifically, we first con-catenate Fj+1  
+
+> spa
+
+and Fj+1  
+
+> spe
+
+along the feature dimension and project the feature dimension to k using a linear layer, yield-ing Fj+1  
+
+> f us
+
+as the Query for the cross-attention: 
+
+Fj+1  
+
+> f us
+
+= Linear (Concat (Fj+1  
+
+> spa
+
+, Fj+1  
+
+> spe
+
+)) .
+
+At the same time, the intermediate features from the i-th layer ViT, i.e. , Fjvit , serve as the Key and Value of the cross-attention and the whole process can be formulated as: 
+
+bFjvit = sj · Attention (Fjvit , Fj+1  
+
+> f us
+
+) + Fjvit ,
+
+where sj ∈ R is a trainable parameter initialized to 0. The obtained bFjvit is injected into the ViT backbone. 
+
+# Experiment 
+
+To validate the performance of our network, we conducte a set of experiments on different pansharpening datasets. Our results surpass the current state-of-the-art methods. 
+
+Experiment Settings 
+
+Datasets. We investigate the effectiveness of the pro-posed method on a wide range of datasets, including an 8-band dataset from WorldView-3 (WV3) sensor, and 4-band datasets from QuickBird (QB) and GaoFen-2 sensors. No-tably, we leverage Wald’s protocol to simulate the source data due to the unavailability of ground truth (GT) images. Taking WV3 as an instance, we use 10000 PAN/LRM-S/GT image pairs (64 × 64) for network training. For test-ing, we take 20 PAN/LRMS/GT image pairs (256 × 256) for reduced-resolution evaluation, and 20 PAN/LRMS im-age pairs (512 × 512) thanks to the absence of GT images on the full-resolution assessment. 8454 Methods Reduced-Resolution Full-Resolution 
+
+PSNR Q8 SAM ERGAS Dλ DS QNR PanNet 37.346 ± 2.688 0.891 ± 0.093 3.613 ± 0.766 2.664 ± 0.688 0.0165 ± 0.0074 0.0470 ± 0.0210 0.9374 ± 0.0271 FusionNet 38.047 ± 2.589 0.904 ± 0.090 3.324 ± 0.698 2.465 ± 0.644 0.0239 ± 0.0090 0.0364 ± 0.0137 0.9406 ± 0.0197 LAGConv 38.592 ± 2.778 0.910 ± 0.091 3.103 ± 0.558 2.292 ± 0.607 0.0368 ± 0.0148 0.0418 ± 0.0152 0.9230 ± 0.0247 PMACNet 38.595 ± 2.882 0.912 ± 0.092 3.073 ± 0.623 2.293 ± 0.532 0.0540 ± 0.0232 0.0336 ± 0.0115 0.9143 ± 0.0281 BiMPan 38.671 ± 2.732 0.915 ± 0.087 2.984 ± 0.601 2.257 ± 0.552 0.0171 ± 0.0128 0.0334 ± 0.0144 0.9493 ± 0.0255 HMPNet 38.684 ± 2.572 0.916 ± 0.087 3.063 ± 0.577 2.229 ± 0.545 0.0183 ± 0.0077 0.0532 ± 0.0060 0.9293 ± 0.0144 PanDiff 38.424 ± 2.686 0.898 ± 0.088 3.297 ± 0.601 2.467 ± 0.584 0.0276 ± 0.0120 0.0541 ± 0.0266 0.9201 ± 0.0364 PanMamba 38.602 ± 2.788 0.916 ± 0.090 2.940 ± 0.540 2.240 ± 0.510 0.0203 ± 0.0071 0.0422 ± 0.0141 0.9395 ± 0.0201 CANNet 38.908 ± 2.749 0.920 ± 0.084 2.930 ± 0.593 2.158 ± 0.515 0.0196 ± 0.0083 0.0301 ± 0.0074 0.9510 ± 0.0132 
+
+Ours 39.473 ± 2.626 0.923 ± 0.081 2.917 ± 0.560 2.149 ± 0.492 0.0173 ± 0.0076 0.0304 ± 0.0086 0.9538 ± 0.0146 Ideal value +∞ 1 0 0 0 0 1
+
+Table 1: The average and standard deviation calculated for all the compared approaches on 20 reduced-resolution and 20 full-resolution samples of WV3 dataset. Best results are in Red, second-best in Blue. EXP  TV  BDSD -PC  PNN  PanNet  DiCNN  MSDCNN  FusionNet  LAGConv  CANNet  Ours 
+
+Figure 4: Qualitative evaluation result comparisons with previous pansharpening methods on GF2 reduced-resolution dataset. The first row consists of natural color output, while the second row presents the absolute error maps. 
+
+Method SAM ERGAS Q4 PanNet 0.997 ±0.212 0.919 ±0.191 0.967 ±0.010 FusionNet 0.974 ±0.212 0.988 ±0.222 0.964 ±0.009 LAGConv 0.786 ±0.148 0.687 ±0.113 0.980 ±0.009 HMPNet 0.803 ±0.144 0.562 ±0.107 0.986 ±0.005 PanDiff 0.892 ±0.129 0.755 ±0.108 0.979 ±0.011 PanMamba 0.688 ±0.129 0.647 ±0.103 0.939 ±0.022 CANNet 0.707 ±0.148 0.630 ±0.128 0.983 ±0.006 
+
+Ours 0.702 ±0.143 0.615 ±0.105 0.981 ±0.007 Ideal value 0 0 1
+
+Table 2: Average quantitative metrics and standard deviation on 20 reduced-resolution for the GF2 dataset. Some tradi-tional methods and CNN methods are compared. 
+
+Benchmarks. To assess the performance of our approach, we qualitatively and quantitatively compare the proposed method with current state-of-the-art pansharpening meth-ods, including PanNet (Yang et al. 2017), FusionNet (Deng et al. 2020), LAGConv (Jin et al. 2022), PMACNet (Liang et al. 2022), BiMPan (Hou et al. 2023), HMPNet (Tian et al. 2023), PanDiff (Meng et al. 2023), PanMamba (He et al. 2024), CANNet (Duan et al. 2024). Noted that all DL-based approaches considered for comparison are trained using the same datasets as our method, while their hyperparameter set-
+
+Method SAM ERGAS Q4 PanNet 5.791 ±1.184 5.863 ±0.888 0.885 ±0.092 FusionNet 4.923 ±0.908 4.159 ±0.321 0.925 ±0.090 LAGConv 4.547 ±0.830 3.826 ±0.420 0.934 ±0.088 BiMPan 4.586 ±0.821 3.839 ±0.319 0.931 ±0.091 HMPNet 4.562 ±0.871 3.809 ±0.415 0.933 ±0.094 PanDiff 4.575 ±0.736 3.742 ±0.310 0.935 ±0.090 CANNet 4.507 ±0.835 3.652 ±0.327 0.937 ±0.083 
+
+Ours 4.511 ±0.810 3.593 ±0.356 0.938 ±0.077 Ideal value 0 0 1
+
+Table 3: Average quantitative metrics and standard devia-tion on 20 reduced-resolution for the QB dataset. Some tra-ditional methods and CNN methods are compared. tings follow the respective original papers. 
+
+Evaluation Metrics. To assess the performance of the reduced-resolution dataset, we utilize four evaluation met-rics: PSNR, Q 2n (Garzelli and Nencini 2009), SAM (Board-man 1993), and ERGAS (Wald 2002). For the evaluation of the full-resolution dataset, we employ three metrics: Dλ,
+
+Ds, and QNR (Vivone et al. 2014). 8455 EXP  TV  BDSD -PC  PNN  PanNet  DiCNN  MSDCNN  FusionNet  LAGConv  CANNet  Ours Figure 5: Qualitative evaluation result comparisons with previous pansharpening methods on WV3 reduced-resolution dataset.                         
+
+> Method SAM ERGAS Param.(M) VPT --0.53(0.46 %)LoRA 4.337 ±0.911 3.374 ±0.709 1.3(1.13 %)Adapter 3.809 ±0.844 2.793 ±0.654 2.07(1.79 %)LST 3.342 ±0.667 2.507 ±0.619 1.76(1.53 %)Full Fine-tune 3.288 ±0.637 2.473 ±0.662 115.2(100 %)Ours 2.917 ±0.560 2.149 ±0.492 2.19(1.85 %)
+> Ideal value 00-
+
+Table 4: Average quantitative metrics and standard deviation of fine-tuning methods on WV3 dataset.                   
+
+> Method SAM ERGAS Q8 w/o two-stage 3.573 ±0.682 2.576 ±0.619 0.906 ±0.095 Replace INR 2.957 ±0.640 2.381 ±0.916 0.916 ±0.090 w/o CTF module 2.942 ±0.611 2.155 ±0.508 0.919 ±0.090
+> w/o CTI module 3.301 ±0.642 2.506 ±0.649 0.907 ±0.088 Ours 2.917 ±0.560 2.149 ±0.492 0.923 ±0.081
+
+Table 5: Ablation study on WV3 dataset. 
+
+Comparison 
+
+Tabs. 1, 2 and 3 present a detailed comparison between our method and various state-of-the-art methods on three bench-mark datasets: WorldView-3 (WV3), QuickBird (QB), and GaoFen-2 (GF2). The results demonstrate the robustness of PanAdapter across different datasets and its consistent capa-bility to produce high-quality pansharpened images. Tab. 4 compares the performance and parameter count/pa-rameter ratio of other fine-tuning methods with our method on WV3. The specific structure of the Tail network is consis-tent with our method. It is worth mentioning that all existing fine-tuning methods converge slowly and are very sensitive to hyperparameters due to the lack of two-stage training and the injection of CNN priors. 
+
+Visualization 
+
+Visual comparisons depicted in Fig. 4 and 5 reveal that our method generates results that are perceptually closer to the ground truth. It can be seen from the residual images that our method recovers parts such as houses and roads very well, which is most likely due to the information of natu-ral image datasets. Moreover, we visualize the intermediate features of the network completing the first stage of training and completing the second stage of training, respectively, as (a)  (b) 
+
+Figure 6: (a) and (b) are heat maps of the intermediate fea-tures of the first and second stage networks, respectively. It can be seen that compared to CNN networks, ViT with pri-ors injected is more accurate and efficient in capturing image semantics. Trainable Param. (M)  Trainable Param. (M)     
+
+> PSNR
+> SAM
+> BDPN PMACNet MUCNN
+> Ours(k=48) Ours(k=64) Ours(k=96) Ours(k=128)
+
+Figure 7: Comparison between SOTA methods and our method with different k, across varying parameters. shown in Fig. 6.Lastly, the performance comparison results, as shown in Fig. 7, demonstrate that our method consistently surpasses existing state-of-the-art approaches across various levels of parametric complexity. The adjustment of the in-trinsic dimension k serves as a mechanism for modifying the model’s parameter count to achieve these results. 
+
+Ablation Study 
+
+The effectiveness of the two-stage fine-tuning strategy and the multiscale adapters is proven by ablation study on WV3 dataset, as shown in Tab. 5. The experiments, including stacking the network without the two-stage training strategy, replacing INR with a common convolutional upsampling module, and removing CFI and CTI modules, demonstrate 8456 that all proposed methods positively impact performance. 
+
+# Conclusion 
+
+In this paper, we propose an efficient fine-tuning method for pansharpening, i.e. , PanAdapter. It successfully fine-tunes pre-trained image restoration models to the pansharpening task through two-stage training and multi-scale feature ex-traction, thus effectively reducing the difficulty of domain transfer. The dual-branch adapters fuse and inject the spa-tial priors and spectral priors separately, enhancing feature extraction efficiency. Our PanAdapter outperforms state-of-the-art pansharpening methods on several datasets, provid-ing a new paradigm for related image fusion tasks. 
+
+# Acknowledgments 
+
+This research is supported by the National Natural Science Foundation of China (Grant No. 12271083), and the Nat-ural Science Foundation of Sichuan Province (Grant No. 2024NSFSC0038). We would like to thank Xiao Wu and Jun Ma for their valuable suggestions on the methodology of this paper, and Haoyu Deng for his insightful advice on the visualization of this work. 
+
+# References 
+
+Agustsson, E.; and Timofte, R. 2017. Ntire 2017 challenge on single image super-resolution: Dataset and study. In Pro-ceedings of the IEEE Conference on Computer Vision and Pattern Recognition , 126–135. Aiazzi, B.; Alparone, L.; Baronti, S.; and Garzelli, A. 2002. Context-driven fusion of high spatial and spectral resolu-tion images based on oversampled multiresolution analy-sis. IEEE Transactions on Geoscience and Remote Sensing ,40(10): 2300–2312. Boardman, J. W. 1993. Automating spectral unmixing of AVIRIS data using convex geometry concepts. In JPL, Sum-maries of the 4th Annual JPL Airborne Geoscience Work-shop. Volume 1: AVIRIS Workshop .Chen, H.; Wang, Y.; Guo, T.; Xu, C.; Deng, Y.; Liu, Z.; Ma, S.; Xu, C.; Xu, C.; and Gao, W. 2021. Pre-trained image processing transformer. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,12299–12310. Chen, S.; Ge, C.; Tong, Z.; Wang, J.; Song, Y.; Wang, J.; and Luo, P. 2022a. Adaptformer: Adapting vision transformers for scalable visual recognition. Advances in Neural Infor-mation Processing Systems , 35: 16664–16678. Chen, Y.; Liu, S.; and Wang, X. 2021. Learning continu-ous image representation with local implicit image function. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 8628–8638. Chen, Z.; Duan, Y.; Wang, W.; He, J.; Lu, T.; Dai, J.; and Qiao, Y. 2022b. Vision transformer adapter for dense pre-dictions. arXiv preprint arXiv:2205.08534 .Choi, J.; Yu, K.; and Kim, Y. 2010. A new adaptive component-substitution-based satellite image fusion by us-ing partial replacement. IEEE Transactions on Geoscience and Remote Sensing , 49(1): 295–309. Deng, L.-J.; Vivone, G.; Jin, C.; and Chanussot, J. 2020. De-tail injection-based deep convolutional neural networks for pansharpening. IEEE Transactions on Geoscience and Re-mote Sensing , 59(8): 6995–7010. Deng, S.; Wu, R.; Deng, L.-J.; Ran, R.; and Jiang, T.-X. 2023. Implicit Neural Feature Fusion Function for Mul-tispectral and Hyperspectral Image Fusion. arXiv preprint arXiv:2307.07288 .Duan, Y.; Wu, X.; Deng, H.; and Deng, L. 2024. Content-Adaptive Non-Local Convolution for Remote Sensing Pan-sharpening. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition , 770–778. Garzelli, A.; and Nencini, F. 2009. Hypercomplex quality assessment of multi/hyperspectral images. IEEE Geoscience and Remote Sensing Letters , 6(4): 662–665. He, L.; Rao, Y.; Li, J.; Chanussot, J.; Plaza, A.; Zhu, J.; and Li, B. 2019. Pansharpening via detail injection based convo-lutional neural networks. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , 12(4): 1188–1204. He, X.; Cao, K.; Yan, K.; Li, R.; Xie, C.; Zhang, J.; and Zhou, M. 2024. Pan-mamba: Effective pan-sharpening with state space model. arXiv preprint arXiv:2402.12192 .He, X.; Condat, L.; Bioucas-Dias, J. M.; Chanussot, J.; and Xia, J. 2014. A new pansharpening method based on spatial and spectral sparsity priors. IEEE Transactions on Image Processing , 23(9): 4160–4174. Hou, J.; Cao, Q.; Ran, R.; Liu, C.; Li, J.; and Deng, L.-j. 2023. Bidomain modeling paradigm for pansharpening. In 
+
+Proceedings of the 31st ACM International Conference on Multimedia , 347–357. Houlsby, N.; Giurgiu, A.; Jastrzebski, S.; Morrone, B.; De Laroussilhe, Q.; Gesmundo, A.; Attariyan, M.; and Gelly, S. 2019. Parameter-efficient transfer learning for NLP. In International Conference on Machine Learning ,2790–2799. PMLR. Hu, E. J.; Shen, Y.; Wallis, P.; Allen-Zhu, Z.; Li, Y.; Wang, S.; Wang, L.; and Chen, W. 2021. Lora: Low-rank adaptation of large language models. arXiv preprint arXiv:2106.09685 .Jie, S.; and Deng, Z.-H. 2022. Convolutional bypasses are better vision transformer adapters. arXiv preprint arXiv:2207.07039 .Jin, Z.-R.; Zhang, T.-J.; Jiang, T.-X.; Vivone, G.; and Deng, L.-J. 2022. LAGConv: Local-context adaptive convolution kernels with global harmonic bias for pansharpening. In 
+
+Proceedings of the AAAI Conference on Artificial Intelli-gence , volume 36, 1113–1121. Lester, B.; Al-Rfou, R.; and Constant, N. 2021. The power of scale for parameter-efficient prompt tuning. arXiv preprint arXiv:2104.08691 .Li, J.; Zheng, K.; Li, Z.; Gao, L.; and Jia, X. 2023a. X-shaped interactive autoencoders with cross-modality mu-tual learning for unsupervised hyperspectral image super-resolution. IEEE Transactions on Geoscience and Remote Sensing .8457 Li, J.; Zheng, K.; Liu, W.; Li, Z.; Yu, H.; and Ni, L. 2023b. Model-guided coarse-to-fine fusion network for unsuper-vised hyperspectral image super-resolution. IEEE Geo-science and Remote Sensing Letters .Li, J.; Zheng, K.; Yao, J.; Gao, L.; and Hong, D. 2022. Deep unsupervised blind hyperspectral and multispectral data fu-sion. IEEE Geoscience and Remote Sensing Letters , 19: 1–5. Li, X. L.; and Liang, P. 2021. Prefix-tuning: Optimiz-ing continuous prompts for generation. arXiv preprint arXiv:2101.00190 .Liang, Y.; Zhang, P.; Mei, Y.; and Wang, T. 2022. PMAC-Net: Parallel multiscale attention constraint network for pan-sharpening. IEEE Geoscience and Remote Sensing Letters ,19: 1–5. Lim, B.; Son, S.; Kim, H.; Nah, S.; and Mu Lee, K. 2017. Enhanced deep residual networks for single image super-resolution. In Proceedings of the IEEE Conference on Com-puter Vision and Pattern Recognition , 136–144. Liu, Z.; Lin, Y.; Cao, Y.; Hu, H.; Wei, Y.; Zhang, Z.; Lin, S.; and Guo, B. 2021. Swin transformer: Hierarchical vi-sion transformer using shifted windows. In Proceedings of the IEEE/CVF International Conference on Computer Vi-sion , 10012–10022. Masi, G.; Cozzolino, D.; Verdoliva, L.; and Scarpa, G. 2016. Pansharpening by convolutional neural networks. Remote Sensing , 8(7): 594. Meng, Q.; Shi, W.; Li, S.; and Zhang, L. 2023. Pandiff: A novel pansharpening method based on denoising diffusion probabilistic model. IEEE Transactions on Geoscience and Remote Sensing , 61: 1–17. Meng, X.; Wang, N.; Shao, F.; and Li, S. 2022. Vision transformer for pansharpening. IEEE Transactions on Geo-science and Remote Sensing , 60: 1–11. Palsson, F.; Sveinsson, J. R.; and Ulfarsson, M. O. 2013. A new pansharpening algorithm based on total variation. IEEE Geoscience and Remote Sensing Letters , 11(1): 318–322. Park, N.; and Kim, S. 2022. How do vision transformers work? arXiv preprint arXiv:2202.06709 .Sitzmann, V.; Martel, J.; Bergman, A.; Lindell, D.; and Wet-zstein, G. 2020. Implicit neural representations with peri-odic activation functions. Advances in Neural Information Processing Systems , 33: 7462–7473. Su, Z.; Yang, Y.; Huang, S.; Wan, W.; Tu, W.; Lu, H.; and Chen, C. 2023. CTCP: Cross Transformer and CNN for Pan-sharpening. In Proceedings of the 31st ACM International Conference on Multimedia , 3003–3011. Sung, Y.-L.; Cho, J.; and Bansal, M. 2022. Lst: Ladder side-tuning for parameter and memory efficient transfer learn-ing. Advances in Neural Information Processing Systems ,35: 12991–13005. Tang, J.; Chen, X.; and Zeng, G. 2021. Joint implicit image function for guided depth super-resolution. In Proceedings of the 29th ACM International Conference on Multimedia ,4390–4399. Tian, X.; Li, K.; Zhang, W.; Wang, Z.; and Ma, J. 2023. Interpretable model-driven deep network for hyperspectral, multispectral, and panchromatic image fusion. IEEE Trans-actions on Neural Networks and Learning Systems .Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones, L.; Gomez, A. N.; Kaiser, Ł.; and Polosukhin, I. 2017. At-tention is all you need. Advances in Neural Information Pro-cessing Systems , 30. Vivone, G. 2019. Robust band-dependent spatial-detail ap-proaches for panchromatic sharpening. IEEE transactions on Geoscience and Remote Sensing , 57(9): 6421–6433. Vivone, G.; Alparone, L.; Chanussot, J.; Dalla Mura, M.; Garzelli, A.; Licciardi, G. A.; Restaino, R.; and Wald, L. 2014. A critical comparison among pansharpening algo-rithms. IEEE Transactions on Geoscience and Remote Sens-ing , 53(5): 2565–2586. Vivone, G.; Restaino, R.; and Chanussot, J. 2018. Full scale regression-based injection coefficients for panchro-matic sharpening. IEEE Transactions on Image Processing ,27(7): 3418–3431. Vivone, G.; Restaino, R.; Dalla Mura, M.; Licciardi, G.; and Chanussot, J. 2013. Contrast and error-based fusion schemes for multispectral image pansharpening. IEEE Geoscience and Remote Sensing Letters , 11(5): 930–934. Wald, L. 2002. Data fusion: definitions and architectures: fusion of images of different spatial resolutions . Presses des MINES. Wang, W.; Xie, E.; Li, X.; Fan, D.-P.; Song, K.; Liang, D.; Lu, T.; Luo, P.; and Shao, L. 2022a. Pvt v2: Improved base-lines with pyramid vision transformer. Computational Vi-sual Media , 8(3): 415–424. Wang, W.; Zhou, Z.; Liu, H.; and Xie, G. 2021. MSDRN: Pansharpening of multispectral images via multi-scale deep residual network. Remote Sensing , 13(6): 1200. Wang, Z.; Cun, X.; Bao, J.; Zhou, W.; Liu, J.; and Li, H. 2022b. Uformer: A general u-shaped transformer for image restoration. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 17683–17693. Wei, Y.; Yuan, Q.; Meng, X.; Shen, H.; Zhang, L.; and Ng, M. 2017. Multi-scale-and-depth convolutional neural net-work for remote sensed imagery pan-sharpening. In 2017 IEEE International Geoscience and Remote Sensing Sym-posium (IGARSS) , 3413–3416. IEEE. Wu, H.; Xiao, B.; Codella, N.; Liu, M.; Dai, X.; Yuan, L.; and Zhang, L. 2021. Cvt: Introducing convolutions to vision transformers. In Proceedings of the IEEE/CVF international conference on computer vision , 22–31. Yan, K.; Zhou, M.; Huang, J.; Zhao, F.; Xie, C.; Li, C.; and Hong, D. 2022. Panchromatic and multispectral image fu-sion via alternating reverse filtering network. Advances in Neural Information Processing Systems , 35: 21988–22002. Yang, J.; Fu, X.; Hu, Y.; Huang, Y.; Ding, X.; and Pais-ley, J. 2017. PanNet: A deep network architecture for pan-sharpening. In Proceedings of the IEEE International Con-ference on Computer Vision , 5449–5457. Zaken, E. B.; Ravfogel, S.; and Goldberg, Y. 2021. Bitfit: Simple parameter-efficient fine-tuning for transformer-based masked language-models. arXiv preprint arXiv:2106.10199 .8458 Zamir, S. W.; Arora, A.; Khan, S.; Hayat, M.; Khan, F. S.; Yang, M.-H.; and Shao, L. 2021. Multi-stage progressive image restoration. In Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition , 14821– 14831. Zhang, J. O.; Sax, A.; Zamir, A.; Guibas, L.; and Malik, J. 2020. Side-tuning: a baseline for network adaptation via ad-ditive side networks. In Proceedings of the European Con-ference on Computer Vision (ECCV) , 698–714. Springer. Zhang, Y.; Liu, C.; Sun, M.; and Ou, Y. 2019. Pan-sharpening using an efficient bidirectional pyramid network. 
+
+IEEE Transactions on Geoscience and Remote Sensing ,57(8): 5549–5563. Zhou, H.; Liu, Q.; and Wang, Y. 2022. Panformer: A trans-former based model for pan-sharpening. In 2022 IEEE Inter-national Conference on Multimedia and Expo (ICME) , 1–6. IEEE. Zhou, M.; Huang, J.; Yan, K.; Yang, G.; Liu, A.; Li, C.; and Zhao, F. 2022. Normalization-based feature selection and restitution for pan-sharpening. In Proceedings of the 30th ACM International Conference on Multimedia , 3365–3374. Zhu, W.; Li, J.; An, Z.; and Hua, Z. 2023. Mutiscale hybrid attention transformer for remote sensing image pansharpen-ing. IEEE Transactions on Geoscience and Remote Sensing ,61: 1–16. 8459

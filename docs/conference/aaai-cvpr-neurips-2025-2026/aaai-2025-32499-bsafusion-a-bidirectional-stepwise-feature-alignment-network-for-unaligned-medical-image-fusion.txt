@@ -1,0 +1,563 @@
+Title: BSAFusion: A Bidirectional Stepwise Feature Alignment Network for Unaligned Medical Image Fusion
+
+URL Source: https://ojs.aaai.org/index.php/AAAI/article/download/32499/34654
+
+Number of Pages: 9
+
+Markdown Content:
+# BSAFusion: A Bidirectional Stepwise Feature Alignment Network for Unaligned Medical Image Fusion 
+
+## Huafeng Li 1, Dayong Su 1, Qing Cai 2∗, Yafei Zhang 1∗
+
+> 1
+
+School of Information Engineering and Automation, Kunming University of Science and Technology, Kunming 650500, China 
+
+> 2
+
+School of Information Science and Engineering, Ocean University of China, Qingdao 266100, China hfchina99@163.com, dayongsu@outlook.com, cq@ouc.edu.cn, zyfeimail@163.com 
+
+Abstract 
+
+If unaligned multimodal medical images can be simultane-ously aligned and fused using a single-stage approach within a unified processing framework, it will not only achieve mu-tual promotion of dual tasks but also help reduce the com-plexity of the model. However, the design of this model faces the challenge of incompatible requirements for feature fu-sion and alignment. To address this challenge, this paper pro-poses an unaligned medical image fusion method called Bidi-rectional Stepwise Feature Alignment and Fusion (BSFA-F) strategy. To reduce the negative impact of modality differ-ences on cross-modal feature matching, we incorporate the Modal Discrepancy-Free Feature Representation (MDF-FR) method into BSFA-F. MDF-FR utilizes a Modality Feature Representation Head (MFRH) to integrate the global infor-mation of the input image. By injecting the information con-tained in MFRH of the current image into other modality im-ages, it effectively reduces the impact of modality differences on feature alignment while preserving the complementary in-formation carried by different images. In terms of feature alignment, BSFA-F employs a bidirectional stepwise align-ment deformation field prediction strategy based on the path independence of vector displacement between two points. This strategy solves the problem of large spans and inaccu-rate deformation field prediction in single-step alignment. Fi-nally, Multi-Modal Feature Fusion block achieves the fusion of aligned features. The experimental results across multiple datasets demonstrate the effectiveness of our method. 
+
+Code — https://github.com/slrl123/BSAFusion/ 
+
+## Introduction 
+
+Multimodal medical image fusion (MMIF) involves the inte-gration of medical image data from different imaging modal-ities (such as CT, MRI, PET, etc.) to create a new image that contains more comprehensive and accurate lesion informa-tion. This technology is of great significance in improving diagnostic accuracy, assisting in the development of treat-ment plans, promoting medical research and education, and optimizing the utilization of medical resources. As a result, it has garnered the attention of researchers, and a multitude of effective fusion algorithms have been proposed (Li et al. 
+
+> ∗
+
+Corresponding author. Copyright c © 2025, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. 
+
+Figure 1: Paradigm of existing unaligned image fusion meth-ods compared to that of our method. 2018; Tang et al. 2022b; Mu et al. 2023). However, most current methods assume that the source images being fused are strictly aligned at the pixel level. The fusion algorithm can produce the expected results only when this assumption holds true. In real scenarios, however, this assumption is of-ten invalid. To address this issue, registration algorithms are typically used to first align the images to be fused, followed by the fusion process (as shown in Fig.1(a)). Although this two-stage method is effective, cross-modal image registra-tion still faces numerous challenges due to differences in modalities and inconsistencies in features between images. In recent years, researchers have begun exploring the in-tegration of multi-source image registration and fusion into a unified framework to address the aforementioned issues. By leveraging the supervision of fusion results, registra-tion performance can be improved. Based on this idea, joint processing frameworks for image registration and fusion have emerged in recent years (Huang et al. 2022b; Wang et al. 2022; Tang et al. 2022a; Xu et al. 2022). However, these methods are not specifically designed for the regis-tration and fusion of multimodal medical images. Although MURF (Xu, Yuan, and Ma 2023) attempts to integrate mul-The Thirty-Ninth AAAI Conference on Artificial Intelligence (AAAI-25) 
+
+4725 tiple types of source image fusion problems into one frame-work, this multitasking approach often sacrifices perfor-mance in single-task image fusion. In view of this, PAMR-Fuse (Zhong et al. 2023) adopts a similar approach to UMF-CMGR, focusing on the fusion of unregistered multimodal medical images. However, this method depends on an im-age of one modality to generate a corresponding image in another modality, and its registration performance is often constrained by the quality of the generated image. In addition, the above methods often adopt a two-stage processing mode (as shown in Fig.1(b)), with registration preceding fusion. This approach typically necessitates the use of a separate, fully-developed image registration model. This is because registration and fusion have incompatible feature requirements, making it challenging to seamlessly embed both into the fusion process through a shared feature encoder. To tackle this issue, single-stage unaligned fusion methods, such as IVFWSR (Li et al. 2024a) and RFVIF (Li et al. 2023a), have been proposed for infrared-visible im-age fusion. However, these methods only address feature misalignment caused by rigid transformations and are inef-fective in handling elastic transformations. In fact, achiev-ing registration and fusion of multimodal medical images using a single-stage processing mode within a joint frame-work remains challenging. These challenges mainly involve resolving the conflicting requirements of feature extraction for registration and fusion. Typically, feature fusion expects the features to be complementary, while feature matching demands consistency between corresponding features. To achieve simultaneous feature alignment and fusion within a single-stage processing mode, it is crucial to address the aforementioned issues. Therefore, this paper proposes a single-stage framework for multimodal medical image registration and fusion (as shown in Fig. 1(c)). Unlike traditional two-stage methods, this approach does not require a separate and complete reg-istration process. Instead, it seamlessly embeds the registra-tion steps into the image fusion process, effectively mitigat-ing the increase in model complexity that would result from introducing multiple independent feature encoders. Techni-cally, we innovatively develop an unaligned medical image fusion method called Bidirectional Stepwise Feature Align-ment (BSFA). To effectively mitigate the adverse effects of modality differences on cross-modal feature matching, we integrate the Modality Discrepancy-Free Feature Rep-resentation (MDF-FR) method into the BSFA framework. MDF-FR achieves global feature integration by appending a Modality Feature Representation Head (MFRH) to each in-put image. This method significantly reduces the impact of modality differences and inconsistent multimodal informa-tion on feature alignment by injecting the head information of the current image into the features of the other images to be fused. As a result, this design effectively preserves the complementary information carried by different images, en-suring both the integrity and diversity of the data. For feature alignment, we propose a bidirectional stepwise deformation field prediction strategy based on the path independence of vector displacement between two points. This strategy ef-fectively addresses the challenges of large-span and inaccu-rate deformation field predictions encountered in traditional single-step alignment methods, significantly enhancing both the accuracy and efficiency of feature alignment. Finally, through the Multi-Modal Feature Fusion (MMFF) module, the predicted deformation field is applied to multimodal fea-tures, achieving precise alignment and effective fusion of in-put images at the feature level. Overall, the contributions of this paper can be summarized as follows: 
+
+• We design a joint implementation framework that in-tegrates feature cross-modal alignment and fusion. By sharing a single feature encoder, it enables the seamless integration of registration and fusion, effectively avoid-ing the increase in model complexity that would result from introducing additional encoder for registration. 
+
+• We propose a modality discrepancy reduction method. This method achieves global feature integration by ap-pending an MFRH to each input image. By incorporat-ing the feature representation of the current image into the features of the other images to be fused, it effectively mitigates the impact of modality differences on feature alignment. 
+
+• Based on the path independence of vector displacement between two points, a bidirectional stepwise deforma-tion field prediction strategy is proposed. It effectively addresses the challenges of large spans and inaccurate deformation field predictions encountered in traditional single-step alignment methods. 
+
+## Related Work 
+
+For MMIF, deep learning has been widely used due to its ability to effectively extract statistical information from large datasets. Based on the types of feature extraction net-works used, existing medical image fusion methods can be classified into CNN-based, Transformer-based, and hy-brid methods. Among them, CNN-based methods mainly fo-cus on network architecture design. Commonly used frame-works for MMIF in CNN-based methods include residual connections (Gu et al. 2024), skip connections (Di et al. 2024), dense connections (Zuo, Zhang, and Yang 2021), and Network Architecture Search (Ye et al. 2023). Addition-ally, there are dynamic meta-learning method (Huang et al. 2022a) and medical semantic-guided two-branch method (Wen et al. 2023). However, these methods are often lim-ited by the shortcomings of CNNs in modeling long-distance dependencies. Transformer (Vaswani et al. 2017) has ad-dressed this limitation, resulting in methods such as FATMu-sic (Zhao et al. 2023b) and MATR (Tang et al. 2022b). Given the complementary strengths of CNN and Transformer in feature extraction (Li et al. 2024b), researchers have pro-posed hybrid methods like DesTrans (Song et al. 2024), DFENet (Li et al. 2023b) and MRSC-Fusion (Xie et al. 2023). In recent years, various methods have been developed for multimodel image fusion, including MMIF, such as U2Fusion (Xu et al. 2020), Cddfuse (Zhao et al. 2023a), DDFM (Zhao et al. 2023b), EMMA (Zhao et al. 2024), QuadzBayer(Zheng et al. 2024) and HFT(Chen et al. 2023). 4726 Figure 2: Overall framework of the proposed method. The unaligned multimodal medical image pairs {IA, IB } are processed through the MDF-FR module, yielding features {F sA, F sB } and { ˆFA, ˆFB }. Additionally, modality-specific feature represen-tation heads, denoted as ˆfA and ˆfB , are generated. These heads are utilized to minimize the modality disparities between 
+
+{ ˆFA, ˆFB }. Within the BSFA, a progressive deformation field prediction, denoted as φ−−→ 
+
+> AB
+
+, is carried out based on the modality-discrepancy-mitigated features { ¯FA, ¯FB }. Finally, the features { ¯FA, ¯FB }, {F sA, F sB }, along with the predicted deformation field φ−−→ 
+
+> AB
+
+, are fed into the MMFF module to generate the final fused result. Although these methods are effective, they all assume that the source images to be fused have already been regis-tered. However, in practical applications, this assumption often does not hold true. Therefore, when dealing with un-aligned multimodal medical images, these methods cannot be directly applied and require additional image registra-tion models to align the images for fusion. This not only increases model complexity, hindering deployment in com-putationally constrained environments, but also results in fusion failures if the registration model fails. To address these issues, methods for joint registration and fusion have been developed. Typical examples include ReCoNet (Huang et al. 2022b), UMF-CMGR (Wang et al. 2022), SuperFusion (Tang et al. 2022a), as well as others like RFNet (Xu et al. 2022), MURF (Xu, Yuan, and Ma 2023), IVFWSR (Li et al. 2024a), and MERF (Hong, Zhang, and Ma 2024). However, these methods are not specifically designed for multimodal medical images and do not exhibit the expected advantages in this domain. Although PAMRFuse (Zhong et al. 2023) is designed for MMIF, its performance is limited by the quality of the generated images. To overcome these challenges, we propose an unaligned MMIF scheme that integrates registra-tion and fusion, allowing the two tasks to complement each other within a single-stage framework. 
+
+## Proposed Method 
+
+Overview 
+
+As shown in Fig. 2, the proposed method consists of three core components: MDF-FR, BSFA, and MMFF. The goal of MDF-FR is to eliminate modality discrepancies between un-aligned multimodal medical image pairs IA, IB . To address the conflicting requirements of feature alignment and feature fusion, we introduce an MFRH for each input image within MDF-FR. This mechanism reduces the impact of modality discrepancies on feature alignment by injecting MFRH of the current image into the features of other modality im-age. BSFA predicts the deformation field between features of unaligned images, facilitating subsequent alignment. To tackle challenges posed by large displacements and diffi-cult deformation field predictions inherent in unidirectional methods, BSFA employs a bidirectional, gradually aligned deformation field prediction strategy based on the path in-dependence of vector displacement between two points. Fi-nally, MMFF aligns the features by applying the predicted deformation field and then constructs the fused image based on the aligned features. 
+
+Modality Discrepancy-Free Feature Representation 
+
+In MDF-FR, we utilize a network consisting of Restormer and Transformer layers as the encoder for extracting fea-tures from unaligned image pairs {IA, IB }. The structure of the Restormer is exhibited in Fig. 2 (Zamir et al. 2022). For input images IA and IB , the features output by the first Restormer layer are denoted as F sA ∈ RC×H×W and F sB ∈
+
+RC×H×W , respectively, where C, H, and W represent the number of channels, height, and width of the feature maps. Since the shallow features F sA and F sB contain the underly-ing details of the image, we directly feed them into the mul-timodal feature fusion layer for feature alignment and fusion 4727 to retain more edge details in the fusion results. The features output from the second Restormer layer are then fed into two Transformer layers to extract the features ¯FA and ¯FB , which are used for modality discrepancy elimination and deforma-tion field prediction. The results output by the Transformer layers are denoted as ˆFA = [ ˆf 1
+
+> A
+
+, ˆf 2
+
+> A
+
+, · · · , ˆf PA ] ∈ RP ×W ′
+
+and ˆFB = [ ˆf 1 
+
+> B
+
+, ˆf 2 
+
+> B
+
+, · · · , ˆf PB ] ∈ RP ×W ′
+
+, along with the modality feature representation heads ˆfA ∈ R1×W ′
+
+and 
+
+ˆfB ∈ R1×W ′
+
+, where P is the total number of patches that the feature output by the second Restormer layer is divided into, and W ′ is the length of the vector. In the proposed method, ˆfA and ˆfB are used to describe the modality cat-egories of the input images. To ensure that ˆfA and ˆfB con-tain the modal information of the input images, we feed them into an MLP, with the output aiming to minimize the cross-entropy loss defined in Eq. (1):            
+
+> Lce 1=CE (yA,[0 ,1]) + CE (yB,[1 ,0]) (1)
+
+where CE represents cross entropy, and yA and yB repre-sent the results predicted by the MLP. Due to the significant modality discrepancies between ˆFA
+
+and ˆFB , cross-modal matching and deformation field pre-diction based on these features face substantial challenges. To address this issue, existing methods typically extract shared modality features directly from ˆFA and ˆFB for defor-mation field prediction. Although this approach is effective, it may lead to the loss of non-shared or modality-specific information, thereby reducing the expressive power of the features. In contrast, if we directly inject the corresponding modality information into ˆFA and ˆFB , we can not only mit-igate the impact of modality discrepancies on deformation field prediction but also prevent the loss of non-shared infor-mation caused by extracting shared information. The modal feature representation heads obtained by minimizing the loss in Eq.(1), which represent global features ˆfA and ˆfB , are not affected by misaligned source images. Therefore, they can be directly injected into ˆFA and ˆFB to reduce the modality discrepancies between the two:                                 
+
+> ˜FA= [ ˆf1
+> A+ˆfB,ˆf2
+> A+ˆfB,· · · ˆfPA+ˆfB]
+> ˜FB= [ ˆf1
+> B+ˆfA,ˆf2
+> B+ˆfA,· · · ˆfPB+ˆfA](2)
+
+To ensure that the features processed by Eq. (2) effectively eliminate differences between modalities, we use two Trans-fer blocks, namely TransferA and TransferB. Each block is composed of two Transformer layers, and the parameters are not shared between the blocks, allowing for further extrac-tion of features ¯FA and ¯FB necessary for predicting the de-formation field. Additionally, to determine whether the fea-tures output by TransferA and TransferB exhibit modality specificity, we replicate the Transformer layer in the encoder and the MLP behind the encoder. We then sequentially pass the features ¯FA and ¯FB through the Transformer layer and the MLP, respectively, to identify the modality category of features ¯FA and ¯FB . To achieve this, we utilize the cross-entropy loss function in Eq. (3) to update the parameters in TransferA and TransferB:            
+
+> Lce 2=CE (y∗
+> A,[0 .5,0.5]) + CE (y∗
+> B,[0 .5,0.5]) (3)
+
+Figure 3: Schematic of different alignment methods. where y∗ 
+
+> A
+
+and y∗ 
+
+> B
+
+are the predicted results of the MLP for the modal categories of ¯FA and ¯FB . In this process, we in-troduce TransferA and TransferB to further extract features from ˜FA and ˜FB that are helpful for deformation field pre-diction. After processing with TransferA and TransferB, we directly reuse the Transformer layer and the MLP to ensure that the features ¯FA and ¯FB used for deformation field pre-diction no longer exhibit modality discrepancies. 
+
+Feature Alignment 
+
+Path independence of vector displacement : Since ¯FA and 
+
+¯FB have effectively eliminated the modality discrepancies under the constraint of Eq. (3), it is suitable to predict the deformation field between the features of the input images 
+
+IA and IB using ¯FA and ¯FB . However, when the offset between IA and IB is large, directly predicting the defor-mation field between them becomes challenging. As shown in Fig. 3, during the pixel alignment process, pixel a moves to the location of pixel b. This can be achieved by applying the deformation field between pixels a and b to a. The de-formation field between pixels a and b, which includes the direction and distance of spatial movement from the loca-tion of a to that of b, can be regarded as a vector, denoted as 
+
+−→
+
+ab . From Fig. 3, it can be seen that the alignment between the locations of a and b can be achieved in a single step, directly moving from the location of a to that of b, or by passing through intermediate points c1, c2, and c3 to reach the location of b.Due to −→         
+
+> ab =−→ac 1+−−→c1c2+−−→c2c3+−→
+> c3b, (4)
+
+this indicates that the deformation field from point a to point 
+
+b can be accumulated from the deformation fields from a to 
+
+c1, c1 to c2, c2 to c3, and c3 to b. This demonstrates that the vector from point a to point b is independent of the path taken from point a to point b. In this paper, we refer to this characteristic as the path independence of vector displace-ment between two points. The deformation field prediction method based on this theory is called the unidirectional pro-gressive prediction method. As our goal is to align points a and b in their spatial loca-tions, this can be achieved by simultaneously moving both 
+
+a and b towards an intermediate location. The bidirectional progressive alignment, as shown in Fig.2, allows point a to reach the intermediate point c2 through point c1, while point 
+
+b can reach c2 through point c3 in the opposite direction, thereby achieving feature alignment at the location of point 
+
+c2. At this point, the deformation field used by pixel a to move to the position of pixel b can be expressed as a vector:            
+
+> −→
+> ab =−→ac 2− −→
+> bc 2= ( −→ac 1+−−→c1c2)−(−→
+> bc 3+−−→c3c2)(5) 4728
+
+This bidirectional alignment method effectively captures the interrelationships between images and reduces cumulative errors. Furthermore, if alignment in one direction encounters issues, alignment in the opposite direction can compensate, thereby enhancing the overall robustness of the alignment process. Based on these considerations, this paper proposes the Bidirectional Stepwise Feature Alignment method. 
+
+Bidirectional Stepwise Feature Alignment : As shown in Fig. 2, the proposed BSFA predicts the deformation fields of the input image features ¯FA and ¯FB from two directions. Both the forward and reverse predictions of BSFA involve five layers of deformation field prediction operations, cor-responding to the insertion of five intermediate nodes be-tween the two input source images, achieving spatial align-ment of their features by the fifth layer. In our method, the modules responsible for predicting the forward and reverse deformation fields are referred to as the Forward Registra-tion Layer (FRL) and the Reverse Registration Layer (RRL), respectively, as illustrated in Fig. 2. For the initial FRL, its inputs are F 1 
+
+> cat
+
+= concat (F 1
+
+> A
+
+, F 1 
+
+> B
+
+) and D0 
+
+> A
+
+∈ RW ′  
+
+> ×H
+> 2K−1
+> ×W
+> 2K−1
+
+,and the outputs are the deformation field φ1 
+
+> A
+
+and D1
+
+> A
+
+. Here, 
+
+F 1 
+
+> A
+
+∈ RW ′  
+
+> ×H
+> 2K−1
+> ×W
+> 2K−1
+
+and F 1 
+
+> B
+
+∈ RW ′  
+
+> ×H
+> 2K−1
+> ×W
+> 2K−1
+
+denote the reshaped versions of ¯FA and ¯FB , D0 
+
+> A
+
+is initialized to F 1
+
+> A
+
+, and K
+
+represents the number of layers in both FRL and RRL. The first RRL takes F 1 
+
+> cat
+
+and D0 
+
+> B
+
+as inputs, and its outputs in-clude the deformation field φ1 
+
+> B
+
+and D1 
+
+> B
+
+, with D0 
+
+> B
+
+initial-ized to F 1 
+
+> B
+
+. In the i-th FRL and i-th RRL, their inputs are {F icat , Di−1
+
+> A
+
+} and {F icat , Di−1
+
+> B
+
+}, respectively, where 
+
+F i 
+
+> cat
+
+= concat 
+
+(
+
+F iA, F iB
+
+)
+
+F ij =↑×2
+
+(
+
+W
+
+(
+
+F i−1 
+
+> j
+
+| φi−1
+
+> j
+
+)) 
+
+, (j = A, B )
+
+(6) 
+
+In Eq. (6), W represents the Warp operation (Jaderberg et al. 2015), which adjusts the spatial position of pixels according to the deformation field φi−1 
+
+> A
+
+. The symbol “ ↑×2” denotes a 
+
+2× upsampling operation. After correcting the input image features F ia and F ib using the predicted deformation fields in both directions, cross-modal alignment of the features is achieved at an interme-diate location. However, the progressive alignment process causes features to gradually move from their original posi-tions. Directly fusing the intermediate aligned features does not allow the input source images to guide the fusion pro-cess effectively, which can hinder the improvement of fusion quality. Based on the path independence of vector displace-ment between two points mentioned earlier, we can con-struct a transformation that directly aligns the features of source image Ia with those of source image Ib, using the predicted deformation field at each stage. According to the principle in Eq. (5), the deformation field that achieves the alignment of Ia and Ib features can be expressed as: 
+
+φA =
+
+> K
+
+∑
+
+> i=1
+
+↑2K−i
+
+(
+
+2K−iφiA
+
+)
+
+, φB =
+
+> K
+
+∑
+
+> i=1
+
+↑2K−i
+
+(
+
+2K−iφiB
+
+)
+
+φ−−→ 
+
+> AB
+
+= φA − φB
+
+(7) 
+
+To ensure the quality of the deformation field, we introduce smoothing loss Lsmooth :
+
+Lsmooth =
+
+> K
+
+∑
+
+> i=1
+
+10 i−K (
+
+‖∇ φiA‖2 + ‖∇ φiB ‖2
+
+)
+
+(8) 
+
+and consistency loss Lconsis for model updating:         
+
+> Lconsis
+> =Lssim
+> (I′
+> A
+> ,W(IA
+> ,φ−−→
+> AB
+> )) + ‖I′
+> A
+> −W(IA
+> ,φ−−→
+> AB
+> )‖1
+> (9)
+
+where Lssim represents structural similarity (SSIM) loss, I′
+
+> A
+
+is the label image after IA is strictly aligned to IB at the pixel level. 
+
+Multimodal Feature Fusion 
+
+As shown in Fig. 2, after obtaining φ−−→ 
+
+> AB
+
+, we send it along with features F sA and F sB , as well as features ˆFA and ˆFB ,to FusionBLK for feature fusion processing. We first trans-form the features ˆFA ∈ RP ×W ′
+
+and ˆFB ∈ RP ×W ′
+
+into 
+
+ˆF rA ∈ RW ′  
+
+> ×H
+> 2( J−1)
+> ×W
+> 2( J−1)
+
+and ˆF rB ∈ RW ′  
+
+> ×H
+> 2( J−1)
+> ×W
+> 2( J−1)
+
+, and send them to FusionBLK, where J is the number of FusionBLKs. For the 
+
+i-th FusionBLK, its inputs are ˆF r 
+
+> 1
+
+, ˆF rB , and Gi−1, and the output is Gi:
+
+Gi = ↑×2 Er
+
+(
+
+concat 
+
+(
+
+W
+
+(
+
+↑×2i−1
+
+( ˆF rA
+
+)∣∣∣∣↓×2i−J
+
+( φ−−→
+
+> AB
+
+2J−i
+
+)) 
+
+,
+
+↑×2i−1
+
+( ˆF rB
+
+)
+
+, Gi−1) )
+
+(10) 
+
+where Er represents the encoder composed of Restormers, and G0 is the zero matrix when i = 1 . The output of the last layer, i.e., the J-th FusionBLK, is denoted as GJ . Sub-sequently, we concatenate GJ and F sB with the corrected re-sult ˜F sA = W (F sA | φ−−→ 
+
+> AB
+
+) of F sA, and send the concatenated result to a reconstruction layer composed of a Restormer, a convolutional layer, and a sigmoid activation function to ob-tain the fused image If use . The entire fusion process is de-picted as “MMFF” in Fig.2, where it represents the sequence of steps involved in the fusion. To ensure structural consistency between the fused image and the source images, we use structure loss Lstruct to opti-mize the network parameters: 
+
+Lstruct = Lssim 
+
+(
+
+If use , ˜IA
+
+)
+
++ μ Lssim (If use , IB ) (11) 
+
+where ˜IA = W (IA | φ−−→ 
+
+> AB
+
+), and μ is a hyperparameter used to adjust the influence of the two SSIM losses in Lstruct . To ensure good contrast in the fusion results, we introduce a pixel intensity loss: 
+
+Linten =
+
+∥∥∥If use − max( ˜IA, IB )
+
+∥∥∥1
+
+(12) 
+
+At the same time, gradient loss is also introduced to prevent the loss of edge details in the source image: 
+
+Lgrad =
+
+∥∥∥∇If use − max( ∇ ˜IA, ∇IB )
+
+∥∥∥1
+
+(13) 
+
+Therefore, the total loss of this approach is: 
+
+Ltotal = Lce 1 + Lce 2 + Lconsis + Lsmooth 
+
++ Lstruct + Lgrad + λLinten 
+
+(14) 
+
+where λ is a hyperparameter used to adjust the contribution of Linten to the total loss. 4729 Figure 4: Visual Comparison of Fusion Results: Joint Registration and Fusion Method vs. Our Method. The first column shows the deformed image to be fused, the second column displays the corresponding label, and the third column presents the MRI image to be fused. Columns 4 to 9 show the results obtained by different fusion methods. 
+
+## Experiments 
+
+Experimental Setup 
+
+Dataset and Implementation Details : We follow the pro-tocols of existing methods (Huang et al. 2024; Wen et al. 2023) and train the model using CT-MRI, PET-MRI, and SPECT-MRI datasets from Harvard 1. These datasets consist of 144, 194, and 261 strictly registered image pairs, respec-tively, each with a size of 256 ×256. To simulate misaligned image pairs as collected in real-world scenarios, we desig-nate the MRI images as the reference and apply a mixture of rigid and non-rigid deformations to the non-MRI images, thereby creating the required training set. Additionally, the same deformations are applied to 20, 55, and 77 strictly reg-istered image pairs to construct an unaligned test set. To aug-ment the data, we apply these mixed deformations randomly in each epoch, along with random rotations and flips to in-crease the diversity of the training samples. During the training process, we adopt an end-to-end ap-proach, training for 3,000 epochs on each dataset with a batch size of 32. We use the Adam optimizer (Jimmy Ba 2015) to update model parameters, starting with an ini-tial learning rate of 5 × 10 −5. The learning rate is dy-namically adjusted using a Cosine Annealing Learning 
+
+> 1http://www.med.harvard.edu/aanlib/
+
+Rate (LR) scheduler (Loshchilov and Hutter 2017), de-creasing to 5 × 10 −7 over time. Two hyperparameters are set in the loss function: λ is set to 0.5, and μ is up-dated after each epoch based on the fusion results and the SSIM between the two source images, calculated as μ =
+
+> N
+
+∑
+
+> n=1
+
+L(n)
+
+> ssim
+
+(If use , IB )/ N∑
+
+> n=1
+
+L(n)
+
+> ssim
+
+(If use , ˜IA), where N is the number of training samples in each epoch. The proposed method is implemented using the PyTorch framework and trained on a single NVIDIA GeForce RTX 4090 GPU. 
+
+Evaluation Metrics : To objectively evaluate the perfor-mance of fusion methods, we selected five commonly used image quality metrics: Gradient-based Fusion Performance (QAB/F ) (Xydeas, Petrovic et al. 2000), Chen-Varshney Metric ( QCV ) (Chen and Varshney 2007), Visual Informa-tion Fidelity ( QV IF ) (Han et al. 2013), Structure-based Met-ric ( QS ) (Piella and Heijmans 2003), and Structural Simi-larity Index Measure ( QSSIM ) (Wang et al. 2004). Among these evaluation metrics, a lower value of QCV indicates better quality of the fused image, while higher values of the other metrics indicate better fusion quality. 
+
+Comparison With the State-of-the-art Methods 
+
+The common approach to solving the problem of unaligned multi-source image fusion is to first perform registration on 4730 Figure 5: Comparison of objective evaluation results: Joint registration and fusion vs. the proposed method. The black line denotes the median, and the red line denotes the mean. the images to be fused, and then fuse them. We refer to this method as “Registration+Fusion.” In addition to conven-tional methods, a two-stage approach has been developed that combines registration and fusion into a single process, referred to as “Joint Registration and Fusion.” To verify the superiority of our method, we compare it with these two ap-proaches. Since our method is most closely related to “Joint Registration and Fusion,” we focus on the comparison with this method here. Due to space limitations, the comparison between our method and the “Registration+Fusion” method is included in the supplementary materials 2.Specifically, we compared the performance of our method with five joint registration and fusion methods: UMF-CMGR, SuperFusion, MURF, IMF (Wang et al. 2024), and PAMRFuse. The first four methods are specifically designed for the registration and fusion of multimodal images and are applicable to MMIF. PAMRFuse, on the other hand, is a method specifically proposed for the fusion of unreg-istered medical images. Fig. 4 presents a visual compari-son of the fusion results generated by different methods. It is evident that our proposed method demonstrates signifi-cant advantages in feature alignment, contrast preservation, and detail retention. This indicates that, compared to ex-isting two-stage joint processing frameworks, our method exhibits stronger performance, primarily due to its ability to seamlessly integrate registration and fusion tasks into a unified process. Additionally, we created box plots of test metrics for each method to visually analyze performance differences. As shown in Fig. 5, our method achieved the best mean performance across all metrics. Compared to the IMF method, which also demonstrates excellent perfor-mance, our bidirectional alignment strategy yielded signif-
+
+> 2https://arxiv.org/abs/2412.08050
+> (a) Visual comparison of MDF-FR ablation experiments
+> (b) Visual comparison of BSFA ablation experiments
+
+Figure 6: Ablation experiments of MDF-FR and BSFA. The red curve represents the pixel values of the label, and the blue curve shows the pixel values after registration. icantly better fusion results, outperforming IMF’s unidirec-tional alignment strategy. 
+
+Ablation Study 
+
+Effectiveness of MDF-FR : To verify the effectiveness of MDF-FR, we designed Setting A and Setting B. In Setting A, neither MFRH swapping nor the Lce 2 was used. In con-trast, Setting B did not involve MFRH swapping but did use the Lce 2. The experimental results, as shown in Fig. 6(a), indicate that the proposed method achieves better alignment and fusion performance when MDF-FR is included. 
+
+Effectiveness of BSFA : To verify the effectiveness of BSFA, we conducted several experiments. First, we removed BSFA entirely to assess its impact on overall alignment perfor-mance and fusion results. Next, we removed the FRL from BSFA, retaining only the RRL. Finally, we kept only the FRL and removed the RRL. The alignment results shown in Fig. 6(b) indicate that the proposed method achieves ex-cellent alignment only when BSFA is fully implemented. 
+
+## Conclusion 
+
+This paper presents a one-stage multimodal medical image registration and fusion framework. Unlike traditional two-stage methods, it reduces model complexity with a shared feature encoder. By incorporating MDF-FR, the framework addresses modal differences in cross-modal feature align-ment. The MFRH for each input integrates global image fea-tures, retaining complementary information across modali-ties. Additionally, a bidirectional stepwise alignment strat-egy predicts deformation fields using vector displacement principles. The method preserves fused information’s in-tegrity and diversity and shows potential for clinical applica-tions requiring precise and efficient registration and fusion. 4731 Acknowledgments 
+
+This work was supported in part by the National Sci-ence Foundation of China under Grant 62161015, Grant 62471448, and Grant 62102338; in part by the Yunnan Fun-damental Research Projects under Grant 202301AV070004; in part by Shandong Provincial Natural Science Founda-tion under Grant ZR2024YQ004; and in part by TaiShan Scholars Youth Expert Program of Shandong Province un-der Grant No.tsqn202312109. 
+
+## References 
+
+Chen, H.; and Varshney, P. K. 2007. A human perception inspired quality metric for image fusion based on regional information. Information fusion , 8(2): 193–207. Chen, R.; Zheng, B.; Zhang, H.; Chen, Q.; Yan, C.; Slabaugh, G.; and Yuan, S. 2023. Improving dynamic hdr imaging with fusion transformer. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 37, 340–349. Di, J.; Guo, W.; Liu, J.; Ren, L.; and Lian, J. 2024. AMM-Net: A multimodal medical image fusion method based on an attention mechanism and MobileNetV3. Biomedical Sig-nal Processing and Control , 96: 106561. Gu, X.; Wang, L.; Deng, Z.; Cao, Y.; Huang, X.; and Zhu, Y.-m. 2024. Adaptive spatial and frequency experts fusion network for medical image fusion. Biomedical Signal Pro-cessing and Control , 96: 106478. Han, Y.; Cai, Y.; Cao, Y.; and Xu, X. 2013. A new image fusion performance metric based on visual information fi-delity. Information Fusion , 14(2): 127–135. Hong, W.; Zhang, H.; and Ma, J. 2024. MERF: A Prac-tical HDR-Like Image Generator via Mutual-Guided Learn-ing Between Multi-Exposure Registration and Fusion. IEEE Transactions on Image Processing , 33: 2361–2376. Huang, J.; Li, X.; Tan, H.; and Cheng, X. 2024. Genera-tive Adversarial Network for Trimodal Medical Image Fu-sion using Primitive Relationship Reasoning. IEEE Journal of Biomedical and Health Informatics , 1–13. Huang, W.; Zhang, H.; Quan, X.; and Wang, J. 2022a. Atwo-level dynamic adaptive network for medical image fu-sion. IEEE Transactions on Instrumentation and Measure-ment , 71: 1–17. Huang, Z.; Liu, J.; Fan, X.; Liu, R.; Zhong, W.; and Luo, Z. 2022b. Reconet: Recurrent correction network for fast and efficient multi-modality image fusion. In European confer-ence on computer Vision (ECCV) , 539–555. Springer. Jaderberg, M.; Simonyan, K.; Zisserman, A.; et al. 2015. Spatial transformer networks. In Advances in Neural In-formation Processing Systems (NeurIPS) , volume 28, 2017– 2025. Jimmy Ba, D. K. 2015. Adam: a method for stochastic op-timization. In Proceedings of the International Conference on Learning Representations (ICLR) .Li, H.; He, X.; Tao, D.; Tang, Y.; and Wang, R. 2018. Joint medical image fusion, denoising and enhancement via dis-criminative low-rank sparse dictionaries learning. Pattern Recognition , 79: 130–146. Li, H.; Liu, J.; Zhang, Y.; and Liu, Y. 2024a. A Deep Learn-ing Framework for Infrared and Visible Image Fusion With-out Strict Registration. International Journal of Computer Vision , 132: 1625–1644. Li, H.; Zhao, J.; Li, J.; Yu, Z.; and Lu, G. 2023a. Feature dy-namic alignment and refinement for infrared–visible image fusion: Translation robust fusion. Information Fusion , 95: 26–41. Li, S.; Tu, Y.; Xiang, Q.; and Li, Z. 2024b. MAGIC: Re-thinking Dynamic Convolution Design for Medical Image Segmentation. In Proceedings of the 32nd ACM Interna-tional Conference on Multimedia , 9106–9115. Li, W.; Zhang, Y.; Wang, G.; Huang, Y.; and Li, R. 2023b. DFENet: A dual-branch feature enhanced network integrat-ing transformers and convolutional feature learning for mul-timodal medical image fusion. Biomedical Signal Process-ing and Control , 80: 104402. Loshchilov, I.; and Hutter, F. 2017. Sgdr: Stochastic gradient descent with warm restarts. In the proceedings of the Inter-national Conference on Learning Representations (ICLR) .Mu, P.; Wu, G.; Liu, J.; Zhang, Y.; Fan, X.; and Liu, R. 2023. Learning to Search a Lightweight Generalized Network for Medical Image Fusion. IEEE Transactions on Circuits and Systems for Video Technology , 34(7): 5921–5934. Piella, G.; and Heijmans, H. 2003. A new quality metric for image fusion. In Proceedings 2003 International Confer-ence on Image Processing (ICIP) , volume 3, III–173. IEEE. Song, Y.; Dai, Y.; Liu, W.; Liu, Y.; Liu, X.; Yu, Q.; Liu, X.; Que, N.; and Li, M. 2024. DesTrans: A medical image fu-sion method based on transformer and improved DenseNet. 
+
+Computers in Biology and Medicine , 174: 108463. Tang, L.; Deng, Y.; Ma, Y.; Huang, J.; and Ma, J. 2022a. Su-perFusion: A versatile image registration and fusion network with semantic awareness. IEEE/CAA Journal of Automatica Sinica , 9(12): 2121–2137. Tang, W.; He, F.; Liu, Y.; and Duan, Y. 2022b. MATR: Mul-timodal medical image fusion via multiscale adaptive trans-former. IEEE Transactions on Image Processing , 31: 5134– 5149. Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones, L.; Gomez, A. N.; Kaiser, Ł.; and Polosukhin, I. 2017. At-tention is all you need. In Advances in Neural Information Processing Systems (NeurIPS) , volume 30, 5998–6008. Wang, D.; Liu, J.; Fan, X.; and Liu, R. 2022. Unsuper-vised misaligned infrared and visible image fusion via cross-modality image generation and registration. In Proceedings of the Thirty-First International Joint Conference on Artifi-cial Intelligence (IJCAI-22) , 3508–3515. Wang, D.; Liu, J.; Ma, L.; Liu, R.; and Fan, X. 2024. Im-proving Misaligned Multi-modality Image Fusion with One-stage Progressive Dense Registration. IEEE Transactions on Circuits and Systems for Video Technology .Wang, Z.; Bovik, A. C.; Sheikh, H. R.; and Simoncelli, E. P. 2004. Image quality assessment: from error visibility to structural similarity. IEEE Transactions on Image Process-ing , 13(4): 600–612. 4732 Wen, J.; Qin, F.; Du, J.; Fang, M.; Wei, X.; Chen, C. P.; and Li, P. 2023. MSGFusion: Medical semantic guided two-branch network for multimodal brain image fusion. IEEE Transactions on Multimedia , 26: 944–957. Xie, X.; Zhang, X.; Ye, S.; Xiong, D.; Ouyang, L.; Yang, B.; Zhou, H.; and Wan, Y. 2023. MRSCFusion: Joint resid-ual Swin transformer and multiscale CNN for unsupervised multimodal medical image fusion. IEEE Transactions on Instrumentation and Measurement , 72: 5026917. Xu, H.; Ma, J.; Jiang, J.; Guo, X.; and Ling, H. 2020. U2Fusion: A unified unsupervised image fusion network. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelli-gence , 44(1): 502–518. Xu, H.; Ma, J.; Yuan, J.; Le, Z.; and Liu, W. 2022. Rfnet: Unsupervised network for mutually reinforcing multi-modal image registration and fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 19679–19688. Xu, H.; Yuan, J.; and Ma, J. 2023. Murf: Mutually rein-forcing multi-modal image registration and fusion. IEEE Transactions on Pattern Analysis and Machine Intelligence ,45(10): 12148–12166. Xydeas, C. S.; Petrovic, V.; et al. 2000. Objective image fu-sion performance measure. Electronics letters , 36(4): 308– 309. Ye, S.; Wang, T.; Ding, M.; and Zhang, X. 2023. F-DARTS: Foveated differentiable architecture search based multimodal medical image fusion. IEEE Transactions on Medical Imaging , 42(11): 3348–3361. Zamir, S. W.; Arora, A.; Khan, S.; Hayat, M.; Khan, F. S.; and Yang, M.-H. 2022. Restormer: Efficient Transformer for High-Resolution Image Restoration. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 5728–5739. Zhao, Z.; Bai, H.; Zhang, J.; Zhang, Y.; Xu, S.; Lin, Z.; Timofte, R.; and Van Gool, L. 2023a. Cddfuse: Correlation-driven dual-branch feature decomposition for multi-modality image fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 5906–5916. Zhao, Z.; Bai, H.; Zhang, J.; Zhang, Y.; Zhang, K.; Xu, S.; Chen, D.; Timofte, R.; and Van Gool, L. 2024. Equiv-ariant multi-modality image fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 25912–25921. Zhao, Z.; Bai, H.; Zhu, Y.; Zhang, J.; Xu, S.; Zhang, Y.; Zhang, K.; Meng, D.; Timofte, R.; and Van Gool, L. 2023b. DDFM: denoising diffusion model for multi-modality im-age fusion. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 8082–8093. Zheng, B.; Li, H.; Chen, Q.; Wang, T.; Zhou, X.; Hu, Z.; and Yan, C. 2024. QuadzBayer Joint Demosaicing and De-noising Based on Dual Encoder Network with Joint Residual Learning. In Proceedings of the AAAI Conference on Artifi-cial Intelligence , volume 38, 7552–7561. Zhong, Y.; Zhang, S.; Liu, Z.; Zhang, X.; Mo, Z.; Zhang, Y.; Hu, H.; Chen, W.; and Qi, L. 2023. Unsupervised Fusion of Misaligned PAT and MRI Images via Mutually Reinforcing Cross-Modality Image Generation and Registration. IEEE Transactions on Medical Imaging , 1702–1714. Zuo, Q.; Zhang, J.; and Yang, Y. 2021. DMC-fusion: Deep multi-cascade fusion with classifier-based feature synthesis for medical multi-modal images. IEEE Journal of Biomedi-cal and Health Informatics , 25(9): 3438–3449. 4733
