@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-07-06T04:39:44.532201+00:00",
+  "updated_date": "20260627-20260706",
+  "carryover_days": 9,
+  "tag_states": {
+    "image-fusion": {
+      "updated_date": "20260627-20260706",
+      "carryover_days": 9,
+      "items": []
+    },
+    "medical-seg": {
+      "updated_date": "20260627-20260706",
+      "carryover_days": 9,
+      "items": [
+        {
+          "id": "2607.01675v1",
+          "source": "arxiv",
+          "title": "HistoSeg++: Delving deeper with attention and multiscale feature fusion for biomarker segmentation",
+          "abstract": "Segmentation of biomarkers in medical images is frequently viewed as a first step towards medical image analysis in any bioinformatics or biomedical application. Despite progress, existing methods still struggle to capture information at multiple scales and to perform upsampling effectively across different datasets. These shortcomings often result in suboptimal generalization capabilities. Recently, architectures belonging to the Nested-UNet family excel in capturing multiscale contextual information and upsample them effectively. In this work, We propose a novel Nested-UNet architecture that effectively captures multi-scale contextual information. It includes inner and outer attention units to enhance focus during upsampling, along with channel-wise feature recalibration using squeeze-and-excitation modules, leading to improved segmentation performance. Additionally, the architecture integrates an edge-aware loss to emphasize boundary accuracy by assigning greater importance to edge regions. Tested extensively on three publicly available benchmark datasets. Our method demonstrates a generalization performance superior to existing Nested-UNet methods. Code: https://github.com/saadwazir/histosegplusplus",
+          "authors": [
+            "Saad Wazir",
+            "Rao Faizan",
+            "Daeyoung Kim"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-07-02T04:03:10+00:00",
+          "link": "https://arxiv.org/pdf/2607.01675v1",
+          "tags": [
+            "keyword:image-fusion",
+            "keyword:medical-seg",
+            "query:image-fusion",
+            "query:medical-seg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "biomarker segmentation with attention and multiscale feature fusion",
+          "llm_evidence_cn": "使用注意力和多尺度特征融合的生物标志物分割",
+          "llm_evidence": "使用注意力和多尺度特征融合的生物标志物分割",
+          "canonical_evidence": "使用注意力和多尺度特征融合的生物标志物分割",
+          "llm_tldr_en": "Proposes a novel Nested-UNet with inner/outer attention units for multi-scale contextual information capture in biomarker segmentation. Achieves improved generalization across datasets.",
+          "llm_tldr_cn": "针对生物标志物分割中多尺度信息捕获和上采样效果不佳的问题，提出一种改进的Nested-UNet架构，引入内外注意力单元增强上采样过程中的聚焦能力。实验证明该方法在不同医学数据集上具有良好的泛化性能，为病理图像分析提供了可靠工具。",
+          "llm_tldr": "针对生物标志物分割中多尺度信息捕获和上采样效果不佳的问题，提出一种改进的Nested-UNet架构，引入内外注意力单元增强上采样过程中的聚焦能力。实验证明该方法在不同医学数据集上具有良好的泛化性能，为病理图像分析提供了可靠工具。",
+          "llm_tags": [
+            "query:medical-seg"
+          ],
+          "matched_query_tag": "query:medical-seg",
+          "matched_query_text": "medical image segmentation using deep learning",
+          "matched_requirement_id": "req-17",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.01675v1",
+          "carry_days": 1
+        },
+        {
+          "id": "2607.00409v1",
+          "source": "arxiv",
+          "title": "MedCAGD: Context-Aware Gated Decoder for Efficient Medical Image Segmentation",
+          "abstract": "Medical image segmentation relies on the ability of encoder-decoder architectures to translate rich feature representations into accurate pixel-level predictions under challenging conditions such as low contrast, structural ambiguity, and scale variability. While recent advances in large-scale pretraining and transformer-based encoders have substantially improved feature extraction, segmentation accuracy remains constrained by decoder design, particularly in terms of cross-scale alignment, contextual integration, and boundary preservation. In this work, we revisit medical image segmentation from a decoder-centric perspective and propose a context-aware gated decoder that systematically regulates feature fusion and contextual aggregation throughout the decoding process. The proposed decoder integrates lightweight multi-scale channel recalibration, gated skip fusion with spatial competition and a global context aggregation mechanism that injects encoder-wide information into intermediate decoding stages. This design enables effective translation of strong pretrained encoder representations into spatially consistent predictions. Extensive experiments across 11 medical image segmentation benchmarks validate the effectiveness and demonstrate that the proposed approach consistently outperforms strong baselines while remaining computationally practical. Code: https://github.com/saadwazir/MedCAGD",
+          "authors": [
+            "Saad Wazir",
+            "Patrick Dominique Vibild",
+            "Dinh Phu Tran",
+            "Seongah Kim",
+            "Daeyoung Kim"
+          ],
+          "primary_category": "cs.CV",
+          "categories": [
+            "cs.CV"
+          ],
+          "published": "2026-07-01T04:07:20+00:00",
+          "link": "https://arxiv.org/pdf/2607.00409v1",
+          "tags": [
+            "keyword:image-fusion",
+            "keyword:medical-seg",
+            "query:image-fusion",
+            "query:medical-seg"
+          ],
+          "llm_score": 8.0,
+          "llm_evidence_en": "context-aware gated decoder for medical image segmentation",
+          "llm_evidence_cn": "面向医学图像分割的上下文门控解码器",
+          "llm_evidence": "面向医学图像分割的上下文门控解码器",
+          "canonical_evidence": "面向医学图像分割的上下文门控解码器",
+          "llm_tldr_en": "Proposes MedCAGD, a context-aware gated decoder that regulates feature fusion and contextual aggregation for improved medical image segmentation, outperforming conventional decoders.",
+          "llm_tldr_cn": "针对现有解码器在跨尺度对齐、上下文整合和边界保持方面的不足，提出上下文感知门控解码器MedCAGD，系统性地调节特征融合与上下文聚合。在多个医学分割基准上，该方法显著提升了分割精度，尤其改善了边界模糊和尺度变化场景下的表现。",
+          "llm_tldr": "针对现有解码器在跨尺度对齐、上下文整合和边界保持方面的不足，提出上下文感知门控解码器MedCAGD，系统性地调节特征融合与上下文聚合。在多个医学分割基准上，该方法显著提升了分割精度，尤其改善了边界模糊和尺度变化场景下的表现。",
+          "llm_tags": [
+            "query:medical-seg"
+          ],
+          "matched_query_tag": "query:medical-seg",
+          "matched_query_text": "medical image segmentation using deep learning",
+          "matched_requirement_id": "req-17",
+          "selection_source": "carryover_cache",
+          "paper_id": "2607.00409v1",
+          "carry_days": 1
+        }
+      ]
+    }
+  }
+}

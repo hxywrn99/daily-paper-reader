@@ -1,0 +1,977 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-06T04:39:44.530559+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 21,
+    "deep_cap": 7,
+    "deep_selected": 12,
+    "quick_candidates": 17,
+    "quick_skim_target": 12,
+    "quick_selected": 12
+  },
+  "deep_dive": [
+    {
+      "id": "2606.28991v1",
+      "source": "arxiv",
+      "title": "Learning from Acquisition: Metadata-driven Multimodal Pre-training for Cardiac MRI",
+      "abstract": "Cardiac magnetic resonance imaging (CMR) routinely records structured acquisition metadata, yet most CMR foundation models rely primarily on image-only pre-training and leave this naturally available source of weak semantic supervision largely underexplored. We propose MetaCLIP-CMR, a metadata-driven framework based on Contrastive Language--Image Pre-training (CLIP), which converts imaging modality, anatomical view, scanner vendor, field strength, and scanner model into textual supervision for CMR representation learning. The pretrained image encoder is evaluated on imaging modality classification, cine view classification, and cardiac segmentation. MetaCLIP-CMR achieves 86.8% modality accuracy and 86.5% cine view accuracy, clearly outperforming ImageNet and masked reconstruction initialisations. For downstream cardiac segmentation, MetaCLIP-CMR consistently obtains the highest Dice score across the evaluated ACDC and M&Ms cine short-axis (SAX) settings under both full-data and 20% fine-tuning regimes. Compared with recent image-focused large-scale CMR pre-training models, MetaCLIP-CMR achieves comparable ACDC segmentation performance, while requiring less than 1% of their pre-training image scale. These results suggest that metadata learning offers a natural and easy-to-use strategy for transforming routinely recorded acquisition information into effective supervision for foundation-level CMR representation learning, highlighting the promise of metadata-driven multimodal pre-training.",
+      "authors": [
+        "Xueyi Fu",
+        "Liwei Hu",
+        "Zi Wang",
+        "Guang Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "eess.IV"
+      ],
+      "published": "2026-06-27T15:59:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.28991v1",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "metadata-driven pre-training for cardiac MRI segmentation",
+      "llm_evidence_cn": "基于元数据的心脏MRI分割预训练",
+      "llm_evidence": "基于元数据的心脏MRI分割预训练",
+      "canonical_evidence": "基于元数据的心脏MRI分割预训练",
+      "llm_tldr_en": "Introduces MetaCLIP-CMR, a metadata-driven CLIP-based pre-training framework that uses acquisition metadata as textual supervision for cardiac MRI representation learning, improving cardiac segmentation among other tasks.",
+      "llm_tldr_cn": "针对心脏MRI基础模型主要依赖纯图像预训练、忽略采集元数据的问题，本文提出MetaCLIP-CMR，将成像模态、解剖视图等元数据转化为文本监督信号，通过CLIP进行多模态预训练，在心脏分割、视图分类等任务上取得优异性能，展示了元数据驱动预训练在医学影像中的潜力。",
+      "llm_tldr": "针对心脏MRI基础模型主要依赖纯图像预训练、忽略采集元数据的问题，本文提出MetaCLIP-CMR，将成像模态、解剖视图等元数据转化为文本监督信号，通过CLIP进行多模态预训练，在心脏分割、视图分类等任务上取得优异性能，展示了元数据驱动预训练在医学影像中的潜力。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.29744v1",
+      "source": "arxiv",
+      "title": "HTC-SGA Former: A Hybrid Transformer-CNN Network with Self-Guided Attention and a New Boundary-Weighted Adaptive Loss for Coronary DSA Vessel Segmentation",
+      "abstract": "Accurate coronary Digital Subtraction Angiography (DSA) vessel segmentation is essential for computer-aided diagnosis and treatment planning of coronary artery disease (CAD). However, thin low-contrast vessels, background interference, and severe vessel-background class imbalance make reliable segmentation of weak distal branches and vessel boundaries challenging. Existing methods struggle to balance global contextual reasoning with preservation of weak vessels, vessel continuity, and fine boundaries. To address these limitations, we propose HTC-SGA Former, a lightweight hybrid Transformer-CNN framework for coronary DSA vessel segmentation. It employs a CNN encoder for local vessel morphology extraction and a Transformer decoder for contextual feature modeling. A Multi-Scale Global-Local Window Attention (MS-GLWA) block performs efficient global-local contextual modeling, while a Self-Guided Feature Attention (SGFA) module enhances weak-vessel responses. In addition, a Boundary-Weighted Adaptive Compound Loss (BWACL) emphasizes thin-vessel boundaries and adaptively balances vessel recovery and boundary refinement. Experiments on private right and left coronary artery DSA subsets show that HTC-SGA Former outperforms 14 state-of-the-art segmentation methods while maintaining a compact architecture with only 0.81M parameters. BWACL also improves performance over binary cross-entropy and Dice losses across four encoder-decoder architectures, demonstrating strong cross-backbone applicability. HTC-SGA Former improves thin-vessel recovery, vessel continuity, and boundary localization through complementary global-local contextual modeling, vessel-focused refinement, and adaptive optimization, supporting reliable and computationally efficient coronary vessel analysis for future computer-assisted cardiovascular interventions.",
+      "authors": [
+        "Rayan Merghani Ahmed",
+        "Marwa Omer Mohammed Omer",
+        "Mohamed Elmanna",
+        "Shijie Li",
+        "Bin Li",
+        "Shoujun Zhoua"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T03:39:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.29744v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "coronary DSA vessel segmentation using hybrid Transformer-CNN",
+      "llm_evidence_cn": "冠状动脉DSA血管分割的混合Transformer-CNN网络",
+      "llm_evidence": "冠状动脉DSA血管分割的混合Transformer-CNN网络",
+      "canonical_evidence": "冠状动脉DSA血管分割的混合Transformer-CNN网络",
+      "llm_tldr_en": "Proposes HTC-SGA Former for coronary DSA vessel segmentation, using hybrid Transformer-CNN with self-guided attention and boundary-weighted loss to handle thin vessels and class imbalance.",
+      "llm_tldr_cn": "冠状动脉DSA血管分割面临细小低对比度血管、背景干扰和类别不平衡等挑战。本文提出轻量级混合Transformer-CNN框架HTC-SGA Former，采用CNN编码器提取局部特征，结合自引导注意力增强全局推理，并设计边界加权自适应损失聚焦薄弱分支。在公共数据集上，该方法在分割精度和血管连续性上显著优于现有方法，为冠心病计算机辅助诊断提供了可靠工具。",
+      "llm_tldr": "冠状动脉DSA血管分割面临细小低对比度血管、背景干扰和类别不平衡等挑战。本文提出轻量级混合Transformer-CNN框架HTC-SGA Former，采用CNN编码器提取局部特征，结合自引导注意力增强全局推理，并设计边界加权自适应损失聚焦薄弱分支。在公共数据集上，该方法在分割精度和血管连续性上显著优于现有方法，为冠心病计算机辅助诊断提供了可靠工具。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30108v1",
+      "source": "arxiv",
+      "title": "LETT-NeXt: A Lightweight RECIST-Guided Model for 3D CT Lesion Segmentation",
+      "abstract": "RECIST diameter measurements are widely used for tumor response assessment, but they provide only a limited 2D description of lesion extent. We present LETT-NeXt, a lightweight RECIST-guided model that predicts 3D lesion masks from CT volumes and RECIST markers for the CVPR 2026 Foundation Models for Pan-cancer Segmentation in CT Images competition. LETT-NeXt extracts a RECIST-centered regional crop, encodes the RECIST line and endpoints as two prompt channels, and concatenates them with the CT input. A compact MedNeXt-v2 encoder--decoder predicts the lesion mask, followed by prompt-aware component selection and adaptive AutoZoom inference. On the public validation set, LETT-NeXt achieved a Dice Similarity Coefficient (DSC) of 79.4 $\\pm$ 10.1 and a Normalized Surface Dice (NSD) of 72.3 $\\pm$ 16.2. On the hidden test set, it achieved a DSC of 73.9 and an NSD of 67.3, corresponding to a challenge score of 70.6\\%. On the public validation mirror, LETT-NeXt completed CPU inference in 6.9 $\\pm$ 3.0 s per case with a peak memory use of 3.6 GB. Code is available at github.com/Ahus-AIM/lett-next.",
+      "authors": [
+        "Sebastian Aas",
+        "Elias Stenhede",
+        "Arian Ranjbar"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T10:44:51+00:00",
+      "link": "https://arxiv.org/pdf/2606.30108v1",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Deep learning model for 3D CT lesion segmentation guided by RECIST markers",
+      "llm_evidence_cn": "基于RECIST标记引导的深度学习3D CT病变分割模型",
+      "llm_evidence": "基于RECIST标记引导的深度学习3D CT病变分割模型",
+      "canonical_evidence": "基于RECIST标记引导的深度学习3D CT病变分割模型",
+      "llm_tldr_en": "Proposes LETT-NeXt, a lightweight RECIST-guided deep learning model for 3D lesion segmentation from CT volumes, achieving 79.4 DSC on validation set.",
+      "llm_tldr_cn": "针对CT图像中病变分割任务，提出轻量级RECIST引导的3D分割模型LETT-NeXt，利用RECIST标记作为提示通道，结合MedNeXt-v2编码器-解码器和自适应AutoZoom推理，在公共验证集上达到79.4%的Dice系数。",
+      "llm_tldr": "针对CT图像中病变分割任务，提出轻量级RECIST引导的3D分割模型LETT-NeXt，利用RECIST标记作为提示通道，结合MedNeXt-v2编码器-解码器和自适应AutoZoom推理，在公共验证集上达到79.4%的Dice系数。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30215v1",
+      "source": "arxiv",
+      "title": "Efficient RGB-T Object Detection via Sparse Cross-Modality Fusion",
+      "abstract": "RGB-T detectors leverage the complementary strengths of visible and thermal infrared modalities, achieving robust performance under challenging conditions. Many of them resort to heavy dual backbones and exhaustive cross-modality fusion across the entire image, leading to impractically high computational costs. We observe that most image regions are smooth backgrounds (e.g., sky, ground) that can be easily handled by lightweight single-modality models. In light of this observation, we propose a sparse fusion mechanism for efficient RGB-T detection: first rapidly scanning the image to identify the proposals and then carefully examining the remaining sparse proposals via feature fusion. We propose a two-stage framework to instantiate this mechanism, which performs detection in two stages: 1) a lightweight and modality-specific detection stage that produces high-recall RoIs, and 2) a fusion-driven examination and refinement stage that filters out the false positives and refines the bounding boxes. This design enables the detector to adaptively allocate more computational resources to the potential foregrounds, improving the efficiency while ensuring detection accuracy. Extensive experiments show that our method achieves competitive performance with substantially fewer parameters and lower cost, while maintaining strong scalability to high-resolution images.",
+      "authors": [
+        "Chao Tian",
+        "Zikun Zhou",
+        "Chao Yang",
+        "Guoqing Zhu",
+        "Zhenyu He"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-29T12:28:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.30215v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "sparse cross-modality fusion for RGB-T detection",
+      "llm_evidence_cn": "RGB-T检测中的稀疏跨模态融合",
+      "llm_evidence": "RGB-T检测中的稀疏跨模态融合",
+      "canonical_evidence": "RGB-T检测中的稀疏跨模态融合",
+      "llm_tldr_en": "Efficient RGB-T detection uses sparse cross-modality fusion to avoid exhaustive fusion, rapidly scanning for proposals then fusing only sparse regions.",
+      "llm_tldr_cn": "本文提出稀疏跨模态融合机制用于高效RGB-T目标检测，先快速扫描图像识别候选区域，再仅对稀疏候选区域进行特征融合，避免对整张图像进行密集双骨干网络融合，大幅降低计算开销的同时保持检测精度。",
+      "llm_tldr": "本文提出稀疏跨模态融合机制用于高效RGB-T目标检测，先快速扫描图像识别候选区域，再仅对稀疏候选区域进行特征融合，避免对整张图像进行密集双骨干网络融合，大幅降低计算开销的同时保持检测精度。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.30577v1",
+      "source": "arxiv",
+      "title": "APRIL-MedSeg: A Modular Medical Image Segmentation Toolbox Embracing Modern Paradigms",
+      "abstract": "We present APRIL-MedSeg, a YAML-driven modular framework for 2D medical image segmentation. It provides a unified and extensible ecosystem that decomposes segmentation networks into reusable components. Also, the framework integrates a broad spectrum of advanced paradigms, including semi-supervised learning, domain adaptation, knowledge distillation, weakly supervised learning, and text-guided segmentation as well as foundation model support. A registry-based configuration system with inheritance enables flexible and reproducible experiment management, supporting seamless switching across models, datasets, and training strategies. In addition, the framework provides a unified interface for medical datasets, augmentation pipelines, deployment utilities and model ensembling. Overall, APRIL-MedSeg is designed as a general-purpose research and development platform that bridges algorithmic innovation and practical deployment, while also serving as a structured ecosystem for systematically organizing and reproducing advances in medical image segmentation. The code is available at https://github.com/juntaoJianggavin/APRIL-MedSeg under an Apache 2.0 license.",
+      "authors": [
+        "Juntao Jiang",
+        "Jinsheng Bai",
+        "Linxuan Fan",
+        "Yali Bi",
+        "Jiangning Zhang",
+        "Yong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T17:20:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.30577v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "modular framework for 2D medical image segmentation",
+      "llm_evidence_cn": "模块化二维医学图像分割框架",
+      "llm_evidence": "模块化二维医学图像分割框架",
+      "canonical_evidence": "模块化二维医学图像分割框架",
+      "llm_tldr_en": "APRIL-MedSeg is a YAML-driven modular framework for 2D medical image segmentation, integrating semi-supervised learning, domain adaptation, and foundation model support.",
+      "llm_tldr_cn": "APRIL-MedSeg是一个基于YAML的模块化2D医学图像分割框架，将分割网络分解为可复用组件，集成了半监督学习、域适应、知识蒸馏、弱监督学习、文本引导分割以及基础模型支持等先进范式。其注册式配置系统支持实验灵活管理和复现。",
+      "llm_tldr": "APRIL-MedSeg是一个基于YAML的模块化2D医学图像分割框架，将分割网络分解为可复用组件，集成了半监督学习、域适应、知识蒸馏、弱监督学习、文本引导分割以及基础模型支持等先进范式。其注册式配置系统支持实验灵活管理和复现。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31198v1",
+      "source": "arxiv",
+      "title": "Distilling Temporal Coherence into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation",
+      "abstract": "Real-time video segmentation of the prostate in Transrectal Ultrasound (TRUS) is essential for image-guided interventions. While conventional 2D methods suffer from inter-frame inconsistencies by disregarding temporal context, 3D architectures incur prohibitive latency. To resolve this dilemma, we present a Temporally Consistent Learning Framework that distills temporal coherence into a 2D network during training, preserving single-frame inference efficiency. Our design is driven by a key clinical observation: the prostate exhibits geometric stability, whereas the surrounding acoustic environment fluctuates due to physiological motion and transducer pressure. Because conventional temporal constraints propagate erroneous gradients from these unstable regions, we introduce a Confidence-Weighted Temporal Consistency objective derived from optical flow warping residuals, selectively attenuating contributions from unreliable regions. Complementing this pixel-wise constraint, a Dual-scale Prototype Alignment Module enforces semantic coherence through contrastive optimization of local boundary and global semantic features. Furthermore, to eliminate the need for dense per-frame video annotations, we employ geometric equivariance-based pseudo-labeling with knowledge distillation from a pretrained teacher. Extensive experiments on SUN-SEG and our newly introduced TRUS-V benchmark (2,679 frames) demonstrate state-of-the-art accuracy and temporal consistency at real-time speed. Code and dataset are available at https://github.com/DYDevelop/DTC-TRUS.",
+      "authors": [
+        "Dong Yeong Kim",
+        "JunGyu Lee",
+        "Jaewon Choi",
+        "June Young Seo",
+        "Myeongseop Kim",
+        "Jinwook Choi",
+        "Taek Min Kim",
+        "Young-Gon Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-30T06:27:02+00:00",
+      "link": "https://arxiv.org/pdf/2606.31198v1",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Deep learning for real-time prostate video segmentation in TRUS with temporal coherence",
+      "llm_evidence_cn": "深度学习用于经直肠超声前列腺视频分割，并融合时间一致性",
+      "llm_evidence": "深度学习用于经直肠超声前列腺视频分割，并融合时间一致性",
+      "canonical_evidence": "深度学习用于经直肠超声前列腺视频分割，并融合时间一致性",
+      "llm_tldr_en": "Proposes a temporally consistent learning framework distilling temporal coherence into a 2D network for real-time prostate video segmentation in TRUS.",
+      "llm_tldr_cn": "针对经直肠超声前列腺视频分割中的帧间不一致问题，提出时间一致性学习框架，在训练时通过蒸馏将时间信息融入2D网络，保持单帧推理效率，解决2D方法忽略时间上下文的缺陷。",
+      "llm_tldr": "针对经直肠超声前列腺视频分割中的帧间不一致问题，提出时间一致性学习框架，在训练时通过蒸馏将时间信息融入2D网络，保持单帧推理效率，解决2D方法忽略时间上下文的缺陷。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31242v1",
+      "source": "arxiv",
+      "title": "UHD-MFF: Shattering Barriers in Multi-Focus Ultra-High-Definition Image Fusion via Learnable Lookup Tables",
+      "abstract": "With the advancement of imaging technology, ultra-high-definition images have become increasingly essential in modern visual applications. However, existing multi-focus image fusion remains largely confined to low-resolution images and faces three major barriers in UHD scenarios, namely data availability, model adaptability, and deployment feasibility, which severely hinder its practical application. To shatter these barriers, first, we propose the UHD-MFF dataset, the first large-scale ultra-high-resolution multi-focus fusion dataset. Second, we propose a scale-specialized lookup-table framework tailored for ultra-high-resolution images, termed as UMF-LUT. It consists of Coarse-Region Lookup Table (C-LUT) and Detail-Edge Lookup Table (D-LUT). Specifically, C-LUT performs joint queries of multiple gradient cues and semantic cues at low-resolution scales to enable region-level decision-making. Also, D-LUT operates at high-resolution scales, leveraging efficient Laplacian cues to provide complementary edge-level decision information. Such a design makes the model particularly well-suited for ultra-high-resolution multi-focus image fusion. Finally, it offers strong deployability with minimal computational overhead, enabling real-time 4K multi-focus fusion and showing promising potential for smartphone. Extensive experiments demonstrate that it outperforms SOTA methods in both visual fidelity and quantitative metrics. It effectively advances the development of multi-focus image fusion toward ultra-high-resolution imaging scenarios. The code is available at https://github.com/zyb5/UHD-MFF.",
+      "authors": [
+        "Yibing Zhang",
+        "Xunpeng Yi",
+        "Qinglong Yan",
+        "Yeda Wang",
+        "Han Xu",
+        "Jiayi Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T07:17:29+00:00",
+      "link": "https://arxiv.org/pdf/2606.31242v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "multi-focus image fusion using deep learning",
+      "llm_evidence_cn": "多焦点图像融合结合深度学习",
+      "llm_evidence": "多焦点图像融合结合深度学习",
+      "canonical_evidence": "多焦点图像融合结合深度学习",
+      "llm_tldr_en": "Proposes a learnable lookup-table framework for ultra-high-definition multi-focus image fusion, overcoming data and deployment barriers.",
+      "llm_tldr_cn": "论文针对超高清多焦点图像融合面临的数据匮乏、模型适应性差和部署困难三大障碍，提出了UHD-MFF数据集和UMF-LUT框架。该框架采用粗区域和细节两阶段查找表，以可学习方式实现高效融合。实验表明该方法在超高清分辨率下达到先进水平，且部署友好。",
+      "llm_tldr": "论文针对超高清多焦点图像融合面临的数据匮乏、模型适应性差和部署困难三大障碍，提出了UHD-MFF数据集和UMF-LUT框架。该框架采用粗区域和细节两阶段查找表，以可学习方式实现高效融合。实验表明该方法在超高清分辨率下达到先进水平，且部署友好。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "image fusion techniques",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31502v1",
+      "source": "arxiv",
+      "title": "Fully Automated High-Precision Segmentation of Retinal Atrophy and Ellipsoid Zone Thickness in OCT: A Reliable Tool for Real-World GA Monitoring",
+      "abstract": "Geographic atrophy (GA) secondary to age-related macular degeneration (AMD) requires precise monitoring of relevant structural biomarkers to assess disease stage, progression, and treatment response. This paper presents a fully automated, deep learning-based framework for the high-precision, pixel-wise segmentation of key biomarkers in optical coherence tomography (OCT) imaging: retinal pigment epithelium (RPE) loss, ellipsoid zone (EZ) loss, and EZ thinning. The proposed pipeline uses three specialized semantic segmentation models to delineate RPE loss, EZ boundaries (including interruptions), and Bruch's membrane. To ensure robustness and generalizability, the models were developed on a diverse dataset of 298 SD-OCT volumes representing the full phenotypic spectrum of AMD (GA:222, intermediate AMD: 40, neovascular AMD: 17, healthy: 19) and validated on an independent external dataset (n=43). The comprehensive evaluation was further strengthened using additional datasets to assess repeatability, inter-reader reliability, the impact of B-scan density on measurement accuracy, and subgroup performance stratified by lesion size. Results demonstrated high segmentation accuracy (Dice RPE loss: 0.88, Dice EZ loss: 0.87, Pearson's r > 0.99). Total EZ thickness measurements exhibited a sub-pixel average deviation of 2.15 $μm$, and segmentation reliability was confirmed by a strong reproducibility score (ICC > 0.98). By accurately and consistently quantifying outer photoreceptor degeneration and RPE loss, this fully automated framework provides a highly reliable tool for GA assessment in both clinical trials and routine real-world ophthalmic care.",
+      "authors": [
+        "Wolf-Dieter Vogl",
+        "Hlynur Skulason",
+        "Oliver Leingang",
+        "Ursula Schmidt-Erfurth",
+        "Amir Sadeghipour",
+        "Ariadne Whitby"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T11:21:57+00:00",
+      "link": "https://arxiv.org/pdf/2606.31502v1",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "fully automated deep learning segmentation of retinal atrophy in OCT",
+      "llm_evidence_cn": "OCT图像中视网膜萎缩的完全自动深度学习分割",
+      "llm_evidence": "OCT图像中视网膜萎缩的完全自动深度学习分割",
+      "canonical_evidence": "OCT图像中视网膜萎缩的完全自动深度学习分割",
+      "llm_tldr_en": "Fully automated pipeline segments RPE loss, EZ loss, and EZ thinning in OCT for GA monitoring using three semantic segmentation models.",
+      "llm_tldr_cn": "本文提出完全自动化的深度学习框架，在OCT图像中实现视网膜色素上皮丢失、椭圆体带丢失及变薄的高精度像素级分割。该管道使用三个专用语义分割模型，经过大规模多中心数据验证，可用于地理萎缩的真实临床监测。",
+      "llm_tldr": "本文提出完全自动化的深度学习框架，在OCT图像中实现视网膜色素上皮丢失、椭圆体带丢失及变薄的高精度像素级分割。该管道使用三个专用语义分割模型，经过大规模多中心数据验证，可用于地理萎缩的真实临床监测。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.31785v1",
+      "source": "arxiv",
+      "title": "Self-Supervised Temporal Regularization for Landmark-Based Cardiac Segmentation with Automatic AHA Regional Mapping",
+      "abstract": "Graph-based cardiac segmentation with implicit anatomical correspondences provides topological guarantees and population-level analysis capabilities, but models trained on independent frames of image sequences exhibit temporal discontinuities that affect reliable clinical measurements, particularly in cardiac ultrasound. In this work, we introduce self-supervised temporal regularization as a post-training refinement stage that exploits the temporal coherence in image sequences to enforce consistent cardiac segmentation and motion estimation over time, without requiring per-frame annotations. By penalizing velocity and acceleration discontinuities across consecutive frames, our method achieves temporally consistent segmentations while maintaining the learned anatomical correspondences. We further leverage these correspondences to automatically map landmarks to the AHA 17-segment clinical standard, enabling standardized regional assessment and detection of pathological myocardial motion patterns. Validation on CAMUS dataset demonstrates the clinical utility of combining temporal consistency with automatic regional mapping. The code is publicly available at https://github.com/david-montalvoo/MaskHybridGNet-TempReg",
+      "authors": [
+        "David Montalvo-García",
+        "Nicolás Gaggion",
+        "María J. Ledesma-Carbayo",
+        "Enzo Ferrante"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T15:09:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.31785v1",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "self-supervised temporal regularization for cardiac segmentation",
+      "llm_evidence_cn": "心脏分割的自监督时间正则化",
+      "llm_evidence": "心脏分割的自监督时间正则化",
+      "canonical_evidence": "心脏分割的自监督时间正则化",
+      "llm_tldr_en": "Proposes self-supervised temporal regularization to enforce temporally consistent cardiac segmentation from image sequences without per-frame annotations, improving reliability of clinical measurements.",
+      "llm_tldr_cn": "针对基于图像序列的心脏分割中时序不连续影响临床测量可靠性的问题，本文提出自监督时间正则化方法，通过惩罚连续帧之间的速度和加速度不连续性，实现无需逐帧标注的时序一致性分割和运动估计，从而提升临床测量的可靠性。",
+      "llm_tldr": "针对基于图像序列的心脏分割中时序不连续影响临床测量可靠性的问题，本文提出自监督时间正则化方法，通过惩罚连续帧之间的速度和加速度不连续性，实现无需逐帧标注的时序一致性分割和运动估计，从而提升临床测量的可靠性。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.00201v1",
+      "source": "arxiv",
+      "title": "Trust the Prior (or Not): Uncertainty-Aware Abdominal Aortic Aneurysm Segmentation",
+      "abstract": "Robust segmentation of intraluminal thrombus is critical for risk assessment in Abdominal Aortic Aneurysm, yet it remains challenging due to heterogeneous thrombus features and low contrast with surrounding non-enhanced tissues. Domain shifts induced by different Computed Tomography Angiography (CTA) protocols further inhibit multi-center generalization of deep learning models. To address these challenges, we propose a patient-specific framework that integrates discriminative learning with anatomically informed priors. Our approach introduces two key components: (1) a patient-specific intensity normalization based on a Gaussian Mixture Model of local anatomy, and (2) an Uncertainty-Gated Anatomical Attention module that incorporates spatial priors while adaptively modulating their influence according to voxel-wise confidence. This design allows for anatomical guidance in ambiguous regions while suppressing unreliable priors. The proposed method achieves state-of-the-art performance on in-distribution test data and substantially outperforms existing alternatives in generalization to external multi-center CTA data, while remaining interpretable through an explicit separation of visual and anatomical evidence.",
+      "authors": [
+        "Erich Robbi",
+        "Daniele Ravanelli",
+        "Andrea Passerini"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T21:30:49+00:00",
+      "link": "https://arxiv.org/pdf/2607.00201v1",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "deep learning based medical image segmentation",
+      "llm_evidence_cn": "基于深度学习的医学图像分割",
+      "llm_evidence": "基于深度学习的医学图像分割",
+      "canonical_evidence": "基于深度学习的医学图像分割",
+      "llm_tldr_en": "Proposes a patient-specific framework with uncertainty-aware attention for robust abdominal aortic aneurysm segmentation from CTA, addressing domain shifts.",
+      "llm_tldr_cn": "针对腹主动脉瘤CT血管造影分割中血栓特征异质性和域偏移问题，提出一种患者特定框架：结合基于高斯混合模型的患者特异性强度归一化和不确定性门控解剖注意力模块。该方法在多个中心数据集上验证了鲁棒性和泛化能力，为临床风险评估提供了可靠的分割工具。",
+      "llm_tldr": "针对腹主动脉瘤CT血管造影分割中血栓特征异质性和域偏移问题，提出一种患者特定框架：结合基于高斯混合模型的患者特异性强度归一化和不确定性门控解剖注意力模块。该方法在多个中心数据集上验证了鲁棒性和泛化能力，为临床风险评估提供了可靠的分割工具。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02185v1",
+      "source": "arxiv",
+      "title": "RadiomicNet: A Hybrid Radiomics-Guided Lightweight Architecture for Interpretable Medical Image Segmentation",
+      "abstract": "Deep learning has achieved remarkable performance in medical image segmentation, yet it suffers from critical limitations: mathematical intractability, substantial parameter requirements, and lack of clinical interpretability. We propose RadiomicNet, a novel two-stream hybrid architecture that enhances standard deep learning by integrating handcrafted radiomics features directly into the segmentation learning process. The key contribution is the Radiomics Attention Gate (RAG), which leverages Gray-Level Co-occurrence Matrix (GLCM) and Local Binary Pattern (LBP) features to modulate skip-connection attention in a lightweight MobileNetV2-based encoder-decoder, providing ante-hoc interpretability without post-hoc approximations. A novel Radiomics Consistency Loss further enforces alignment between texture complexity and prediction uncertainty, reducing Expected Calibration Error (ECE) from 0.142 to 0.118. RadiomicNet achieves a Dice Similarity Coefficient (DSC) of 0.763 +/- 0.231 on the Breast Ultrasound Images (BUSI) dataset and 0.854 +/- 0.112 on Kvasir-SEG, outperforming U-KAN by 1.2% and 1.8%, respectively (p < 0.05, Wilcoxon signed-rank test), with only 3.27M parameters, 9.5x fewer than standard U-Net and 4.3x fewer than U-KAN. Gradient-based feature importance analysis reveals that GLCM dissimilarity (15.24%), GLCM energy (14.56%), and LBP entropy (11.49%) are the dominant radiomics cues, providing clinically meaningful explanations for segmentation decisions. The proposed approach demonstrates that compact, interpretable models grounded in domain knowledge can deliver state-of-the-art segmentation performance with substantially reduced computational overhead.",
+      "authors": [
+        "Mohammad Amanour Rahman"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-02T13:54:33+00:00",
+      "link": "https://arxiv.org/pdf/2607.02185v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "hybrid radiomics-guided deep learning for medical image segmentation",
+      "llm_evidence_cn": "混合放射组学引导的深度学习医学图像分割",
+      "llm_evidence": "混合放射组学引导的深度学习医学图像分割",
+      "canonical_evidence": "混合放射组学引导的深度学习医学图像分割",
+      "llm_tldr_en": "Proposes RadiomicNet, a two-stream hybrid architecture integrating handcrafted radiomics features via Radiomics Attention Gate for interpretable medical image segmentation.",
+      "llm_tldr_cn": "针对深度学习医学分割缺乏可解释性的问题，本文提出RadiomicNet双流混合架构。通过放射组学注意力门（RAG）融合GLCM和LBP特征，在轻量级MobileNetV2编解码器中实现前瞻可解释性。实验表明该方法在保持高分割精度的同时提供了临床可理解的决策依据，促进了AI在医疗中的可信应用。",
+      "llm_tldr": "针对深度学习医学分割缺乏可解释性的问题，本文提出RadiomicNet双流混合架构。通过放射组学注意力门（RAG）融合GLCM和LBP特征，在轻量级MobileNetV2编解码器中实现前瞻可解释性。实验表明该方法在保持高分割精度的同时提供了临床可理解的决策依据，促进了AI在医疗中的可信应用。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02209v1",
+      "source": "arxiv",
+      "title": "MedSaab-US: A Backpropagation-Free Multi-Scale Wavelet-Saab Framework for Thyroid Nodule Segmentation in Ultrasound Images",
+      "abstract": "Deep learning (DL) methods dominate thyroid nodule segmentation in ultrasound (US) images, achieving high Dice scores but at the cost of millions of parameters, GPU-dependent training via backpropagation, and limited mathematical tractability. These limitations impede deployment in resource-constrained environments. In this paper, we propose MedSaab-US, a backpropagation-free segmentation framework grounded in the Green Learning paradigm. MedSaab-US extracts multi-scale spatial-frequency features by combining multi-level Discrete Wavelet Transform (DWT) with multi-scale channel-wise Saab (Subspace Approximation with Adjusted Bias) transforms at patch sizes of 5 x 5, 11 x 11, and 21 x 21 pixels. Label-Assisted Greedy (LAG) feature selection retains the most discriminative features, which are fed to an XGBoost classifier for pixel-wise prediction. The Saab transform parameters are determined analytically from data statistics, while XGBoost employs iterative greedy tree construction without requiring backpropagation. Evaluated on the TN3K dataset (2,879 training and 614 test images), MedSaab-US achieves a mean Dice coefficient of 0.4784 +/- 0.2190, precision of 0.5768, and recall of 0.5604, with a model footprint under 500K parameters and CPU-only inference in approximately 0.3 seconds per image. We present this result as an exploratory non-DL baseline for thyroid ultrasound segmentation and analyze the specific challenges posed by isoechoic nodules. An ablation study further quantifies the contribution of each pipeline component, including separate evaluations of LAG feature selection and training-set size.",
+      "authors": [
+        "Mohammad Amanour Rahman"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T14:18:22+00:00",
+      "link": "https://arxiv.org/pdf/2607.02209v1",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "medical image segmentation using wavelet-Saab framework",
+      "llm_evidence_cn": "医学图像分割，小波-Saab框架",
+      "llm_evidence": "医学图像分割，小波-Saab框架",
+      "canonical_evidence": "医学图像分割，小波-Saab框架",
+      "llm_tldr_en": "Proposes MedSaab-US, a backpropagation-free segmentation framework using multi-scale wavelet-Saab transforms for thyroid nodule segmentation in ultrasound, achieving high Dice scores with few parameters.",
+      "llm_tldr_cn": "针对深度学习在医学图像分割中参数量大、依赖GPU训练的问题，本文提出MedSaab-US，一种基于绿色学习的无反向传播分割框架。方法结合多级离散小波变换与多尺度通道Saab变换，在超声图像甲状腺结节分割任务上取得高Dice分数，且参数量极少。该工作为资源受限环境下的医学图像分割提供了高效、可解释的新范式。",
+      "llm_tldr": "针对深度学习在医学图像分割中参数量大、依赖GPU训练的问题，本文提出MedSaab-US，一种基于绿色学习的无反向传播分割框架。方法结合多级离散小波变换与多尺度通道Saab变换，在超声图像甲状腺结节分割任务上取得高Dice分数，且参数量极少。该工作为资源受限环境下的医学图像分割提供了高效、可解释的新范式。",
+      "llm_tags": [
+        "query:medical-seg:composite"
+      ],
+      "matched_query_tag": "query:medical-seg:composite",
+      "matched_query_text": "Papers central to 医学图像分割, especially work that connects or combines: i; medical image segmentation techniques and methods; semantic segmentation for medical images; automated organ segmentation from medical scans; deep learning based medical image segmentation; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-medical-seg",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.29102v1",
+      "source": "arxiv",
+      "title": "BTI-Net: Bidirectional Decoder-Level Task Interaction via Uncertainty-Aware Gating for Multi-Task Medical Image Analysis",
+      "abstract": "Jointly learning to segment and classify medical images demands cross-task synergy, yet encoder-sharing architectures limit decoder reconstruction to task-private representations, permanently discarding the boundary cues and semantic priors each branch could supply to the other. This work introduces BTI-Net, which establishes bidirectional communication at every decoder level through two parallel pathways via Task Interaction Modules (TIM). Spatial boundary context is gated into the classification branch, while global semantic priors multiplicatively modulate the decoder, with refined features propagating progressively from coarse semantics to fine boundary detail across all four decoder resolutions. Since cross-task interaction is not equally reliable for every input, Uncertainty Proxy Attention (UPA) gates each TIM output per instance and per level using three signals that capture cross-task alignment, scene complexity, and prediction confidence, without external annotations or additional inference passes. Experiments on three medical benchmarks spanning ultrasound, dermoscopy, and brain MRI demonstrate consistent improvements in segmentation IoU and classification accuracy over both encoder-sharing and decoder-interaction baselines. Ablation confirms adaptive gating contributes +2.36 IoU over fixed bidirectional interaction, and classification accuracy improves by up to +2.26 points over the strongest multi-task baseline. UPA's uncertainty proxies serve as reliable single-pass task-failure signals without the overhead of stochastic sampling. Code: https://github.com/C-loud-Nine/BTI-Net_MTL",
+      "authors": [
+        "Abdullah Al Shafi",
+        "Md Kawsar Mahmud Khan Zunayed",
+        "Safin Ahmmed",
+        "Sk Imran Hossain",
+        "Engelbert Mephu Nguifo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-27T22:37:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.29102v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "deep learning based medical image segmentation",
+      "llm_evidence_cn": "基于深度学习的医学图像分割",
+      "llm_evidence": "基于深度学习的医学图像分割",
+      "canonical_evidence": "基于深度学习的医学图像分割",
+      "llm_tldr_en": "Proposes BTI-Net with bidirectional decoder-level task interaction for joint segmentation and classification in medical images.",
+      "llm_tldr_cn": "针对医学图像分割与分类联合学习中的跨任务协同不足，提出BTI-Net：在解码器每一层通过任务交互模块实现双向通信，将空间边界信息注入分类分支，全局语义先验调制分割解码器。实验表明，该方法在多个医学图像数据集上同时提升了分割和分类性能，证明了双向交互的有效性。",
+      "llm_tldr": "针对医学图像分割与分类联合学习中的跨任务协同不足，提出BTI-Net：在解码器每一层通过任务交互模块实现双向通信，将空间边界信息注入分类分支，全局语义先验调制分割解码器。实验表明，该方法在多个医学图像数据集上同时提升了分割和分类性能，证明了双向交互的有效性。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.28799v1",
+      "source": "arxiv",
+      "title": "PSP: Harnessing Position and Shape Priors for Cross-Domain Few-Shot Medical Image Segmentation",
+      "abstract": "Few-Shot Medical Image Segmentation (FSMIS) offers a powerful solution to data scarcity but struggles to generalize across different imaging modalities. This performance collapse stems primarily from the drastic texture discrepancies between domains, which mislead models trained on source-specific intensity distributions. While existing methods attempt to align frequency or local texture features, they often fail to decouple semantic structure from domain-specific appearance. To address this, we identify a critical invariance: despite distinct imaging physics, the position and geometric shape of organs remain robustly consistent across modalities. Therefore, we propose a novel framework that harnesses Position and Shape Priors (PSP) for cross-domain FSMIS. Specifically, PSP first introduces a Position Coordinate Embedding (PCE) module to inject relative spatial coordinates for rapid organ localization. Subsequently, a Shape Prototype Modulation (SPM) module constructs domain-invariant structural prototypes via explicit shape priors, effectively filtering out texture noise. Furthermore, the Hybrid-Prototype Prediction (HPP) module adaptively calibrates the support prototype to the query feature distribution, mitigating feature misalignment. Extensive experiments on two public medical imaging datasets demonstrate that PSP significantly outperforms state-of-the-art methods.",
+      "authors": [
+        "Bin Xu",
+        "Yazhou Zhu",
+        "Haofeng Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-27T08:10:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.28799v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "few-shot medical image segmentation across modalities",
+      "llm_evidence_cn": "跨模态小样本医学分割",
+      "llm_evidence": "跨模态小样本医学分割",
+      "canonical_evidence": "跨模态小样本医学分割",
+      "llm_tldr_en": "Harnesses position and shape priors to generalize across imaging modalities for few-shot medical image segmentation.",
+      "llm_tldr_cn": "论文针对小样本医学图像分割在跨模态场景下的性能退化问题，提出利用器官位置和形状在模态间的不变性作为先验。设计框架PSP通过位置和形状先验引导模型，有效解耦语义结构与纹理差异。实验表明该方法在多种模态迁移中显著优于现有方法。",
+      "llm_tldr": "论文针对小样本医学图像分割在跨模态场景下的性能退化问题，提出利用器官位置和形状在模态间的不变性作为先验。设计框架PSP通过位置和形状先验引导模型，有效解耦语义结构与纹理差异。实验表明该方法在多种模态迁移中显著优于现有方法。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.31077v2",
+      "source": "arxiv",
+      "title": "AnyMatch: Supercharging Universal Multi-Modal Image Matching with Large-Scale Single-View Images",
+      "abstract": "Multi-modal image matching is essential for visual localization and multi-sensor fusion, but it is hindered by the scarcity of large-scale training data with precise geometric annotations. Existing real-world datasets suffer from prohibitive costs, limited scene diversity, and errors in SfM-MVS pipelines, while synthetic methods struggle to maintain 3D geometric consistency or achieve photorealistic appearance. To address this, we propose AnyMatch, a novel framework that leverages abundant, easily accessible single-view images at minimal cost to generate rich multi-modal training data. AnyMatch integrates monocular depth estimation, 3D reprojection, diffusion-based inpainting, and crossmodal image translation to synthesize multi-view, multi-modal image pairs with 3D geometric fidelity. Crucially, our method provides annotations that strictly adhere to 3D geometric consistency through explicit 3D reprojection, avoiding SfM-MVS error accumulation. Furthermore, AnyMatch offers strong scalability, enabling controllable scene diversity and annotation difficulty via adjustable input and camera parameters. We construct Any-syn, a large-scale synthetic multi-modal dataset using AnyMatch. Experimental results show that matching networks (e.g., LoFTR, EDM, RoMa) fine-tuned on Any-syn achieve substantial performance gains on multi-modal benchmarks, exhibiting superior generalization and robustness compared to models trained on existing data.",
+      "authors": [
+        "Meng Yang",
+        "Zizhuo Li",
+        "Linfeng Tang",
+        "Fan Fan",
+        "Jiayi Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T03:06:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.31077v2",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-modal image matching for fusion-related tasks",
+      "llm_evidence_cn": "多模态图像匹配用于融合相关任务",
+      "llm_evidence": "多模态图像匹配用于融合相关任务",
+      "canonical_evidence": "多模态图像匹配用于融合相关任务",
+      "llm_tldr_en": "AnyMatch generates multi-modal image pairs from single-view images for universal multi-modal matching, supporting sensor fusion.",
+      "llm_tldr_cn": "针对多模态图像匹配中训练数据稀缺问题，提出AnyMatch框架，利用单视图图像通过深度估计、3D重投影和扩散修复生成丰富多模态配对数据。该方法无需昂贵标注，提升匹配泛化能力，为多传感器融合提供支撑。",
+      "llm_tldr": "针对多模态图像匹配中训练数据稀缺问题，提出AnyMatch框架，利用单视图图像通过深度估计、3D重投影和扩散修复生成丰富多模态配对数据。该方法无需昂贵标注，提升匹配泛化能力，为多传感器融合提供支撑。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.29136v1",
+      "source": "arxiv",
+      "title": "CMTFormer: Marrying Transformer with Hierarchical Information Interaction for RGB-Event Object Detection",
+      "abstract": "Event cameras capture sparse brightness changes with high temporal resolution and high dynamic range, compensating for the deficiencies of the conventional RGB frames. However, previous multi-modal fusion techniques typically fail to handle the inherent heterogeneity between RGB frames and event streams, thus easily leading to noise amplification or redundant feature integration during cross-modal fusion. In this paper, we propose a Cross-Modal information inTeraction transFormer, coined as CMTFormer, which hierarchically integrates RGB and event information to achieve efficient and stable multimodal collaboration. Specifically, we design a shallow-to-deep information interaction scheme. In the shallow stage, we present the Shallow Alignment Module (SAM) to achieve an efficient fusion of RGB and event low-level features, which mitigates attribute disparities and prevents noisy information. In the middle stage, we devise the Cross-modal Enhancement Module (CEM) that utilizes texture and edge information to produce mutually reinforced middle-level features. In the deep stage, we present the Learnable Deep Fusion Module (LDFM) which performs high-level information aggregation through learnable weights, thus enabling the network to adaptively fuse RGB and event clues. A Spatial Prior Module is further designed to utilize global spatial information to enhance localization accuracy. Extensive experiments are conducted on two prevalent event-based object detection benchmarks, i.e., DSEC-Detection and PKU-DAVIS-SOD. Our CMTFormer consistently surpasses the detection counterparts in both uni-modal and multi-modal settings, strongly demonstrating the effectiveness of our paradigm. Codes will be available upon publication.",
+      "authors": [
+        "Yu Li",
+        "Yuenan Hou",
+        "Yingmei Wei",
+        "Jiangming Chen",
+        "Yanming Guo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-28T00:49:05+00:00",
+      "link": "https://arxiv.org/pdf/2606.29136v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "multimodal fusion of RGB and event data",
+      "llm_evidence_cn": "RGB与事件数据的多模态融合",
+      "llm_evidence": "RGB与事件数据的多模态融合",
+      "canonical_evidence": "RGB与事件数据的多模态融合",
+      "llm_tldr_en": "Proposes CMTFormer for RGB-Event object detection via hierarchical cross-modal interaction, addressing heterogeneity in multimodal fusion.",
+      "llm_tldr_cn": "现有多模态融合方法难以处理RGB帧与事件流之间的异质性导致融合效果差。本文提出CMTFormer，通过层次化信息交互实现高效稳定的多模态协作，在浅层设计通道对齐、深层进行特征互补。在多个基准数据集上该方法显著优于现有融合方案。这项工作为异构多模态融合提供了新思路。",
+      "llm_tldr": "现有多模态融合方法难以处理RGB帧与事件流之间的异质性导致融合效果差。本文提出CMTFormer，通过层次化信息交互实现高效稳定的多模态协作，在浅层设计通道对齐、深层进行特征互补。在多个基准数据集上该方法显著优于现有融合方案。这项工作为异构多模态融合提供了新思路。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.30577v2",
+      "source": "arxiv",
+      "title": "APRIL-MedSeg: A Modular Medical Image Segmentation Toolbox Embracing Modern Paradigms",
+      "abstract": "We present APRIL-MedSeg, a YAML-driven modular framework for 2D medical image segmentation. It provides a unified and extensible ecosystem that decomposes segmentation networks into reusable components. Also, the framework integrates a broad spectrum of advanced paradigms, including semi-supervised learning, domain adaptation, knowledge distillation, weakly supervised learning, and text-guided segmentation as well as foundation model support. A registry-based configuration system with inheritance enables flexible and reproducible experiment management, supporting seamless switching across models, datasets, and training strategies. In addition, the framework provides a unified interface for medical datasets, augmentation pipelines, deployment utilities and model ensembling. Overall, APRIL-MedSeg is designed as a general-purpose research and development platform that bridges algorithmic innovation and practical deployment, while also serving as a structured ecosystem for systematically organizing and reproducing advances in medical image segmentation. The code is available at https://github.com/juntaoJianggavin/APRIL-MedSeg under an Apache 2.0 license.",
+      "authors": [
+        "Juntao Jiang",
+        "Jinsheng Bai",
+        "Linxuan Fan",
+        "Yali Bi",
+        "Jiangning Zhang",
+        "Yong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T17:20:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.30577v2",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "medical image segmentation toolbox",
+      "llm_evidence_cn": "医学图像分割工具箱",
+      "llm_evidence": "医学图像分割工具箱",
+      "canonical_evidence": "医学图像分割工具箱",
+      "llm_tldr_en": "APRIL-MedSeg: a modular YAML-driven toolbox for 2D medical image segmentation supporting multiple modern paradigms.",
+      "llm_tldr_cn": "论文介绍APRIL-MedSeg，一个模块化的医学图像分割工具箱，采用YAML配置驱动，将网络分解为可重用组件。集成半监督、域适应、知识蒸馏、弱监督及文本引导等多种先进范式。提供统一数据集接口和实验管理，促进可复现研究。",
+      "llm_tldr": "论文介绍APRIL-MedSeg，一个模块化的医学图像分割工具箱，采用YAML配置驱动，将网络分解为可重用组件。集成半监督、域适应、知识蒸馏、弱监督及文本引导等多种先进范式。提供统一数据集接口和实验管理，促进可复现研究。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.30477v1",
+      "source": "arxiv",
+      "title": "PGE-SAM: Prompt-Guided Feature Enhancement for Interactive Segmentation under Degradation",
+      "abstract": "Segment Anything Model (SAM) has revolutionized promptable image segmentation with strong zero-shot generalization. However, its performance degrades substantially under real-world imaging artifacts such as noise, blur, and compression. Existing methods restore features globally without focusing on segmentation-relevant regions and neglect SAM's iterative refinement mechanism, leading to suboptimal performance in interactive settings. We propose Prompt-Guided Feature Enhancement SAM (PGE-SAM), a framework that explicitly leverages user prompts and prior mask predictions to spatially guide the feature restoration process toward regions of interest through a Prompt Guidance Generator. To recover fine-grained details lost under degradation, we introduce Multi-Scale Features Interaction to incorporate low-level encoder features, along with a Foreground Reconstruction Loss that restricts feature-level supervision to the segmentation target. Furthermore, we present DM-Seg, a benchmark for interactive segmentation on degraded medical images, spanning multiple imaging modalities with both general and modality-specific degradations at varying severity levels. Extensive experiments demonstrate that PGE-SAM achieves SOTA robustness on both medical and natural image domains across multiple degradation levels, while maintaining generalization to clean images and adding less than one-fifth of the parameters of prior methods.",
+      "authors": [
+        "Tuan-Duc Nguyen",
+        "Anh-Tuan Mai",
+        "Duc-Trong Le"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T15:37:47+00:00",
+      "link": "https://arxiv.org/pdf/2606.30477v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "prompt-guided feature enhancement for interactive segmentation under degradation",
+      "llm_evidence_cn": "基于提示引导的特征增强交互式分割，适用于退化图像",
+      "llm_evidence": "基于提示引导的特征增强交互式分割，适用于退化图像",
+      "canonical_evidence": "基于提示引导的特征增强交互式分割，适用于退化图像",
+      "llm_tldr_en": "PGE-SAM enhances SAM segmentation under real-world degradations by guiding feature restoration with user prompts and prior masks, improving performance on noisy/blurry images.",
+      "llm_tldr_cn": "PGE-SAM针对真实世界中的噪声、模糊等退化图像，提出提示引导特征增强框架，利用用户提示和先验掩码对感兴趣区域进行空间引导的特征恢复，从而提升SAM在退化条件下的交互式分割性能。实验表明该方法在多种退化类型上均优于现有方法。",
+      "llm_tldr": "PGE-SAM针对真实世界中的噪声、模糊等退化图像，提出提示引导特征增强框架，利用用户提示和先验掩码对感兴趣区域进行空间引导的特征恢复，从而提升SAM在退化条件下的交互式分割性能。实验表明该方法在多种退化类型上均优于现有方法。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.31135v1",
+      "source": "arxiv",
+      "title": "MSNN-LINet: Cross-Modal Learning via Continuous Linear Integration",
+      "abstract": "We present LINet (Linear Integration Network), a Multi-Stream Neural Network (MSNN) for RGB-D scene classification. Current multi-modal architectures treat feature fusion as a discrete, ad-hoc event: early fusion entangles representations prematurely, late fusion isolates them until the final layer, and hybrid or attention-based methods require architectural guesswork to place intermediate fusion blocks. LINet addresses this structural compromise by maintaining three dedicated parallel streams (RGB, depth, and integration) where a novel Linear Integration Convolution (LIConv2d) operator enables continuous cross-modal learning at every layer. The integration stream receives raw filtered signals from both modality streams and combines them before the nonlinear activation threshold, conceptually inspired by somatic integration preceding the neuronal firing decision. Implementing continuous integration exposes a critical initialization pathology: Kaiming initialization of the bridging weights scrambles gradients before they reach the stream backbones, producing a failure mode that resembles overfitting but is corrupted gradient flow. A 1/N constant initialization mitigates this. We employ progressive modality dropout, a curriculum adapted to continuous fusion in which blanking probability increases from zero, preventing pathway collapse, a form of negative co-learning, by forcing robust independent stream representations. Trained from scratch on SUN RGB-D 19-class scene classification, LINet reaches 45.2% mean class accuracy at ResNet18 scale, outperforming prior from-scratch results, and rises to 49.6% with in-domain RGB-D (ScanNet) pretraining.",
+      "authors": [
+        "Gabriel Clinger"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-06-30T05:06:02+00:00",
+      "link": "https://arxiv.org/pdf/2606.31135v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Cross-modal feature fusion via continuous linear integration",
+      "llm_evidence_cn": "通过连续线性集成进行跨模态特征融合",
+      "llm_evidence": "通过连续线性集成进行跨模态特征融合",
+      "canonical_evidence": "通过连续线性集成进行跨模态特征融合",
+      "llm_tldr_en": "Proposes LINet for RGB-D scene classification with continuous cross-modal feature fusion at every layer, overcoming discrete fusion limitations.",
+      "llm_tldr_cn": "针对多模态架构中特征融合离散化的问题，提出LINet网络，通过三个并行流和线性集成卷积算子实现逐层连续跨模态学习，在RGB-D场景分类任务上验证了融合有效性。",
+      "llm_tldr": "针对多模态架构中特征融合离散化的问题，提出LINet网络，通过三个并行流和线性集成卷积算子实现逐层连续跨模态学习，在RGB-D场景分类任务上验证了融合有效性。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.00058v1",
+      "source": "arxiv",
+      "title": "Joint Medical Image Enhancement and Segmentation with Diffusion-based Symbiotic Information Interaction",
+      "abstract": "Image quality is critical for accurate medical diagnosis. However, MRI, CT, and ultrasound images are often of low resolution and quality due to cost constraints, complicating the visualization of key anatomical structures and lesions. While such limitations are common in practice, traditional methods treat image enhancement as a separate preprocessing step, failing to fully leverage its potential synergy with image segmentation. To address this, we propose DiSIINet (Diffusion-based Symbiotic Information Interaction Network), which is built on the principle that enhancement and segmentation should mutually reinforce each other in a unified model. Based on Denoising Diffusion Implicit Models (DDIM), DiSIINet integrates an enhancement branch and a segmentation branch. These branches interact through a novel Symbiotic Information Interaction (SII) module, which facilitates dynamic, feature-level information exchange via cross-attention during the reverse diffusion process. This design enables both tasks to iteratively improve each other. The DDIM backbone ensures high-quality output and efficient inference through deterministic sampling. Experiments on multi-modal medical datasets (MRI, CT, ultrasound) show that DiSIINet achieves significant performance improvements compared to sequential or independent enhancement and segmentation approaches. The code is available at: https://github.com/Reconsider80/DiSIINet.",
+      "authors": [
+        "Ying Chen",
+        "Jinyue Li",
+        "Qiankun Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T07:50:44+00:00",
+      "link": "https://arxiv.org/pdf/2607.00058v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "joint medical image enhancement and segmentation with diffusion",
+      "llm_evidence_cn": "使用扩散的医学图像联合增强与分割",
+      "llm_evidence": "使用扩散的医学图像联合增强与分割",
+      "canonical_evidence": "使用扩散的医学图像联合增强与分割",
+      "llm_tldr_en": "Proposes DiSIINet, a diffusion-based model that jointly enhances and segments medical images via symbiotic information interaction. Improves segmentation accuracy by leveraging enhancement synergy.",
+      "llm_tldr_cn": "针对低质量医学影像中增强与分割分离导致效果受限的问题，提出基于扩散模型的共生信息交互网络DiSIINet，利用DDIM实现增强与分割的相互促进。实验结果表明，联合学习策略在MRI、CT等图像上同时提升了增强质量和分割精度，展示了协同训练的巨大潜力。",
+      "llm_tldr": "针对低质量医学影像中增强与分割分离导致效果受限的问题，提出基于扩散模型的共生信息交互网络DiSIINet，利用DDIM实现增强与分割的相互促进。实验结果表明，联合学习策略在MRI、CT等图像上同时提升了增强质量和分割精度，展示了协同训练的巨大潜力。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2606.31839v1",
+      "source": "arxiv",
+      "title": "Towards Voxel Spacing Consistency for Medical Image Segmentation",
+      "abstract": "Volumetric medical image segmentation is essential for both preoperative diagnosis and intraoperative guidance. While recent years have witnessed rapid progress in segmentation architectures, comparatively little attention is paid to the physical voxel spacing of anatomical data. Indeed, volumetric image resampling is a ubiquitous preprocessing step before segmentation, yet its interaction with downstream segmentation has not been systematically exploited. In this work, we study the correlation between image resampling and segmentation, and propose Consispace, a semantic-aware resampling framework that achieves consistent voxel spacing in the axial direction while preserving anatomical and semantic consistency. Consispace introduces an ODE-based anatomical constraint to model inter-slice dynamics with a continuous interpolator, enabling faithful reconstruction under complex anatomical transitions beyond discrete interpolation. To further couple resampling with segmentation objectives, we leverage dense features from a pretrained vision model to build intra-slice semantic correlation maps and inject class-wise semantic consistency via feature reweighting during resampling. Both intra-slice and inter-slice constraints are integrated into an implicit neural network, supporting arbitrary-scale resampling. Extensive experiments on multiple datasets demonstrate that Consispace achieves superior reconstruction quality and perceptual fidelity, produces smoother inter-slice anatomy, and improves downstream segmentation performance when used as a preprocessing step.",
+      "authors": [
+        "Xin You",
+        "Runze Yang",
+        "Minghui Zhang",
+        "Hanxiao Zhang",
+        "Han Li",
+        "Yi Yu",
+        "Jie Yang",
+        "Nassir Navab",
+        "Yun Gu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T15:42:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.31839v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "volumetric medical image segmentation",
+      "llm_evidence_cn": "体素间距一致性医学分割",
+      "llm_evidence": "体素间距一致性医学分割",
+      "canonical_evidence": "体素间距一致性医学分割",
+      "llm_tldr_en": "Proposes Consispace, a semantic-aware resampling framework ensuring consistent voxel spacing for better medical image segmentation.",
+      "llm_tldr_cn": "论文指出医学图像分割中体素间距常被忽视，但重采样过程影响分割精度。提出Consispace框架，通过语义感知重采样实现轴向体素间距一致，同时保留解剖与语义一致性。该方法引入基于常微分方程（ODE）的解剖约束，实验证明能提升分割的几何准确性和可重复性。",
+      "llm_tldr": "论文指出医学图像分割中体素间距常被忽视，但重采样过程影响分割精度。提出Consispace框架，通过语义感知重采样实现轴向体素间距一致，同时保留解剖与语义一致性。该方法引入基于常微分方程（ODE）的解剖约束，实验证明能提升分割的几何准确性和可重复性。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.00223v1",
+      "source": "arxiv",
+      "title": "Does Your ViT Still Need U-Net for Segmentation?",
+      "abstract": "Medical image segmentation is dominated by U-Net-style encoder-decoder architectures. Vision Transformers (ViTs) overcome the limited receptive field of convolutional networks through self-attention, enabling modeling of long-range dependencies. Early ViT-based segmentation methods typically retained U-Net-style decoders because pretrained ViT representations were insufficient to support accurate dense prediction. Recent advances in large-scale pretraining have redefined the representation capability of ViTs, reducing the reliance on U-Net-style decoder architectures in modern vision models. This prompts two questions: Is the U-Net paradigm still necessary for medical image segmentation? If not, how should an encoder-only segmentation framework be designed? Motivated by these questions, we explore key architectural choices for encoder-only medical image segmentation based on modern ViT backbones and establish a query-based encoder-only design with multi-level query modeling and learnable block fusion, realized in Encoder-only Segmentation (EoSeg). Extensive experiments across seven benchmark datasets spanning CT, MRI, histopathology, endoscopy, and dermoscopy validate the effectiveness of the proposed design across diverse medical imaging modalities, including mDice scores of 85.50% on Synapse, 91.73% on ACDC, and 93.27% on GlaS. The results demonstrate that a U-Net-style decoder is no longer necessary for medical image segmentation with modern ViT backbones and further show that EoSeg provides an effective encoder-only design. Code is available at: https://github.com/Retinal-Research/EoSeg",
+      "authors": [
+        "Xin Li",
+        "Wenhui Zhu",
+        "Xuanzhao Dong",
+        "Xiwen Chen",
+        "Yanxi Chen",
+        "Yujian Xiong",
+        "Hao Wang",
+        "Oana M. Dumitrascu",
+        "Yalin Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-30T22:02:12+00:00",
+      "link": "https://arxiv.org/pdf/2607.00223v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:image-fusion",
+        "query:medical-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "medical image segmentation using deep learning",
+      "llm_evidence_cn": "医学图像分割结合深度学习",
+      "llm_evidence": "医学图像分割结合深度学习",
+      "canonical_evidence": "医学图像分割结合深度学习",
+      "llm_tldr_en": "Questions whether U-Net decoder is still needed for medical image segmentation given recent advances in ViT pretraining, proposing encoder-only frameworks.",
+      "llm_tldr_cn": "该论文探讨了在大规模预训练Vision Transformer（ViT）背景下，医学图像分割是否仍需U-Net式解码器。研究发现，现代ViT的表示能力已显著提升，可支撑编码器直接进行密集预测。作者质疑传统U-Net范式的必要性，并探索纯编码器分割框架的设计。这项工作为简化分割架构、减少计算开销提供了新思路。",
+      "llm_tldr": "该论文探讨了在大规模预训练Vision Transformer（ViT）背景下，医学图像分割是否仍需U-Net式解码器。研究发现，现代ViT的表示能力已显著提升，可支撑编码器直接进行密集预测。作者质疑传统U-Net范式的必要性，并探索纯编码器分割框架的设计。这项工作为简化分割架构、减少计算开销提供了新思路。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.00370v1",
+      "source": "arxiv",
+      "title": "Enhancing Prostate Cancer Segmentation for Multi-Domain Generalization using a novel Parallel-Route Coherent Mixup Regularization Training",
+      "abstract": "MRI guided adaptive radiotherapy (MRgART) for prostate cancer (PCa) targets tumors while sparing organs from unnecessary radiation. Daily treatment adaptation requires accurate segmentation of tumors and organs. Manual delineation can be time and cost prohibitive. Deep learning segmentation methods have limited success applied to datasets distinct from training, hampering generalizability and adoption of MRgART. We develop a novel parallel route coherent mixup (PaRC-mix) training approach for single source to multi-domain generalization. PaRC-mix creates feature augmentations at multiple network layers through linear combination of features from different training samples in a batch. PaRC-mix training was implemented on two deep and residually connected networks, a multiple resolution residual network (MRRN) and UNet++ to segment PCa dominant intraprostatic lesions from apparent diffusion coefficient images. Models were trained on 2,029 samples from 3.0T GE MRI and tested on 1,547 PCa samples from 5 datasets acquired using 3T Siemens, 3T Philips, and 1.5T Elekta Unity MR-Linac scanners. PaRC-mix training led to significantly more accurate tumor detection and segmentation for both networks compared to training without mixup as well as input-mix training. PaRC-mix also achieved better recall to precision tradeoff than mixup applied only on the network backbone or input-mixup. Using a normalized composite DSC, HD95, and MSD score the accuracy gap between aggressive and non-aggressive lesions decreased from 21.1 and 19.5 for MRRN and UNet++ models trained without mixup to 5.2 and 7.9 with same models trained with PaRC-mix. This paper presents an easy to implement network agnostic approach to feature augmentation in multi-stream networks that enhances generalizability for the difficult problem of prostate cancer lesion segmentation.",
+      "authors": [
+        "Josiah Simeth",
+        "Sudharsan Madhavan",
+        "Victoria Brennan",
+        "Sean McBride",
+        "James Janopaul-Naylor",
+        "Justin Haseltine",
+        "Daniel Gorovets",
+        "Himanshu Nagar",
+        "Neelam Tyagi",
+        "Harini Veeraraghavan"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV"
+      ],
+      "published": "2026-07-01T03:10:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.00370v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "deep learning prostate cancer segmentation with mixup regularization",
+      "llm_evidence_cn": "使用深度学习混合正则化的前列腺癌分割",
+      "llm_evidence": "使用深度学习混合正则化的前列腺癌分割",
+      "canonical_evidence": "使用深度学习混合正则化的前列腺癌分割",
+      "llm_tldr_en": "Proposes PaRC-mix training for single-source to multi-domain generalization in prostate cancer segmentation, using mixup at multiple network layers. Improves segmentation accuracy across diverse domains.",
+      "llm_tldr_cn": "针对MRI引导自适应放疗中前列腺癌分割泛化性差的问题，提出并行路径一致混合（PaRC-mix）训练方法，在多个网络层通过特征线性组合增强数据多样性。实验表明该方法在多域数据集上显著提升分割精度，为医学图像分割的域泛化提供了有效方案。",
+      "llm_tldr": "针对MRI引导自适应放疗中前列腺癌分割泛化性差的问题，提出并行路径一致混合（PaRC-mix）训练方法，在多个网络层通过特征线性组合增强数据多样性。实验表明该方法在多域数据集上显著提升分割精度，为医学图像分割的域泛化提供了有效方案。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.00385v1",
+      "source": "arxiv",
+      "title": "MalariAI: A Label-Resilient Decoupled Framework for Universal Cell Segmentation and Explainable Stage Classification in Dense Malaria Blood Smears",
+      "abstract": "Automated malaria diagnosis from blood smear microscopy is a critical challenge in global health AI; in resource-limited settings, the scarcity of expert microscopists remains the primary bottleneck to timely and accurate diagnosis. Three compounding failure modes prevent reliable clinical deployment of existing deep learning systems. First, end-to-end detectors treat unannotated cells as background during training, producing recall figures that are strongly influenced by annotation completeness rather than reflecting true cell recovery. Second, Non-Maximum Suppression tends to suppress valid detections in dense smear regions where infection counts matter most. Third, existing whole-slide detection pipelines lack per-cell spatial evidence for clinical audit, despite image-level explainability methods such as Grad-CAM having been applied to malaria image classification tasks. We present MalariAI, a two-stage decoupled framework that addresses all three failure modes in a unified pipeline. Stage 1 applies an annotation-agnostic distance-transform guided watershed algorithm to isolate every cell in a full 1600x1200 blood smear image, recovering 75.95% of ground-truth cells by centroid localisation across the 120-image NIH BBBC041 test set without any ground-truth input. Stage 2 fine-tunes EfficientNet-B0 with Focal Loss (gamma = 2.0, per-class inverse-frequency weights) on 64x64 crops, achieving 98.36% overall classification accuracy with 87.5% and 75.0% per-class accuracy on the rare schizont and gametocyte stages, compared to only 24.57% and 25.95% AP for a Faster R-CNN baseline on the same classes. Grad-CAM++ heatmaps generated per detected cell provide instance-level spatial evidence for clinical audit, enabling microscopists to verify model predictions at the individual parasite level without sacrificing classification performance.",
+      "authors": [
+        "Kaysarul Anas Apurba",
+        "Md Hasibul Hasan",
+        "Mohammed Ali",
+        "Tanzilur Rahman"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-07-01T03:27:04+00:00",
+      "link": "https://arxiv.org/pdf/2607.00385v1",
+      "tags": [
+        "keyword:medical-seg",
+        "query:medical-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "deep learning based cell segmentation in medical microscopy",
+      "llm_evidence_cn": "深度学习医学显微细胞分割",
+      "llm_evidence": "深度学习医学显微细胞分割",
+      "canonical_evidence": "深度学习医学显微细胞分割",
+      "llm_tldr_en": "MalariAI proposes a decoupled framework for universal cell segmentation and stage classification in dense malaria blood smears.",
+      "llm_tldr_cn": "针对疟疾血涂片中细胞分割困难以及标注不完整问题，提出MalariAI框架，解耦检测与分类，采用标签鲁棒训练策略避免未标注细胞干扰。在密集血涂片数据集上实现高召回率，同时提供可解释的阶段分类，推动自动疟疾诊断落地。",
+      "llm_tldr": "针对疟疾血涂片中细胞分割困难以及标注不完整问题，提出MalariAI框架，解耦检测与分类，采用标签鲁棒训练策略避免未标注细胞干扰。在密集血涂片数据集上实现高召回率，同时提供可解释的阶段分类，推动自动疟疾诊断落地。",
+      "llm_tags": [
+        "query:medical-seg"
+      ],
+      "matched_query_tag": "query:medical-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    }
+  ]
+}
