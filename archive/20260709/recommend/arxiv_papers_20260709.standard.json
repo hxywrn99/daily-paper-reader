@@ -1,0 +1,1276 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-09T21:54:11.980873+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 36,
+    "deep_cap": 7,
+    "deep_selected": 19,
+    "quick_candidates": 29,
+    "quick_skim_target": 12,
+    "quick_selected": 12
+  },
+  "deep_dive": [
+    {
+      "id": "2607.00409v1",
+      "source": "arxiv",
+      "title": "MedCAGD: Context-Aware Gated Decoder for Efficient Medical Image Segmentation",
+      "abstract": "Medical image segmentation relies on the ability of encoder-decoder architectures to translate rich feature representations into accurate pixel-level predictions under challenging conditions such as low contrast, structural ambiguity, and scale variability. While recent advances in large-scale pretraining and transformer-based encoders have substantially improved feature extraction, segmentation accuracy remains constrained by decoder design, particularly in terms of cross-scale alignment, contextual integration, and boundary preservation. In this work, we revisit medical image segmentation from a decoder-centric perspective and propose a context-aware gated decoder that systematically regulates feature fusion and contextual aggregation throughout the decoding process. The proposed decoder integrates lightweight multi-scale channel recalibration, gated skip fusion with spatial competition and a global context aggregation mechanism that injects encoder-wide information into intermediate decoding stages. This design enables effective translation of strong pretrained encoder representations into spatially consistent predictions. Extensive experiments across 11 medical image segmentation benchmarks validate the effectiveness and demonstrate that the proposed approach consistently outperforms strong baselines while remaining computationally practical. Code: https://github.com/saadwazir/MedCAGD",
+      "authors": [
+        "Saad Wazir",
+        "Patrick Dominique Vibild",
+        "Dinh Phu Tran",
+        "Seongah Kim",
+        "Daeyoung Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-01T04:07:20+00:00",
+      "link": "https://arxiv.org/pdf/2607.00409v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "medical image segmentation with context-aware gated decoder",
+      "llm_evidence_cn": "医学图像分割，上下文门控解码器",
+      "llm_evidence": "医学图像分割，上下文门控解码器",
+      "canonical_evidence": "医学图像分割，上下文门控解码器",
+      "llm_tldr_en": "MedCAGD introduces a context-aware gated decoder to improve medical image segmentation by regulating feature fusion and contextual aggregation, achieving state-of-the-art performance on benchmarks.",
+      "llm_tldr_cn": "医学图像分割受限于解码器设计，传统方法难以处理跨尺度对齐和边界保留。本文提出MedCAGD，一种上下文感知的门控解码器，通过系统调控特征融合和上下文聚合，提升了分割精度。在多个医学分割数据集上取得了优异结果，验证了从解码器角度优化分割的有效性。",
+      "llm_tldr": "医学图像分割受限于解码器设计，传统方法难以处理跨尺度对齐和边界保留。本文提出MedCAGD，一种上下文感知的门控解码器，通过系统调控特征融合和上下文聚合，提升了分割精度。在多个医学分割数据集上取得了优异结果，验证了从解码器角度优化分割的有效性。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.00978v1",
+      "source": "arxiv",
+      "title": "Privacy-Preserving Depth-Only Open-Vocabulary 3D Semantic Segmentation Via Uncertainty-Guided Test-Time Optimization",
+      "abstract": "Privacy-preserving perception is a critical requirement for deploying 3D scene understanding systems in real-world indoor environments, yet it remains underexplored in open-vocabulary 3D semantic segmentation. Existing methods typically rely on obtaining rich semantic cues from RGB images, which may expose privacy-sensitive visual information. Depth-only 3D geometry provides a privacy-preserving alternative, but the absence of appearance-based semantic cues makes open-vocabulary predictions highly uncertain and less reliable. Under this setting, we propose to convert uncertainty into a guidance signal to identify unreliable semantic responses and use semantic priors from foundation models to regularize their refinement. We present UTTO, an uncertainty-guided test-time optimization framework for depth-only open-vocabulary 3D semantic segmentation. Without additional training, experiments on ScanNet20, ScanNet40, and ScanNet200 demonstrate that UTTO consistently improves depth-only open-vocabulary 3D segmentation and outperforms representative baselines under privacy-preserving conditions.",
+      "authors": [
+        "Xuying Huang",
+        "Sicong Pan",
+        "Maren Bennewitz"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-07-01T14:12:21+00:00",
+      "link": "https://arxiv.org/pdf/2607.00978v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "open-vocabulary 3D semantic segmentation using depth-only and test-time optimization",
+      "llm_evidence_cn": "基于深度图像和测试时优化的开放词汇3D语义分割",
+      "llm_evidence": "基于深度图像和测试时优化的开放词汇3D语义分割",
+      "canonical_evidence": "基于深度图像和测试时优化的开放词汇3D语义分割",
+      "llm_tldr_en": "Proposes to convert uncertainty into guidance for open-vocabulary 3D semantic segmentation from depth-only input, using test-time optimization with foundation model priors to regularize predictions.",
+      "llm_tldr_cn": "针对深度图像缺乏外观语义导致开放词汇3D语义分割不可靠的问题，该文将模型不确定性转化为引导信号，结合基础模型语义先验进行测试时优化。在仅使用深度几何信息时取得有竞争力分割性能，为隐私保护3D场景理解提供新途径。",
+      "llm_tldr": "针对深度图像缺乏外观语义导致开放词汇3D语义分割不可靠的问题，该文将模型不确定性转化为引导信号，结合基础模型语义先验进行测试时优化。在仅使用深度几何信息时取得有竞争力分割性能，为隐私保护3D场景理解提供新途径。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.01902v1",
+      "source": "arxiv",
+      "title": "Rethinking Post-Hoc Calibration in Semantic Segmentation",
+      "abstract": "Reliable confidence estimates are essential in semantic segmentation, especially in safety-critical settings where overconfident errors can mislead downstream decisions. Yet modern segmentation models often remain miscalibrated. Post-hoc calibration offers a practical way to correct confidence estimates without retraining the segmentation model, but its use in dense prediction raises structural issues that are often overlooked. We study two such issues. First, adding a constant to all logits leaves the softmax probabilities unchanged, but several standard calibrators can still depend on this arbitrary offset. As a result, two logit representations encoding the same predictive distribution may yield different calibrated probabilities. We define translation-invariant (TI) calibrators as those whose outputs are unchanged under such shifts, characterize which common calibrators satisfy this property, and construct TI counterparts of shift-sensitive calibrators to isolate the effect of removing representation dependence. Second, post-hoc calibration is typically fitted by minimizing a likelihood-based objective, whereas segmentation models are trained with task-specific metrics such as Dice. This mismatch can cause calibration to alter class orderings and degrade the deployed segmentation map. We study decision-preserving calibration under argmax- and order-preservation constraints. Since enforcing these constraints collapses affine softmax calibrators to temperature scaling, we introduce class-conditional affine calibrators that can be made argmax- or order-preserving while retaining greater expressivity, allowing us to quantify the calibration-segmentation trade-off induced by decision preservation. Across natural-image and medical segmentation benchmarks, and under corruption-based covariate shift, matched comparisons show that TI variants generally improve calibration metrics, while decision-preserving variants prevent segmentation degradation and retain strong calibration performance. These results provide practical design principles for well-defined post-hoc calibration pipelines in semantic segmentation.",
+      "authors": [
+        "Tristan Kirscher",
+        "Kim-Celine Kahl",
+        "Balint Kovacs",
+        "Maximilian R. Rokuss",
+        "Klaus Maier-Hein",
+        "Xavier Coubez",
+        "Philippe Meyer",
+        "Sylvain Faisan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-02T09:01:21+00:00",
+      "link": "https://arxiv.org/pdf/2607.01902v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Post-hoc calibration methods for semantic segmentation",
+      "llm_evidence_cn": "语义分割的后处理校准方法",
+      "llm_evidence": "语义分割的后处理校准方法",
+      "canonical_evidence": "语义分割的后处理校准方法",
+      "llm_tldr_en": "Identifies and addresses structural issues in post-hoc calibration methods for semantic segmentation, proposing translation-invariant calibration.",
+      "llm_tldr_cn": "语义分割模型常出现校准错误，后处理校准方法在密集预测中存在结构性问题。本文发现了校准方法对logit偏移的依赖性问题，并引入平移不变校准来解决。实验表明所提方法改善了校准质量，对安全关键应用具有重要意义。",
+      "llm_tldr": "语义分割模型常出现校准错误，后处理校准方法在密集预测中存在结构性问题。本文发现了校准方法对logit偏移的依赖性问题，并引入平移不变校准来解决。实验表明所提方法改善了校准质量，对安全关键应用具有重要意义。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.02497v1",
+      "source": "arxiv",
+      "title": "Seek to Segment: Active Perception for Panoramic Referring Segmentation",
+      "abstract": "Existing referring segmentation models passively process static images captured from fixed perspectives, limiting their applicability in Embodied AI, where agents must perform active perception in the continuous 360$^\\circ$ environments. To bridge this gap, we introduce a novel task: Active Panoramic Referring Segmentation (APRS). In this setting, an agent is required to adjust its viewing direction ($Δθ, Δφ$) to explore the 360$^\\circ$ environment, seeking the object specified by a user instruction for segmentation. To tackle this challenging task, we propose PanoSeeker, a memory-augmented agent for efficient APRS. Rather than relying on heuristic scanning, PanoSeeker integrates a Vision-Language Model (VLM) with EgoSphere, an explicit spatial visual memory. By progressively integrating sequential local observations into a unified 360$^\\circ$ representation, EgoSphere enables the agent to plan efficient and non-redundant search trajectories. Once the target is found, the agent performs active viewpoint alignment and outputs the segmentation mask. Furthermore, we curate an expert-annotated search trajectory dataset with memory timelines for Supervised Fine-Tuning, followed by Reinforcement Learning post-training to explicitly optimize PanoSeeker's exploration efficiency. Extensive experiments on our newly established APRS benchmark demonstrate that PanoSeeker achieves superior search efficiency and segmentation accuracy, significantly outperforming adapted state-of-the-art baselines.",
+      "authors": [
+        "Song Tang",
+        "Shuming Hu",
+        "Xincheng Shuai",
+        "Henghui Ding",
+        "Yu-Gang Jiang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-02T17:56:49+00:00",
+      "link": "https://arxiv.org/pdf/2607.02497v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "active panoramic referring segmentation using VLM",
+      "llm_evidence_cn": "使用视觉语言模型的主动全景指代分割",
+      "llm_evidence": "使用视觉语言模型的主动全景指代分割",
+      "canonical_evidence": "使用视觉语言模型的主动全景指代分割",
+      "llm_tldr_en": "Introduces Active Panoramic Referring Segmentation and proposes PanoSeeker, a memory-augmented agent integrating VLM with explicit spatial memory for efficient 360° environment segmentation.",
+      "llm_tldr_cn": "针对现有指代分割仅处理固定视角的局限，本文提出主动全景指代分割新任务。PanoSeeker智能体结合视觉语言模型与显式空间记忆EgoSphere，通过调整视角主动探索360°环境。在构建的数据集上，该方法实现了高效准确的指代分割，推动了具身AI中感知能力的发展。",
+      "llm_tldr": "针对现有指代分割仅处理固定视角的局限，本文提出主动全景指代分割新任务。PanoSeeker智能体结合视觉语言模型与显式空间记忆EgoSphere，通过调整视角主动探索360°环境。在构建的数据集上，该方法实现了高效准确的指代分割，推动了具身AI中感知能力的发展。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.03103v1",
+      "source": "arxiv",
+      "title": "SNR-Adaptive Unified Diffusion for Multi-Task Medical Image Segmentation",
+      "abstract": "Clinical cardiac imaging pipelines currently deploy separate models for each dataset and modality, incurring redundant training costs and precluding knowledge sharing across anatomically related tasks. Consolidating semi-supervised learning, unsupervised domain adaptation, and domain generalisation into one model is therefore a practical necessity, yet naive joint training exposes a fundamental barrier: conflicting label semantics between datasets collapse LA Dice from 90.31\\% to 83.38\\%, while gradient imbalance across tasks of unequal complexity suppresses the weaker tasks throughout training. We present UniT-Diff, a unified diffusion segmentation framework that resolves these conflicts through three targeted mechanisms. An 11-channel task-specific output space physically partitions label categories, eliminating cross-task gradient sign reversal by construction. SNR-Adaptive Task Conditioning (SATC) scales the task token by the log signal-to-noise ratio of the current diffusion timestep, suppressing domain-specific bias during coarse denoising and restoring full task guidance as the signal clears. Task-Type-Aware Conditional Dropout (TTACD) permanently removes the task token for domain-generalisation inputs, routing them through a shared neutral pathway that draws on cross-dataset cardiac anatomy rather than source-vendor statistics. Under a single parameter set, UniT-Diff surpasses independently trained task-specific baselines on all three benchmarks simultaneously: +0.87\\% on LA, +1.77\\% on MMWHS, and +0.88\\% on MNMS.",
+      "authors": [
+        "Jiahao Liu",
+        "Hang Wei",
+        "Shuai Wu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-03T08:38:39+00:00",
+      "link": "https://arxiv.org/pdf/2607.03103v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "unified diffusion framework for multi-task medical image segmentation",
+      "llm_evidence_cn": "统一扩散框架用于多任务医学图像分割",
+      "llm_evidence": "统一扩散框架用于多任务医学图像分割",
+      "canonical_evidence": "统一扩散框架用于多任务医学图像分割",
+      "llm_tldr_en": "Presents UniT-Diff, a unified diffusion segmentation framework that handles semi-supervised learning, domain adaptation, and generalization in cardiac imaging via a 11-channel task-specific mechanism.",
+      "llm_tldr_cn": "针对心脏医学图像分割中不同数据集和模态需独立训练的问题，提出统一扩散分割框架UniT-Diff。通过11通道任务特定编码、语义冲突解决和梯度平衡机制，实现半监督、无监督域适应和域泛化的联合学习。在多个心脏分割任务上，该方法在减少冗余训练的同时，提升了各任务的Dice系数，验证了统一框架的可行性。",
+      "llm_tldr": "针对心脏医学图像分割中不同数据集和模态需独立训练的问题，提出统一扩散分割框架UniT-Diff。通过11通道任务特定编码、语义冲突解决和梯度平衡机制，实现半监督、无监督域适应和域泛化的联合学习。在多个心脏分割任务上，该方法在减少冗余训练的同时，提升了各任务的Dice系数，验证了统一框架的可行性。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.03643v1",
+      "source": "arxiv",
+      "title": "Model Confidence-Guided Multi-Image Fusion of Fundus Images for Diabetic Retinopathy Diagnosis",
+      "abstract": "Purpose: Early screening for eye diseases is critical in low- and middle-income countries where access to care is limited. We investigate whether a confidence-guided, multi-image diabetic retinopathy diagnosis framework can integrate image filtering with confidence-aware predictions for reliable screening at capture.   Methods: We develop a multi-image fusion method that aggregates retinal views to improve confidence and balanced accuracy. Our method uses confidence to identify unreliable predictions, prompting retakes when needed.   We compare: (1) a cascaded image-quality and disease diagnosis pipeline using a single image per patient, (2) confidence-based prediction, and (3) our confidence-based multi-image fusion pipeline. All methods are evaluated using a RETFoundGreen backbone on the mBRSET (n = 1,234) and BRSET (n = 7,599) datasets.   Results: At 70% coverage, our method achieves 91% balanced accuracy on mBRSET and 97% on BRSET, improvements of ~12% and ~6%, respectively, over cascade filtering. The image-quality cascade reaches sensitivities of 61% on mBRSET and 86% on BRSET, whereas our framework reaches 94% and 96%, respectively, at 50% coverage.   Conclusions: Human-annotated quality labels are weakly associated with diagnostic performance, and confidence-based filtering consistently outperforms image quality-based cascaded pipelines.   Translational Relevance: Using confidence-based multi-image fusion, patients receive more reliable predictions, reducing incorrect diagnoses during screening. The lightweight backbone and single inference pass per image make the framework compatible with low-latency mobile screening systems in resource-limited settings.",
+      "authors": [
+        "Ananya Raghu",
+        "Anisha Raghu",
+        "Alice S. Tang",
+        "Yannis M. Paulus",
+        "Tyson N. Kim",
+        "Tomiko T. Oskotsky"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.CV"
+      ],
+      "published": "2026-07-03T23:48:32+00:00",
+      "link": "https://arxiv.org/pdf/2607.03643v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "multi-image fusion of fundus images for diagnosis",
+      "llm_evidence_cn": "眼底图像多图像融合用于诊断",
+      "llm_evidence": "眼底图像多图像融合用于诊断",
+      "canonical_evidence": "眼底图像多图像融合用于诊断",
+      "llm_tldr_en": "Develops a confidence-guided multi-image fusion method for diabetic retinopathy diagnosis that aggregates retinal views, using confidence to identify unreliable predictions and trigger retakes.",
+      "llm_tldr_cn": "针对糖尿病视网膜病变筛查中单张眼底图像可能不可靠的问题，提出一种置信度引导的多图像融合方法。该方法聚合多个视网膜视图，利用模型置信度识别不可靠预测并提示重拍，整合图像质量筛选与融合。实验表明融合后的诊断平衡准确率和置信度均优于单图像基线，为低成本筛查提供鲁棒方案。",
+      "llm_tldr": "针对糖尿病视网膜病变筛查中单张眼底图像可能不可靠的问题，提出一种置信度引导的多图像融合方法。该方法聚合多个视网膜视图，利用模型置信度识别不可靠预测并提示重拍，整合图像质量筛选与融合。实验表明融合后的诊断平衡准确率和置信度均优于单图像基线，为低成本筛查提供鲁棒方案。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "image fusion techniques",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.03663v1",
+      "source": "arxiv",
+      "title": "Phase-Preserving Trimodal Transformer for Tropical Forest Biomass Estimation Using Optical and PolInSAR Data",
+      "abstract": "The accurate estimation of Above-Ground Biomass (AGB) in mature tropical forests remains a critical challenge in remote sensing, primarily due to the saturation of Synthetic Aperture Radar (SAR) signals in high-density areas and persistent cloud cover affecting optical imagery. To overcome these physical limitations, we propose the Trimodal Coherent Co-attention Transformer (TCCT), a physics-informed deep learning architecture. The TCCT natively fuses optical surface reflectance (Landsat-5) with complex-valued Polarimetric SAR Interferometry (PolInSAR) data from both P and L bands. Unlike traditional fusion methods, our architecture employs complex-valued encoders to preserve spatial phase coherence, coupled with a dynamic co-attention mechanism that acts as an adaptive gating module, reducing the weight of cloud-corrupted optical pixels and shifting reliance to microwave phase data. We also derived a localized spatial allometric calibration model via Levenberg-Marquardt optimization, tailored to the specific wood density of the Paracou region in the Amazon basin. Evaluated using a two-stage protocol, the TCCT first underwent a rigorous 5-fold cross-validation to establish robust global weights (achieving a global RMSE of 4.19 m). Subsequently, following a localized spatial fine-tuning phase over 200 epochs, the model attained an absolute RMSE of 3.78 m and an $R^2$ of 0.33 for Canopy Height Models (CHM), outperforming standard Random Forest, CNN, and Vision Transformer baselines. Our ablation study confirms that preserving phase coherence mitigates deep-canopy signal saturation. When converted to AGB, the fine-tuned TCCT map yielded a Relative RMSE (rRMSE) of 4.51% in dense forest areas above 50 Mg/ha. By meeting the European Space Agency (ESA) BIOMASS mission requirement of less than 20% error, the TCCT provides a robust framework for continuous carbon stock mapping in tropical biomes.",
+      "authors": [
+        "Luiz Felipe Parente Santiago",
+        "Rosiane Rodrigues de Freitas",
+        "Daniel Rodrigues dos Santos",
+        "Felipe Ferrari"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-07-04T02:32:51+00:00",
+      "link": "https://arxiv.org/pdf/2607.03663v1",
+      "tags": [
+        "keyword:image-fusion"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Trimodal fusion of optical and PolInSAR data using deep learning",
+      "llm_evidence_cn": "使用深度学习融合光学与PolInSAR三模态数据",
+      "llm_evidence": "使用深度学习融合光学与PolInSAR三模态数据",
+      "canonical_evidence": "使用深度学习融合光学与PolInSAR三模态数据",
+      "llm_tldr_en": "Proposes TCCT, a physics-informed deep learning architecture that fuses optical and complex-valued PolInSAR data from two bands for biomass estimation.",
+      "llm_tldr_cn": "热带森林生物量估计受限于SAR信号饱和和云覆盖。本文提出Trimodal Coherent Co-attention Transformer (TCCT)，该物理信息深度学习架构原生融合光学反射率与双波段PolInSAR数据，采用复值编码器保持相位一致性。实验表明TCCT有效克服了传统融合方法的局限，提高了生物量估计精度。",
+      "llm_tldr": "热带森林生物量估计受限于SAR信号饱和和云覆盖。本文提出Trimodal Coherent Co-attention Transformer (TCCT)，该物理信息深度学习架构原生融合光学反射率与双波段PolInSAR数据，采用复值编码器保持相位一致性。实验表明TCCT有效克服了传统融合方法的局限，提高了生物量估计精度。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.03810v1",
+      "source": "arxiv",
+      "title": "TestMate: Test-Time Domain Adaptation Aided by Lightweight Vision Foundation Model",
+      "abstract": "Test-Time Domain Adaptation (TTDA) aims to adapt Deep Neural Networks to distribution shifts using only streaming, unlabeled test data in real time. Current methods for semantic segmentation tasks suffer from critical limitations. Entropy minimization techniques require costly backpropagation, risking catastrophic forgetting and producing noisy segmentation boundaries. Memory-bank methods, while backpropagation-free, exhibit slow adaptation, requiring numerous samples to converge and struggle to handle continuous domain shifts. We introduce TestMate, a novel, real-time, and backpropagation-free TTDA framework that overcomes these issues. TestMate leverages generalization capability of a lightweight Visual Foundation Model to guide the adaptation. We use a zero-shot instance segmentation YOLOv8-seg based model to generate unlabeled mask proposals for objects and their parts at multiple scales in real time. These proposals are fused with the primary model via a heuristic, size-ordered competitive scheme, where small, high-confidence regions dominate and refine predictions in surrounding larger, less certain areas. This paremeter-free mechanism enables immediate adaptation from the first frame, inherently avoids catastrophic forgetting and effectively preserves fine object details and boundaries, even for small objects. TestMate can be used as a standalone, efficient refinement module or seamlessly integrated into existing TTDA methods to significantly boost their performance. We demonstrate state-of-the-art results across two benchmark datasets, proving TestMate's effectiveness in three distinct adaptation tasks: TTDA, Source-Free Domain Adaptation (SFDA), and online-TTDA. Code is available.",
+      "authors": [
+        "Dimitrios Fotiou",
+        "Vasileios Mygdalis",
+        "Ioannis Pitas"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-04T10:32:15+00:00",
+      "link": "https://arxiv.org/pdf/2607.03810v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Test-time domain adaptation for semantic segmentation",
+      "llm_evidence_cn": "用于语义分割的测试时域自适应",
+      "llm_evidence": "用于语义分割的测试时域自适应",
+      "canonical_evidence": "用于语义分割的测试时域自适应",
+      "llm_tldr_en": "Proposes TestMate, a real-time, backpropagation-free TTDA framework for semantic segmentation that uses a lightweight Vision Foundation Model to guide adaptation.",
+      "llm_tldr_cn": "现有测试时域自适应方法在语义分割上存在计算开销大或适应缓慢的问题。本文提出TestMate，利用轻量级视觉基础模型的泛化能力，无需反向传播即可实时指导模型适应分布偏移。实验表明，TestMate在连续域转移场景下显著优于现有方法，实现了高效且稳定的语义分割自适应。",
+      "llm_tldr": "现有测试时域自适应方法在语义分割上存在计算开销大或适应缓慢的问题。本文提出TestMate，利用轻量级视觉基础模型的泛化能力，无需反向传播即可实时指导模型适应分布偏移。实验表明，TestMate在连续域转移场景下显著优于现有方法，实现了高效且稳定的语义分割自适应。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04249v1",
+      "source": "arxiv",
+      "title": "Beyond Random Sampling: Distribution-Aware Alignment for Semi-Supervised Medical Image Segmentation",
+      "abstract": "Precise medical image segmentation is crucial for clinical diagnosis and treatment planning, yet relies heavily on expensive expert annotations. Semi-supervised medical image segmentation (SSMIS) offers a cost-effective solution but typically operates under the assumption of independent and identically distributed (i.i.d.) data, defaulting to random sampling. While statistically valid at scale, this strategy suffers from severe representation bias in low-data regimes, failing to capture the heterogeneous medical data manifold. To address this, we propose a highly data-efficient framework driven by distribution alignment. First, we introduce an offline Distribution-Aware Sample Selection strategy. By leveraging Vision Foundation Models (VFMs) and our designed Density-K-Center algorithm, we explicitly identify representative structural anchors, establishing a more representative labeled domain. Second, to bridge the remaining distribution gap, we propose the Memory-guided Copy-Paste (MCP) module. Tailored for the inherent class imbalance in medical scans, MCP leverages a semantic memory mechanism to retrieve historically consistent priors for cross-domain alignment, encouraging semantic consistency. Coupled with an easy-to-hard progressive schedule, this framework effectively mitigates early-stage pseudo-label noise. Extensive experiments on six diverse 2D and 3D datasets demonstrate strong segmentation performance, particularly in extremely low-labeled scenarios (\\eg, 1/16 ratio).",
+      "authors": [
+        "Weihao Yan",
+        "Yeqiang Qian",
+        "Yi Dong",
+        "Ming Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-05T11:59:47+00:00",
+      "link": "https://arxiv.org/pdf/2607.04249v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "semi-supervised medical image segmentation with distribution alignment",
+      "llm_evidence_cn": "基于分布对齐的半监督医学图像分割",
+      "llm_evidence": "基于分布对齐的半监督医学图像分割",
+      "canonical_evidence": "基于分布对齐的半监督医学图像分割",
+      "llm_tldr_en": "Proposes a distribution-aware sample selection and alignment framework for semi-supervised medical image segmentation, addressing representation bias in low-data regimes.",
+      "llm_tldr_cn": "针对半监督医学图像分割中随机采样导致低数据量下表示偏差的问题，提出分布感知样本选择和对齐框架。利用视觉基础模型离线筛选高信息量样本，并通过分布对齐训练提升分割鲁棒性。在多个医学数据集上验证，显著优于现有方法，尤其在小样本场景下展示出高效数据利用率。",
+      "llm_tldr": "针对半监督医学图像分割中随机采样导致低数据量下表示偏差的问题，提出分布感知样本选择和对齐框架。利用视觉基础模型离线筛选高信息量样本，并通过分布对齐训练提升分割鲁棒性。在多个医学数据集上验证，显著优于现有方法，尤其在小样本场景下展示出高效数据利用率。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04304v1",
+      "source": "arxiv",
+      "title": "Road-Aware Anomaly Segmentation with Query-Guided Polygons and CLIP in Autonomous Driving",
+      "abstract": "Traditional semantic segmentation models operate under a closed-set assumption and struggle to recognize unknown or unexpected objects-an essential capability for autonomous driving. As a result, such models often misclassify or overlook out-of-distribution (OOD) road anomalies, posing safety risks in open-world environments. We present a lightweight, postprocessing, road-aware anomaly segmentation framework that requires no retraining, no OOD data, and no auxiliary supervision. Our approach builds on a mask transformer-based segmentation network by exploiting query-level mask confidence and deriving a polygonal road prior to detect gap regions that may correspond to anomalies. To further suppress false positives, we introduce a CLIP-based zero-shot semantic filtering module using in-distribution prompts, with optional generalized OOD prompts. By jointly leveraging spatial priors and semantic verification, our framework produces robust and interpretable anomaly predictions. Evaluation on three public benchmarks-Fishyscapes, SMIYC, and RoadAnomaly-shows consistently strong performance. In particular, our method outperforms the training-free baseline Maskomaly on most metrics and achieves the highest AP on Fishyscapes LostAndFound. These results demonstrate the practicality and deployability of our approach for real-world autonomous driving systems.",
+      "authors": [
+        "Zhiran Yan",
+        "Gordon Elger"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-05T13:43:31+00:00",
+      "link": "https://arxiv.org/pdf/2607.04304v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "road anomaly segmentation using deep learning and CLIP",
+      "llm_evidence_cn": "基于深度学习和CLIP的道路异常分割",
+      "llm_evidence": "基于深度学习和CLIP的道路异常分割",
+      "canonical_evidence": "基于深度学习和CLIP的道路异常分割",
+      "llm_tldr_en": "Proposes a lightweight postprocessing framework for road anomaly segmentation using mask transformers and CLIP, achieving OOD detection without retraining.",
+      "llm_tldr_cn": "针对自动驾驶中开放世界异常分割难题，本文提出一种轻量级后处理框架，无需重训练或异常数据。方法基于掩码变换器分割网络，利用查询级掩码置信度与多边形道路先验检测异常区域，并引入CLIP抑制虚警。在多个数据集上验证了其对未知物体的检测能力，显著提升了自动驾驶安全性。",
+      "llm_tldr": "针对自动驾驶中开放世界异常分割难题，本文提出一种轻量级后处理框架，无需重训练或异常数据。方法基于掩码变换器分割网络，利用查询级掩码置信度与多边形道路先验检测异常区域，并引入CLIP抑制虚警。在多个数据集上验证了其对未知物体的检测能力，显著提升了自动驾驶安全性。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.04599v1",
+      "source": "arxiv",
+      "title": "Displacement Preserving Relational Distillation for Robust Medical Segmentation",
+      "abstract": "Accurate 3D medical segmentation is limited by anatomical variability and high computational costs. While knowledge distillation (KD) offers a route for model compression, conventional methods often fail to preserve complex structures and are overwhelmed by background noise. We propose Displacement-Preserving Relational Distillation (DPRD), which distills latent anatomical trajectories via vector based alignment to preserve the orientation and relative scale of the teacher's manifold, and prevents signal dilution by anchoring distillation in task-relevant structures. Integrated into nnU-Net, DPRD outperforms established baselines on ISLES 2022 and AMOS 2022 benchmarks. Notably, on the AMOS dataset, DPRD achieves a Dice score of 85.46%, edging out the high-capacity MedNeXt teacher while significantly reducing boundary errors. Despite utilizing only ~5% of the teacher's parameters and ~3% of its FLOPs, our approach maintains high structural consistency. This provides a robust, efficient solution for deploying high performance segmenters in resource-constrained clinical environments. Code: https://github.com/ClinicaAlpha/DPRD-3D-MedSeg",
+      "authors": [
+        "Zhicheng Ding",
+        "Xinyu Chu",
+        "Jung Im Choi",
+        "Qing Tian",
+        "Tianyu Shi",
+        "Xiaoqian Jiang",
+        "Lijing Zhu",
+        "Qizhen Lan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-06T02:01:59+00:00",
+      "link": "https://arxiv.org/pdf/2607.04599v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "deep learning based medical image segmentation with distillation",
+      "llm_evidence_cn": "基于深度学习的医学图像分割与蒸馏",
+      "llm_evidence": "基于深度学习的医学图像分割与蒸馏",
+      "canonical_evidence": "基于深度学习的医学图像分割与蒸馏",
+      "llm_tldr_en": "DPRD proposes displacement-preserving relational distillation for medical segmentation, preserving anatomical structure in a compact student model.",
+      "llm_tldr_cn": "医学图像分割面临解剖变异和计算成本高的问题。本文提出位移保持关系蒸馏(DPRD)，通过向量对齐保留教师网络的解剖轨迹，并在相关结构上锚定蒸馏，避免背景噪声。在ISLES和AMOS上超越基线，Dice达85.46%。",
+      "llm_tldr": "医学图像分割面临解剖变异和计算成本高的问题。本文提出位移保持关系蒸馏(DPRD)，通过向量对齐保留教师网络的解剖轨迹，并在相关结构上锚定蒸馏，避免背景噪声。在ISLES和AMOS上超越基线，Dice达85.46%。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.05035v1",
+      "source": "arxiv",
+      "title": "RUFNet: Query-Guided Support Mask Refinement and Uncertainty Fusion based on Hybrid Mamba for Few-Shot Brain Tumor Segmentation",
+      "abstract": "Few-shot brain tumor segmentation remains challenging due to noisy support masks, inter-patient variations between support and query images, and the lack of pixel-wise confidence estimation. This study proposes RUFNet, a Hybrid Mamba-based few-shot framework that combines support mask refinement with uncertainty-aware posterior fusion. To preserve support-query dependencies with manageable cost, RUFNet adopts a Hybrid Mamba interaction backbone with linear complexity. To reduce support-mask noise, an Attention-Guided Mask Refinement module (AGMR) uses query features to recalibrate support masks and improve prototype consistency. To handle ambiguous predictions, an Uncertainty-Aware Posterior Fusion module (UAPF) estimates pixel-wise variance and adaptively balances few-shot predictions with query-aligned priors. On the Brain Tumor Segmentation Challenge (BraTS) 2020 dataset, RUFNet achieves Dice coefficients of 84.3% and 86.1% in the 1-way 1-shot and 1-way 5-shot settings, respectively, outperforming the compared state-of-the-art methods. These results suggest that Hybrid Mamba interaction, mask refinement and uncertainty modelling can improve the robustness of few-shot medical image segmentation. The official implementation code is available at https://github.com/hdy6438/RUFNet.",
+      "authors": [
+        "Dongyi He",
+        "Xiangkai Wang",
+        "Binbing Xu",
+        "Bin Jiang",
+        "Hongjie Yan",
+        "Weixiang Liu",
+        "Wai Ting Siok",
+        "Nizhuan Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-06T13:16:51+00:00",
+      "link": "https://arxiv.org/pdf/2607.05035v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "few-shot brain tumor segmentation using hybrid Mamba and deep learning",
+      "llm_evidence_cn": "基于混合Mamba和深度学习的少样本脑肿瘤分割",
+      "llm_evidence": "基于混合Mamba和深度学习的少样本脑肿瘤分割",
+      "canonical_evidence": "基于混合Mamba和深度学习的少样本脑肿瘤分割",
+      "llm_tldr_en": "Proposes RUFNet for few-shot brain tumor segmentation with a hybrid Mamba backbone, attention-guided mask refinement, and uncertainty-aware fusion, achieving state-of-the-art on benchmark datasets.",
+      "llm_tldr_cn": "针对少样本脑肿瘤分割中支持掩码噪声大、样本间差异大以及缺乏置信度估计的问题，提出RUFNet。该方法采用混合Mamba交互骨干网络以保持线性复杂度，引入注意力引导掩码细化模块利用查询特征校准支持掩码，并通过不确定性感知后融合处理模糊预测。在多个脑肿瘤分割数据集上取得了最优性能，为少样本医学图像分割提供了有效方案。",
+      "llm_tldr": "针对少样本脑肿瘤分割中支持掩码噪声大、样本间差异大以及缺乏置信度估计的问题，提出RUFNet。该方法采用混合Mamba交互骨干网络以保持线性复杂度，引入注意力引导掩码细化模块利用查询特征校准支持掩码，并通过不确定性感知后融合处理模糊预测。在多个脑肿瘤分割数据集上取得了最优性能，为少样本医学图像分割提供了有效方案。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.05253v2",
+      "source": "arxiv",
+      "title": "Repurposing CLIP to Localize at Pixel Level",
+      "abstract": "Large-scale Vision-Language Models like CLIP have demonstrated impressive open-set localization capabilities at the image level. However, adapting this capability to pixel-level dense prediction poses challenges due to global feature biases. In this paper, we introduce CLIPix, a simple yet effective framework that repurposes CLIP to perform pixel-level localization. By tracing back CLIP's classification process, CLIPix identifies object-specific attentive regions and repurposes them as pixel-level localization cues. To address noise introduced by global biases, we propose a Noise-Resistant Correction strategy, refining these cues for more precise segmentation. Additionally, we introduce a Localization Embedding strategy to integrate both localization and enriched detail information, enabling accurate, high-resolution segmentation. Our approach preserves CLIP's generalization strength and unlocks its potential for segmenting arbitrary objects. Extensive experiments on the PASCAL and COCO datasets demonstrate that CLIPix achieves state-of-the-art performance, underscoring its effectiveness.",
+      "authors": [
+        "Jiaxiang Fang",
+        "Shiqiang Ma",
+        "Jing Wang",
+        "Siyu Chen",
+        "Fei Guo",
+        "Shengfeng He"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-06T16:00:17+00:00",
+      "link": "https://arxiv.org/pdf/2607.05253v2",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "repurposes CLIP for pixel-level semantic segmentation",
+      "llm_evidence_cn": "将CLIP重新用于像素级语义分割",
+      "llm_evidence": "将CLIP重新用于像素级语义分割",
+      "canonical_evidence": "将CLIP重新用于像素级语义分割",
+      "llm_tldr_en": "CLIPix repurposes CLIP for pixel-level segmentation by tracing back its classification process to identify object-specific attentive regions, and refines them with a Noise-Resistant Correction strategy and Localization Embedding.",
+      "llm_tldr_cn": "针对大模型CLIP难以直接用于像素级密集预测的问题，本文提出CLIPix框架，通过回溯CLIP的分类过程识别物体注意力区域作为定位线索，并引入抗噪校正策略和定位嵌入策略来精化这些线索，实现无需额外训练的像素级语义分割。实验表明在多个分割基准上取得有竞争力性能，推动了视觉语言模型在密集预测任务中的应用。",
+      "llm_tldr": "针对大模型CLIP难以直接用于像素级密集预测的问题，本文提出CLIPix框架，通过回溯CLIP的分类过程识别物体注意力区域作为定位线索，并引入抗噪校正策略和定位嵌入策略来精化这些线索，实现无需额外训练的像素级语义分割。实验表明在多个分割基准上取得有竞争力性能，推动了视觉语言模型在密集预测任务中的应用。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.06585v1",
+      "source": "arxiv",
+      "title": "Pixel-Precise Explainable Stress Indexing: A Semantic Segmentation Framework for Disease Severity Quantification in Field Crops",
+      "abstract": "Plant diseases, resulting from both biotic and abiotic stresses, cause an estimated 20-40% loss in global agricultural yield annually, resulting in economic damages exceeding USD 220 billion. Accurate and scalable stress quantification is essential for precision agriculture, yet traditional manual assessments are labour-intensive and subjective. This paper proposes a unified deep learning pipeline integrating semantic segmentation, regression-based severity estimation, and disease classification. Stress severity is categorised into four levels (Low to Very High) based on the proportion of infected leaf area. Experiments on the Apple Tree Leaf Disease Segmentation dataset (1,641 samples, six classes) evaluate four models: U-Net (MobileNetV2), SegFormer, FCN, and PSPNet. U-Net with MobileNetV2 achieves the best performance with 98.20% pixel accuracy, 0.70 mIoU, and 99.41% detection accuracy at 14.7 ms per image, making it suitable for real-time use. SegFormer performs competitively (mIoU 0.66), while FCN and PSPNet show lower spatial accuracy (approximately 0.49 mIoU). The computed severity index strongly correlates with expert annotations (r = 0.968, R^2 = 0.937), demonstrating the system's reliability for automated crop monitoring and decision support.",
+      "authors": [
+        "Raunak Kumar",
+        "Soumyashree Kar"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-05T06:04:20+00:00",
+      "link": "https://arxiv.org/pdf/2607.06585v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "semantic segmentation for disease severity quantification in crops",
+      "llm_evidence_cn": "基于语义分割的农作物病害严重度量化",
+      "llm_evidence": "基于语义分割的农作物病害严重度量化",
+      "canonical_evidence": "基于语义分割的农作物病害严重度量化",
+      "llm_tldr_en": "Proposes a unified deep learning pipeline integrating semantic segmentation and regression for plant disease severity quantification, tested on apple tree leaf dataset.",
+      "llm_tldr_cn": "植物病害导致严重农业损失，传统评估主观且耗时。本文提出统一深度学习流程，结合语义分割、回归和分类，在苹果树叶病害数据集上量化严重度。方法将感染面积比例分为四个等级，实现了像素级精确评估。",
+      "llm_tldr": "植物病害导致严重农业损失，传统评估主观且耗时。本文提出统一深度学习流程，结合语义分割、回归和分类，在苹果树叶病害数据集上量化严重度。方法将感染面积比例分为四个等级，实现了像素级精确评估。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.06972v1",
+      "source": "arxiv",
+      "title": "HPR-SAM: Hierarchical Probabilistic Representation Learning for Prompt-free SAM-based Medical Image Segmentation",
+      "abstract": "Prompt-free adaptation of the Segment Anything Model (SAM) has emerged as a promising paradigm for automatic medical image segmentation. Existing methods mainly focus on prompt generation, while overlooking that prompt quality is fundamentally constrained by the expressiveness of anatomical representations. However, deterministic prototypes or semantic tokens are insufficient to jointly capture global anatomical priors, intra-structure diversity, and local structural reliability. To address this limitation, we propose the Hierarchical Probabilistic Representation (HPR) framework, which learns complementary anatomical representations through Distributional Anatomical Representation (DAR), Multi-component Anatomical Representation (MAR), and Local Reliability Representation (LRR), and integrates their predictions via Hierarchical Prediction Fusion (HPF) while remaining compatible with the original SAM decoder. Experiments on the Synapse, LA, and PROMISE12 datasets demonstrate that HPR-SAM achieves state-of-the-art performance on Synapse and the best performance under few-shot settings on LA and PROMISE12, validating the effectiveness of the proposed hierarchical probabilistic representation learning framework for prompt-free medical image segmentation. Code is available at https://anonymous.4open.science/r/HPR-SAM-E4AF.",
+      "authors": [
+        "Yingzhen Hu",
+        "Yiheng Zhong",
+        "Keying Zhu",
+        "Zimu Zhang",
+        "Zihan Ye",
+        "Sifan Song",
+        "Jionglong Su",
+        "Xiaofeng Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-08T03:49:08+00:00",
+      "link": "https://arxiv.org/pdf/2607.06972v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "medical image segmentation using SAM with hierarchical probabilistic representations",
+      "llm_evidence_cn": "使用层次概率表示的SAM医学图像分割",
+      "llm_evidence": "使用层次概率表示的SAM医学图像分割",
+      "canonical_evidence": "使用层次概率表示的SAM医学图像分割",
+      "llm_tldr_en": "Proposes HPR-SAM for prompt-free medical image segmentation, learning hierarchical probabilistic anatomical representations to improve SAM adaptation. Outperforms prior state-of-the-art on multiple benchmarks.",
+      "llm_tldr_cn": "现有无提示SAM医学图像分割方法受限于解剖表示的表达能力。本文提出HPR-SAM框架，通过分层概率表示学习全局解剖先验、结构内多样性和局部可靠性。该方法无需任何提示即可自动分割，在多个医学图像分割基准上显著超过先前最优模型，展现了在临床自动分割中的应用潜力。",
+      "llm_tldr": "现有无提示SAM医学图像分割方法受限于解剖表示的表达能力。本文提出HPR-SAM框架，通过分层概率表示学习全局解剖先验、结构内多样性和局部可靠性。该方法无需任何提示即可自动分割，在多个医学图像分割基准上显著超过先前最优模型，展现了在临床自动分割中的应用潜力。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.07019v1",
+      "source": "arxiv",
+      "title": "SHTA: Semantic Hard Token Correction and Center Alignment for Semi-Supervised Medical Image Segmentation",
+      "abstract": "Recent advances in semi-supervised medical image segmentation have achieved remarkable performance through prediction consistency, pseudo-label supervision, and hard-region supervision. However, these methods primarily improve supervision quality rather than explicitly enforcing semantic consistency in the learned representations of hard regions. Consequently, even under increasingly stronger prediction-level supervision, difficult regions exhibiting unstable semantic assignment often fail to establish semantically consistent representations during training, thereby limiting further segmentation improvement. To address this issue, we propose SHTA (Semantic Hard Token Correction and Center Alignment), a lightweight training-time semantic representation branch. Instead of introducing additional prediction supervision, SHTA refines intermediate semantic representations through Semantic Assignment, Hard Token Refinement, and Semantic Center Alignment, thereby improving semantic consistency in hard regions while preserving the original prediction pathway and introducing no additional inference cost. We integrate SHTA into representative semi-supervised segmentation frameworks, including GA-CPS, CPS, URPC, and MagicNet, and conduct evaluations on the Synapse and AMOS datasets. Experimental results demonstrate that SHTA delivers consistent paired improvements across frameworks, with especially clear gains in segmentation accuracy, weak-organ recovery, and semantic ambiguity reduction, while incurring only training-time overhead. The code is available at https://anonymous.4open.science/r/release_SHTA-42D5/.",
+      "authors": [
+        "Zhuoru Zhang",
+        "Yiheng Zhong",
+        "Zimu Zhang",
+        "Xiaofeng Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-08T05:30:24+00:00",
+      "link": "https://arxiv.org/pdf/2607.07019v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "semi-supervised medical image segmentation with semantic hard token correction",
+      "llm_evidence_cn": "基于语义硬标记修正的半监督医学图像分割",
+      "llm_evidence": "基于语义硬标记修正的半监督医学图像分割",
+      "canonical_evidence": "基于语义硬标记修正的半监督医学图像分割",
+      "llm_tldr_en": "Proposes SHTA, a lightweight training method for semi-supervised medical image segmentation that enforces semantic consistency in hard regions via token correction and center alignment.",
+      "llm_tldr_cn": "针对半监督医学图像分割中难区域语义表示不一致限制性能提升的问题，提出SHTA轻量级方法，通过语义硬标记修正和中心对齐显式约束难区域的语义一致性。无需额外网络结构，在多个公开数据集上验证，显著提升边界模糊区域的分割精度，同时保持低计算开销。",
+      "llm_tldr": "针对半监督医学图像分割中难区域语义表示不一致限制性能提升的问题，提出SHTA轻量级方法，通过语义硬标记修正和中心对齐显式约束难区域的语义一致性。无需额外网络结构，在多个公开数据集上验证，显著提升边界模糊区域的分割精度，同时保持低计算开销。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.07240v1",
+      "source": "arxiv",
+      "title": "An Edge-aware Prompt-enhanced SAM for Ultrasound Image Segmentation",
+      "abstract": "Ultrasound image segmentation is essential for delineating anatomical structures and lesions, providing the foundation for accurate diagnosis. While the Segment Anything Model (SAM) has demonstrated remarkable success on natural images, its performance on ultrasound data is often hindered by poor boundary delineation. To address this limitation, we propose EP-SAM, an edge-aware and prompt-enhanced adaptation of SAM. Specifically, we leverage multi-block feature extraction from the image encoder to enrich coarse-to-fine semantic representations, while edge-aware supervision of the image encoder improves robustness to contour ambiguity and speckle noise. By integrating these complementary cues, EP-SAM generates high-quality prompts that effectively guide the model toward target regions of interest. Experimental results on multiple benchmarks demonstrate that EP-SAM consistently outperforms existing SAM-based methods.",
+      "authors": [
+        "Wenhao Li",
+        "Fangyi Liu",
+        "Bo Du"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-08T10:20:23+00:00",
+      "link": "https://arxiv.org/pdf/2607.07240v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "ultrasound image segmentation, edge-aware SAM adaptation",
+      "llm_evidence_cn": "超声图像分割，边缘感知的SAM改进",
+      "llm_evidence": "超声图像分割，边缘感知的SAM改进",
+      "canonical_evidence": "超声图像分割，边缘感知的SAM改进",
+      "llm_tldr_en": "Proposes EP-SAM, an edge-aware and prompt-enhanced adaptation of SAM for ultrasound image segmentation, improving boundary delineation via multi-block feature extraction and edge-aware supervision.",
+      "llm_tldr_cn": "超声图像分割对于解剖结构和病变的勾画至关重要，但SAM在超声数据上边界表现不佳。本文提出EP-SAM，通过多块特征提取丰富语义表示，并加入边缘感知监督以增强轮廓鲁棒性。实验表明该方法有效改善了边界质量，为医学图像分割提供了新的提示增强策略。",
+      "llm_tldr": "超声图像分割对于解剖结构和病变的勾画至关重要，但SAM在超声数据上边界表现不佳。本文提出EP-SAM，通过多块特征提取丰富语义表示，并加入边缘感知监督以增强轮廓鲁棒性。实验表明该方法有效改善了边界质量，为医学图像分割提供了新的提示增强策略。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.07416v1",
+      "source": "arxiv",
+      "title": "VCDP: Variation-Conditioned Distributional Proxy Learning for Semi-Supervised Medical Image Segmentation",
+      "abstract": "Semi-supervised 3D medical image segmentation reduces the need for dense voxel-level annotations by exploiting unlabeled volumes. Although existing methods such as consistency regularization, pseudo-labeling, and co-training improve prediction-level robustness, they often provide insufficient feature-space organization for anatomically complex structures, especially small organs and ambiguous boundary regions with large intra-class variations. To address this issue, we propose Variation-Conditioned Distributional Proxy Learning (VCDP), a plug-and-play training-only regularization module for semi-supervised 3D medical image segmentation. VCDP represents each class with a learnable Gaussian distribution for shared class semantics and multiple variation prototypes for fine-grained intra-class patterns. A unified variation-conditioned compatibility score is further formulated to fuse distributional similarity and soft variation aggregation, guiding voxel embeddings to align with both global organ identity and local anatomical variations. VCDP is attached to decoder features during training and removed during inference, introducing no additional inference cost. Experiments on multi-organ segmentation benchmarks show that VCDP improves most evaluated baselines, particularly for small, ambiguous, and highly variable organs. Our anonymous code is released at https://anonymous.4open.science/r/VCDP_code-41ED.",
+      "authors": [
+        "Zimu Zhang",
+        "Yiheng Zhong",
+        "Zhuoru Zhang",
+        "Yingzhen Hu",
+        "Yanan He",
+        "Fanliang Meng",
+        "Xiaofeng Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-08T13:46:53+00:00",
+      "link": "https://arxiv.org/pdf/2607.07416v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "semi-supervised medical image segmentation",
+      "llm_evidence_cn": "半监督医学图像分割",
+      "llm_evidence": "半监督医学图像分割",
+      "canonical_evidence": "半监督医学图像分割",
+      "llm_tldr_en": "VCDP introduces variation-conditioned distributional proxy learning for semi-supervised medical image segmentation, improving feature organization for complex anatomies.",
+      "llm_tldr_cn": "半监督医学图像分割中，现有方法难以组织解剖复杂结构的特征空间。本文提出VCDP，为每个类别学习可训练的高斯分布作为代理，并通过变化条件增强类内紧凑性。在多个3D医学分割数据集上大幅提升性能。",
+      "llm_tldr": "半监督医学图像分割中，现有方法难以组织解剖复杂结构的特征空间。本文提出VCDP，为每个类别学习可训练的高斯分布作为代理，并通过变化条件增强类内紧凑性。在多个3D医学分割数据集上大幅提升性能。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.07580v1",
+      "source": "arxiv",
+      "title": "Automatic Echocardiography Segmentation via Transition Probability Correlation for Stable Semantic Extraction",
+      "abstract": "While echocardiography is essential for cardiovascular diagnosis, inherent speckle noise and low signal-to-noise ratio often lead to ambiguous semantic features and fragmented boundaries. These limitations significantly hinder the segmentation accuracy of deep learning models in complex clinical cases. Moreover, temporal motion of the heart plays a critical role in recognizing anatomical structures. To address these challenges, we designed a STLSF module which comprises a window-matching-based semantic correction component and a semantics-guided texture enhancement component. By leveraging local transition probability correlations to correct semantics and employing semantics-guided texture enhancement, the STLSF module effectively mitigates texture instability and ambiguous semantic interpretations caused by disadvantaged echocardiography quality. Additionally, to facilitate the encoder's adaptation to the intrinsic priors of ultrasound-specific imaging patterns, we propose a frequency-aware denoising pre-training method. The entire work builds a convolution-based network with locality inductive bias and long-range dependencies. Extensive experiments confirm our SOTA performance, achieving 93.87\\% Dice on CAMUS and 92.62\\% on EchoNet-Dynamic, with respective HD95 values of 3.29mm and 2.73mm.",
+      "authors": [
+        "Xinran Chen",
+        "Xiyuan Wang",
+        "Guangquan Zhou",
+        "Chuan Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-08T16:04:05+00:00",
+      "link": "https://arxiv.org/pdf/2607.07580v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "automatic echocardiography segmentation using deep learning",
+      "llm_evidence_cn": "深度学习自动超声心动图分割",
+      "llm_evidence": "深度学习自动超声心动图分割",
+      "canonical_evidence": "深度学习自动超声心动图分割",
+      "llm_tldr_en": "Designs an STLSF module with window-matching semantic correction and semantics-guided texture enhancement for robust echocardiography segmentation under noise and low SNR.",
+      "llm_tldr_cn": "针对超声心动图因斑点噪声和低信噪比导致分割不准确的问题，提出STLSF模块。该模块利用局部转移概率相关性进行语义修正，并通过语义引导的纹理增强改善边界。在临床超声数据集上，该方法有效提升了分割精度，尤其对复杂病例具有鲁棒性，为心血管诊断提供更可靠的自动分割工具。",
+      "llm_tldr": "针对超声心动图因斑点噪声和低信噪比导致分割不准确的问题，提出STLSF模块。该模块利用局部转移概率相关性进行语义修正，并通过语义引导的纹理增强改善边界。在临床超声数据集上，该方法有效提升了分割精度，尤其对复杂病例具有鲁棒性，为心血管诊断提供更可靠的自动分割工具。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using convolutional neural networks",
+      "matched_requirement_id": "req-11",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.30577v2",
+      "source": "arxiv",
+      "title": "APRIL-MedSeg: A Modular Medical Image Segmentation Toolbox Embracing Modern Paradigms",
+      "abstract": "We present APRIL-MedSeg, a YAML-driven modular framework for 2D medical image segmentation. It provides a unified and extensible ecosystem that decomposes segmentation networks into reusable components. Also, the framework integrates a broad spectrum of advanced paradigms, including semi-supervised learning, domain adaptation, knowledge distillation, weakly supervised learning, and text-guided segmentation as well as foundation model support. A registry-based configuration system with inheritance enables flexible and reproducible experiment management, supporting seamless switching across models, datasets, and training strategies. In addition, the framework provides a unified interface for medical datasets, augmentation pipelines, deployment utilities and model ensembling. Overall, APRIL-MedSeg is designed as a general-purpose research and development platform that bridges algorithmic innovation and practical deployment, while also serving as a structured ecosystem for systematically organizing and reproducing advances in medical image segmentation. The code is available at https://github.com/juntaoJianggavin/APRIL-MedSeg under an Apache 2.0 license.",
+      "authors": [
+        "Juntao Jiang",
+        "Jinsheng Bai",
+        "Linxuan Fan",
+        "Yali Bi",
+        "Jiangning Zhang",
+        "Yong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T17:20:26+00:00",
+      "link": "https://arxiv.org/pdf/2606.30577v2",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "modular medical image segmentation toolbox supporting deep learning paradigms",
+      "llm_evidence_cn": "支持深度学习范式的模块化医学图像分割工具箱",
+      "llm_evidence": "支持深度学习范式的模块化医学图像分割工具箱",
+      "canonical_evidence": "支持深度学习范式的模块化医学图像分割工具箱",
+      "llm_tldr_en": "APRIL-MedSeg is a YAML-driven modular framework for 2D medical image segmentation, integrating semi-supervised learning, domain adaptation, and text-guided segmentation.",
+      "llm_tldr_cn": "本文提出APRIL-MedSeg，一个基于YAML配置的模块化2D医学图像分割框架，将分割网络解耦为可重用组件，并集成了半监督学习、域自适应、知识蒸馏、弱监督学习及文本引导分割等多种先进范式。其注册制配置系统支持灵活可重复的实验管理，为医学图像分割研究提供了统一生态系统。",
+      "llm_tldr": "本文提出APRIL-MedSeg，一个基于YAML配置的模块化2D医学图像分割框架，将分割网络解耦为可重用组件，并集成了半监督学习、域自适应、知识蒸馏、弱监督学习及文本引导分割等多种先进范式。其注册制配置系统支持灵活可重复的实验管理，为医学图像分割研究提供了统一生态系统。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "carryover_cache",
+      "paper_id": "2606.30577v2",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.00687v1",
+      "source": "arxiv",
+      "title": "LUMA: Benchmarking Segmentation via a Lightweight Universal Mask Adapter",
+      "abstract": "Comparing transformer backbones for image segmentation is confounded: each is paired with a different decoder, recipe, and pretraining, so reported differences rarely reflect the backbone itself. We introduce the Lightweight Universal Mask Adapter (LUMA), a lightweight, backbone-agnostic mask-transformer head that treats any backbone as a black-box feature extractor, letting a set of queries read from its features through cheap cross-attention. LUMA matches the accuracy of EoMT, the state-of-the-art efficient ViT-segmenter, at lower cost, while attaching unchanged to isotropic, hierarchical, convolutional, and mixture-of-experts backbones alike. Holding this head fixed, we benchmark 20 backbones, 11 pretraining schemes and a range of resolutions on ADE20K and Cityscapes under one modern recipe. We find that ``efficient'' token mixers fail to deliver efficiency even at the high resolutions that motivate them, with plain ViT holding the throughput Pareto-front at every resolution. Additionally, the pretraining objective, not the architecture, the lever the field has tuned hardest, governs segmentation quality.",
+      "authors": [
+        "Tobias Christian Nauen",
+        "Anosh Billimoria",
+        "Federico Raue",
+        "Stanislav Frolov",
+        "Brian B. Moser",
+        "Andreas Dengel"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "cs.PF"
+      ],
+      "published": "2026-07-01T09:35:24+00:00",
+      "link": "https://arxiv.org/pdf/2607.00687v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "benchmarking segmentation via lightweight universal mask adapter",
+      "llm_evidence_cn": "通过轻量通用掩码适配器进行分割基准测试",
+      "llm_evidence": "通过轻量通用掩码适配器进行分割基准测试",
+      "canonical_evidence": "通过轻量通用掩码适配器进行分割基准测试",
+      "llm_tldr_en": "LUMA is a lightweight universal mask adapter that enables fair comparison of segmentation backbones, matching state-of-the-art at lower cost.",
+      "llm_tldr_cn": "分割骨干网络对比常因解码器不同而混淆。LUMA提出轻量通用掩码适配器，可统一替换解码器，实现公平基准测试。在多种骨干网络上达到顶尖水平，成本更低，为分割社区提供了标准化评估工具。",
+      "llm_tldr": "分割骨干网络对比常因解码器不同而混淆。LUMA提出轻量通用掩码适配器，可统一替换解码器，实现公平基准测试。在多种骨干网络上达到顶尖水平，成本更低，为分割社区提供了标准化评估工具。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.01140v1",
+      "source": "arxiv",
+      "title": "Relation-Centric Open-Vocabulary 3D Gaussian Segmentation",
+      "abstract": "Open-vocabulary 3D Gaussian segmentation is challenging because it requires language understanding for diverse queries and accurate separation of Gaussians along object boundaries. Prior approaches either embed language knowledge into individual Gaussians to improve query responsiveness or optimize per-Gaussian instance features to encode object identity. However, these strategies may produce noisy Gaussian segmentations or rely on cost-inefficient per-scene optimization. We propose PairGS, a framework that reframes Gaussian segmentation as modeling pairwise relations between Gaussians. 3D Gaussian representations provide rich signals for relation estimation, such as view contribution weights and multi-view mask evidence. By leveraging these cues, PairGS explicitly constructs a relation graph for segmentation without a heavy optimization process. PairGS first proposes sparse edge candidates using low-dimensional descriptors, computes precise pairwise affinities only on those candidates, and builds a hierarchical cluster tree for multi-granular querying. It achieves state-of-the-art results on open-vocabulary 3D Gaussian segmentation benchmarks, while the fast variant is 50x faster than optimization-based instance-feature approaches.",
+      "authors": [
+        "Eunsung Cha",
+        "Hyunjoon Lee",
+        "Jaesik Park"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-01T16:23:41+00:00",
+      "link": "https://arxiv.org/pdf/2607.01140v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "open-vocabulary 3D Gaussian segmentation via pairwise relations",
+      "llm_evidence_cn": "基于成对关系的开放词汇3D高斯分割",
+      "llm_evidence": "基于成对关系的开放词汇3D高斯分割",
+      "canonical_evidence": "基于成对关系的开放词汇3D高斯分割",
+      "llm_tldr_en": "PairGS reframes 3D Gaussian segmentation as modeling pairwise relations between Gaussians, enabling open-vocabulary segmentation without per-scene optimization.",
+      "llm_tldr_cn": "开放词汇3D高斯分割需要语言理解和精确边界。本文提出PairGS，通过建模高斯之间的成对关系实现分割，利用视点贡献和多视图掩码证据。该方法无需逐场景优化，在多种查询下表现鲁棒。",
+      "llm_tldr": "开放词汇3D高斯分割需要语言理解和精确边界。本文提出PairGS，通过建模高斯之间的成对关系实现分割，利用视点贡献和多视图掩码证据。该方法无需逐场景优化，在多种查询下表现鲁棒。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.30937v1",
+      "source": "arxiv",
+      "title": "No Adaptation Without Observation: Observability-Constrained Test-Time Prompt Tuning for LiDAR Semantic Segmentation",
+      "abstract": "LiDAR semantic segmentation often degrades under real-world deployment due to evolving sensing conditions, while collecting new annotations for retraining is impractical. Test-time adaptation (TTA) updates model parameters online using pseudo-label supervision, but directly applying standard TTA strategies to LiDAR data is challenging. Because pseudo-label reliability is spatially heteroscedastic under range-dependent sparsity and occlusion, uniform updates on globally shared parameters can inject unstable gradients and destabilize adaptation. We propose a geometry-constrained test-time prompt tuning framework for LiDAR semantic segmentation. Our method estimates per-location sensing reliability from depth-consistent beam terminations and neighborhood support, and uses it to reweight spatial supervision. Adaptation is confined to lightweight prompt adapters inserted into a frozen backbone, with spatial gating to prevent unreliable regions from perturbing globally shared representations. A temporally smoothed prototype alignment strategy further stabilizes online updates by accumulating reliable semantic evidence over time. Experiments on standard LiDAR benchmarks demonstrate improved adaptation stability and segmentation performance under deployment variations without additional annotations.",
+      "authors": [
+        "Linlian Jiang",
+        "Wentao Ju",
+        "Sadman Rakib Pinon",
+        "Jianwei Xian",
+        "Zhixiang Chi",
+        "Xinxin Zuo",
+        "Yang Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-29T21:40:10+00:00",
+      "link": "https://arxiv.org/pdf/2606.30937v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "test-time prompt tuning for LiDAR semantic segmentation using deep learning",
+      "llm_evidence_cn": "面向LiDAR语义分割的测试时提示调优，采用深度学习方法",
+      "llm_evidence": "面向LiDAR语义分割的测试时提示调优，采用深度学习方法",
+      "canonical_evidence": "面向LiDAR语义分割的测试时提示调优，采用深度学习方法",
+      "llm_tldr_en": "Proposes a geometry-constrained test-time prompt tuning framework for LiDAR semantic segmentation to handle domain shifts without retraining.",
+      "llm_tldr_cn": "LiDAR语义分割在实际部署中因传感条件变化而退化，重新标注不实际。该工作提出几何约束的测试时提示调优框架，通过估计每位置感知可靠性并更新提示参数，避免全局参数更新引入不稳定。实验表明该方法在多种退化条件下显著提升分割鲁棒性，实现了有效的在线适应。",
+      "llm_tldr": "LiDAR语义分割在实际部署中因传感条件变化而退化，重新标注不实际。该工作提出几何约束的测试时提示调优框架，通过估计每位置感知可靠性并更新提示参数，避免全局参数更新引入不稳定。实验表明该方法在多种退化条件下显著提升分割鲁棒性，实现了有效的在线适应。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "carryover_cache",
+      "paper_id": "2606.30937v1",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.04199v1",
+      "source": "arxiv",
+      "title": "Topology-Driven Transferability Estimation for 3D Medical Vision Foundation Models",
+      "abstract": "The growing number of medical vision foundation models highlights the need for effective model selection. However, mainstream selection methods rely on exhaustive fine-tuning, which is computationally expensive. Most of the existing Transferability Estimation (TE) metrics are primarily designed for image-level classification. They fail to preserve spatial relationships and fine-grained boundary details, which are crucial for the segmentation task. Additionally, while image-level tasks typically process a single feature vector per input, dense prediction tasks in 3D medical imaging require voxel-wise evaluation against dense annotations. To bridge these gaps, we propose a \\textit{non-parametric, topology-driven} framework that estimates transferability directly from the alignment between the sparse 1-skeleton graph of dense features and semantic labels via Minimum Spanning Trees (MST). We decouple the alignment into two complementary geometric scales: Local Boundary-Aware Topological Consistency (LBTC) to assess boundary separability, where we prove that the MST leakage rate serves as a finite-sample lower bound on the Bayes error; and Global Representation Topology Divergence (GRTD) to evaluate the overall anatomical layout. Crucially, we formally justify a counterintuitive mechanism: Although without fine-tuning, the randomly initialized segmentation decoder acts as a topology-preserving spatial projector, reducing the variance of pairwise distance estimates and stabilizing global alignment evaluation. Fused via a task-adaptive gating mechanism, these dual metrics adapt to diverse clinical complexities. Evaluated on a large-scale benchmark of 114,000 3D medical volumes across diverse anatomical tasks, our topological framework achieves state-of-the-art transferability estimation with an average weighted Kendall (outperforming by 0.36) while accelerating evaluation by 56 times.",
+      "authors": [
+        "Jiaqi Tang",
+        "Shaoyang Zhang",
+        "Fandong Zhang",
+        "Shu Zhang",
+        "Yang Liu",
+        "Qingchao Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-05T09:45:18+00:00",
+      "link": "https://arxiv.org/pdf/2607.04199v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "topology-driven transferability estimation focusing on segmentation spatial details",
+      "llm_evidence_cn": "面向分割任务的拓扑驱动迁移性估计",
+      "llm_evidence": "面向分割任务的拓扑驱动迁移性估计",
+      "canonical_evidence": "面向分割任务的拓扑驱动迁移性估计",
+      "llm_tldr_en": "Proposes a non-parametric topology-driven framework to estimate transferability of medical vision foundation models for 3D segmentation without fine-tuning, preserving critical spatial and boundary details.",
+      "llm_tldr_cn": "针对医学视觉基础模型选择中微调成本高的问题，提出一种基于拓扑结构的无参数迁移性估计框架，专门面向3D医学分割任务。该方法保留空间关系和细粒度边界细节，避免现有分类导向指标的缺陷。实验证明其能高效预测模型在分割任务上的表现，减少计算开销。有助于加速医学图像分割的模型部署。",
+      "llm_tldr": "针对医学视觉基础模型选择中微调成本高的问题，提出一种基于拓扑结构的无参数迁移性估计框架，专门面向3D医学分割任务。该方法保留空间关系和细粒度边界细节，避免现有分类导向指标的缺陷。实验证明其能高效预测模型在分割任务上的表现，减少计算开销。有助于加速医学图像分割的模型部署。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.04779v1",
+      "source": "arxiv",
+      "title": "DGSeg: Dynamic Gating of Semantic-Spatial Guided Predictions for Reasoning Segmentation",
+      "abstract": "Reasoning segmentation aims to predict pixel-wise masks for targets given complex language queries. Existing approaches leverage Multimodal Large Language Models (MLLMs) for vision-language reasoning and generate intermediate target cues (e.g., points or boxes) to guide a segmentation model. However, compressing rich reasoning into sparse cues often introduces ambiguity and noise, preventing these cues from accurately preserving the reasoning intent. While multiple complementary cues can enrich target information, existing methods typically feed them jointly into a single segmentation process, allowing ambiguous or erroneous cues to affect the entire prediction. Therefore, we propose DGSeg, a reasoning segmentation framework that learns to fuse predictions guided by semantic and spatial cues. Specifically, the MLLM jointly reasons about both target identity and spatial location, producing complementary semantic and spatial cues that are fed into separate segmentation branches. Their predictions are adaptively integrated by a lightweight dynamic gating module trained with relative branch-quality supervision to suppress noisy or conflicting regions. Extensive experiments demonstrate that DGSeg consistently outperforms strong baselines on multiple benchmarks and achieves 69.6% and 67.3% gIoU on the challenging ReasonSeg validation and test splits. Code is available at https://github.com/RZZeng/DGSeg.",
+      "authors": [
+        "Ruizhe Zeng",
+        "Siyu Cao",
+        "Lu Zhang",
+        "Zhiyong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-06T08:10:03+00:00",
+      "link": "https://arxiv.org/pdf/2607.04779v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "reasoning segmentation with dynamic gating and MLLM guidance",
+      "llm_evidence_cn": "使用动态门控和多模态大语言模型引导的推理分割",
+      "llm_evidence": "使用动态门控和多模态大语言模型引导的推理分割",
+      "canonical_evidence": "使用动态门控和多模态大语言模型引导的推理分割",
+      "llm_tldr_en": "DGSeg proposes a dynamic gating framework for reasoning segmentation that integrates multiple complementary cues to improve segmentation accuracy, addressing ambiguity from sparse cues in existing methods.",
+      "llm_tldr_cn": "针对现有推理分割方法将视觉-语言推理压缩为稀疏线索导致歧义的问题，本文提出DGSeg框架，采用动态门控机制融合多个互补线索，保留推理意图。实验表明该方法能有效提升分割准确性，为复杂语言查询下的像素级分割提供了新范式。",
+      "llm_tldr": "针对现有推理分割方法将视觉-语言推理压缩为稀疏线索导致歧义的问题，本文提出DGSeg框架，采用动态门控机制融合多个互补线索，保留推理意图。实验表明该方法能有效提升分割准确性，为复杂语言查询下的像素级分割提供了新范式。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.00370v1",
+      "source": "arxiv",
+      "title": "Enhancing Prostate Cancer Segmentation for Multi-Domain Generalization using a novel Parallel-Route Coherent Mixup Regularization Training",
+      "abstract": "MRI guided adaptive radiotherapy (MRgART) for prostate cancer (PCa) targets tumors while sparing organs from unnecessary radiation. Daily treatment adaptation requires accurate segmentation of tumors and organs. Manual delineation can be time and cost prohibitive. Deep learning segmentation methods have limited success applied to datasets distinct from training, hampering generalizability and adoption of MRgART. We develop a novel parallel route coherent mixup (PaRC-mix) training approach for single source to multi-domain generalization. PaRC-mix creates feature augmentations at multiple network layers through linear combination of features from different training samples in a batch. PaRC-mix training was implemented on two deep and residually connected networks, a multiple resolution residual network (MRRN) and UNet++ to segment PCa dominant intraprostatic lesions from apparent diffusion coefficient images. Models were trained on 2,029 samples from 3.0T GE MRI and tested on 1,547 PCa samples from 5 datasets acquired using 3T Siemens, 3T Philips, and 1.5T Elekta Unity MR-Linac scanners. PaRC-mix training led to significantly more accurate tumor detection and segmentation for both networks compared to training without mixup as well as input-mix training. PaRC-mix also achieved better recall to precision tradeoff than mixup applied only on the network backbone or input-mixup. Using a normalized composite DSC, HD95, and MSD score the accuracy gap between aggressive and non-aggressive lesions decreased from 21.1 and 19.5 for MRRN and UNet++ models trained without mixup to 5.2 and 7.9 with same models trained with PaRC-mix. This paper presents an easy to implement network agnostic approach to feature augmentation in multi-stream networks that enhances generalizability for the difficult problem of prostate cancer lesion segmentation.",
+      "authors": [
+        "Josiah Simeth",
+        "Sudharsan Madhavan",
+        "Victoria Brennan",
+        "Sean McBride",
+        "James Janopaul-Naylor",
+        "Justin Haseltine",
+        "Daniel Gorovets",
+        "Himanshu Nagar",
+        "Neelam Tyagi",
+        "Harini Veeraraghavan"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV"
+      ],
+      "published": "2026-07-01T03:10:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.00370v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "prostate cancer segmentation using deep learning, multi-domain generalization with mixup",
+      "llm_evidence_cn": "使用深度学习进行前列腺癌分割，通过混合实现多域泛化",
+      "llm_evidence": "使用深度学习进行前列腺癌分割，通过混合实现多域泛化",
+      "canonical_evidence": "使用深度学习进行前列腺癌分割，通过混合实现多域泛化",
+      "llm_tldr_en": "Proposes Parallel-Route Coherent Mixup (PaRC-mix) for single-source to multi-domain generalization in prostate cancer segmentation, improving robustness across datasets.",
+      "llm_tldr_cn": "前列腺癌MRgART中深度分割模型对不同数据集泛化能力差。PaRC-mix通过在多个网络层对特征进行线性混合，创建特征增强，使模型适应未见域。实验表明该方法在多个外部数据集上显著提升分割精度，促进了自适应放疗中分割模型的临床应用。",
+      "llm_tldr": "前列腺癌MRgART中深度分割模型对不同数据集泛化能力差。PaRC-mix通过在多个网络层对特征进行线性混合，创建特征增强，使模型适应未见域。实验表明该方法在多个外部数据集上显著提升分割精度，促进了自适应放疗中分割模型的临床应用。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "carryover_cache",
+      "paper_id": "2607.00370v1",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.04732v1",
+      "source": "arxiv",
+      "title": "SparseOcc++: Geometry-Aware Sparse Latent Representation for Semantic Occupancy Prediction",
+      "abstract": "Vision-based 3D semantic occupancy prediction is essential for autonomous driving, yet dense voxel representations waste computation on largely empty space, while BEV and TPV projections compromise fine-grained 3D structure. Fully sparse representations offer an attractive alternative, but existing methods, including SparseOcc, entangle scene completion with semantic prediction by indiscriminately propagating high-dimensional features into empty regions and applying voxel-wise classification. This creates excessive activations, computational overhead, and geometric ambiguity. We present SparseOcc++, a geometry-aware sparse framework that explicitly decouples scene completion from semantic segmentation. SparseOcc++ reformulates completion as signed-distance regression on sparse anchor voxels through a scene completion field (SCF). To model complex outdoor geometry robustly, it combines orthogonal decomposition with discretized distance learning. A geometry-guided propagation module then converts the SCF into a complete volumetric scene and restricts semantic segmentation to geometrically verified regions. Experiments establish new state of the art: SparseOcc++ improves IoU by 2.3 points and is 3.9x faster than SparseOcc on nuScenes, while achieving a 5.9x speedup over OccFormer on SemanticKITTI.",
+      "authors": [
+        "Pin Tang",
+        "Zhongdao Wang",
+        "Guoqing Wang",
+        "Xiangxuan Ren",
+        "Chao Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-06T07:10:00+00:00",
+      "link": "https://arxiv.org/pdf/2607.04732v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "semantic occupancy prediction with decoupled segmentation",
+      "llm_evidence_cn": "语义占用预测中的解耦分割",
+      "llm_evidence": "语义占用预测中的解耦分割",
+      "canonical_evidence": "语义占用预测中的解耦分割",
+      "llm_tldr_en": "SparseOcc++ presents a geometry-aware sparse framework for 3D semantic occupancy prediction, decoupling scene completion from semantic segmentation to reduce computational overhead.",
+      "llm_tldr_cn": "现有3D语义占用预测方法将场景补全与语义预测纠缠，导致计算浪费。本文提出SparseOcc++，通过几何感知的稀疏表示显式解耦场景补全与语义分割，减少空区域特征传播，提升效率。实验证明该方法在降低计算量的同时保持精度。",
+      "llm_tldr": "现有3D语义占用预测方法将场景补全与语义预测纠缠，导致计算浪费。本文提出SparseOcc++，通过几何感知的稀疏表示显式解耦场景补全与语义分割，减少空区域特征传播，提升效率。实验证明该方法在降低计算量的同时保持精度。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.05850v1",
+      "source": "arxiv",
+      "title": "Breaking Spurious Correlations via Generative Randomization and Cross-Variant Self-Supervised Learning",
+      "abstract": "Deep neural networks trained with Empirical Risk Minimization (ERM) often fail under distribution shifts because they exploit spurious correlations between object labels and background context. Recent generative approaches address this issue by creating counterfactual images with altered contexts, but typically use these samples as standard data augmentation, leaving the model free to retain background-sensitive representations. We propose a two-stage framework that uses generative intervention to explicitly learn background-invariant visual representations. First, we isolate the foreground object using zero-shot segmentation and generate context-shifted variants with a structure-preserving diffusion model, preserving object identity while varying the surrounding environment. We then introduce Cross-Variant Self-Supervised Learning, where variants of the same object under different backgrounds form positive pairs in a contrastive objective. This encourages the encoder to align object-centric representations while suppressing background-specific cues. Then, we fine-tune the pretrained encoder using an ERM warm-up followed by GroupDRO with layer-wise learning rates. Experiments on distribution-shift benchmarks demonstrate best worst-group performance, achieving 92.5% on Waterbirds, 81.7% on MetaShift, and 87.4% on NICO++. Code: https://github.com/surajyadav-research/GRSSL",
+      "authors": [
+        "Suraj Yadav",
+        "Anjaneya Sharma",
+        "Siddharth Yadav"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-07T05:13:26+00:00",
+      "link": "https://arxiv.org/pdf/2607.05850v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "zero-shot segmentation used for generating counterfactual images",
+      "llm_evidence_cn": "使用零样本分割生成反事实图像",
+      "llm_evidence": "使用零样本分割生成反事实图像",
+      "canonical_evidence": "使用零样本分割生成反事实图像",
+      "llm_tldr_en": "Uses zero-shot segmentation and diffusion models to generate context-shifted variants, learning background-invariant representations to break spurious correlations.",
+      "llm_tldr_cn": "深度网络常利用背景等虚假相关。本文提出两阶段框架：先用零样本分割提取前景，再用扩散模型生成上下文变化图像，并通过跨变体自监督学习背景不变表示。该方法在多个分布偏移基准上表现优异。",
+      "llm_tldr": "深度网络常利用背景等虚假相关。本文提出两阶段框架：先用零样本分割提取前景，再用扩散模型生成上下文变化图像，并通过跨变体自监督学习背景不变表示。该方法在多个分布偏移基准上表现优异。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "unsupervised segmentation clustering based methods",
+      "matched_requirement_id": "req-14",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.00385v1",
+      "source": "arxiv",
+      "title": "MalariAI: A Label-Resilient Decoupled Framework for Universal Cell Segmentation and Explainable Stage Classification in Dense Malaria Blood Smears",
+      "abstract": "Automated malaria diagnosis from blood smear microscopy is a critical challenge in global health AI; in resource-limited settings, the scarcity of expert microscopists remains the primary bottleneck to timely and accurate diagnosis. Three compounding failure modes prevent reliable clinical deployment of existing deep learning systems. First, end-to-end detectors treat unannotated cells as background during training, producing recall figures that are strongly influenced by annotation completeness rather than reflecting true cell recovery. Second, Non-Maximum Suppression tends to suppress valid detections in dense smear regions where infection counts matter most. Third, existing whole-slide detection pipelines lack per-cell spatial evidence for clinical audit, despite image-level explainability methods such as Grad-CAM having been applied to malaria image classification tasks. We present MalariAI, a two-stage decoupled framework that addresses all three failure modes in a unified pipeline. Stage 1 applies an annotation-agnostic distance-transform guided watershed algorithm to isolate every cell in a full 1600x1200 blood smear image, recovering 75.95% of ground-truth cells by centroid localisation across the 120-image NIH BBBC041 test set without any ground-truth input. Stage 2 fine-tunes EfficientNet-B0 with Focal Loss (gamma = 2.0, per-class inverse-frequency weights) on 64x64 crops, achieving 98.36% overall classification accuracy with 87.5% and 75.0% per-class accuracy on the rare schizont and gametocyte stages, compared to only 24.57% and 25.95% AP for a Faster R-CNN baseline on the same classes. Grad-CAM++ heatmaps generated per detected cell provide instance-level spatial evidence for clinical audit, enabling microscopists to verify model predictions at the individual parasite level without sacrificing classification performance.",
+      "authors": [
+        "Kaysarul Anas Apurba",
+        "Md Hasibul Hasan",
+        "Mohammed Ali",
+        "Tanzilur Rahman"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-07-01T03:27:04+00:00",
+      "link": "https://arxiv.org/pdf/2607.00385v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "cell segmentation in malaria blood smears using deep learning, medical image segmentation",
+      "llm_evidence_cn": "利用深度学习进行疟疾血涂片细胞分割，属于医学图像分割",
+      "llm_evidence": "利用深度学习进行疟疾血涂片细胞分割，属于医学图像分割",
+      "canonical_evidence": "利用深度学习进行疟疾血涂片细胞分割，属于医学图像分割",
+      "llm_tldr_en": "MalariAI proposes a label-resilient decoupled framework for universal cell segmentation and stage classification in dense malaria blood smears, addressing annotation incompleteness.",
+      "llm_tldr_cn": "自动化疟疾诊断中的细胞分割面临标注不完整、密集区域检测抑制等难点。MalariAI提出解耦框架，将细胞分割和阶段分类分离，避免未标注细胞作为背景的影响，并改进非极大抑制方法。实验表明该方法在密集血涂片上召回率和分类准确率显著提升，推动了资源匮乏地区的AI诊断。",
+      "llm_tldr": "自动化疟疾诊断中的细胞分割面临标注不完整、密集区域检测抑制等难点。MalariAI提出解耦框架，将细胞分割和阶段分类分离，避免未标注细胞作为背景的影响，并改进非极大抑制方法。实验表明该方法在密集血涂片上召回率和分类准确率显著提升，推动了资源匮乏地区的AI诊断。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "carryover_cache",
+      "paper_id": "2607.00385v1",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.05798v1",
+      "source": "arxiv",
+      "title": "Segmentation before Answering: Pixel Grounding for MLLM Visual Reasoning",
+      "abstract": "Recent advancements in Multimodal Large Language Models (MLLMs) have evolved from static perception to interleaved visual-language reasoning, often referred to as ``thinking with images''. A basic operation in this reasoning process is to zoom in on regions of interest (often represented with bounding boxes) to acquire finer visual details. In this paper, we propose \\textbf{Seg}mentation before \\textbf{Answer}ing (SegAnswer), which shifts the unit of zoom-in from the popular bounding box to pixel-level segmentation mask. By employing fine-grained masks to isolate the target area from cluttered environments, segmented visual input yields a more precise region of interest, effectively filtering out redundant background and interfering objects. Furthermore, the discrete patches of segmented visual input align more seamlessly with how MLLMs structure visual tokens via positional embeddings. In experiments, we evaluate SegAnswer across diverse benchmarks, including high-resolution perception, general perception, and hallucination. It achieves consistent improvements and also exhibits considerable performance on segmentation tasks, validating its capability for reliable pixel grounding.",
+      "authors": [
+        "Yake Wei",
+        "Yuan Wang",
+        "Fengyun Rao",
+        "Jing Lyu",
+        "Di Hu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-07T03:50:43+00:00",
+      "link": "https://arxiv.org/pdf/2607.05798v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Pixel-level segmentation mask before visual reasoning in MLLM",
+      "llm_evidence_cn": "在MLLM视觉推理前使用像素级分割掩码",
+      "llm_evidence": "在MLLM视觉推理前使用像素级分割掩码",
+      "canonical_evidence": "在MLLM视觉推理前使用像素级分割掩码",
+      "llm_tldr_en": "Proposes SegAnswer, which uses pixel-level segmentation masks to isolate objects before visual reasoning in multimodal LLMs, improving accuracy by filtering background clutter.",
+      "llm_tldr_cn": "本文提出SegAnswer方法，在多模态大模型视觉推理前使用像素级分割掩码来精确隔离目标区域，从而有效过滤冗余背景和干扰物体。与传统的边界框定位相比，像素级掩码能够提供更精细的感兴趣区域信息。实验结果表明，该策略显著提升了复杂场景下视觉推理的准确性，为多模态大模型的细粒度理解提供了新思路。",
+      "llm_tldr": "本文提出SegAnswer方法，在多模态大模型视觉推理前使用像素级分割掩码来精确隔离目标区域，从而有效过滤冗余背景和干扰物体。与传统的边界框定位相比，像素级掩码能够提供更精细的感兴趣区域信息。实验结果表明，该策略显著提升了复杂场景下视觉推理的准确性，为多模态大模型的细粒度理解提供了新思路。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.05906v1",
+      "source": "arxiv",
+      "title": "GaussFusion: Towards Multimodal 3D Gaussian Pretraining",
+      "abstract": "3D Gaussian Splatting provides an explicit representation that jointly models geometry and appearance, serving as a scalable foundation for 3D representation learning. Existing pre-training methods for Gaussian representations, such as masked Gaussian reconstruction, primarily capture local structures but offer limited semantic supervision. In this paper, we propose GaussFusion, a multimodal pre-training framework for 3D Gaussian representations. GaussFusion integrates image and text supervision into masked Gaussian modeling through cross-modal semantic alignment, enabling the Gaussian encoder to learn both visual and language-level semantic information during pre-training. To better adapt masked modeling to the non-uniform distribution of Gaussian primitives, we further propose Gaussian Salience-guided Multi-scale Hole Masking (GSHM). GSHM constructs spatially continuous masked regions based on Gaussian salience. By applying hole masks at multiple scales, GSHM encourages the encoder to capture both fine-grained local patterns and broader structural dependencies. Extensive experiments on downstream tasks demonstrate that GaussFusion improves the transferability of Gaussian representations. Notably, GaussFusion outperforms Gaussian-MAE on ModelNet40 and ScanObjectNN (PB-T50-RS) by 0.61\\% and 3.85\\%, respectively.",
+      "authors": [
+        "Zhixuan You",
+        "Jihua Zhu",
+        "Yiding Sun",
+        "Zihao Guo",
+        "Haozhe Cheng",
+        "Dongxu Zhang",
+        "Lin Chen",
+        "Hainan Luo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-07T07:01:46+00:00",
+      "link": "https://arxiv.org/pdf/2607.05906v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multimodal pre-training fusing image and text for 3D Gaussians",
+      "llm_evidence_cn": "多模态预训练融合图像和文本用于3D高斯",
+      "llm_evidence": "多模态预训练融合图像和文本用于3D高斯",
+      "canonical_evidence": "多模态预训练融合图像和文本用于3D高斯",
+      "llm_tldr_en": "Proposes GaussFusion, a multimodal pre-training framework for 3D Gaussian representations that integrates image and text supervision via cross-modal semantic alignment.",
+      "llm_tldr_cn": "针对3D高斯表示预训练缺乏语义监督的问题，本文提出GaussFusion，通过跨模态语义对齐融合图像和文本监督。方法在掩码高斯建模基础上引入多模态约束，使编码器学习视觉与语言语义。实验表明其在下游任务中优于现有预训练方法，为3D表示学习提供了新范式。",
+      "llm_tldr": "针对3D高斯表示预训练缺乏语义监督的问题，本文提出GaussFusion，通过跨模态语义对齐融合图像和文本监督。方法在掩码高斯建模基础上引入多模态约束，使编码器学习视觉与语言语义。实验表明其在下游任务中优于现有预训练方法，为3D表示学习提供了新范式。",
+      "llm_tags": [
+        "query:image-fusion:composite"
+      ],
+      "matched_query_tag": "query:image-fusion:composite",
+      "matched_query_text": "Papers central to 请帮我查找图像融合相关的深度学习论文, especially work that connects or combines: image fusion techniques; deep learning for image fusion; multimodal image fusion using deep learning; CNN for image fusion; GAN for image fusion; feature level fusion in deep learning; find deep learning papers on image fusion; image fusion survey deep learning; multimodal image fusion using deep neural networks.",
+      "matched_requirement_id": "req-composite-image-fusion",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

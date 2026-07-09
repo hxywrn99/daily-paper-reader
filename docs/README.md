@@ -6,89 +6,117 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-06
-- 运行时间：2026-07-06 21:35:36 UTC
+- 最新运行日期：2026-07-09
+- 运行时间：2026-07-09 22:07:18 UTC
 - 运行状态：成功
-- 本次总论文数：23
-- 精读区：11
+- 本次总论文数：31
+- 精读区：19
 - 速读区：12
 
 ### 今日简报（AI）
-今日精读23篇医学图像分割论文，涵盖冠脉、脑肿瘤及CT病变等方向。最值得关注HTC-SGA Former（9.0分）创新混合Transformer-CNN架构与边界加权损失，及Set-Inclusive Uncertainty Modeling（9.0分）的鲁棒脑肿瘤分割方法。建议重点关注混合模型与不确定性建模在医学图像中的交叉应用。
-- 详情：[/202607/06/README](/202607/06/README)
+今日精读19篇论文，重点关注两项9分突破：高效医学图像分割与隐私保护3D语义分割。
+
+最值得深挖的方向是MedCAGD的上下文感知门控解码器，以及通过不确定性引导实现深度仅输入的隐私保护分割。
+
+后续可优先体验APRIL-MedSeg模块化工具箱，并关注可观测性约束下的LiDAR分割提示调优。
+- 详情：[/202607/09/README](/202607/09/README)
 
 ### 精读区论文标签
-1. [HTC-SGA Former: A Hybrid Transformer-CNN Network with Self-Guided Attention and a New Boundary-Weighted Adaptive Loss for Coronary DSA Vessel Segmentation](/202607/06/2606.29744v1-htc-sga-former-a-hybrid-transformer-cnn-network-with-self-guided-attention-and-a-new-boundary-weighted-adaptive-loss-for-coronary-dsa-vessel-segmentation)  
+1. [MedCAGD: Context-Aware Gated Decoder for Efficient Medical Image Segmentation](/202607/09/2607.00409v1-medcagd-context-aware-gated-decoder-for-efficient-medical-image-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：混合Transformer-CNN用于冠状动脉DSA血管分割
-2. [Set-Inclusive Uncertainty Modeling for Robust Brain Tumor Segmentation](/202607/06/2606.30374v1-set-inclusive-uncertainty-modeling-for-robust-brain-tumor-segmentation)  
+   evidence：医学图像分割，上下文门控解码器
+2. [Privacy-Preserving Depth-Only Open-Vocabulary 3D Semantic Segmentation Via Uncertainty-Guided Test-Time Optimization](/202607/09/2607.00978v1-privacy-preserving-depth-only-open-vocabulary-3d-semantic-segmentation-via-uncertainty-guided-test-time-optimization)  
    标签：评分：9.0/10、query:image-seg
-   evidence：概率不确定性建模用于脑肿瘤分割
-3. [APRIL-MedSeg: A Modular Medical Image Segmentation Toolbox Embracing Modern Paradigms](/202607/06/2606.30577v1-april-medseg-a-modular-medical-image-segmentation-toolbox-embracing-modern-paradigms)  
+   evidence：基于深度图像和测试时优化的开放词汇3D语义分割
+3. [Rethinking Post-Hoc Calibration in Semantic Segmentation](/202607/09/2607.01902v1-rethinking-post-hoc-calibration-in-semantic-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：模块化医学图像分割工具箱
-4. [Distilling Temporal Coherence into 2D Networks for Transrectal Ultrasound Prostate Video Segmentation](/202607/06/2606.31198v1-distilling-temporal-coherence-into-2d-networks-for-transrectal-ultrasound-prostate-video-segmentation)  
+   evidence：语义分割的后处理校准方法
+4. [Seek to Segment: Active Perception for Panoramic Referring Segmentation](/202607/09/2607.02497v1-seek-to-segment-active-perception-for-panoramic-referring-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：时间一致性蒸馏用于前列腺视频分割
-5. [Preserve the Hard, Regenerate the Rest: Uncertainty-Guided Synthetic Training Data Augmentation with Diffusion Models](/202607/06/2606.31603v1-preserve-the-hard-regenerate-the-rest-uncertainty-guided-synthetic-training-data-augmentation-with-diffusion-models)  
+   evidence：使用视觉语言模型的主动全景指代分割
+5. [SNR-Adaptive Unified Diffusion for Multi-Task Medical Image Segmentation](/202607/09/2607.03103v1-snr-adaptive-unified-diffusion-for-multi-task-medical-image-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：不确定性引导的语义分割合成数据增强
-6. [Self-Supervised Temporal Regularization for Landmark-Based Cardiac Segmentation with Automatic AHA Regional Mapping](/202607/06/2606.31785v1-self-supervised-temporal-regularization-for-landmark-based-cardiac-segmentation-with-automatic-aha-regional-mapping)  
+   evidence：统一扩散框架用于多任务医学图像分割
+6. [Model Confidence-Guided Multi-Image Fusion of Fundus Images for Diabetic Retinopathy Diagnosis](/202607/09/2607.03643v1-model-confidence-guided-multi-image-fusion-of-fundus-images-for-diabetic-retinopathy-diagnosis)  
+   标签：评分：9.0/10、query:image-fusion
+   evidence：眼底图像多图像融合用于诊断
+7. [Phase-Preserving Trimodal Transformer for Tropical Forest Biomass Estimation Using Optical and PolInSAR Data](/202607/09/2607.03663v1-phase-preserving-trimodal-transformer-for-tropical-forest-biomass-estimation-using-optical-and-polinsar-data)  
+   标签：评分：9.0/10、query:image-fusion
+   evidence：使用深度学习融合光学与PolInSAR三模态数据
+8. [TestMate: Test-Time Domain Adaptation Aided by Lightweight Vision Foundation Model](/202607/09/2607.03810v1-testmate-test-time-domain-adaptation-aided-by-lightweight-vision-foundation-model)  
    标签：评分：9.0/10、query:image-seg
-   evidence：自监督时间正则化用于心脏分割
-7. [Joint Medical Image Enhancement and Segmentation with Diffusion-based Symbiotic Information Interaction](/202607/06/2607.00058v1-joint-medical-image-enhancement-and-segmentation-with-diffusion-based-symbiotic-information-interaction)  
+   evidence：用于语义分割的测试时域自适应
+9. [Beyond Random Sampling: Distribution-Aware Alignment for Semi-Supervised Medical Image Segmentation](/202607/09/2607.04249v1-beyond-random-sampling-distribution-aware-alignment-for-semi-supervised-medical-image-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的医学图像分割与增强联合
-8. [Segmenting, Fast and Slow: Real-Time Open-Vocabulary Video Instance Segmentation with Dual-Path Processing](/202607/06/2607.00124v1-segmenting-fast-and-slow-real-time-open-vocabulary-video-instance-segmentation-with-dual-path-processing)  
+   evidence：基于分布对齐的半监督医学图像分割
+10. [Road-Aware Anomaly Segmentation with Query-Guided Polygons and CLIP in Autonomous Driving](/202607/09/2607.04304v1-road-aware-anomaly-segmentation-with-query-guided-polygons-and-clip-in-autonomous-driving)  
    标签：评分：9.0/10、query:image-seg
-   evidence：开放词汇视频实例分割的双路径方法
-9. [Trust the Prior (or Not): Uncertainty-Aware Abdominal Aortic Aneurysm Segmentation](/202607/06/2607.00201v1-trust-the-prior-or-not-uncertainty-aware-abdominal-aortic-aneurysm-segmentation)  
+   evidence：基于深度学习和CLIP的道路异常分割
+11. [Displacement Preserving Relational Distillation for Robust Medical Segmentation](/202607/09/2607.04599v1-displacement-preserving-relational-distillation-for-robust-medical-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：不确定性感知的腹主动脉瘤分割
-10. [Embracing Intra-Class Heterogeneity for Semi-Supervised Medical Image Segmentation: From Diversity to Precision](/202607/06/2607.02051v1-embracing-intra-class-heterogeneity-for-semi-supervised-medical-image-segmentation-from-diversity-to-precision)  
+   evidence：基于深度学习的医学图像分割与蒸馏
+12. [RUFNet: Query-Guided Support Mask Refinement and Uncertainty Fusion based on Hybrid Mamba for Few-Shot Brain Tumor Segmentation](/202607/09/2607.05035v1-rufnet-query-guided-support-mask-refinement-and-uncertainty-fusion-based-on-hybrid-mamba-for-few-shot-brain-tumor-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的半监督医学图像分割
-11. [MedSaab-US: A Backpropagation-Free Multi-Scale Wavelet-Saab Framework for Thyroid Nodule Segmentation in Ultrasound Images](/202607/06/2607.02209v1-medsaab-us-a-backpropagation-free-multi-scale-wavelet-saab-framework-for-thyroid-nodule-segmentation-in-ultrasound-images)  
+   evidence：基于混合Mamba和深度学习的少样本脑肿瘤分割
+13. [Repurposing CLIP to Localize at Pixel Level](/202607/09/2607.05253v2-repurposing-clip-to-localize-at-pixel-level)  
    标签：评分：9.0/10、query:image-seg
-   evidence：无反向传播的医学图像分割，结合小波变换和Saab变换
+   evidence：将CLIP重新用于像素级语义分割
+14. [Pixel-Precise Explainable Stress Indexing: A Semantic Segmentation Framework for Disease Severity Quantification in Field Crops](/202607/09/2607.06585v1-pixel-precise-explainable-stress-indexing-a-semantic-segmentation-framework-for-disease-severity-quantification-in-field-crops)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：基于语义分割的农作物病害严重度量化
+15. [HPR-SAM: Hierarchical Probabilistic Representation Learning for Prompt-free SAM-based Medical Image Segmentation](/202607/09/2607.06972v1-hpr-sam-hierarchical-probabilistic-representation-learning-for-prompt-free-sam-based-medical-image-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：使用层次概率表示的SAM医学图像分割
+16. [SHTA: Semantic Hard Token Correction and Center Alignment for Semi-Supervised Medical Image Segmentation](/202607/09/2607.07019v1-shta-semantic-hard-token-correction-and-center-alignment-for-semi-supervised-medical-image-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：基于语义硬标记修正的半监督医学图像分割
+17. [An Edge-aware Prompt-enhanced SAM for Ultrasound Image Segmentation](/202607/09/2607.07240v1-an-edge-aware-prompt-enhanced-sam-for-ultrasound-image-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：超声图像分割，边缘感知的SAM改进
+18. [VCDP: Variation-Conditioned Distributional Proxy Learning for Semi-Supervised Medical Image Segmentation](/202607/09/2607.07416v1-vcdp-variation-conditioned-distributional-proxy-learning-for-semi-supervised-medical-image-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：半监督医学图像分割
+19. [Automatic Echocardiography Segmentation via Transition Probability Correlation for Stable Semantic Extraction](/202607/09/2607.07580v1-automatic-echocardiography-segmentation-via-transition-probability-correlation-for-stable-semantic-extraction)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：深度学习自动超声心动图分割
 
 ### 速读区论文标签
-1. [BTI-Net: Bidirectional Decoder-Level Task Interaction via Uncertainty-Aware Gating for Multi-Task Medical Image Analysis](/202607/06/2606.29102v1-bti-net-bidirectional-decoder-level-task-interaction-via-uncertainty-aware-gating-for-multi-task-medical-image-analysis)  
+1. [APRIL-MedSeg: A Modular Medical Image Segmentation Toolbox Embracing Modern Paradigms](/202607/09/2606.30577v2-april-medseg-a-modular-medical-image-segmentation-toolbox-embracing-modern-paradigms)  
    标签：评分：8.0/10、query:image-seg
-   evidence：包含分割和分类的多任务医学图像分析
-2. [LETT-NeXt: A Lightweight RECIST-Guided Model for 3D CT Lesion Segmentation](/202607/06/2606.30108v1-lett-next-a-lightweight-recist-guided-model-for-3d-ct-lesion-segmentation)  
+   evidence：支持深度学习范式的模块化医学图像分割工具箱
+2. [No Adaptation Without Observation: Observability-Constrained Test-Time Prompt Tuning for LiDAR Semantic Segmentation](/202607/09/2606.30937v1-no-adaptation-without-observation-observability-constrained-test-time-prompt-tuning-for-lidar-semantic-segmentation)  
    标签：评分：8.0/10、query:image-seg
-   evidence：医学图像分割，3D CT病变分割
-3. [Semantic-Driven Scale and Spatial Selection for Efficient Cross-Modal Alignment in Referring Remote Sensing Image Segmentation](/202607/06/2606.30244v1-semantic-driven-scale-and-spatial-selection-for-efficient-cross-modal-alignment-in-referring-remote-sensing-image-segmentation)  
+   evidence：面向LiDAR语义分割的测试时提示调优，采用深度学习方法
+3. [Enhancing Prostate Cancer Segmentation for Multi-Domain Generalization using a novel Parallel-Route Coherent Mixup Regularization Training](/202607/09/2607.00370v1-enhancing-prostate-cancer-segmentation-for-multi-domain-generalization-using-a-novel-parallel-route-coherent-mixup-regularization-training)  
    标签：评分：8.0/10、query:image-seg
-   evidence：参数高效微调的语义分割
-4. [PGE-SAM: Prompt-Guided Feature Enhancement for Interactive Segmentation under Degradation](/202607/06/2606.30477v1-pge-sam-prompt-guided-feature-enhancement-for-interactive-segmentation-under-degradation)  
+   evidence：使用深度学习进行前列腺癌分割，通过混合实现多域泛化
+4. [MalariAI: A Label-Resilient Decoupled Framework for Universal Cell Segmentation and Explainable Stage Classification in Dense Malaria Blood Smears](/202607/09/2607.00385v1-malariai-a-label-resilient-decoupled-framework-for-universal-cell-segmentation-and-explainable-stage-classification-in-dense-malaria-blood-smears)  
    标签：评分：8.0/10、query:image-seg
-   evidence：退化条件下的交互式分割，提示引导特征增强
-5. [Scenes as Objects, Not Primitives: Instance-Structured 3D Tokenization from Unposed Views](/202607/06/2606.29513v1-scenes-as-objects-not-primitives-instance-structured-3d-tokenization-from-unposed-views)  
+   evidence：利用深度学习进行疟疾血涂片细胞分割，属于医学图像分割
+5. [LUMA: Benchmarking Segmentation via a Lightweight Universal Mask Adapter](/202607/09/2607.00687v1-luma-benchmarking-segmentation-via-a-lightweight-universal-mask-adapter)  
    标签：评分：7.0/10、query:image-seg
-   evidence：实例结构3D标记化用于分割
-6. [SUMO: Segment and Track Any Motion with Nonlinear State Space Models](/202607/06/2606.29861v1-sumo-segment-and-track-any-motion-with-nonlinear-state-space-models)  
+   evidence：通过轻量通用掩码适配器进行分割基准测试
+6. [Topology-Driven Transferability Estimation for 3D Medical Vision Foundation Models](/202607/09/2607.04199v1-topology-driven-transferability-estimation-for-3d-medical-vision-foundation-models)  
    标签：评分：7.0/10、query:image-seg
-   evidence：零样本运动分割与非线性动力学
-7. [Adversarial robustness of a U-Net-based model observer for CT protocol optimization](/202607/06/2606.30115v1-adversarial-robustness-of-a-u-net-based-model-observer-for-ct-protocol-optimization)  
+   evidence：面向分割任务的拓扑驱动迁移性估计
+7. [SparseOcc++: Geometry-Aware Sparse Latent Representation for Semantic Occupancy Prediction](/202607/09/2607.04732v1-sparseocc-geometry-aware-sparse-latent-representation-for-semantic-occupancy-prediction)  
    标签：评分：7.0/10、query:image-seg
-   evidence：基于U-Net的模型观察器用于CT协议优化中的低对比度物体检测定位
-8. [Dense Structural Priors for Sparse Functional Landmark Localization in Surgical Videos](/202607/06/2606.31007v1-dense-structural-priors-for-sparse-functional-landmark-localization-in-surgical-videos)  
+   evidence：语义占用预测中的解耦分割
+8. [Segmentation before Answering: Pixel Grounding for MLLM Visual Reasoning](/202607/09/2607.05798v1-segmentation-before-answering-pixel-grounding-for-mllm-visual-reasoning)  
    标签：评分：7.0/10、query:image-seg
-   evidence：利用SAM 3作为结构先验进行手术视频中的关键点定位，涉及分割先验
-9. [SAD-GS: Learning Reliable 3D Semantic Gaussian Fields via Dynamic Geo-Semantic Anchoring](/202607/06/2606.29376v1-sad-gs-learning-reliable-3d-semantic-gaussian-fields-via-dynamic-geo-semantic-anchoring)  
+   evidence：在MLLM视觉推理前使用像素级分割掩码
+9. [Relation-Centric Open-Vocabulary 3D Gaussian Segmentation](/202607/09/2607.01140v1-relation-centric-open-vocabulary-3d-gaussian-segmentation)  
    标签：评分：6.0/10、query:image-seg
-   evidence：使用动态地理语义锚定的开放词汇3D高斯场语义分割
-10. [Scalable Bayesian Spatial Mixture Modelling for Remote Sensing Image Segmentation](/202607/06/2606.29448v1-scalable-bayesian-spatial-mixture-modelling-for-remote-sensing-image-segmentation)  
+   evidence：基于成对关系的开放词汇3D高斯分割
+10. [DGSeg: Dynamic Gating of Semantic-Spatial Guided Predictions for Reasoning Segmentation](/202607/09/2607.04779v1-dgseg-dynamic-gating-of-semantic-spatial-guided-predictions-for-reasoning-segmentation)  
    标签：评分：6.0/10、query:image-seg
-   evidence：贝叶斯空间混合模型用于遥感图像分割，基于聚类的方法
-11. [AnyMatch: Supercharging Universal Multi-Modal Image Matching with Large-Scale Single-View Images](/202607/06/2606.31077v1-anymatch-supercharging-universal-multi-modal-image-matching-with-large-scale-single-view-images)  
+   evidence：使用动态门控和多模态大语言模型引导的推理分割
+11. [Breaking Spurious Correlations via Generative Randomization and Cross-Variant Self-Supervised Learning](/202607/09/2607.05850v1-breaking-spurious-correlations-via-generative-randomization-and-cross-variant-self-supervised-learning)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：使用零样本分割生成反事实图像
+12. [GaussFusion: Towards Multimodal 3D Gaussian Pretraining](/202607/09/2607.05906v1-gaussfusion-towards-multimodal-3d-gaussian-pretraining)  
    标签：评分：6.0/10、query:image-fusion
-   evidence：多模态图像匹配和跨模态翻译，与多模态融合相关
-12. [Does Your ViT Still Need U-Net for Segmentation?](/202607/06/2607.00223v1-does-your-vit-still-need-u-net-for-segmentation)  
-   标签：评分：6.0/10、query:image-seg
-   evidence：语义分割架构研究，ViT
+   evidence：多模态预训练融合图像和文本用于3D高斯
 
 
 <div class="dpr-home-promo-card">
