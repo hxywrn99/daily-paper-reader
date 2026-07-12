@@ -1,0 +1,302 @@
+Title: Exploring SAM Supervision for Fine-Grained UAV Target Segmentation under Data Scarcity
+
+URL Source: https://arxiv.org/pdf/2607.03754v1
+
+Published Time: Tue, 07 Jul 2026 01:30:22 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# Exploring SAM Supervision for Fine-Grained UAV Target Segmentation under Data Scarcity 
+
+Le-Anh Tran 
+
+tranlevision@gmail.com 
+
+## Abstract 
+
+Unmanned aerial vehicle (UAV) target segmentation remains challenging due to the small size of objects, large appearance variations, cluttered backgrounds, and the scarcity of densely annotated training data. These factors hinder the performance and practical deployment of lightweight segmentation models in real-world UAV applications. To address this problem, this paper investigates the use of SAM3 
+
+(Segment Anything Model 3) as a pseudo-label generator for training compact segmentation networks. Specifically, two supervision paradigms are explored: (i) direct pseudo-supervision using unaltered SAM3-generated masks, and (ii) a refinement strategy that re-applies SAM3 to localized image patches for improved mask quality. Based on these paradigms, a two-stage SAM3-guided pseudo-label generation framework is proposed. In the first stage, SAM3 generates coarse masks for initial object localization. The localized regions are subsequently cropped into image patches and processed by SAM3 again to generate fine masks with more accurate object boundaries and discard false positives. The resulting coarse and fine masks are then used as pseudo-labels to optimize a lightweight segmentation network, termed IPS-Seg , which consists of three complementary components: an Identity Former backbone for efficient feature extraction, an Atrous Spatial Pyramid Pooling module for multi-scale context aggregation, and a Pixel Shuffle -based decoder for progressive spatial resolution recovery. Extensive experiments under multiple supervision settings demonstrate the effectiveness of the proposed framework. The results show that IPS-Seg achieves a favorable trade-off between segmentation accuracy and computational efficiency while benefiting consistently from the proposed pseudo-label generation strategy. These findings highlight the potential of leveraging large-scale foundation models as annotation sources for training compact task-specific segmentation networks in low-label vision domains. 
+
+## 1 Introduction 
+
+Semantic segmentation is a fundamental task in computer vision and plays an important role in unmanned aerial vehicle (UAV) perception systems [ 1, 2]. In particular, accurate segmentation of UAVs captured by onboard drone cameras is essential for applications such as autonomous navigation, collision avoidance, aerial surveillance, and airspace monitoring. However, unlike conventional aerial-scene segmentation, UAV-target segmentation remains highly challenging because the target drones are typically small, fast-moving, and captured under dynamic imaging conditions with complex backgrounds, illumination variations, and occlusions [ 1]. Moreover, constructing large-scale pixel-level annotated datasets is expensive due to significant appearance variations across viewpoints, scales, distances, and environmental conditions. As a result, conventional fully supervised segmentation approaches often struggle to achieve robust generalization under limited-label scenarios. Recent breakthroughs in large-scale vision foundation models have provided promising opportunities for alleviating annotation scarcity in dense prediction tasks. In particular, the Segment Anything Model (SAM) family [ 3– 5 ] has demonstrated strong zero-shot and prompt-driven segmentation                   
+
+> Preprint.
+> arXiv:2607.03754v1 [cs.CV] 4 Jul 2026 010 20 30 40 50 60 70 80
+> FLOPs (G)
+> 0.66
+> 0.68
+> 0.70
+> 0.72
+> 0.74
+> 0.76
+> 0.78
+> 0.80
+> 0.82
+> 0.84
+> IoU
+> U-Net
+> PSPNet
+> U-Net++ ResUNet
+> DeepLabV3+
+> ResUNet++
+> TransUNet
+> DPTE-Net
+> ThinDyUNet
+> Fill-UNet
+> ITE-U-Net
+> IPS-Seg
+> IoU vs. Complexity
+> 1 M
+> 10 M
+> 30 M
+> 010 20 30 40 50 60 70 80
+> FLOPs (G)
+> 0.78
+> 0.80
+> 0.82
+> 0.84
+> 0.86
+> 0.88
+> 0.90
+> 0.92
+> Dice Coefficient
+> U-Net
+> PSPNet
+> U-Net++ ResUNet
+> DeepLabV3+
+> ResUNet++
+> TransUNet
+> DPTE-Net
+> ThinDyUNet
+> Fill-UNet
+> ITE-U-Net
+> IPS-Seg
+> Dice vs. Complexity
+> 1 M
+> 10 M
+> 30 M
+
+Figure 1: Performance-efficiency trade-off of various segmentation networks on the UAV Semantic Segmentation dataset [1]. capabilities across diverse visual domains. Among them, the recently introduced SAM3 [ 5] further extends segmentation performance through open-vocabulary semantic understanding and flexible prompt mechanisms. Such capabilities enable robust object localization and mask generation without requiring task-specific retraining. The primary challenge lies in the impracticality of directly deploy-ing SAM-based architectures on resource-constrained UAV platforms due to their high computational complexity. However, SAM3 can serve as a promising supervision source under low-label conditions. This paper proposes a SAM3-guided pseudo-labeling framework for lightweight UAV-target segmen-tation under annotation-scarce scenarios. The framework is investigated under two configurations: a one-stage strategy for coarse segmentation and a two-stage strategy designed to exploit the comple-mentary strengths of semantic localization and fine-grained boundary refinement. In the one-stage setting, SAM3 is directly prompted to generate segmentation masks, which are subsequently used as pseudo-labels for training a lightweight segmentation network. In the two-stage setting, the initial SAM3 predictions are first utilized to localize UAV targets, then the obtained localization cues are used to extract informative image patches, which are processed again by SAM3 to pro-duce finer segmentation masks with improved boundary. In addition, a lightweight segmentation network, termed IPS-Seg , is proposed. The proposed architecture consists of three key compo-nents: an Identity Former backbone [ 6 ] for efficient feature extraction, an Atrous Spatial Pyramid 
+
+Pooling (ASPP) bottleneck [ 7 ] for multi-scale contextual aggregation, and a Pixel Shuffle -based decoder [ 8] for progressive spatial resolution recovery. Skip connections from the encoding stages are further incorporated to preserve fine-grained boundary information during decoding. Owing to its lightweight yet effective design, IPS-Seg achieves a favorable balance between segmentation accuracy and computational efficiency. Experiments under the fully supervised setting on the UAV Semantic Segmentation dataset [ 1] demonstrate that IPS-Seg is well suited for resource-constrained applications. As illustrated in Fig. 1, IPS-Seg delivers competitive segmentation performance while maintaining a compact model size and low computational cost. Furthermore, experiments under pseudo-label supervision demonstrate the effectiveness of the proposed SAM3-guided supervision framework in data-scarce scenarios, highlighting the potential of foundation model supervision for efficient UAV target segmentation under limited annotation budgets. The main contributions of this work are summarized as follows: • A SAM3-guided pseudo-label supervision framework is proposed for UAV target seg-mentation under annotation-scarce conditions. The framework investigates both direct pseudo-label generation and an iterative refinement strategy that combines open-vocabulary localization with patch-wise segmentation to improve output mask quality. • A lightweight segmentation network, termed IPS-Seg, is introduced by combining an IdentityFormer backbone, an ASPP bottleneck, and a PixelShuffle decoder to achieve efficient and accurate UAV target segmentation. 2• Experimental results demonstrate that SAM3-generated pseudo-labels provide effective supervision for lightweight segmentation networks, and the proposed IPS-Seg achieves a favorable balance between segmentation accuracy and computational efficiency. The remainder of this paper is organized as follows. Section 2 reviews related work. Section 3 presents the proposed methodology. Section 4 reports the experimental results and ablation studies. Section 5 concludes the paper. 
+
+## 2 Related Work 
+
+2.1 UAV Target Segmentation 
+
+Encoder-decoder architectures have become the dominant framework for dense prediction tasks in computer vision [ 9– 12 ], owing to their ability to capture high-level semantic representations while progressively recovering spatial details. Semantic segmentation, as one of the most important dense prediction tasks, has benefited significantly from this paradigm through architectures such as U-Net [ 9 ] and DeepLab [ 7 ]. Despite their success, UAV target segmentation remains particularly challenging due to the small object size, rapid motion, and significant appearance variations caused by changes in viewpoints and environmental conditions. To address these challenges, recent studies have explored multi-scale feature aggregation and contextual modeling strategies. Architectures based on SPP [ 13 ] and ASPP [ 7 ] have been widely adopted to enhance feature representations across multiple scales, while transformer-based models [ 14 ] further improve global context modeling through self-attention mechanisms. Despite these advances, achieving robust segmentation performance in UAV scenarios often requires large amounts of annotated data, motivating research on learning under limited supervision. 
+
+2.2 Segmentation under Limited Supervision 
+
+The scarcity of pixel-level annotations in UAV imagery has motivated extensive research on learning paradigms that reduce the reliance on dense supervision. Among them, semi-supervised and self-supervised frameworks have emerged as two prominent directions. Semi-supervised methods leverage a small set of labeled samples together with abundant unlabeled data. Representative approaches include consistency regularization [ 15 ], cross-consistency training [ 16 ], and pseudo-labeling [ 17 ], where predictions generated from unlabeled data are utilized as additional supervisory signals to improve model generalization. On the other hand, self-supervised learning aims to learn transferable visual representations directly from unlabeled data. Recent advances have significantly improved representation learning quality and reduced the dependence on manual annotations, with various approaches proposed for semantic segmentation [18, 19]. 
+
+2.3 Foundation Models for UAV Segmentation 
+
+Recent advances in vision foundation models have significantly improved the transferability of visual representations across diverse downstream tasks. Notably, the Segment Anything Model (SAM) [ 3]introduced a promptable segmentation framework capable of generating high-quality object masks with impressive zero-shot generalization. Subsequent versions, including SAM2 [ 4] and SAM3 [ 5 ], have further enhanced segmentation quality, prompt flexibility, and open-vocabulary understand-ing, enabling robust object localization without the need for task-specific retraining. However, directly applying SAMs to UAV imagery remains challenging due to the small object size, complex backgrounds, and significant appearance variations commonly encountered in aerial scenes, often resulting in inaccurate or fragmented masks. Furthermore, the high computational complexity of these foundation models limits their deployment on resource-constrained UAV platforms. These limi-tations have shifted the research focus toward leveraging foundation models as powerful annotation sources. Recent studies have successfully utilized SAM-generated masks for annotation assistance [ 20 ], pseudo-label generation [ 21 ], and weakly supervised learning [ 22 ]. Building on this, this work is motivated by the potential of using these models to provide high-quality supervision for training lightweight, task-specific segmentation networks. 3Stage 1: Coarse Mask Extraction    
+
+> ASPP PixelShuffle Upsampling
+> Skip Connections
+> Encoder Bottleneck Decoder
+> SAM3
+> BCE Loss
+> SAM3
+> Feedback One-Stage Setting
+> IdentityFormer Backbone
+> IPS-Net
+> Box Extraction & Cropping
+> Stage 2: Patch-wise Segmentation
+> IPS-Net
+> BCE Loss
+> “drone” “UAV”
+> “drone” “UAV”
+> SAM-guided Pseudo-label Supervision
+> Feedback Two-Stage Setting
+
+Figure 2: The proposed framework. 
+
+2.4 Research Gap 
+
+Although recent studies have partially reduced the dependence on manual annotations, two challenges remain. First, pseudo-labels generated by foundation models often exhibit inaccurate boundaries and fragmented masks when applied to small and distant objects like UAV targets. Second, many high-performance segmentation models remain computationally demanding for deployment on resource-constrained UAV platforms. To address these challenges, a unified framework is introduced that leverages SAM3-guided pseudo-label generation to provide effective supervision for training a lightweight UAV target segmentation model which can achieve a favorable balance between segmentation accuracy and computational efficiency. 
+
+## 3 Methodology 
+
+The proposed framework consists of two components: a SAM3-guided pseudo-label generation pipeline and a lightweight segmentation network, termed IPS-Seg . Two supervision strategies are considered to investigate the effect of pseudo-label quality. The first directly adopts unaltered masks predicted by SAM3 as pseudo-labels, whereas the second localizes candidate UAV regions and re-applies SAM3 on object-centric image patches to obtain finer masks. Since UAVs typically occupy only a small portion of the image, the patch-based strategy enables more accurate boundary delineation and better preservation of fine structural details. The resulting pseudo-labels are then used to optimize IPS-Seg, which adopts an IdentityFormer backbone for lightweight feature extraction, an ASPP bottleneck for multi-scale context aggregation, and a PixelShuffle decoder for progressive spatial resolution recovery. An overview of the framework is illustrated in Fig. 2. 
+
+3.1 Framework Overview 
+
+Let the unlabeled training data set be defined as: 
+
+D = {xj }Nj=1 , (1) 4Figure 3: Visual comparison of masks generated by SAM3 and the proposed two-stage strategy. From top to bottom: full-size input image, target region, direct prediction by SAM3 (zoomed-in), and fine mask produced by the two-stage approach. where xj denotes an input RGB image. For each image, a pseudo-label ˆyj is generated by: 
+
+ˆyj = Φ SAM3 (xj ), (2) where ΦSAM3 (·) denotes the SAM3-guided pseudo-label generation process. Depending on the supervision strategy, ΦSAM3 (·) corresponds to either direct SAM3 prediction or the proposed two-stage generation pipeline. The generated pseudo-labels are paired with the corresponding input images to construct the training data set: 
+
+ˆD = {(xj , ˆyj )}Nj=1 , (3) which is used to optimize the lightweight segmentation network IPS-Seg: 
+
+fθ : x → ˆy, (4) where θ denotes the network parameters. The pseudo-label generation procedure and the IPS-Seg architecture are described in the following subsections. 
+
+3.2 SAM3-Guided Pseudo-Label Generation 
+
+Given an unlabeled image xj ∈ D , pseudo-labels are generated using either a one-stage or a two-stage SAM3-guided strategy. 
+
+3.2.1 One-Stage Strategy 
+
+The one-stage strategy directly applies SAM3 to the input image: 
+
+ˆyj = mcoarse  
+
+> j
+
+= SAM3( xj , P), (5) where P denotes a set of text prompts describing UAV-related concepts (e.g., “drone”, “UAV”, and “quadcopter”). The predicted coarse mask mcoarse  
+
+> j
+
+is directly adopted as the pseudo-label for optimizing IPS-Seg in this training setting. 
+
+3.2.2 Two-Stage Strategy 
+
+To improve pseudo-label quality, a refinement stage is introduced after the initial SAM3 prediction. Given the coarse mask mcoarse  
+
+> j
+
+, the target candidate regions are first localized by: 
+
+Cj = B(mcoarse  
+
+> j
+
+), (6) 5Coarse Mask Extraction   
+
+> Localizing candidate regions
+> Bounding Box
+> Extraction
+> Patch -wise
+> Cropping
+> Cropped Patches
+> Patch -wise Segmentation
+> Discarding false positives while
+> refining true positives
+> True Positive False Positive ☒
+> Integration &
+> Reconstruction
+> Final Mask
+
+Figure 4: Illustration of the proposed two-stage generation/prediction strategy. Candidate regions ex-tracted from coarse masks are re-segmented to discard false positives and improve object boundaries. where B(·) denotes the bounding-box extraction and cropping operator with a small spatial padding to preserve surrounding contextual information, and Cj represents the set of candidate object-centric cropped patches. These localized patches are subsequently re-segmented by SAM3: 
+
+M crop  
+
+> j
+
+= SAM3( Cj , P), (7) where M crop  
+
+> j
+
+denotes the set of patch-wise segmentation masks with finer object contours. As illustrated in Fig. 3, the SAM3 baseline (third row) often yields coarse results that miss fine structural details when applied to full-size images, in contrast, the proposed approach (fourth row) effectively captures delicate components like propellers and landing gears. Unlike previous SAM models, SAM3 incorporates a presence head that predicts whether a queried object exists in the input image. This capability enables each cropped candidate region to be verified, allowing false detections produced during the coarse stage to be discarded while preserving valid object regions, as illustrated in Fig. 4. Such verification is particularly beneficial for small UAVs and background objects with similar visual characteristics. As described in Fig. 2, during the two-stage strategy, the original image xj is supervised by the coarse mask mcoarse  
+
+> j
+
+, whereas the cropped object-centric patches Cj are supervised by the patch-wise masks M crop  
+
+> j
+
+. Consequently, IPS-Seg simultaneously learns global object localization from coarse supervision as well as the capability of patch-wise verification and fine-grained boundary delineation from patch-level supervision. During inference in the two-stage setting, IPS-Seg follows the same hierarchical prediction strategy. The network first predicts a coarse segmentation mask from the full image to localize candidate regions. The cropped regions are then processed again by IPS-Seg to generate refined segmentation masks while verifying object existence. The refined predictions are finally projected back to the original image coordinates to obtain the final segmentation result, as illustrated in Fig. 4. 
+
+3.3 IPS-Seg 
+
+The overall architecture of IPS-Seg follows an encoder → bottleneck → decoder structure with a four-stage design to better preserve spatial information for small targets while reducing computational complexity. The network name reflects its core components: an Identity Former backbone [ 6] for feature extraction, Atrous Spatial Pyramid Pooling (ASPP) [ 7 ] for multi-scale context aggregation, and Pixel Shuffle -based decoding [ 8] for progressive spatial resolution recovery, as illustrated in Fig. 2. Skip connections are incorporated between encoder and decoder stages to preserve fine-grained spatial information. 63.3.1 IdentityFormer Backbone 
+
+The encoder adopts an IdentityFormer backbone based on the MetaFormer paradigm [ 6 ]. Unlike conventional transformer-based models that rely on computationally intensive self-attention [ 14 , 23 ], IdentityFormer employs an identity token mixer to achieve efficient feature extraction with minimal computational overhead. Given an input feature map X, the token-mixing operation is defined as: 
+
+TokenMixer( X) = IdentityMapping( X) = X, (8) where the identity mapping preserves feature representations without introducing additional spatial mixing operations. Despite its simplicity, IdentityFormer maintains strong representation capability through residual connections, normalization layers, and channel-wise feature transformations, making it suitable for small target segmentation tasks [2]. 
+
+3.3.2 ASPP Bottleneck 
+
+To enhance contextual representation, the bottleneck incorporates ASPP [ 7] for multi-scale feature aggregation. The ASPP module applies parallel atrous convolutions with different dilation rates: 
+
+ASPP( X) = Concat ( A1(X), A 2(X), . . . , A k(X)) , (9) where Ak(·) denotes an atrous convolution, and Concat( ·) represents channel-wise concatenation. By aggregating features from multiple receptive fields, ASPP improves robustness to scale variations commonly encountered in UAV imagery. 
+
+3.3.3 PixelShuffle Decoder 
+
+The decoder progressively restores spatial resolution using PixelShuffle-based upsampling [8]: 
+
+Xup = PixelShuffle( X). (10) Skip connections between corresponding encoder-decoder levels are incorporated to preserve fine-grained spatial details and improve boundary reconstruction. Compared with transposed convolutions, PixelShuffle provides computationally efficient upsampling while reducing checkerboard artifacts. 
+
+3.4 Training Objective 
+
+The proposed IPS-Seg network is trained using pseudo-labels obtained from the unlabeled dataset. The network prediction is represented as: 
+
+˜yj = fθ (xj ), (11) where fθ (·) denotes IPS-Seg parameterized by θ. The optimization process is performed using Binary Cross-Entropy (BCE) loss between the predicted mask ˜yj and the pseudo-label ˆyj :
+
+L = LBCE (˜ yj , ˆyj ) . (12) Through pseudo-label supervision, the framework transfers segmentation knowledge from SAM3 into a lightweight architecture suitable for efficient deployment. 
+
+## 4 Experiments 
+
+4.1 Experimental Setup 
+
+This section describes the experimental protocols used to evaluate the proposed SAM3-guided pseudo-label supervision framework and the IPS-Seg architecture under both fully supervised and pseudo-supervised learning settings. The fully supervised experiments assess the intrinsic capability of the proposed IPS-Seg architecture using annotated masks, whereas the pseudo-supervised experiments evaluate the effectiveness of the proposed SAM3-guided supervision framework under annotation-scarce conditions. 
+
+Dataset: Experiments are conducted on the UAV Semantic Segmentation dataset [ 1], which con-tains over 300K RGB aerial images with pixel-level semantic annotations collected under diverse viewpoints, flight altitudes, illumination conditions, object scales, and background complexities. To 7Input TransUNet ThinDyUNet ITE-UNet IPS-Seg GT Mask 
+
+Figure 1: Visual comparison of the pseudo-label masks generated by one-stage and two-stage methods. 3Figure 5: Qualitative comparison of different segmentation approaches. Table 1: Quantitative performance comparison with state-of-the-art methods. Model Type Accuracy Complexity IoU Dice Params (M) FLOPs (G) U-Net [9] supervised 0.8230 0.8997 31.04 48.30 PSPNet [24] supervised 0.7466 0.8473 27.50 39.88 U-Net++ [25] supervised 0.8076 0.8878 9.16 34.90 ResUNet [26] supervised 0.8112 0.8900 13.04 71.32 DeepLabV3+ [27] supervised 0.7673 0.8636 17.42 10.30 ResUNet++ [28] supervised 0.7961 0.8785 14.48 70.99 TransUNet [14] supervised 0.8203 0.8976 3.63 28.61 DPTE-Net [29] supervised 0.7728 0.8613 11.14 17.16 ThinDyUNet [1] supervised 0.7667 0.8491 0.81 12.49 Fill-UNet [30] supervised 0.6865 0.7966 25.24 56.46 ITE-U-Net [2] supervised 0.7937 0.8805 6.27 9.69 
+
+IPS-Seg supervised 0.8164 0.8943 2.69 9.72 reduce computational cost while maintaining representative evaluation coverage, approximately 8K images are randomly sampled from the dataset and divided into training and validation sets with a 90%/10% split. Two training settings are considered. In the fully supervised setting, the training images are optimized using the corresponding ground-truth segmentation masks. In the pseudo-supervised setting, all ground-truth annotations of the training set are discarded, and SAM3-generated pseudo-labels are used as supervisory signals instead. The validation set always retains the original annotated labels and is used exclusively for evaluation. 
+
+Implementation Details: The proposed IPS-Seg is implemented in PyTorch and trained using the Adam optimizer with an initial learning rate of 1 × 10 −4. A cosine annealing schedule is adopted to gradually decay the learning rate during optimization. All models are trained for 100 epochs using input images resized to 256 × 256 . Experiments are conducted on a single NVIDIA RTX 3080 GPU. 
+
+Evaluation Metrics: Segmentation accuracy is evaluated using the Intersection over Union (IoU) and Dice coefficient. To assess computational efficiency, the number of trainable parameters (Params) and floating-point operations (FLOPs) are also reported. Together, these metrics provide a comprehensive evaluation of the trade-off between segmentation performance and computational complexity. 8Input GT Mask IPS-Seg SAM3 IPS-Seg-2S SAM3-2S 
+
+Figure 2: Visual comparison of the pseudo-label masks generated by one-stage and two-stage methods. 4Figure 6: Qualitative comparison between the one-stage and two-stage strategies. 
+
+4.2 Results and Analysis 4.2.1 Supervised Learning Setting 
+
+The fully supervised setting provides a baseline evaluation of the proposed IPS-Seg architecture independent of the pseudo-label generation framework. Quantitative comparisons with representative CNN-, transformer-, and hybrid-based segmentation methods are summarized in Table 1. IPS-Seg achieves an IoU of 0.8164 and a Dice score of 0.8943 while requiring only 2.69M parameters and 9.72 GFLOPs. Although U-Net attains a slightly higher IoU (0.8230), it contains more than 
+
+11 × parameters (31.04M) and nearly 5× computational cost (48.30 GFLOPs). Similar observations can be made for ResUNet, ResUNet++, and U-Net++, whose competitive segmentation accuracy is achieved at substantially higher computational complexity. Compared with other lightweight models, IPS-Seg consistently delivers superior performance. Specifically, IPS-Seg improves the IoU by 4.97% and 2.27% over ThinDyUNet and ITE-U-Net, respectively, while maintaining a comparable model size and computational cost. Compared with TransUNet, IPS-Seg achieves competitive accuracy using approximately 26% fewer parameters and about one-third of the computational complexity. These results demonstrate that the proposed architectural combination offers an effective balance between segmentation accuracy and computational efficiency, as previously illustrated in Fig. 1. Qualitative comparisons are also presented in Fig. 5. Overall, all methods successfully identify the UAV regions; however, noticeable differences can be observed in boundary quality and prediction consistency. The proposed IPS-Seg produces segmentation masks that closely match the ground-truth annotations across different scales and imaging conditions. In contrast, ThinDyUNet occasionally introduces small false-positive regions, as illustrated in the third example, indicating that its feature representations are more susceptible to background interference. ITE-U-Net and TransUNet generally produce reasonable masks but exhibit slightly less accurate object boundaries, particularly for small or blurred UAV targets. These visual results are consistent with the quantitative evaluation and demonstrate that IPS-Seg achieves more reliable segmentation with fewer spurious predictions. 9Table 2: Quantitative performance comparison in the one-stage and two-stage strategies. Model Teacher Supervision Accuracy IoU Dice SAM3 - zero-shot 0.8201 0.8991 
+
+IPS-Seg SAM3 pseudo-labeling 0.7941 0.8737 SAM3-2S - zero-shot 0.6656 0.7945 
+
+IPS-Seg-2S SAM3-2S pseudo-labeling 0.6002 0.7291 Table 3: Ablation study on overall architecture. Architecture Accuracy Complexity Backbone Bottleneck Decoder IoU Dice Params (M) FLOPs (G) Conv - UpSample 0.7165 0.8035 1.60 7.67 Conv SPP UpSample 0.7335 0.8274 1.65 7.73 IndentityFormer SPP UpSample 0.7873 0.8740 1.56 7.43 IndentityFormer ASPP UpSample 0.7997 0.8802 1.82 7.69 IndentityFormer ASPP PixelShuffle 0.8164 0.8943 2.69 9.72 
+
+4.2.2 SAM3-Guided Learning Setting 
+
+This section evaluates the performance of IPS-Seg when it is trained exclusively using pseudo-labels generated by the SAM3-guided supervision framework. Quantitative comparisons are reported in Table 2, while representative qualitative results are presented in Fig. 6. As shown in Table 2, the zero-shot SAM3 model achieves an IoU of 0.8201 and a Dice score of 0.8991, demonstrating the strong generalization capability of SAM3 without task-specific fine-tuning. In this configuration, IPS-Seg achieves an IoU of 0.7941 and a Dice score of 0.8737, retaining most of the teacher’s segmentation performance despite its substantially lower computational complexity. This result indicates that the proposed supervision framework effectively transfers the segmentation knowledge of SAM3 to a compact network suitable for deployment on resource-constrained platforms. The effectiveness of the proposed two-stage strategy is also investigated. Quantitatively, the two-stage SAM3 approach (SAM3-2S) obtains lower overlap scores than direct SAM3 prediction, achieving an IoU of 0.6656 and a Dice score of 0.7945, while the corresponding two-stage student model (IPS-Seg-2S) achieves an IoU of 0.6002 and a Dice score of 0.7291. At first glance, these results appear inferior to those obtained using direct pseudo-label supervision. However, a different conclusion can be drawn from the qualitative comparisons in Fig. 6. As shown in Fig. 6, the one-stage masks generated by SAM3 and IPS-Seg generally preserve the coarse object shape but tend to produce relatively smooth boundaries that omit fine structural details. In contrast, the two-stage strategy recovers much richer object structures such as the thin landing gears and the empty regions between UAV components. These refined masks more faithfully represent the actual UAV geometry, especially for complex quadcopter structures. Similar improvements are consistently observed for both the teacher (SAM3-2S) and the student (IPS-Seg-2S), indicating that the refined pseudo-labels successfully transfer fine-grained structural information during training. The apparent discrepancy between the quantitative and qualitative results can largely be attributed to the characteristics of the dataset annotations. The ground-truth masks primarily provide coarse object boundaries, whereas the refined predictions preserve finer structural details that are not explicitly annotated. Since IoU and Dice evaluate pixel-wise overlap with the provided annotations, these additional structural details may be penalized despite producing visually more faithful segmentation outcomes. This limitation is particularly pronounced for small UAV targets, where slight boundary variations correspond to a relatively large proportion of the object area. Consequently, conventional overlap-based metrics may underestimate the quality of fine-grained segmentation produced by the proposed refinement strategy, suggesting that evaluation protocols for fine-grained target segmentation may benefit from boundary-aware metrics in addition to conventional region-overlap measures. 10 Table 4: Ablation study on the encoding backbone. Backbone Accuracy Complexity IoU Dice Params (M) FLOPs (G) Residual 0.6819 0.7917 3.67 12.79 PoolFormer 0.7041 0.8089 2.69 9.73 ConvFormer 0.7494 0.8452 2.71 9.90 
+
+IndentityFormer 0.8164 0.8943 2.69 9.72 IndentityFormer + SCConv 0.7803 0.8692 2.97 9.86 IndentityFormer + CAFormer 0.7828 0.8705 2.69 9.74 IndentityFormer + DualKAN 0.7437 0.8357 6.39 8.97 
+
+4.3 Ablation Study 
+
+To further analyze the contribution of each component in the proposed IPS-Seg architecture, compre-hensive ablation studies are conducted on both the overall network design and the encoder backbone under the fully supervised setting using identical training protocols. 
+
+4.3.1 Overall Network Architecture 
+
+Table 3 summarizes the incremental development of IPS-Seg, starting from a four-stage U-Net baseline without a contextual aggregation bottleneck. From the baseline, introducing the SPP bottleneck [ 13 ] improves the IoU from 0.7165 to 0.7335 and the Dice score from 0.8035 to 0.8274 with marginal additional computational cost. This improvement indicates that enlarging the receptive field through multi-scale feature aggregation is beneficial when object scales vary considerably across different scenes. Replacing the convolutional encoder with the IdentityFormer backbone improves the IoU to 0.7873 and the Dice score to 0.8740 while slightly reducing computational complexity. This suggests that the MetaFormer-based feature representation is considerably more effective than conventional convolutional feature extraction for capturing discriminative object characteristics in this task. Replacing SPP with ASPP further improves the IoU to 0.7997 and the Dice score to 0.8802, demon-strating that parallel atrous convolutions provide richer multi-scale contextual representations than conventional spatial pooling. Such contextual modeling is particularly advantageous for UAV imagery, where the target size changes significantly due to varying camera viewpoints and imaging distances. Finally, replacing UpSampling with PixelShuffle in the decoder yields the best overall performance, achieving an IoU of 0.8164 and a Dice score of 0.8943. Although the model complexity increases modestly to 2.69M parameters and 9.72 GFLOPs, the additional computational overhead is accompa-nied by a noticeable improvement in segmentation accuracy. This result indicates that the progressive sub-pixel reconstruction strategy is more effective at recovering fine spatial details. 
+
+4.3.2 Encoding Backbone 
+
+To further investigate the influence of feature encoding on segmentation performance, different back-bone variants are evaluated while keeping the ASPP bottleneck and PixelShuffle decoder unchanged. The quantitative results are summarized in Table 4. The first group compares several representative backbone architectures. The conventional residual encoder achieves an IoU of 0.6819 and a Dice score of 0.7917. Replacing the residual blocks with MetaFormer-based architectures consistently improves segmentation performance. PoolFormer increases the IoU to 0.7041 and the Dice score to 0.8089, while ConvFormer further improves the performance to 0.7494 IoU and 0.8452 Dice. Among all candidates, the IdentityFormer achieves the best performance, obtaining an IoU of 0.8164 and a Dice score of 0.8943 with only 2.69M parameters and 9.72 GFLOPs. Compared with ConvFormer, IdentityFormer improves the IoU while exhibiting slightly lower computational complexity, demonstrating that IdentityFormer provides a more effective feature representation for UAV segmentation than the other variants. To examine whether more sophisticated feature extraction approaches can further enhance the en-coder, three representative modules, including DualKAN [ 31 ], SCConv [ 32 ], and CAFormer [ 6]are incorporated into the deeper stages of backbone (stages 3 and 4) where the feature maps be-11 come semantically richer. Contrary to expectation, none of these modules improve segmentation performance. IdentityFormer 1,2+DualKAN 3,4 increases the model size substantially from 2.69M to 6.39M parameters while reducing the IoU to 0.7437. Likewise, IdentityFormer 1,2+SCConv 3,4 and IdentityFormer 1,2+CAFormer 3,4 achieve IoU scores of 0.7803 and 0.7828, respectively, both falling below the full IdentityFormer configuration. These observations suggest that increasing architectural complexity does not necessarily result in better segmentation performance for UAV imagery. Since UAV targets typically occupy only a small fraction of the image, discriminative feature extraction appears to rely more on preserving fine spatial information than on increasing feature transformation capacity. Excessively complex modules may introduce redundant representations, optimization difficulty, or overfitting without providing additional discriminative cues. In contrast, the lightweight IdentityFormer backbone offers a favorable balance between representation capability and computational efficiency, allowing subsequent modules to effectively exploit the extracted features. 
+
+## 5 Conclusion 
+
+This paper presents a SAM3-guided pseudo-label supervision framework for UAV target segmentation under annotation-scarce conditions. By leveraging SAM3-generated pseudo-labels, the proposed framework enables the training of IPS-Seg, a lightweight segmentation network that integrates an IdentityFormer backbone, an ASPP bottleneck, and a PixelShuffle decoder, thereby achieving accurate and efficient UAV target segmentation. Extensive experiments demonstrate that the lightweight network design achieves an excellent balance between segmentation accuracy and computational efficiency for resource-constrained deployment through the proposed pseudo-label supervision strategy, which effectively transfers the segmentation capability of a large vision foundation model to a compact network architecture. The experimental results also show that conventional overlap-based metrics may not fully capture improvements in fine-grained boundary quality. Overall, this work demonstrates the potential of using vision foundation models as automatic annota-tion sources for training efficient segmentation networks with limited manual supervision. Future work will investigate confidence-aware pseudo-label selection, boundary-aware optimization, and more robust refinement strategies to further improve pseudo-label quality and performance. 
+
+## Source code 
+
+The source code of this work is available at https://github.com/tranleanh/ips-seg .
+
+## References             
+
+> [1] Sang-Chul Kim and Yeong Min Jang. A semantic segmentation dataset and real-time localization model for anti-uav applications. Applied Sciences , 15(13):7183, 2025. [2] Truong-Dong Do, Le-Anh Tran, Junyong Lee, Sung Kyung Hong, et al. Improved u-net with identity transformer encoder for efficient uav semantic segmentation. IEEE Access , 13:208962–208972, 2025. [3] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer Whitehead, Alexander C Berg, Wan-Yen Lo, et al. Segment anything. In Proceedings of the IEEE/CVF international conference on computer vision , pages 4015–4026, 2023. [4] Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Roman Rädle, Chloe Rolland, Laura Gustafson, et al. Sam 2: Segment anything in images and videos. In International Conference on Learning Representations , volume 2025, pages 28085–28128, 2025. [5] Nicolas Carion, Laura Gustafson, Yuan-Ting Hu, Shoubhik Debnath, Ronghang Hu, Didac Suris, Chaitanya Ryali, Kalyan Vasudev Alwala, Haitham Khedr, Andrew Huang, et al. Sam 3: Segment anything with concepts. arXiv preprint arXiv:2511.16719 , 2025. [6] Weihao Yu, Chenyang Si, Pan Zhou, Mi Luo, Yichen Zhou, Jiashi Feng, Shuicheng Yan, and Xinchao Wang. Metaformer baselines for vision. IEEE Transactions on Pattern Analysis and Machine Intelligence ,46(2):896–912, 2023.
+
+12 [7] Liang-Chieh Chen, George Papandreou, Iasonas Kokkinos, Kevin Murphy, and Alan L Yuille. Deeplab: Semantic image segmentation with deep convolutional nets, atrous convolution, and fully connected crfs. 
+
+IEEE transactions on pattern analysis and machine intelligence , 40(4):834–848, 2017. [8] Wenzhe Shi, Jose Caballero, Ferenc Huszár, Johannes Totz, Andrew P Aitken, Rob Bishop, Daniel Rueckert, and Zehan Wang. Real-time single image and video super-resolution using an efficient sub-pixel convolutional neural network. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 1874–1883, 2016. [9] Olaf Ronneberger, Philipp Fischer, and Thomas Brox. U-net: Convolutional networks for biomedical image segmentation. In International Conference on Medical image computing and computer-assisted intervention , pages 234–241. Springer, 2015. [10] Le-Anh Tran and My-Ha Le. Robust u-net-based road lane markings detection for autonomous driving. In 
+
+2019 International Conference on System Science and Engineering (ICSSE) , pages 62–66. IEEE, 2019. [11] Le-Anh Tran, Seokyong Moon, and Dong-Chul Park. A novel encoder-decoder network with guided transmission map for single image dehazing. Procedia Computer Science , 204:682–689, 2022. [12] Le-Anh Tran and Dong-Chul Park. Encoder-decoder networks with guided transmission map for effective image dehazing. The Visual Computer , 41:359–382, 2025. [13] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Spatial pyramid pooling in deep convolutional networks for visual recognition. IEEE transactions on pattern analysis and machine intelligence , 37(9): 1904–1916, 2015. [14] Jieneng Chen, Yongyi Lu, Qihang Yu, Xiangde Luo, Ehsan Adeli, Yan Wang, Le Lu, Alan L Yuille, and Yuyin Zhou. Transunet: Transformers make strong encoders for medical image segmentation. arXiv preprint arXiv:2102.04306 , 2021. [15] Geoffrey French, Samuli Laine, Timo Aila, and Michal Mackiewicz. Semi-supervised semantic segmenta-tion needs strong, varied perturbations. In BMVC , 2019. [16] Yassine Ouali, Céline Hudelot, and Myriam Tami. Semi-supervised semantic segmentation with cross-consistency training. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 12674–12684, 2020. [17] Dong-Hyun Lee. Pseudo-label: The simple and efficient semi-supervised learning method for deep neural networks. In ICML Workshop on Challenges in Representation Learning , 2013. [18] Nikita Araslanov and Stefan Roth. Self-supervised augmentation consistency for adapting semantic segmentation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pages 15384–15394, 2021. [19] Adrian Ziegler and Yuki M Asano. Self-supervised learning of object parts for semantic segmentation. In 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 14502–14511, 2022. [20] Chenglong Wang, Dexuan Li, Sucheng Wang, Chengxiu Zhang, Yida Wang, Yun Liu, and Guang Yang. Sammed: A medical image annotation framework based on large vision model. arXiv preprint arXiv:2307.05617 , 3, 2023. [21] Peng-Tao Jiang and Yuqi Yang. Segment anything is a good pseudo-label generator for weakly supervised semantic segmentation. arXiv preprint arXiv:2305.01275 , 2023. [22] Tianle Chen, Zheda Mai, Ruiwen Li, and Wei-lun Chao. Segment anything model (sam) enhanced pseudo labels for weakly supervised semantic segmentation. arXiv preprint arXiv:2305.05803 , 2023. [23] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, et al. An image is worth 16x16 words: Transformers for image recognition at scale. arXiv preprint arXiv:2010.11929 , 2020. [24] Hengshuang Zhao, Jianping Shi, Xiaojuan Qi, Xiaogang Wang, and Jiaya Jia. Pyramid scene parsing network. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 2881–2890, 2017. [25] Zongwei Zhou, Md Mahfuzur Rahman Siddiquee, Nima Tajbakhsh, and Jianming Liang. Unet++: A nested u-net architecture for medical image segmentation. In International workshop on deep learning in medical image analysis , pages 3–11. Springer, 2018. 
+
+13 [26] Zhengxin Zhang, Qingjie Liu, and Yunhong Wang. Road extraction by deep residual u-net. IEEE Geoscience and Remote Sensing Letters , 15(5):749–753, 2018. [27] Liang-Chieh Chen, Yukun Zhu, George Papandreou, Florian Schroff, and Hartwig Adam. Encoder-decoder with atrous separable convolution for semantic image segmentation. In Proceedings of the European conference on computer vision (ECCV) , pages 801–818, 2018. [28] Debesh Jha, Pia H Smedsrud, Michael A Riegler, Dag Johansen, Thomas De Lange, Pål Halvorsen, and Håvard D Johansen. Resunet++: An advanced architecture for medical image segmentation. In 2019 IEEE international symposium on multimedia (ISM) , pages 225–2255. IEEE, 2019. [29] Le-Anh Tran and Dong-Chul Park. Distilled pooling transformer encoder for efficient realistic image dehazing. Neural Computing and Applications , 37(6):5203–5221, 2025. [30] Qunpo Liu, Yi Zhao, Weiping Ding, Xuhui Bu, and Naohiko Hanajima. Fill-unet: extended composite semantic segmentation. Applied Soft Computing , 172:112891, 2025. [31] Le-Anh Tran. Unpaired image dehazing via kolmogorov-arnold transformation of latent features. Pattern Recognition , page 113304, 2026. [32] Jiang-Jiang Liu, Qibin Hou, Ming-Ming Cheng, Changhu Wang, and Jiashi Feng. Improving convolutional networks with self-calibrated convolutions. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 10096–10105, 2020. 
+
+14

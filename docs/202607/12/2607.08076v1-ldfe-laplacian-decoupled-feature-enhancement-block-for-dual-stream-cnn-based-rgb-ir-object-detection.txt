@@ -1,0 +1,408 @@
+Title: LDFE: Laplacian Decoupled Feature Enhancement Block for Dual-Stream CNN-based RGB-IR Object Detection
+
+URL Source: https://arxiv.org/pdf/2607.08076v1
+
+Published Time: Fri, 10 Jul 2026 00:33:00 GMT
+
+Number of Pages: 31
+
+Markdown Content:
+# LDFE: Laplacian Decoupled Feature Enhancement Block for Dual-Stream CNN-based RGB-IR Object Detection 
+
+Wenhao Dong a, Xiaoyan Luo b,c , Linlin Yang d, ∗, Haodong Zhu e,f , Xiaorong Shi g,h ,Guodong Guo i, Baochang Zhang e,j 
+
+> a
+
+Beihang University, Beijing, 102206, China 
+
+> b
+
+State Key Laboratory of High-E ffi ciency Reusable Aerospace Transportation Technology, The School of Astronautics, Beihang University, Beijing, 102206, China 
+
+> c
+
+The National Key Laboratory of Integrated Air-Ground Navigation Technologies, The School of Astronautics, Beihang University, Beijing, 102206, China 
+
+> d
+
+The State Key Laboratory of Media Convergence and Communication, Communication University of China, Beijing, 100024, China 
+
+> e
+
+The School of Artificial Intelligence, Beihang University, Beijing, 100191, China 
+
+> f
+
+Zhongguancun Academy, Beijing, 100094, China 
+
+> g
+
+The School of Automation Science and Electrical Engineering, Beihang University, Beijing, 100091, China 
+
+> h
+
+Beijing Institute of Control and Electronics Technology, Beijing, 100038, China 
+
+> i
+
+Ningbo Institute of Digital Twin, Eastern Institute of Technology, Ningbo, 315200, Zhejiang, China 
+
+> j
+
+Hangzhou Research Institute, School of Artificial Intelligence, Beihang University, Hangzhou, 310020, Zhejiang, China 
+
+Abstract 
+
+The complementary information between RGB and IR images can significantly en-hance object detection performance under extreme conditions. Existing methods pre-fer dual-stream CNN backbones built upon YOLO for feature extraction and focus on the design of feature fusion. In this paper, we introduce the Laplacian Decoupled Feature Enhancement block (LDFE) to fuse features from di ff erent stages of the dual-stream CNN backbone. By design, LDFE simultaneously considers the characteristics of modalities and structures for feature fusion by employing global-local decomposi-tion, denoising, fusion, and reconstruction, sequentially. The LDFE first separates fea-tures into global and local components based on Laplacian Pyramid, and then performs denoising and fusion based on Global State Space Enhancement module (GS 2E) and Local Convolutional Correlation Enhancement module (LC 2E) separately. Specifically, the GS 2E conducts a two-branch architecture for the main and auxiliary modalities. It 
+
+> ∗
+
+Corresponding author 
+
+Email addresses: ZB2315207@buaa.edu.cn (Wenhao Dong), lyang@cuc.edu.cn (Linlin Yang) arXiv:2607.08076v1 [cs.CV] 9 Jul 2026 dynamically suppresses noise in the main modality through cross-modal attention de-rived from the auxiliary modality, while employing a State Space Model to capture long-range dependencies within the global feature representations of the main modal-ity. To obtain bidirectional interaction, the two modalities systematically alternate their main /auxiliary roles. Moreover, the LC 2E suppresses noise in local features and lever-ages spatial and channel dimension along with triple convolution to extract fine-grained details for fusion. These innovative designs achieve a significant performance improve-ment, with mAP surpassing the SOTA methods 6.2%, 3.7%, 4.7%, 2.3%, 4.1% and 2.0% on M 3FD, DroneVehicle, LLVIP, FLIR-Aligned, KAIST and VEDAI datasets, respectively. 
+
+Keywords: RGB-IR Object Detection, Laplacian Pyramid, Dual-Stream Backbone, Global and Local Feature Fusion 
+
+1. Introduction 
+
+Deep-learning based object detection holds vast application potential in areas such as road surveillance and autonomous driving [1]. However, under extreme conditions such as low illumination and adverse weather, traditional detection methods that rely on a single modality often exhibit limited e ff ectiveness [2]. RGB images can provide clear object details and texture information, but are highly susceptible to imaging conditions. In contrast, IR images are less a ff ected by imaging conditions and can o ff er clear object contour information but they lack fine object details [3, 4, 5]. With the advancement of multimodal sensing techniques, utilizing paired RGB-IR images for detection has emerged as a new development direction in the field of object detection as they can provide complementary information to each other. Due to the strong performance and lightweight structure, the dual-stream CNN architecture built upon YOLO [6, 7, 8, 9] has become one of the mainstream backbones for RGB-IR object detection, and existing works focus on the fusion of RGB and IR features of di ff erent streams. Architecture-wise, existing fusion designs for dual-stream networks explore CNN [10, 11, 12], Transformer [13, 14, 15], or Mamba [16, 17] to directly process features from the two modalities, achieving significant improvements in detection performance. 2However, di ff erent structures emphasize di ff erent aspects and also possess distinct lim-itations when fusing features. For example, CNN excels at capturing local spatial fea-tures, but is limited by receptive fields, struggling to capture global information [18]. In contrast, Transformers and Mamba are proficient in modeling global information and long-range dependencies but often exhibit a deficiency in their sensitivity to fine-grained details [19]. Given these structural limitations—where no single structure per-fectly balances global and local modeling—it is critical to revisit the inherent charac-teristics of the input modalities themselves. Specifically, RGB and IR inherently em-phasize distinct aspects of global and local details with their own modality noise. This modal dichotomy, local vs. global, naturally aligns with the complementary strengths of CNN (local) and Transformer /Mamba (global). This prompts us to apply a global-local decomposition and corresponding noise suppression within the fusion process, while aligning the design with the intrinsic attributes of network structures—ultimately enabling more comprehensive and e ffi cient feature fusion. For decomposition, the Laplacian Pyramid is a simple yet e ff ective method for multi-scale feature decom-position. At a given scale, it can separate features into global and local components, eff ectively preserving fine-grained information while also enabling the original fea-tures to be reconstructed through straightforward operations. Therefore, integrating the dual-stream CNN-based YOLO framework with the Laplacian Pyramid-based de-composition, and designing appropriate fusion structures for decomposed global-local features, o ff ers a compelling and innovative strategy to further improve detection per-formance, as shown in Fig. 1. In this paper, we propose a novel fusion block, Laplacian Decoupled Feature En-hancement (LDFE) as shown in Fig. 2. LDFE is a four-step paradigm that includes Laplacian decomposition, denoising, fusion, and the final Laplacian reconstruction, which is applied for di ff erent stages of the dual-stream CNN backbone. For decompo-sition, features are used as the base of the multi-scale pyramid in LDFE. The Gaussian-smoothed feature and the first layer of the Laplacian Pyramid are utilized as global and detail features, respectively, at the current scale. For denoising and fusion, we design the Global State Space Enhancement module (GS 2E) and the Local Convolutional Cor-relation Enhancement module (LC 2E) to implement information extraction and fusion 3Fig. 1: Comparison of our model with several multimodal detection methods on FLIR-Aligned dataset, evaluating mAP, Inference Time, and Parameters. The size of the circles represents the parameters. Here, the deployment performance is evaluated by dividing the product of parameters and inference time by the typical deployment requirement for mobile devices (60M × 40ms). A lower ratio indicates better compliance with deployment constraints. Our model achieves the best performance. 
+
+on global and detail features, respectively. As inherent noise in RGB and IR features can also a ff ect the performance of the detector [20], we also integrate a denoising pro-cess into our modules. The final output is derived through the integration of global and local features using Laplacian reconstruction. Unlike Fusion-Mamba [16] utiliz-ing the dual-stream Mamba to suppress noise holistically, we adopt tailored denoising strategies for global and local features based on the distinct characteristics of noise in each. In GS 2E, after exchanging half of the channels, the features processed by suc-cessive convolutions of one modality are used as attention to suppress local noise in the other modality and features of the two modalities take turns serving as attention. Subsequently, the residual Mamba structure is employed to extract global information. In LC 2E, we employ the L1 Normalization to suppress noisy pixels in the local features of both modalities. Subsequently, Softmax Fusion is applied to integrate the features, followed by spatial and channel attention to fully extract detailed information. 4The integration of the dual-stream CNN backbones with LDFE significantly im-proves the global and local information representation capability of multi-scale fea-tures, leading to a substantial enhancement in detection performance. Thanks to the lightweight CNN backbone and LDFE, our proposed framework demonstrates both high e ffi ciency and e ff ectiveness. As shown in Fig. 1, on the challenging dataset FLIR-Aligned, our method with two kinds of CNN-based backbones significantly outper-forms the current SOTA approaches in terms of mAP, F1 Score, and other metrics. Benefiting from Mamba’s linear complexity, our method also achieves optimal perfor-mance in both parameter e ffi ciency and runtime. In summary, the contributions of this paper are as follows: 
+
+• We propose Laplacian Decoupled Feature Enhancement (LDFE). By design, it simultaneously considers the characteristics of modalities and structures for fea-ture fusion by employing global-local decomposition, denoising, fusion, and re-construction, sequentially. 
+
+• The LDFE comprises two sub-modules, each thoughtfully designed to separately denoise and fuse global and local features of RGB and IR: the GS 2E, which realizes e ff ective global feature fusion through dual-modal alternating attention and a state-space model, and the LC 2E, which enhances the integration of local detail information through an innovative attention mechanism. 
+
+• Extensive experiments on six RGB-IR object detection datasets and three typical CNN backbones demonstrate the e ff ectiveness of our method. Compared to the second-best method, our approach achieves an average mAP improvement of 3.83%. 
+
+2. Related Works 
+
+2.1. Multimodal Object Detection 
+
+With the rapid development of object detectors [21], many multimodal detection methods that leverage complementary information from multiple spectra have been 5Fig. 2: An illustrative diagram of our proposed method, which consists of a dual-stream CNN architecture built upon YOLO with LDFEs at layers 2, 3, and 5. Specifically, LDFE comprises Laplacian Decomposition for global and local feature decomposition, Channel Swapping (CS) for su ffi cient global feature interaction, Global State Space Enhancement module (GS 2E) for global feature denoising and fusion, Local Convolu-tional Correlation Enhancement module (LC 2E) for local feature denoising and fusion, and the final Lapla-cian Reconstruction. 
+
+proposed. The key to these methods lies in the design of the fusion strategy, which can be categorized into pixel-level fusion methods [22, 23] and feature-level fusion meth-ods [24, 25, 26]. Pixel-level fusion methods fuse the input RGB and IR image pairs at the pixel level to create a single fused image, which is then used for object detection, such as EMMA [27] and CoCoNet [28]. Feature-level fusion methods fuse the RGB and IR information at the feature level. Based on the fusion stage of the features, they can be classified into early and middle [29, 30, 31, 32] (fusing early or later features from the dual-stream backbones) and late fusion [33, 34] (fusing the outputs from in-dependent detectors). Most of these fusion methods are based on CNN or Transformer. Recently, some Mamba-based methods such as Fusion-Mamba [16] and DMM [17], have leveraged Mamba’s capability of linearly modeling global features to achieve fur-ther performance improvement in multimodal object detection tasks. In this paper, we 6highlight the importance of separately denoising and fusing multimodal global struc-tural information and local detail information within multi-scale features, and design fusion strategies GS 2E and LC 2E, which can further enhance detection performance. 
+
+2.2. Laplacian Pyramid Methods in Computer Vision 
+
+The Laplacian Pyramid can decompose multi-scale global features and capture the overall structure while preserving local features that emphasize edges and textures. Methods based on the Laplacian Pyramid are widely used in various computer vision tasks with great performance. LapH [35] decomposes multi-scale high-frequency and low-frequency components using the Laplacian Pyramid, and guides the feature ex-traction of low-frequency components with high-frequency component information, thereby improving the quality of infrared and visible image fusion. LPSR [36] also uses the Laplacian Pyramid to extract high-frequency and low-frequency features, which are then sparsely represented. Through the selective fusion of these features, it estab-lishes a new SOTA benchmark in multi-spectral and SAR image fusion. These methods have been successful in extracting both global and local features across multiple scales. Given its importance in multimodal feature fusion, we further develop this idea by in-troducing LDFE, which emphasizes utilizing the Laplacian Pyramid for feature fusion of multimodal object detection tasks. 
+
+3. Preliminaries 
+
+The Laplacian Pyramid is a multi-scale image representation method constructed based on the Gaussian Pyramid [37]. By decomposing the image into multiple scales using the Gaussian Pyramid, it separates the global feature while preserving fine local details of the image. Specifically, the Laplacian Pyramid can be treated as a combina-tion of a series of decomposition and reconstruction. For each scale, the decomposition operation aims to decouple global and local features at the current scale, while the re-construction operation generates features transmitted to the next layer. For decomposition , given initial features FI , its global feature FG is obtained via Gaussian Smoothing GS( ·), which e ff ectively suppress edge and detail information 7within the features. Consequently, its local features FL at the current scale are com-puted by subtracting the downsampled and then upsampled result of FG from the initial features FI :
+
+FG = GS( FI ),
+
+FL = FI − UpSample(DownSample( FG)) ,
+
+(1) where UpSample( ·) and DownSample( ·) denote the upsampling and downsampling op-erators. For reconstruction , the processed global and local features FG and FL are summed to obtain the reconstructed features FR to be propagated to the subsequent layers as: 
+
+FR = FG + FL. (2) 
+
+4. Architecture 
+
+The overall architecture of our model is illustrated in Fig. 2, which consists of a dual-stream CNN feature extraction backbone, three LDFE modules, and the YOLOv8 detection neck and head. Given paired visible IRGB and infrared images IIR , our target is to leverage the complementary information of paired multimodal images to detect target objects in the images, providing both the categories and the bounding boxes. We employ the commonly used five-stage CNN backbones ( e.g. , ResNet50), and extend them into dual-stream architecture to process paired image inputs. For each stage in the backbone, we use its output as the base level of Gaussian Pyramid. Especially, we place LDFEs at the 2nd, 3rd, and 5th stages to fuse IR and RGB features. The processed features from these three stages are summed and subsequently fed into the original YOLOv8 neck and head to get detection results. We adopt the standard YOLOv8 loss function [21] formally expressed as: 
+
+Ldetection = λcoord Lcoord + Lcon f + Lclass , (4) where Lcoord represents the localization loss, λcoord is the corresponding hyperparame-ter, Lcon f denotes the confidence loss, and Lclass represents the classification loss. More details of the loss function can be found in [21]. 84.1. Dual-Stream Backbone 
+
+Our model first extracts features from IRGB and IIR through the first two stages of the dual-stream backbone, obtaining FiRGB and FiIR , where i ∈ { 1, 2}. Subsequently, 
+
+F2 
+
+> RGB
+
+and F2 
+
+> IR
+
+are fed into the LDFE and result in ˜ F2 
+
+> RGB
+
+and ˜ F2
+
+> IR
+
+. Specifically, during LDFE, F2 
+
+> RGB
+
+and F2 
+
+> IR
+
+are used as initial features for decomposition (See Eq. 1). After denoising, fusion, and feature extraction in LDFE, the reconstructed features ˜ F2 
+
+> RGB
+
+and ˜F2 
+
+> IR
+
+are obtained (See Eq. 2). The sum of F2 
+
+> RGB
+
+and ˜ F2 
+
+> RGB
+
+and the sum of F2 
+
+> IR
+
+and ˜ F2
+
+> IR
+
+are sent to the third stage of the backbone, yielding F3 
+
+> RGB
+
+and F3
+
+> IR
+
+, respectively. To obtain more multi-scale feature information combining the Laplacian Pyramid and the dual-stream backbone, we also apply LDFE in the third and fifth stages of the backbone as : 
+
+Fi+1 
+
+> RGB
+
+= ˜FiRGB + FiRGB ,
+
+Fi+1 
+
+> IR
+
+= ˜FiIR + FiRGB ,
+
+(5) where i ∈ { 2, 3, 5}. Finally, the values Fi+1 
+
+> RGB
+
+and Fi+1 
+
+> IR
+
+are summed for i ∈ { 2, 3, 5}, and then fed into the YOLOv8 neck and head to obtain the final detection results. For the fourth layer, we employ the original backbone to process F4 
+
+> RGB
+
+and F4
+
+> IR
+
+, obtaining F5
+
+> RGB
+
+and F5
+
+> IR
+
+. For the simplicity, we denote the sum of ˜ F5 
+
+> RGB
+
+and F5 
+
+> RGB
+
+as F6 
+
+> RGB
+
+and the sum of ˜ F5 
+
+> IR
+
+and F5 
+
+> IR
+
+as F6
+
+> IR
+
+. Along with F3
+
+> RGB
+
+, F3
+
+> IR
+
+, F4
+
+> RGB
+
+, and F4
+
+> IR
+
+, they are subsequently delivered to the YOLO Neck and Head to get the detection results. We will provide a detailed introduction of LDFE in Section 4.2. 
+
+4.2. Laplacian Decoupled Feature Enhancement block 
+
+To achieve more e ff ective denoising and process both low-frequency global in-formation and high-frequency detail information more e ff ectively at current scale, we design LDFE, as illustrated in Fig. 2. We obtain two sub-features through Eq. 1 from 
+
+FiRGB , where the global sub-feature is retained as FiG,RGB , and the local sub-feature is 
+
+FiL,RGB . The same operation is applied to FiIR , obtaining FiG,IR and FiL,IR . Subsequently, 
+
+FiG,RGB and FiG,IR are fed into Channel Swapping and Global State Space Enhancement module for denoising, feature fusion, and global information extraction, resulting in 9fused global features ˜ FiG,RGB and ˜ FiG,IR , which can be formulated as follows: ¯FiG,RGB , ¯FiG,IR = CS( FiG,RGB , FiG,IR ),
+
+˜FiG,RGB , ˜FiG,IR = GS 2E( ¯ FiG,RGB , ¯FiG,IR ).
+
+(6) Here, CS( ·) represents the Channel Swapping operation, which exchanges half of the channels of the RGB and IR global features to achieve initial information interaction. ¯FiG,RGB and ¯ FiG,IR are channel swapped global features. GS 2E( ·) represents the Global State Space Enhancement module. The local sub-feature FiL,RGB and FiL,IR are processed by Local Convolutional Cor-relation Enhancement module for denoising fusion and local feature extraction, formu-lated as: ˜FiL,RGB , ˜FiL,IR = LC 2E( FiL,RGB , FiL,IR ). (7) Here, LC 2E( ·) refers to Local Convolutional Correlation Enhancement module. Fi-nally, ˜ FiG,RGB and ˜ FiL,RGB , ˜ FiG,IR and ˜ FiL,IR are processed by the reconstruction operation through Eq. 2, obtaining the fused features ˜ FiRGB and ˜ FiIR , respectively. 
+
+Global State Space Enhancement module (GS 2E). As shown in Fig. 3, the Global State Space Enhancement module consists of Noise Suppression and Feature Extrac-tion. Due to the modality-specific local “pseudo-label” noise in infrared and visible features [16], we first design the convolution-based mutual suppression in GS 2E mod-ule. ¯FiG,RGB and ¯FiG,IR from Eq. 1 are used as the input of the main denoised branch and the auxiliary denoising branch. The main branch features undergo normalization, convolution, eight group convolutions, and channel shu ffl ing for feature extraction. Meanwhile, the auxiliary branch undergoes normalization, DepthWise (DW) convolu-tion, PointWise (PW) convolution, and SiLU activation. The resulting features of the auxiliary branch serve as denoising attention, which is multiplied with the main branch features to obtain the denoised output of the main branch. The formula is expressed as follows: ˇFiG,RGB = MB( ¯ FiG,RGB ) ⊙ AB( ¯ FiG,IR ),
+
+ˇFiG,IR = MB( ¯ FiG,IR ) ⊙ AB( ¯ FiG,RGB ),
+
+(8) where ˇ FiG,RGB and ˇ FiG,IR represent the denoised global features of RGB and IR, respec-tively, MB( ·) denotes the main branch operation, AB( ·) represents the auxiliary branch 10 Fig. 3: The detailed framework of the Global State Space Enhancement module. M and A denote Main branch and Auxiliary branch, respectively. 
+
+operation, and ⊙ denotes the Hadamard product. Inspired by [19], we utilize Mamba to process the denoised fused global feature in feature extraction. It undergoes normaliza-tion, a linear layer, and DW convolution before being fed into the Mamba core module SS2D for feature extraction. Finally, the residual fused features are added to obtain the main branch output. To enable comprehensive bidirectional interaction between features from both modalities, the two modalities alternately serve as the main branch, resulting in the final fused global output ˜ FiG,RGB and ˜ FiG,IR .
+
+Local Convolutional Correlation Enhancement module (LC 2E). The LC 2E is illus-trated at the top of Fig. 4. According to [38], local detail features contain noise that interferes e ff ective feature extraction. To address this issue, we apply L 1 Normaliza-tion L 1(·) for denoising, followed by Softmax Fusion SMF( ·) [39] for feature fusion as below: ˇFiL,RGB , ˇFiL,IR = L1(FiL,RGB ), L1(FiL,IR ),
+
+ˇFiL = SMF( ˇ FiL,RGB , ˇFiL,IR ).
+
+(9) 11 Fig. 4: The detailed structure of the Local Convolutional Correlation Enhancement module with Spatial Attention (SA) and Channel Attention (CA). L1 Norm means L1 Normalization. 
+
+ˇFiL,RGB and ˇ FiL,IR denote the denoised local features of RGB and IR, respectively. ˇFiL
+
+represents the denoised local feature. Following [18], which demonstrates the e ff ec-tiveness of CNNs in perceiving local information, we utilize three successive 2D 1 × 1convolutional layers to process ˇ FiL. The resulting feature is then multiplied by ˇ FiL,RGB 
+
+refined through spatial attention, and ˇ FiL,RGB refined through channel attention, forming the holistic attention output for ˇ FiL,RGB . The attention output is subsequently multiplied with ˇ FiL,RGB to obtain the temporary RGB feature. An identical procedure is applied to ˇFiL,IR , together with the convolutional outputs, to derive the temporary IR feature. The two temporary features are added to the residual initial features to obtain the final fused local features ˜ FiL,RGB and ˜ FiL,IR as follows: ˜FiL,RGB =FiL,RGB + ˇFiL,RGB ⊙ SA( ˇ FiL,RGB )
+
+⊙ CA( ˇ FiL,RGB ) ⊙ Conv( ˇ FiL),
+
+(10) ˜FiL,IR =FiL,IR + ˇFiL,IR ⊙ SA( ˇ FiL,IR )
+
+⊙ CA( ˇ FiL,IR ) ⊙ Conv( ˇ FiL).
+
+(11) SA( ·) denotes Spatial Attention, CA( ·) means Channel Attention, and Conv( ·) repre-sents the three-layer 2D 1 × 1 convolutional layers. As shown in the bottom of Fig. 4, specifically, before being multiplied with the initial features, Spatial Attention sepa-rates the features along the height and width using average pooling, followed by four 12 DW convolutions, a group convolution, and the sigmoid function. Channel Attention, on the other hand, processes the features through 2D average pooling, a linear layer, ReLU activation, and another linear layer to obtain the final result. 
+
+5. Experiments 
+
+5.1. Experimental Setups 
+
+Datasets. We evaluate our LDFE method on six public RGB-IR object detection benchmark datasets: M 3FD [40], DroneVehicle [41], LLVIP [42], FLIR [43], KAIST [44], and VEDAI [45]. M3FD is a widely used multi-category RGB-IR detection dataset, consisting of 4, 200 pairs of images. These images are captured under various extreme conditions, such as low light, heavy rain, snow, and fog, posing significant challenges to the per-formance of multimodal object detectors. Since the o ffi cial dataset partitioning is not provided, we adopt the widely used partitioning method proposed by [46], with 80% pairs of images used for training and the remaining images for testing. DroneVehicle is a large-scale remote sensing vehicle detection dataset with dense annotations. Its 28 , 439 pairs of images with 953 , 087 annotations are captured by drones at varying altitudes, angles, and lighting conditions. It contains five categories: car, truck, bus, van, and freight-car. Following the o ffi cial partitioning standard, we use 17 , 990 pairs of images for training, 1 , 469 pairs for validation, and 8 , 980 pairs for testing, with the test set results used for comparison. LLVIP is a large-scale, well-aligned visible-infrared pedestrian detection dataset. Since the images are captured under low-light conditions, it is widely used for eval-uating the performance of multimodal detectors. Following the o ffi cial partitioning standard, we use 12 , 025 pairs of images for training and 3 , 463 pairs for testing. FLIR is a publicly available multi-category RGB-IR dataset collected throughout the day. Due to the presence of numerous low-quality images and annotations in the original dataset, we follow [10] and use FLIR-Aligned dataset, with 4 , 129 pairs of images for training and 1 , 013 pairs for testing. Due to the limited number of ‘dog’ 13 Table 1: Comparison results with SOTA methods on M 3FD dataset. The best, second, and third results are highlighted in red, blue and orange, respectively.                                                                                                                                                           
+
+> Methods Backbone mAP 50 mAP Car Bus Lamp People Truck Motorcycle YOLOv8l-IR [21] CSPDarknet53v8 79.5 53.1 90.0 90.9 63.0 82.9 85.9 64.6 YOLOv8l-RGB [21] CSPDarknet53v8 80.9 52.5 91.2 92.9 75.3 70.6 86.0 69.6 (ECCV’24) DAMSDet [33] ResNet50 85.3 57.9 93.2 91.9 87.2 81.8 82.9 74.8 (Ours) LDFE ResNet50 92.3 65.0 95.3 94.8 92.4 92.8 89.2 89.5 (IJCV’24) CoCoNet [28] CSPDarknet53v5 81.9 55.1 90.5 94.7 91.6 68.2 72.9 73.4 (TCSVT’24) MMFN [24] CSPDarknet53v5 86.2 57.4 93.2 92.1 87.6 83.0 87.4 73.7 (CVPR’24) EMMA [27] CSPDarknet53v5 83.3 55.4 93.8 83.6 87.7 82.9 73.9 77.7 (TIM’24) KCDNet [34] CSPDarknet53v5 83.5 56.6 91.2 88.8 81.3 83.5 72.0 83.9 (AAAI’25) FD 2-Net [47] CSPDarknet53v5 83.5 -93.6 82.7 87.8 83.7 73.8 78.1 (TMM’25) Fusion-Mamba [16] CSPDarknet53v5 85.0 57.5 91.9 92.8 84.8 80.3 87.1 73.0 (NIPS’24) E2E-MFD [4] CSPDarknet53v5 87.9 58.1 ------(Ours) LDFE CSPDarknet53v5 92.7 65.3 95.5 94.4 92.5 92.9 89.9 90.8 (YAC’24) RI-YOLO [8] CSPDarknet53v8 83.6 56.6 91.6 88.5 75.7 84.1 87.8 73.5 (Sensors’24) MRD-YOLO [1] CSPDarknet53v8 86.6 59.3 ------(TCSVT’25) E I2Det [14] CSPDarknet53v8 86.5 55.5 91.5 92.3 84.9 82.9 89.6 77.5 (Ours) LDFE CSPDarknet53v8 93.1 65.5 95.6 95.5 93.6 93.1 91.3 89.3
+
+annotations in the dataset, we removed this category. This dataset is also widely rec-ognized as a challenging RGB-IR object detection benchmark. KAIST is a low-light pedestrian detection dataset similar to LLVIP. Due to prob-lems such as unclear and wrong annotations in the original dataset, we employ the training set (8963 image pairs) and a test set (2252 image pairs) with enhanced anno-tation quality, which are widely used in the research area. VEDAI is a remote sensing multi-spectral dataset similar to DroneVehicle. It con-tains 1 , 210 pairs of RGB-IR images with annotations for nine di ff erent categories. Since the dataset does not provide an o ffi cial split, we use the ten-fold cross-validation method proposed by [3], with 1 , 089 image pairs allocated to the training set and the remaining pairs used for testing. 
+
+Implementation Details. We conduct all experiments on a single A100 using a dual-stream framework based on the o ffi cial YOLOv8 [21]. Except for the LDFE module, all other settings of the model are consistent with those of YOLOv5l and YOLOv8l. 14 Table 2: Comparison results with SOTA methods on DroneVehicle dataset. The best results are highlighted in red and the second and third results are highlighted in blue and orange, respectively. 
+
+Methods Backbone mAP 50 mAP Car Bus Truck Freight-car Van YOLOv8l-IR [21] CSPDarknet53v8 71.9 49.1 93.4 91.9 69.3 53.7 51.1 YOLOv8l-RGB [21] CSPDarknet53v8 70.2 48.6 92.5 91.7 68.8 47.8 50.2 (TGRS’24) C2Former-S 2ANet [30] ResNet50 74.2 47.3 90.2 89.8 68.3 64.4 58.5 (Ours) LDFE ResNet50 79.4 59.9 94.7 90.2 79.6 68.3 64.1 (CVPR’24) CSOM-ODAF [48] CSPDarknet53v5 77.1 50.1 90.1 89.8 75.6 68.2 61.8 (RSL’24) multimodal DINO [25] CSPDarknet53v5 72.5 50.3 89.5 88.8 75.4 54.3 54.3 (Ours) LDFE CSPDarknet53v5 79.5 60.1 94.7 90.0 80.0 68.4 64.2 (RS’24) DAAB +FFPN [13] CSPDarknet53v8 75.2 56.3 - - - - -(Sensors’24) IV-YOLO [9] CSPDarknet53v8 74.6 56.8 97.2 94.3 65.4 63.1 53.0 (AEJ’24) YOLO-Fusion [7] CSPDarknet53v8 72.1 - 98.4 96.1 66.0 53.2 46.9 (CAC’24) FFM [31] CSPDarknet53v8 77.1 - 98.1 94.5 74.1 64.4 54.5 (Ours) LDFE CSPDarknet53v8 79.9 60.5 94.8 90.1 80.4 68.8 65.3 
+
+Table 3: Comparison results with SOTA methods on LLVIP dataset. The best, second, and third results are highlighted in red, blue, and orange, respectively. 
+
+Methods Backbone mAP 50 mAP YOLOv8l-IR [21] CSPDarknet53v8 95.2 62.1 YOLOv8l-RGB [21] CSPDarknet53v8 91.9 54.0 (2024) RSDet [10] ResNet50 95.8 61.3 (Ours) LDFE ResNet50 97.3 68.2 (IF’23) DIVFusion [22] CSPDarknet53v5 93.8 58.1 (PR’24) ICAFusion [3] CSPDarknet53v5 95.2 60.1 (RS’24) ACDF-YOLO [6] CSPDarknet53v5 96.5 61.3 (PR’25) MGT [5] CSPDarknet53v5 97.0 63.8 (PR’25) HaarFuse [11] CSPDarknet53v5 96.3 62.8 (Ours) LDFE CSPDarknet53v5 97.6 68.4 (SJ’25) FIAFusion [23] ELANv7 96.2 62.8 (Sensors’24) FAWDet [49] CSPDarknet53v8 97.1 62.1 (Ours) LDFE CSPDarknet53v8 97.8 68.5 
+
+For all experiments, the batch size is set to 8 during training and 16 during testing. The SGD optimizer is used for optimization with a weight decay of 0 .001 and a momentum of 0 .9. For all the datasets, the input image size is 640 × 640 and the initial learning rate is 0 .01 with λcoord = 7.5. For M 3FD and DroneVehicle, the number of training 15 Table 4: Comparison results with SOTA methods on FLIR-Aligned Dataset. The best, second, and third results are highlighted in red, blue, and orange, respectively.                                                                                     
+
+> Methods Backbone Precision Recall F1 mAP Parameters Time (ms) YOLOv8-IR [21] CSPDarknet53v8 75.1 65.3 69.9 38.3 43.7M 22.0 YOLOv8-RGB [21] CSPDarknet53v8 71.6 62.2 66.6 28.2 43.7M 22.0 (RS’24) DAAB +FFPN [13] ResNet50 80.1 73.1 76.4 42.3 176.3M 68.0 (Ours) LDFE ResNet50 81.9 76.1 78.9 43.8 187.6M 57.0 (PR’24) ICAFusion [3] CSPDarknet53v5 ---41.4 120.2M 42.0 (PRL’24) CrossFormer [29] CSPDarknet53v5 78.1 72.8 75.4 42.1 340.0M 80.0 (TNNLS’24) LRAF-Net [32] CSPDarknet53v5 81.6 75.3 78.3 42.8 197.3M 99.8 (TCSVT’24) MMI-Det [15] CSPDarknet53v5 ---40.5 207.5M 51.5 (Ours) LDFE CSPDarknet53v5 82.1 76.3 79.1 44.0 56.0M 38.3 (GRSL’24) ESSFN [26] CSPDarknet53v8 81.4 73.5 77.2 42.3 80.2M 47.0 (Ours) LDFE CSPDarknet53v8 82.9 76.7 79.7 45.1 81.3M 40.3
+
+epochs is set to 250; for LLVIP, it is set to 80; for FLIR-Aligned, KAIST and VEDAI, it is set to 120. All data augmentation and other parameters are set to the default values of YOLOv8. 
+
+Evaluation Metrics. For M 3FD, DroneVehicle, LLVIP, KAIST, and VEDAI, we eval-uate our model using mAP 50 and mAP, which are the most commonly used standard metrics for object detection tasks [33]. The mAP 50 metric represents the mean AP un-der IoU of 0 .50 and the mAP metric represents the mean AP under IoU ranging from 0.50 to 0 .95 with a stride of 0 .05 [10]. Since FLIR-Aligned dataset is relatively chal-lenging, we replace mAP 50 with precision, recall, and F1 score to comprehensively assess the model’s performance on this dataset following [32]. We also provide the parameters of our model and the average inference time per image pair (640 × 640) with 10 runs on A100. 
+
+5.2. Comparison with SOTA Methods’ Results 
+
+We employ three commonly used CNN backbones: ResNet50, CSPDarknet53v5 and CSPDarknet53v8. CSPDarknet53v5 and CSPDarknet53v8 are the backbone of YOLOv5 and YOLOv8, respectively. For SOTAs, we also compare methods with other backbones, Transformer and ELANv7 (the backbone of YOLOv7). 16 Table 5: Comparison results with SOTA methods on KAIST dataset. The best, second, and third results are highlighted in red, blue, and orange, respectively.                              
+
+> Methods Backbone mAP 50 mAP YOLOv8l-IR [21] CSPDarknet53v8 56.8 22.4 YOLOv8l-RGB [21] CSPDarknet53v8 55.3 21.6 (TCSVT’22) CMDet [41] ResNet50 68.4 28.3 (Ours) LDFE ResNet50 78.2 36.5 (RS’22) RISNet [50] CSPDarknet53v5 72.7 33.1 (PR’24) ICAFusion [3] CSPDarknet53v5 60.3 -(Ours) LDFE CSPDarknet53v5 79.1 37.0 (Sensor’24) IV-YOLO [9] CSPDarknet53v8 75.4 -(Ours) LDFE CSPDarknet53v8 78.8 37.2
+
+Table 6: Comparison results with SOTA methods on VEDAI dataset. The best, second, and third results are highlighted in red, blue, and orange, respectively.                                  
+
+> Methods Backbone mAP 50 mAP YOLOv8l-IR [21] CSPDarknet53v8 68.4 39.2 YOLOv8l-RGB [21] CSPDarknet53v8 64.5 37.9 (2024) DMM [17] ResNet50 75.0 -(Ours) LDFE ResNet50 78.4 48.8 (PR’22) MidFusion [51] CSPDarknet53v5 74.9 46.6 (PR’24) ICAFusion [3] CSPDarknet53v5 76.6 44.9 (RS’24) ACDF-YOLO [6] CSPDarknet53v5 78.1 47.9 (Ours) LDFE CSPDarknet53v5 78.6 49.6 (ESWA’25) MMFDet [12] CSPDarknet53v8 77.5 43.5 (Sensors’24) FAWDet [49] CSPDarknet53v8 69.2 43.7 (Ours) LDFE CSPDarknet53v8 78.8 49.9
+
+M3FD. The results of our method on M 3FD are summarized in Table 1. Compared with 11 SOTA methods, our method using CSPDarknet53v8, CSPDarknet53v5 and ResNet50 backbones achieves the top three positions in both mAP 50 and mAP, surpass-ing the fourth-ranked method by 5 .2% and 6 .2%, respectively. From the perspective of sub-categories, our methods based on the three backbones dominate the top three po-sitions across almost all categories. Compared to the single-modality baseline model YOLOv8l, our method achieves a significant performance improvement, demonstrat-ing that LDFE e ff ectively integrates complementary information from both the RGB and IR modalities while suppressing noise. This achievement is attributed to our use of the Laplacian Pyramid to separate and enhance the global features and detailed local information of the two modalities, enabling outstanding multi-category detection per-formance under extreme weather conditions. 
+
+DroneVehicle. As shown in Table 2, our method also achieves SOTA performance on the dense remote sensing dataset DroneVehicle. Compared to 7 multimodal fusion de-tection methods, our approach ranks first, second, and third, surpassing the fourth-place method by 2 .8% in mAP 50 and 3 .7% in mAP. Benefiting from our de-noising of the sep-17 arated high-frequency detail features and attention-based local feature extraction, our method secures the top three positions in similar categories “Truck”, “Freight-car”, and “Van”, which are di ffi cult for other methods to distinguish. Since our method does not include specific designs for densely annotated targets, its performance in the “Car” and “Bus” categories is inferior to other methods. However, its overall detection per-formance significantly surpasses theirs. This result indicates that our method exhibits strong generalization capability across di ff erent types of RGB-IR detection datasets, demonstrating its robustness and versatility. 
+
+LLVIP. We compare our method with other SOTA methods on the low-light pedes-trian detection dataset LLVIP, and the results are in Table 3. Our method based on ResNet50, CSPDarknet53v5 and CSPDarknet53v8 achieves mAP 50 of 97 .3%, 97 .6% and 97 .8%, respectively, surpassing the fourth-place result by 0 .7%. Additionally, our method attains mAP scores of 68 .2%, 68 .4% and 68 .5%, exceeding the fourth-place result by 4 .7%. 
+
+FLIR-Aligned. To further demonstrate the e ff ectiveness of our approach, we conduct a comprehensive comparison with other SOTA approaches on FLIR-Aligned across more evaluation metrics. As presented in Table 4, our method achieves SOTA perfor-mance across four key metrics: Precision, Recall, F1 score, and mAP. Moreover, it exhibits lower parameters and reduced inference time compared to other approaches. Under the same backbone CSPDarknet53v5, our method outperforms LRAF-Net with improvements of 0 .8% and 1 .2% in F1 score and mAP, respectively, while reducing the parameters by 141 .3M and decreasing the inference time by 61 .5ms. CrossFormer and MMI-Det exhibit a similar trend. This improvement is attributed to the design of our fusion module and the linear complexity of Mamba. This result further confirms that our method e ff ectively improves detection performance while simultaneously reducing computational resource consumption. 
+
+KAIST. The results of LDFE on KAIST are shown in Table 5. Our method, based on the three backbones, secures the top three in terms of mAP 50 and mAP, surpassing the fourth-place method by 3 .7% and 4 .1%, respectively. This result, combined with the findings on LLVIP, demonstrates the outstanding performance of our method in low-light detection conditions, highlighting the e ff ectiveness of our fusion approach. 18 Fig. 5: Heatmap visualization of several cross-modal object detection methods on M 3FD, DroneVehicle, LLVIP and FLIR-Aligned. Our method focuses more on the target regions. 
+
+VEDAI. As shown in Table 6, although our model is not specifically designed for small object detection in remote sensing, it, based on the three backbones, achieves mAP 50 
+
+of 78 .4%, 78 .6% and 78 .8%, surpassing ACDF-YOLO 0 .7%. Similarly, mAP reaches 48 .8%, 49 .6% and 49 .9%, also exceeding it by 2 .0%. 
+
+5.3. Visualization Results 
+
+Since KAIST and VEDAI are of the same type as LLVIP and DroneVehicle, we provide the visualization results of the latter. 
+
+Heatmaps. We visualize the heatmaps of the first LDFE layer based on Grad-CAM [52] and compare them with several state-of-the-art methods [16, 34, 30, 9, 22, 3, 29, 26]. As shown in Fig. 5, compared to other methods, our approach focuses more e ff ec-tively on the target regions while being less distracted by background noise. This is attributed to our method’s denoising and information extraction strategies tailored to low-frequency global features and high-frequency local features, along with their asso-ciated noise. As a result, the model remains less a ff ected by noise, maintaining focused attention and enhancing detection performance. 
+
+Detection Results. We visualize the detection results of our LDFE and compare them with several state-of-the-art methods [16, 34, 30, 9, 22, 3, 29, 26]. As shown in Fig. 6, thanks to our denoising and fusion strategy, our method reduces the number of missed and false detections under challenging conditions (such as far distances, dense annota-tions, and severe occlusions), achieving the best detection performance. 19 Fig. 6: Visualization of detection results of several cross-modal object detection methods on M 3FD, Dron-eVehicle, LLVIP, and FLIR-Aligned. The targets highlighted with red and yellow ellipses represent missed detections and false detections, respectively. Please zoom in for more details. 
+
+5.4. Ablation Study 
+
+To evaluate the e ff ectiveness of each module, its di ff erent configurations, and var-ious fusion strategies, we conduct ablation experiments on M 3FD dataset using the CSPDarknet53v8 backbone. 
+
+Eff ects of Channel Swapping (CS), GS 2E, and LC 2E modules. As shown in Ta-ble 7, we ablate the e ff ect of the CS, GS 2E, and LC 2E modules by removing them separately. After removing the CS module, the model’s performance decreases by 20 Table 7: E ff ects of the CS, GS 2E, and LC 2E in LDFE on M 3FD dataset. 
+
+Setting Methods mAP 50 mAP Parameters Component w/o CS 91.6 63.9 81.3M w/o GS 2E 90.4 61.8 74.2M w/o LC 2E 90.7 62.1 80.1M Number of LDFEs 1 91.7 64.2 73.5M 2 92.1 64.4 75.2M 3 (Ours) 93.1 65.5 81.3M 
+
+Table 8: E ff ects of di ff erent fusion methods in LDFE on M 3FD dataset. (a,b) means global and local features are fused with methods a and b, respectively. 
+
+Methods mAP 50 mAP Parameters Baseline 83.2 55.1 73.0M (Avg, Avg) 86.6 58.2 73.0M (L1 Norm, L1 Norm) 87.3 58.7 73.0M (GS 2E, Avg) 90.8 62.3 80.1M (GS 2E, L1 Norm) 91.0 62.5 80.1M (Avg, LC 2E) 90.6 62.0 74.2M (L1 Norm, LC 2E) 90.7 62.2 74.2M (GS 2E, LC 2E) 93.1 65.5 81.3M 
+
+Table 9: E ff ects of denoising process in LDFE on M 3FD dataset. 
+
+Methods mAP 50 mAP Parameters Baseline 93.1 65.5 81.3M w/o denoising in GS 2E 91.7 64.3 79.8M w/o denoising in LC 2E 91.9 64.6 81.3M 
+
+Table 10: E ff ects of di ff erent LDFEs’ position on M3FD dataset. 
+
+Methods mAP 50 mAP Parameters {P1,P2,P3} 91.8 63.2 75.3M {P2,P3,P4} 92.3 64.5 81.4M {P3,P4,P5} 92.1 64.1 87.0M {P2,P4,P5} 92.0 64.0 85.8M {P2,P3,P5} (Ours) 93.1 65.5 81.3M 
+
+Table 11: E ff ects of State Space Model on M 3FD dataset. 
+
+Methods mAP 50 mAP Parameters Time (ms) Transformer 91.6 63.7 87.0M 46.7 SSM (Ours) 93.1 65.5 81.3M 40.3 
+
+1.5% and 1 .6% in terms of mAP 50 and mAP, respectively. Removing GS 2E leads to a decrease of 2 .7% and 3 .7%, and removing LC 2E leads to a decrease of 2 .4% and 3 .4% in mAP 50 and mAP, respectively. This result validates the importance of each module in our method, demonstrating that the channel swapping, global and local de-noising fusion modules e ff ectively integrate features from both modalities. Furthermore, they 21 enable comprehensive extraction of global information and detailed information from both modalities. 
+
+Eff ects of the Number of LDFEs. Based on the number of detection heads in the YOLOv8 model, we conduct an ablation study on the number of modules. As shown in Table 7, using a single fusion module results in decreases of 1 .4% and 1 .3% in 
+
+mAP 50 and mAP, respectively, while using two fusion modules leads to decreases of 1.0% and 1 .1% in mAP 50 and mAP. 
+
+Eff ects of Di ff erent Fusion Methods. To validate the e ff ectiveness of our low-frequency global and high-frequency local feature fusion strategies, we replace them with two standard fusion methods [39], Avg Fusion and L1 Norm Fusion. The results are pre-sented in Table 8. The baseline model does not utilize Laplacian Pyramid, but directly fuses RGB and IR features using Avg Fusion. Comparing the 1st with the 2nd rows, af-ter incorporating Laplacian Pyramid, the model’s performance significantly improves. By comparing the 2nd and 3rd rows with the 4th and 5th rows, we observe that apply-ing GS 2E to global features leads to a significant performance improvement while the parameter count increases by only 7 .1M. Similarly, comparing the 2nd and 3rd rows with the 6th and 7th rows also demonstrates the e ff ectiveness of LC 2E. This also indi-cates that using a simple fusion strategy for local features does not adequately capture the edge, texture, and other detailed information. 
+
+Eff ects of Denoising Process. To verify the e ff ect of the denoising process in GS 2Eand LC 2E, we modify GS 2E and LC 2E by directly passing them through the Mamba module and removing the L1 Normalization, respectively. The results are presented in Table 9. After removing the denoising process, the model’s mAP 50 and mAP show a maximum decrease of 1 .4%, demonstrating the e ff ectiveness of global and local feature denoising. 
+
+Eff ects of Di ff erent LDFEs’ Position. Based on previous work [29] and the number of detection heads in the YOLOv8 model, we also adopt three fusion modules. The re-sults are summarized in Table 10, where Pi represents the LDFE is placed at ith stage. Due to the results of “{ P1,P2,P3}" and [30], the first stage is not a suitable place for fu-sion. Removing P1 leaves four possible combinations of fusion positions. Ultimately, “{ P2,P3,P5}" achieves the best performance. 22 Table 12: Performance of LDFE on M 3FD dataset across di ff erent scenarios and the best, second, and third results are highlighted in red, blue, and orange, respectively.                                    
+
+> Methods Backbone Day Overcast Night Challenge (RAL’23) EAEF [46] ResNet50 78.3 78.6 89.5 97.9 (WACV’24) SACBAM [53] Effi cientNet 75.9 85.1 92.6 82.7 (Ours) LDFE ResNet50 90.8 91.2 97.3 99.3 (CVPR’22) TarDAL [40] CSPDarknet53v5 74.5 74.1 89.3 98.3 (Ours) LDFE CSPDarknet53v5 90.8 91.4 96.9 99.5 (Ours) LDFE CSPDarknet53v8 90.9 92.8 97.4 99.6
+
+Table 13: Performance of LDFE under di ff erent severity levels on FLIR-Aligned dataset. The best results are highlighted in bold.                      
+
+> Severity level Methods Backbones mAP 1(TITS’23) CMX [54] Transformer 31.8 (KBS’23) IGT [2] Transformer 32.8 (Ours) LDFE CSPDarknet53v8 44.9
+> 3(TITS’23) CMX Transformer 30.3 (KBS’23) IGT Transformer 32.0 (Ours) LDFE CSPDarknet53v8 44.4
+> 5(TITS’23) CMX Transformer 23.9 (KBS’23) IGT Transformer 28.2 (Ours) LDFE CSPDarknet53v8 42.7
+
+Eff ects of State Space Model. To validate the superiority of using the State Space Model for global feature extraction, we replace SS2D in GS 2E with the multi-head attention of Transformer, while keeping the rest of the components unchanged. The results are shown in Table 11. After adopting Transformer, mAP 50 and mAP decrease by 1 .5% and 1 .8%, respectively, while the parameters and inference time increased by 5.7M and 6 .4ms. This is because the State Space Model has linear complexity, whereas Transformer has quadratic complexity. 
+
+5.5. Robustness Test 
+
+To more comprehensively evaluate the generalization and robustness of LDFE, we follow the protocol in [46] to divide M 3FD test set into four scene categories: Day, 23 Night, Overcast, and Challenge, which allows us to assess the generalization capability of our method across diverse environmental conditions. In dynamic scene transitions, the pre-configured camera parameters in autonomous driving systems may lack adapt-ability, potentially leading to overexposure in visible images. To simulate this, we adopt the approach proposed in [2], introducing overexposure perturbations to FLIR-Aligned test set by assigning di ff erent safety levels, where a higher safety level corre-sponds to a more severe degree of overexposure. This enables a systematic evaluation of robustness of our method. 
+
+Results of Di ff erent Scenes. We evaluate our method based on three di ff erent back-bones across four scenarios and the results are presented in Table 12. Compared with other methods, our approach consistently ranks among the top three in mAP 50 across all four scenarios. Specifically, our method outperforms the fourth-ranked approach 12 .6%, 7 .7%, 4 .8%, and 1 .3% on the four scenes, respectively, which demonstrates the superior generalization and adaptability of our method across diverse environments. 
+
+Results of Di ff erent Severity Levels. The performance of our method under three dif-ferent severity levels is presented in Table 13, where our approach consistently achieves the best results. Especially during the transition from level three to level five, as the degree of perturbation intensifies, CMX and IGT decrease by 6 .4% and 3 .8%, respec-tively, whereas our method only decreases by 1 .7%. These results demonstrate the superior robustness of our approach under conditions of overexposure. 
+
+6. Conclusion 
+
+In this paper, we propose Laplacian Decoupled Feature Enhancement block (LDFE), an innovative RGB-IR feature fusion paradigm considering both modality and struc-tural properties. It introduces a four-step paradigm including Laplacian decomposi-tion, denoising, fusion, and Laplacian reconstruction, which is applied for di ff erent stages of the dual-stream CNN backbone. Specifically, it explores Laplacian Pyra-mid for global and local feature decomposition, integrates global features via Global State Space Enhancement module (GS 2E) with alternating attention for denoising and state space model for fusion, enhances local features through Local Convolutional Cor-24 relation Enhancement module (LC 2E) with regularization-based denoising and multi-dimensional attention for fusion, and finally reconstructs the features using Laplacian pyramid. Our method with dual-stream CNN backbones built upon YOLO achieves SOTA performance on six publicly di ff erent RGB-IR object detection datasets while maintaining low parameters and fast inference speed. However, our method needs to improve performance under dense small objects and necessitates the development of more task-specific designs to enhance the flexibility of the framework. In the future, we will explore the application of LDFE in more architectures and tasks such as RGB-IR image fusion and segmentation. 
+
+References 
+
+[1] C. Sun, Y. Chen, X. Qiu, R. Li, L. You, Mrd-yolo: A multispectral object detec-tion algorithm for complex road scenes, Sensors 24 (10) (2024) 3222. [2] K. Chen, J. Liu, H. Zhang, Igt: Illumination-guided rgb-t object detection with transformers, Knowledge-Based Systems 268 (2023) 110423. [3] J. Shen, Y. Chen, Y. Liu, X. Zuo, H. Fan, W. Yang, Icafusion: Iterative cross-attention guided feature fusion for multispectral object detection, Pattern Recog-nition 145 (2024) 109913. [4] J. Zhang, M. Cao, W. Xie, J. Lei, D. Li, W. Huang, Y. Li, X. Yang, E2e-mfd: To-wards end-to-end synchronous multimodal fusion detection, Advances in Neural Information Processing Systems 37 (2024) 52296–52322. [5] G. Li, Z. Shi, Z. Gu, B. Zheng, H. Zheng, Reference-then-supervision framework for infrared and visible image fusion, Pattern Recognition 158 (2025) 110996. [6] X. Fei, M. Guo, Y. Li, R. Yu, L. Sun, Acdf-yolo: Attentive and cross-di ff erential fusion network for multimodal remote sensing object detection, Remote Sensing 16 (18) (2024) 3532. 25 [7] J. Tang, C. Ye, X. Zhou, L. Xu, Yolo-fusion and internet of things: Advancing ob-ject detection in smart transportation, Alexandria Engineering Journal 107 (2024) 1–12. [8] Y. Chen, B. Wang, W. Zhu, J. Yuan, Rgb-ir yolo combining modality-specific re-construction and information integration, in: 2024 39th Youth Academic Annual Conference of Chinese Association of Automation (YAC), 2024, pp. 2045–2050. [9] D. Tian, X. Yan, D. Zhou, C. Wang, W. Zhang, Iv-yolo: a lightweight dual-branch object detection network, Sensors 24 (19) (2024) 6181. [10] T. Zhao, M. Yuan, F. Jiang, N. Wang, X. Wei, Removal and selection: Im-proving rgb-infrared object detection via coarse-to-fine fusion, arXiv preprint arXiv:2401.10731 (2024). [11] Y. Wang, J. Liu, J. Wang, L. Yang, B. Dong, Z. Li, Haarfuse: A dual-branch infrared and visible light image fusion network based on haar wavelet transform, Pattern Recognition 164 (2025) 111594. [12] W. Zhao, Z. Zhao, M. Xu, Y. Ding, J. Gong, Di ff erential multimodal fusion algo-rithm for remote sensing object detection through multi-branch feature extraction, Expert Systems with Applications 265 (2025) 125826. [13] J. Wang, N. Su, C. Zhao, Y. Yan, S. Feng, Multi-modal object detection method based on dual-branch asymmetric attention backbone and feature fusion pyramid network, Remote Sensing 16 (20) (2024). [14] K. Hu, Y. He, Y. Li, J. Zhao, S. Chen, Y. Kang, Ei2det: Edge-guided illumination-aware interactive learning for visible-infrared object detection, IEEE Transactions on Circuits and Systems for Video Technology (2025) 1–1. [15] Y. Zeng, T. Liang, Y. Jin, Y. Li, Mmi-det: Exploring multi-modal integration for visible and infrared object detection, IEEE Transactions on Circuits and Systems for Video Technology 34 (11) (2024) 11198–11213. 26 [16] W. Dong, H. Zhu, S. Lin, X. Luo, Y. Shen, G. Guo, B. Zhang, Fusion-mamba for cross-modality object detection, IEEE Transactions on Multimedia (2025). [17] M. Zhou, T. Li, C. Qiao, D. Xie, G. Wang, N. Ruan, L. Mei, Y. Yang, Dmm: Disparity-guided multispectral mamba for oriented object detection in remote sensing, arXiv preprint arXiv:2407.08132 (2024). [18] J.-B. Cordonnier, A. Loukas, M. Jaggi, On the relationship between self-attention and convolutional layers, in: Eighth International Conference on Learning Representations-ICLR 2020, 2020. [19] X. Ma, Z. Ni, X. Chen, Tinyvim: Frequency decoupling for tiny hybrid vision mamba, arXiv preprint arXiv:2411.17473 (2024). [20] Z. Xiong, Z. Yao, X. Liu, W. Zhao, J. Cao, X. Wu, E ffi cient multispectral object detection with attentive feature aggregation leveraging zero-shot implicit illumi-nation guidance, Information Fusion 118 (2025) 102939. [21] G. Jocher, A. Chaurasia, J. Qiu, Ultralytics yolov8 (2023). URL https://github.com/ultralytics/ultralytics 
+
+[22] L. Tang, X. Xiang, H. Zhang, M. Gong, J. Ma, Divfusion: Darkness-free infrared and visible image fusion, Information Fusion 91 (2023) 477–493. [23] S. Ding, J. Huang, Z. Cai, Y. Ma, K. Wu, F. Fan, Fiafusion: A feedback-based illumination-adaptive infrared and visible image fusion method, IEEE Sensors Journal (2025). [24] F. Yang, B. Liang, W. Li, J. Zhang, Multidimensional fusion network for multi-spectral object detection, IEEE Transactions on Circuits and Systems for Video Technology (2024). [25] X. Sun, Y. Yu, Q. Cheng, Adaptive multimodal feature fusion with frequency domain gate for remote sensing object detection, Remote Sensing Letters 15 (2) (2024) 133–144. 27 [26] F. Xu, T. Xu, L. Hong, P. Peng, J. Guo, J. Li, Enhanced spectral-spatial fusion network for multispectral object detection in ground-aerial images, IEEE Geo-science and Remote Sensing Letters (2024). [27] Z. Zhao, H. Bai, J. Zhang, Y. Zhang, K. Zhang, S. Xu, D. Chen, R. Timofte, L. Van Gool, Equivariant multi-modality image fusion, in: Proceedings of the IEEE /CVF conference on computer vision and pattern recognition, 2024, pp. 25912–25921. [28] J. Liu, R. Lin, G. Wu, R. Liu, Z. Luo, X. Fan, Coconet: Coupled contrastive learn-ing network with multi-level feature ensemble for multi-modality image fusion, International Journal of Computer Vision 132 (5) (2024) 1748–1775. [29] S. Lee, J. Park, J. Park, Crossformer: Cross-guided attention for multi-modal object detection, Pattern Recognition Letters 179 (2024) 144–150. [30] M. Yuan, X. Wei, C 2 former: Calibrated and complementary transformer for rgb-infrared object detection, IEEE Transactions on Geoscience and Remote Sensing (2024). [31] H. Zhou, A. Ma, S. Zhou, Y. Niu, Vehicle detection method based on improved yolov8 in rgb-infrared aerial images, in: 2024 China Automation Congress (CAC), 2024, pp. 3003–3008. [32] H. Fu, S. Wang, P. Duan, C. Xiao, R. Dian, S. Li, Z. Li, Lraf-net: Long-range attention fusion network for visible–infrared object detection, IEEE Transactions on Neural Networks and Learning Systems 35 (10) (2024) 13232–13245. [33] J. Guo, C. Gao, F. Liu, D. Meng, X. Gao, Damsdet: Dynamic adaptive multispec-tral detection transformer with competitive query selection and adaptive feature fusion, in: European Conference on Computer Vision, 2024, pp. 464–481. [34] H. Wang, S. Qu, Z. Qiao, X. Liu, Kcdnet: Multimodal object detection in modal information imbalance scenes, IEEE Transactions on Instrumentation and Mea-surement (2024). 28 [35] X. Luo, G. Fu, J. Yang, Y. Cao, Y. Cao, Multi-modal image fusion via deep laplacian pyramid hybrid network, IEEE Transactions on Circuits and Systems for Video Technology 33 (12) (2023) 7354–7369. [36] H. Zhang, H. Shen, Q. Yuan, X. Guan, Multispectral and sar image fusion based on laplacian pyramid and sparse representation, Remote Sensing 14 (4) (2022) 870. [37] P. J. Burt, E. H. Adelson, The laplacian pyramid as a compact image code, in: Readings in computer vision, Elsevier, 1987, pp. 671–679. [38] M. Huang, K. Chang, Q. Qin, Y. Tang, G. Li, Conditional laplacian pyramid networks for exposure correction, Signal Processing: Image Communication 134 (2025) 117276. [39] H. Li, X.-J. Wu, Densefuse: A fusion approach to infrared and visible images, IEEE Transactions on Image Processing 28 (5) (2018) 2614–2623. [40] J. Liu, X. Fan, Z. Huang, G. Wu, R. Liu, W. Zhong, Z. Luo, Target-aware dual ad-versarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection, in: Proceedings of the IEEE /CVF conference on computer vision and pattern recognition, 2022, pp. 5802–5811. [41] Y. Sun, B. Cao, P. Zhu, Q. Hu, Drone-based rgb-infrared cross-modality vehi-cle detection via uncertainty-aware learning, IEEE Transactions on Circuits and Systems for Video Technology 32 (10) (2022) 6700–6713. [42] X. Jia, C. Zhu, M. Li, W. Tang, W. Zhou, Llvip: A visible-infrared paired dataset for low-light vision, in: Proceedings of the IEEE /CVF international conference on computer vision, 2021, pp. 3496–3504. [43] T. FLIR, Free teledyne flir thermal dataset for algorithm training, Online (April 9 2024). [44] S. Hwang, J. Park, N. Kim, Y. Choi, I. So Kweon, Multispectral pedestrian de-tection: Benchmark dataset and baseline, in: Proceedings of the IEEE conference on computer vision and pattern recognition, 2015, pp. 1037–1045. 29 [45] S. Razakarivony, F. Jurie, Vehicle detection in aerial imagery: A small target de-tection benchmark, Journal of Visual Communication and Image Representation 34 (2016) 187–203. [46] M. Liang, J. Hu, C. Bao, H. Feng, F. Deng, T. L. Lam, Explicit attention-enhanced fusion for rgb-thermal perception tasks, IEEE Robotics and Automation Letters 8 (7) (2023) 4060–4067. [47] K. Li, D. Wang, Z. Hu, S. Li, W. Ni, L. Zhao, Q. Wang, Fd2-net: Frequency-driven feature decomposition network for infrared-visible object detection, in: Proceedings of the AAAI Conference on Artificial Intelligence, Vol. 39, 2025, pp. 4797–4805. [48] C. Chen, J. Qi, X. Liu, K. Bin, R. Fu, X. Hu, P. Zhong, Weakly misalignment-free adaptive feature alignment for uavs-based multimodal object detection, in: Pro-ceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recog-nition, 2024, pp. 26836–26845. [49] P. Zhao, X. Ye, Z. Du, Object detection in multispectral remote sensing images based on cross-modal cross-attention, Sensors 24 (13) (2024) 4098. [50] Q. Wang, Y. Chi, T. Shen, J. Song, Z. Zhang, Y. Zhu, Improving rgb-infrared object detection by reducing cross-modality redundancy, Remote Sensing 14 (9) (2022) 2020. [51] F. Qingyun, W. Zhaokui, Cross-modality attentive feature fusion for object de-tection in multispectral remote sensing imagery, Pattern Recognition 130 (2022) 108786. [52] R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, D. Batra, Grad-cam: Visual explanations from deep networks via gradient-based localization, in: Proceedings of the IEEE international conference on computer vision, 2017, pp. 618–626. 30 [53] S. A. Deevi, C. Lee, L. Gan, S. Nagesh, G. Pandey, S.-J. Chung, Rgb-x object detection via scene-specific fusion modules, in: Proceedings of the IEEE /CVF Winter Conference on Applications of Computer Vision, 2024, pp. 7366–7375. [54] J. Zhang, H. Liu, K. Yang, X. Hu, R. Liu, R. Stiefelhagen, Cmx: Cross-modal fusion for rgb-x semantic segmentation with transformers, IEEE Transactions on intelligent transportation systems 24 (12) (2023) 14679–14694. 31
