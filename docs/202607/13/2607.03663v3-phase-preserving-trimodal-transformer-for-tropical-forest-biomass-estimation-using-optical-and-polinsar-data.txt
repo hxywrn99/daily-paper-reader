@@ -1,0 +1,176 @@
+Title: Phase-Preserving Trimodal Transformer for Tropical Forest Biomass Estimation Using Optical and PolInSAR Data
+
+URL Source: https://arxiv.org/pdf/2607.03663v3
+
+Published Time: Fri, 10 Jul 2026 01:17:27 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+> 1
+
+# Phase-Preserving Trimodal Transformer for Tropical Forest Biomass Estimation Using Optical and PolInSAR Data 
+
+# PREPRINT 
+
+Luiz Felipe Parente Santiago 1,2, Felipe Ferrari 3, Daniel Rodrigues dos Santos 3 and Rosiane de Freitas 11Instituto de Computac ¸ ˜ ao, Universidade Federal do Amazonas (IComp/UFAM), Manaus-AM, Brazil 
+
+2Instituto de Pesquisas do Ex´ ercito na Amazˆ onia (IPEAM), Manaus-AM, Brazil 
+
+3Instituto Militar de Engenharia (IME), Rio de Janeiro-RJ, Brazil Email: {luizparente, rosiane }@icomp.ufam.edu.br, {daniel.rodrigues, ferrari }@ime.eb.br 
+
+Abstract 
+
+The accurate estimation of Above-Ground Biomass (AGB) in mature tropical forests remains a critical challenge in remote sensing, primarily due to the saturation of Synthetic Aperture Radar (SAR) signals in high-density areas and persistent cloud cover affecting optical imagery. To overcome these physical limitations, we propose the Trimodal Coherent Co-attention Transformer (TCCT), a physics-informed deep learning architecture. The TCCT natively fuses optical surface reflectance (Landsat-5) with complex-valued Polarimetric SAR Interferometry (PolInSAR) data from both P and L bands. Unlike traditional fusion methods, our architecture employs complex-valued encoders to preserve spatial phase coherence, coupled with a dynamic co-attention mechanism that acts as an adaptive gating module, reducing the weight of cloud-corrupted optical pixels and shifting reliance to microwave phase data. We also derived a localized spatial allometric calibration model via Levenberg-Marquardt optimization, tailored to the specific wood density of the Paracou region in the Amazon basin. Evaluated using a two-stage protocol, the TCCT first underwent a rigorous 5-fold cross-validation to establish robust global weights (achieving a global RMSE of 4.19 m). Subsequently, following a localized spatial fine-tuning phase over 200 epochs, the model attained an absolute RMSE of 3.78 m and an R2 of 0.33 for Canopy Height Models (CHM), outperforming standard Random Forest, CNN, and Vision Transformer baselines. Our ablation study confirms that preserving phase coherence mitigates deep-canopy signal saturation. When converted to AGB, the fine-tuned TCCT map yielded a Relative RMSE (rRMSE) of 4.51% in dense forest areas above 50 Mg/ha. By meeting the European Space Agency (ESA) BIOMASS mission requirement of less than 20% error, the TCCT provides a robust framework for continuous carbon stock mapping in tropical biomes. 
+
+I. I NTRODUCTION 
+
+The Amazon Rainforest plays a critical role in the global carbon cycle and climate regulation. The necessity for precise valuation of its resources was consolidated during the 30th United Nations Conference of the Parties on Climate Change (COP-30), which established strict accuracy targets for tracking forest carbon stocks to validate international carbon credit markets (REDD+) [1], [2]. Consequently, promoting emissions reduction is now inherently tied to reliable, data-driven monitoring of forest degradation [3]. In this context, the accurate estimation of Above-Ground Biomass (AGB) is the primary metric for mapping forest carbon sequestration. However, acquiring precise continuous measurements over vast tropical biomes remains highly challenging. Optical sensors provide rich multispectral reflectance data but are severely limited by persistent cloud cover. Conversely, SAR sensors (such as P and L bands) penetrate clouds and interact directly with the forest canopy and trunks [4], [5]. Despite this advantage, traditional SAR approaches face a critical physical barrier: signal saturation. In high-density primary forests, such as the Paracou region, AGB frequently exceeds 300 Mg/ha. In these scenarios, the radar backscatter signal typically saturates between 100 and 150 Mg/ha, leading to underestimations of giant trees and massive error margins when generic pantropical allometric equations [6] are applied. To overcome these limitations, we propose a physics-informed deep learning architecture named the Trimodal Coherent Co-attention Transformer (TCCT). As summarized in the graphical abstract (Fig. 1), the TCCT natively fuses optical surface reflectance with complex-valued PolInSAR data. Inspired by advances in attention mechanisms [7], [8], the TCCT leverages a dynamic co-attention module that shifts reliance between sensors pixel-by-pixel, effectively bypassing cloud corruption and mitigating radar saturation. Furthermore, we address the biological modeling gap by deriving a localized spatial allometric calibration specifically for the Paracou biome. The main contributions of this paper are summarized as follows:  
+
+> •
+
+A multimodal architecture (TCCT) that utilizes complex-valued encoders to preserve spatial phase coherence ( ∆ϕ)alongside optical data. arXiv:2607.03663v3 [cs.LG] 9 Jul 2026 2 
+
+> Fig. 1. Graphical Abstract: The proposed pipeline integrates trimodal remote sensing data, leveraging phase coherence and co-attention within a U-Net decoder framework to yield Canopy Height Models (CHM) and Above-Ground Biomass (AGB) maps.
+> •
+
+A Transformer-based co-attention mechanism capable of dynamically weighting the reliability of Landsat-5, SAR L-Band, and SAR P-Band inputs in real-time.  
+
+> •
+
+A customized spatial allometric calibration ( AGB = 162 .17 × H0.2486 ) that models the specific wood density of the Amazonian Paracou region.  
+
+> •
+
+Extensive validation via a two-stage protocol (5-fold cross-validation and localized fine-tuning) demonstrating that the TCCT achieves a final absolute CHM Root Mean Square Error (RMSE) of 3.78 m. Applied to dense forests (¿ 50 Mg/ha), the derived AGB map achieved a relative RMSE (rRMSE) of 4.51%, fulfilling the 20% error barrier demanded by the ESA BIOMASS mission [9]. The remainder of this paper is organized as follows. Section 2 reviews related works. Section 3 details the TCCT architecture. Section 4 presents the experimental setup, spatial allometric calibration, and mapping results. Section 5 concludes the paper. II. R ELATED WORKS 
+
+The estimation of forest biomass has increasingly relied on the intersection of remote sensing and deep learning. This section reviews advancements in multi-sensor data fusion and specialized architectures for radar processing. 
+
+A. Remote Sensing and Multi-Sensor Fusion 
+
+Optical imagery has been extensively applied to forest biomass estimation and degradation monitoring [3], [4]. Amazonas et al. [10] demonstrated the efficacy of high-resolution satellite imagery for generating forest datasets. However, these op-tical modalities are inherently susceptible to atmospheric interference. To mitigate this, the computer vision community has investigated the fusion of optical and SAR data [11]. Queiroz et al. [5] evaluated the performance of combining optical and SAR imagery for superpixel-based deforestation mapping, demonstrating that multi-sensor approaches significantly improve classification robustness. Similarly, the exploration of spatio-temporal novelty detection and cross-domain aerial monitoring [12], [13] underscores the necessity for adaptable models. Nevertheless, standard early-fusion techniques still struggle to dynamically penalize corrupted optical inputs in dense tropical applications. 3
+
+B. Deep Learning for SAR Processing 
+
+The unique statistical properties of SAR backscatter demand specialized neural network architectures. Goldberg and Neto [14] proposed a parameter estimation-inspired convolutional block specifically tailored for SAR data. While such innovations enhance amplitude-based SAR processing, they generally operate in the real-number domain, discarding the spatial phase coherence ( ∆ϕ) available in PolInSAR. Preserving this phase information is critical for estimating tree height in dense forests where backscatter amplitude natively saturates. 
+
+C. Attention Mechanisms and Transformers 
+
+The advent of attention mechanisms has revolutionized feature extraction. Within the SIBGRAPI community, Lopez-Cabrejos et al. [7] integrated CNNs with attention mechanisms to suppress distortions in image reconstruction tasks, while Filho et al. [15] demonstrated the power of Vision Transformers (ViT) using hierarchical shifted windows. Architectures utilizing adaptive attention to selectively weight hierarchical features [8] offer a compelling paradigm that can be adapted for remote sensing. 
+
+D. Addressing the Literature Gap 
+
+To the best of our knowledge, no previous study has simultaneously integrated the radiometric richness of optical data with the complex-valued phase information of PolInSAR while dynamically resolving sensor conflicts via a U-Net decoding scheme. Our proposed TCCT addresses these limitations by extending the adaptive attention paradigm [8] into a multimodal co-attention mechanism. III. M ETHODOLOGY 
+
+The proposed TCCT architecture handles the multi-sensor alignment and physical limitations inherent in tropical forest biomass estimation. This section delineates the mathematical formalization of the complex-valued encoders, the co-attention alignment mechanism, and the hybrid optimization framework. 
+
+A. Architectural Overview and Data Pre-processing 
+
+The detailed structural workflow is schematically illustrated in Fig. 2. The processing pipeline initiates by establishing a unified geospatial grid based on the 30-meter resolution of the Landsat-5 imagery. The high-resolution airborne PolInSAR datasets underwent rigorous orthorectification before being resampled to match the spatial footprint of the optical matrix.     
+
+> Landsat-5 Optical ( Xopt )
+> L-Band PolInSAR ( XL)
+> P-Band PolInSAR ( XP)
+> CNN Encoder (Real Domain)
+> Complex Encoder (∆ϕPreserved)
+> Complex Encoder (∆ϕPreserved)
+> Trimodal Co-Attention Mechanism
+> Dynamic Weights (Q, K, V)
+> U-Net Decoder Canopy Height Model (CHM)
+> Fopt
+> FL
+> FP
+> Hf use
+> Fig. 2. Detailed block diagram of the proposed Trimodal Coherent Co-attention Transformer (TCCT). The architecture leverages native complex-valued convolutions to preserve phase coherence before dynamically fusing features via an adaptive co-attention mechanism into a U-Net Decoder.
+
+The spatial domain was partitioned into geographic patches, where each window models a 30 × 30 pixel cell. The TCCT processes three streams: (i) optical surface reflectance from Landsat-5 ( Xopt ∈ RH×W ×Copt ), (ii) complex-valued L-band PolInSAR matrices ( XL ∈ CH×W ×Csar ), and (iii) complex-valued P-band PolInSAR matrices ( XP ∈ CH×W ×Csar ). The TCCT preserves spatial phase coherence ( ∆ϕ) [16], [17] by extracting localized geometric features through parallel complex-valued feature pipelines before performing non-linear multimodal fusion. 
+
+B. Complex-Valued Encoders for PolInSAR Data 
+
+The SAR processing pipelines utilize complex-valued convolutional layers. A complex-valued weight matrix W = A + iB 
+
+is convolved with a complex input token Z = X + iY (where A, B, X, Y ∈ R), defined as: 
+
+W ∗ Z = ( A ∗ X − B ∗ Y ) + i(B ∗ X + A ∗ Y ) (1) 4
+
+Following the complex convolution, a Modulated ReLU (ModReLU) activation function is applied. Unlike standard real-valued activations, the ModReLU preserves the angular distribution of the phase ( ∠Z)—a property correlated with interfero-metric volumetric height—while rectifying the magnitude ( |Z|): ModReLU (Z) = ReLU (|Z|) · ei∠Z (2) This encoding strategy extracts robust representations from both L and P bands ( FL, F P ∈ RH×W ×D ) without suffering from early amplitude saturation. 
+
+C. Trimodal Co-Attention Mechanism and U-Net Decoder 
+
+The conceptual design of our transformer layer inherits the scaled dot-product mechanics from standard architectures [18], [19]. However, its innovation lies in acting as an adaptive gating mechanism over conflicting sensor data. The optical ( Fopt )and radar sequences ( FL, F P ) are mapped to a shared latent dimension D and concatenated into a unified sequence alongside spatial positional encodings. The co-attention matrix evaluates the interaction between the optical token and the radar phase vectors: 
+
+Aopt ↔SAR = softmax Qf used KTf used 
+
+√D
+
+!
+
+(3) where Q, K ∈ { opt, L, P }. This dynamic weighting automatically down-regulates the optical tokens when sudden spikes in reflectance (clouds) are detected, shifting the attention coefficients toward the unhindered microwave phase tokens to synthesize the final context vector Hf use .Finally, Hf use is reshaped and processed by a U-Net style decoder, which progressively upsamples the fused feature maps while utilizing skip connections to recover fine spatial details, generating the continuous 2D Canopy Height Model (CHM) prediction. 
+
+D. Physics-Informed RVOG Loss Function 
+
+Rather than optimizing solely via standard Mean Squared Error (MSE), we enforce a physics-informed Hybrid Loss function (Lhybrid ) based on the Random Volume over Ground (RVOG) model [17], [20]. The RVOG physically models the forest as a homogeneous layer of scatterers over a ground surface: 
+
+Lhybrid = LM SE ( ˆY , Y ) + λRV OG LRV OG (γobs , γ model ) (4) Under the RVOG formulation, interferometric coherence is mathematically linked to the vertical wavenumber kz and canopy height. We define LRV OG = || γobs − γmodel ( ˆY , k z )|| 2, forcing the predicted height ˆY to map back to the expected observed coherence γobs . This guarantees that the model respects the physical bounds of microwave scattering. IV. E XPERIMENTS AND RESULTS 
+
+This section details the experimental evaluation of the TCCT. We present the spatial allometric calibration, the performance analysis derived from a two-stage evaluation protocol against baseline architectures, and an Explainable AI (XAI) feature importance analysis. 
+
+A. Study Area and Data Specifications 
+
+The experimental validation of the proposed framework was conducted using datasets from the Paracou field station ( 5◦18 ′N, 
+
+52 ◦55 ′W), situated in a primary tropical rainforest biome within French Guiana, Amazon basin. The baseline ecological distributions and forest compositions of the Paracou test site are thoroughly documented in local silvicultural surveys [21], while multi-band radar behaviors in tropical sites follow historic response patterns [20], [22]. The region is characterized by high structural complexity, a dense multi-layered canopy, and an average above-ground biomass density of approximately 363.3 Mg/ha. As contextualized in Fig. 3, the ground truth reference consists of an airborne Light Detection and Ranging (LiDAR) Canopy Height Model (CHM) accurate to a sub-meter scale. To ensure spatial independence and prevent geographical data leakage, the 13,247 samples were rigorously divided using a 5-fold cross-validation strategy, maintaining an 80/20 train-validation split per iteration. To extract maximal localized accuracy, the optimal global weights derived from this 5-fold process were subsequently subjected to a targeted spatial fine-tuning phase (1x1 over 200 epochs). 5 
+
+> Fig. 3. Geographical location of the Paracou experimental station in the Amazon basin, outlining the co-registered Landsat-5 and airborne PolInSAR data coverage boundaries.
+
+B. Spatial Allometric Calibration 
+
+To translate the predicted canopy heights into effective Above-Ground Biomass (AGB), a localized spatial allometric curve was computed using Levenberg-Marquardt non-linear optimization over the forest inventory plot data. As shown in Fig. 4, the optimized power-law function is formalized as AGB = 162 .17268 × H0.24862 . By mapping the specific spatial volume configurations and wood density distribution of the mature Amazonian primary forest in Paracou, this localized calibration circumvents the severe systematic biases typically introduced by pantropical empirical equations. 
+
+C. Model Performance Evaluation 
+
+The quantitative performance metrics for continuous forest mapping are summarized in Table I. The evaluation protocol consisted of a two-stage process: an initial global training via the 5-fold cross-validation scheme to establish generalized weights, followed by a localized fine-tuning test (1x1 over 200 epochs) using the best-performing global weights to maximize spatial accuracy. To ensure a fair comparison, all evaluated baselines received the exact same trimodal data stack (Early Fusion of Optical, L-band, and P-band). During the 5-fold cross-validation phase, the TCCT demonstrated strong generalization with an average CHM RMSE of 4.19 m and an R2 of 0.27. After the localized fine-tuning phase, the proposed TCCT achieved the highest performance, yielding a final absolute CHM RMSE of 3.78 m and a minimal bias of 0.08 m. More importantly, when translated through the allometric model into the final Above-Ground Biomass map, the fine-tuned TCCT achieved an AGB rRMSE of 4.51%, outperforming standard vision models that suffer from early fusion information loss. Although an R2 of 0.33 might appear modest at first glance, it is a well-documented physical characteristic of pixel-wise CHM predictions in primary tropical forests. LiDAR sensors capture localized micro-gaps in the dense canopy, generating severe pixel-level variance that the 30m aggregated radar grid naturally smooths over. We report the R2 to maintain literature comparability, but the consistently low bias indicates that the aggregated regional height estimates remain highly accurate. Thus, the final AGB rRMSE serves as the definitive operational metric for volume and carbon assessment. Derived from the fine-tuning phase, the ablation study highlights the physical necessity of complex convolutions. As demonstrated in Fig. 5, when spatial phase transitions ( ∆ϕ) are discarded in the TCCT (Amplitude Only), the model error 6      
+
+> Fig. 4. Localized spatial allometric power-law function derived via Levenberg-Marquardt optimization for the Paracou biome. TABLE I PERFORMANCE COMPARISON FOR CHM AND FINAL AGB E STIMATION
+
+Architecture CHM AGB Model RMSE (m) R2 Bias (m) rRMSE (%) 
+
+Vision Transformer (ViT) 4.34 0.12 0.20 5.97 Standard CNN (Early Fusion) 4.27 0.15 0.18 5.83 Random Forest (RF) 4.14 0.20 -0.11 5.53 TCCT (Amplitude Only) 4.17 0.19 0.32 5.68 
+
+Proposed TCCT (Phase+Opt) 3.78 0.33 0.08 4.51 
+
+increases, exhibiting wider error dispersion. This demonstrates that amplitude information alone suffers from structural signal saturation. Scatter plot cross-examinations against traditional baseline models (Fig. 6) reveal that empirical methods like Random Forest exhibit high variance and tend to underestimate tall trees in primary forests. In contrast, the TCCT maintains tighter linear correlation constraints across all height strata. 
+
+D. Explainable AI (XAI) and Attention Weights Distribution 
+
+To evaluate the internal feature integration within the trimodal co-attention transformer layer, we applied Explainable AI (XAI) methods to extract the global weight distribution. As illustrated in Fig. 7, the network assigns significant attention weights to both L-band and P-band radar components. 7 
+
+> Fig. 5. Ablation analysis tracking the scatter distribution between the complete complex-valued TCCT and the amplitude-only variant.
+
+The co-attention module operates as a dynamic arbiter, utilizing the penetration capacity of microwave phase data to bypass localized cloud cover anomalies present within the optical channels (Fig. 7). 
+
+E. Biomass Mapping Compliance and Saturation Mitigation 
+
+By implementing the complete TCCT model over the study area grids and applying the optimized allometric curve, a continuous Above-Ground Biomass map was generated. Evaluated over dense forest sectors ( AGB > 50 Mg/ha), the final TCCT mapping output achieved a remarkable AGB Relative RMSE (rRMSE) of 4.51%. To contextualize this achievement, the official requirement for the European Space Agency (ESA) BIOMASS mission mandates a maximum AGB estimation error of ≤ 20% [9]. However, the ESA specification is designed for large spatial aggregations at a 200m resolution (4.0 ha). The TCCT achieves an error margin of 4.51% operating at a much finer 30m resolution (0.09 ha), drastically outperforming global operational standards. While standard baseline models evaluated in this study might also achieve rRMSE values below the 20% threshold due to the spatial aggregation filter and the non-linear compression of the allometric equation ( AGB ∝ 4
+
+√H), the superiority of the TCCT is defined by its saturation mitigation. As evidenced by the bias metrics (Table I), amplitude-only models tend to systematically underestimate the tallest tree strata due to backscatter saturation. In REDD+ carbon accounting applications, 8 
+
+> Fig. 6. Comparative scatter plots displaying height prediction error distributions for the proposed TCCT against baseline models.
+
+such systematic underestimation results in severe undervaluation of carbon stocks. By natively preserving phase coherence (∆ϕ), the TCCT effectively maps deep-canopy structures, maintaining a near-zero bias (0.08 m) and ensuring that massive giant trees are properly valuated without succumbing to signal saturation. V. C ONCLUDING REMARKS 
+
+Accurate above-ground biomass estimation has emerged as a cornerstone for institutional compliance with the carbon monitoring mandates ratified during the COP-30 summit. We introduced the Trimodal Coherent Co-attention Transformer (TCCT) to address the operational constraints that traditional frameworks encounter when mapping complex tropical biomes. By executing a complex-valued encoding structure informed by the RVOG physical model, the architecture successfully retained spatial phase coherence ( ∆ϕ) from multimodal PolInSAR configurations. Validations over the Paracou field station using a two-stage evaluation protocol (5-fold cross-validation followed by localized fine-tuning) confirmed the superiority of the proposed framework, yielding a continuous Canopy Height Model reconstruction with a final absolute RMSE of 3.78 m and a negligible bias of 0.08 m. 9 
+
+> Fig. 7. Global distribution of attention weights across the trimodal feature spaces, demonstrating the high importance of radar phase data.
+
+When coupled with a localized spatial allometric calibration, the framework delivered continuous biomass mapping. In high-density forest landscapes exceeding 50 Mg/ha, the predicted mapping achieved an AGB rRMSE of 4.51%, mathematically secured by non-linear spatial compression, thus meeting the restrictive 20% maximum error margins defined by the ESA BIOMASS mission protocol. Future research will focus on scaling the TCCT architecture to multi-temporal sequences to track progressive forest degradation. DECLARATION OF GENERATIVE AI U SE 
+
+In compliance with the Brazilian Computer Society (SBC) Code of Conduct, the authors declare the extensive use of Generative Artificial Intelligence (Google Gemini) throughout the research cycle and the preparation of this manuscript. The AI was utilized collaboratively as an assistant in brainstorming the mathematical architecture (TCCT), writing the Python/PyTorch implementation codes, formatting the LaTeX text and TikZ diagrams, and refining the English syntax. The human authors directed the entire research trajectory, contributed the foundational cartographic, forestry, and physical (RVOG) expertise, provided the empirical datasets from the Paracou station, and rigorously validated all models and quantitative metrics. While the AI facilitated the structural and computational development, the authors assume full, sole, and ultimate responsibility for the scientific originality, integrity, and accuracy of this work. ACKNOWLEDGMENT 
+
+The authors would like to thank the funding agencies and the field researchers who gathered the invaluable PolInSAR and inventory data in the Amazon biome. The authors are part of the Algorithms, Optimization, Intelligence and Computational Complexity (ALGOX) group of the Postgraduate Program in Informatics at UFAM and the National Council for Scientific and Technological Development (CNPq). The research was carried out with support from the Coordination for the Improvement of Higher Education Personnel - Brazil (CAPES-PROEX) - Funding Code 001, as well as partially funded by the Amazonas State Research Support Foundation – FAPEAM – through the DPG-CAPES, POSGRAD 2025-2026, and POSGRAD 2026-2027 projects. 10 
+
+REFERENCES [1] S. S. Saatchi, N. L. Harris, S. Brown, M. Lefsky, E. T. A. Mitchard, W. Salas, B. R. Zutta, W. Buermann, S. L. Lewis, S. Hagen, S. Petrova, L. White, M. Silman, and A. Morel, “Benchmark map of forest carbon stocks in tropical regions across three continents,” Proceedings of the National Academy of Sciences , vol. 108, no. 24, pp. 9899–9904, 2011. [Online]. Available: https://www.pnas.org/doi/abs/10.1073/pnas.1019576108 [2] G. P. Asner and J. Mascaro, “Mapping tropical forest carbon: Calibrating plot estimates to a simple lidar metric,” Remote Sensing of Environment , vol. 140, pp. 614–624, 2014. [Online]. Available: https://doi.org/10.1016/j.rse.2013.09.023 [3] T. N. Kuck, P. F. F. Silva Filho, E. E. Sano, P. d. C. Bispo, E. H. Shiguemori, and R. Dalagnol, “Change detection of selective logging in the brazilian amazon using x-band sar data and pre-trained convolutional neural networks,” Remote Sensing , vol. 13, no. 23, 2021. [Online]. Available: https://doi.org/10.3390/rs13234944 [4] Z. Chen, Z. Sun, H. Zhang, H. Zhang, and H. Qiu, “Aboveground forest biomass estimation using tent mapping atom search optimized backpropagation neural network with landsat 8 and sentinel-1a data,” Remote Sensing , vol. 15, no. 24, 2023. [Online]. Available: https:/doi.org/10.3390/rs15245653 [5] V. D. B. e. Queiroz, H. Resende, F. A. Faria, and ´ A. L. Fazenda, “Performance assessment of optical and sar imagery for superpixel-based deforestation mapping in the foresteyes project,” in 2025 38th SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) , 2025, pp. 1–6. [Online]. Available: https://doi.org/10.1109/SIBGRAPI67909.2025.11223381 [6] J. Chave, M. R´ ejou-M´ echain, A. B´ ejaud et al. , “Improved allometric models to estimate the aboveground biomass of tropical trees,” Global Change Biology , vol. 20, no. 10, pp. 3177–3190, 2014. [Online]. Available: https://www.researchgate.net/publication/262197290 [7] J. Lopez-Cabrejos, Q. Leher, G. Ferreti, L. H. Costa Carvalho, T. Paix˜ ao, A. B. Alvarez, and D. B. Luque, “Pavichdr: An efficient architecture for hdr image reconstruction based on cnn and attention mechanisms,” in 2025 38th SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) ,2025, pp. 1–6. [Online]. Available: https://doi.org/10.1109/SIBGRAPI67909.2025.11223343 [8] L. V. Cardoso, B. P. B. V. da C. Azevedo, S. J. F. Guimar˜ aes, and Z. K. G. Patroc´ ınio, “Skimcap: A transformer-based video captioning method with adaptive attention and hierarchical skimming features,” in 2025 38th SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) , 2025, pp. 1–6. [Online]. Available: https://doi.org/10.1109/SIBGRAPI67909.2025.11223503 [9] T. Le Toan, S. Quegan, M. W. J. Davidson, H. Balzter, P. Paillou, K. Papathanassiou, S. Saatchi, H. Shugart, and L. Ulander, “The biomass mission: Mapping global forest biomass to better understand the terrestrial carbon cycle,” Remote Sensing of Environment , vol. 115, no. 11, pp. 2850–2860, 2011. [Online]. Available: https://doi.org/10.1016/j.rse.2011.03.020 [10] N. Amazonas, R. Negri, and L. G. Nonato, “Generating urban forest datasets from satellite imagery: Application to the city of s˜ ao paulo,” in 2025 38th SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) , 2025, pp. 1–6. [Online]. Available: https://doi.org/10.1109/SIBGRAPI67909.2025.11223344 [11] D. Hong, L. Gao, N. Yokoya, J. Yao, J. Chanussot, Q. Du, and B. Zhang, “More diverse means better: Multimodal deep learning meets remote-sensing imagery classification,” IEEE Transactions on Geoscience and Remote Sensing , vol. 59, no. 5, pp. 4340–4354, 2021. [Online]. Available: https://doi.org/10.1109/tgrs.2020.3016820 [12] C. N. Rodrigues, F. G. Guimar˜ aes, and J. A. Dos Santos, “Open-set spatiotemporal segmentation for phenological novelty detection,” in 2025 38th SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) , 2025, pp. 1–5. [Online]. Available: https://doi.org/10.1109/SIBGRAPI67909. 2025.11223405 [13] J. Ferreira, L. Silva, A. Gomes, L. Rodrigues, T. Gomes, and M. Silva, “A study of synthetic and cross-domain real-data pre-training for aerial farm monitoring,” in 2025 38th SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) , 2025, pp. 1–6. [Online]. Available: https://doi.org/10.1109/SIBGRAPI67909.2025.11223377 [14] C. Goldberg and J. F. S. R. Neto, “A parameter estimation-inspired convolutional block for sar data,” in 2025 38th SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) , 2025, pp. 1–5. [Online]. Available: https://doi.org/10.1109/SIBGRAPI67909.2025.11223387 [15] L. C. C. Filho, J. L. A. Samatelo, and R. F. Vassallo, “Hierarchical vision transformer using shifted windows for skeleton-based action recognition,” in 2025 38th SIBGRAPI Conference on Graphics, Patterns and Images (SIBGRAPI) , 2025, pp. 1–6. [Online]. Available: https://doi.org/10.1109/SIBGRAPI67909.2025.11223379 [16] S. R. Cloude and K. P. Papathanassiou, “Polarimetric sar interferometry,” IEEE Transactions on Geoscience and Remote Sensing , vol. 36, no. 5, pp. 1551–1565, 1998. [Online]. Available: https://doi.org/10.1109/36.718859 [17] K. P. Papathanassiou and S. R. Cloude, “Single-baseline polarimetric sar interferometry,” IEEE Transactions on Geoscience and Remote Sensing ,vol. 39, no. 11, pp. 2352–2363, 2001. [Online]. Available: https://doi.org/10.1109/36.964971 [18] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin, “Attention is all you need,” 
+
+Advances in Neural Information Processing Systems , vol. 30, 2017. [Online]. Available: https://proceedings.neurips.cc/paper files/paper/2017/file/ 3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf [19] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly et al. ,“An image is worth 16x16 words: Transformers for image recognition at scale,” arXiv preprint arXiv:2010.11929 , 2020. [Online]. Available: https://arxiv.org/abs/2010.11929 [20] I. Hajnsek, F. Kugler, S.-K. Lee, and K. P. Papathanassiou, “Tropical forest parameter estimation by means of pol-insar: The indrex-ii campaign,” IEEE Geoscience and Remote Sensing Letters , vol. 6, no. 2, pp. 204–208, 2009. [Online]. Available: https://doi.org/10.1109/TGRS.2008.2009437 [21] S. Gourlet-Fleury, J.-M. Guehl, and O. Laroussinie, Ecology and Management of a Neotropical Rainforest: Lessons Drawn from Paracou, a long-term experimental research site in French Guiana . Paris: Elsevier, 2004. [22] E. T. A. Mitchard, S. S. Saatchi, I. H. Woodhouse, G. Nangendo, N. S. Ribeiro, M. Williams, C. M. Ryan, S. L. Lewis, T. R. Feldpausch, and P. Meir, “Using satellite radar backscatter to predict above-ground woody biomass: A consistent relationship across four different african landscapes,” 
+
+Geophysical Research Letters , vol. 36, no. 23, 2009. [Online]. Available: https://doi.org/10.1029/2009GL040692

@@ -6,83 +6,79 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-12
-- 运行时间：2026-07-12 21:17:50 UTC
+- 最新运行日期：2026-07-13
+- 运行时间：2026-07-13 21:44:10 UTC
 - 运行状态：成功
-- 本次总论文数：21
-- 精读区：9
+- 本次总论文数：19
+- 精读区：7
 - 速读区：12
 
 ### 今日简报（AI）
-今天共处理21篇论文，精读9篇、速读12篇，其中《Phase-Preserving Trimodal Transformer for Tropical Forest Biomass Estimation》和《OBBSeg: Irregular Lesion Segmentation under Oriented Bounding Box Annotations》均获9.0高分。最值得关注的方向是热带森林生物量估计中的跨模态Transformer技术，以及医学图像中基于定向边界框的不规则病变分割。建议优先精读这两篇高分论文，并搭配阅读《Foundation Models vs. Radiomics》以了解基础模型与影像组学的性能对比。
-- 详情：[/202607/12/README](/202607/12/README)
+1) 今日推荐聚焦交互式3D分割与开放词汇检测，精读两篇9分前沿工作。  
+2) 最值得关注：NegROI通过场景条件负提示提升鲁棒交互式3D分割；VocaDet利用视觉标记与向量数据库实现样本驱动的开放词汇检测分割。  
+3) 普通读者可重点跟进这两项技术：3D分割向用户纠错智能化发展，开放词汇检测正从样本驱动实现零样本泛化。
+- 详情：[/202607/13/README](/202607/13/README)
 
 ### 精读区论文标签
-1. [Phase-Preserving Trimodal Transformer for Tropical Forest Biomass Estimation Using Optical and PolInSAR Data](/202607/12/2607.03663v2-phase-preserving-trimodal-transformer-for-tropical-forest-biomass-estimation-using-optical-and-polinsar-data)  
+1. [NegROI: Click-Centric Uncertainty-Guided Refinement with Scene-Conditioned Negative Prompts for Robust Interactive 3D Segmentation](/202607/13/2607.05955v1-negroi-click-centric-uncertainty-guided-refinement-with-scene-conditioned-negative-prompts-for-robust-interactive-3d-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：基于Transformer的交互式三维分割
+2. [VocaDet: Sample-Driven Open-Vocabulary Object Detection and Segmentation via Visual Tokenization and Vector Database Retrieval](/202607/13/2607.08541v1-vocadet-sample-driven-open-vocabulary-object-detection-and-segmentation-via-visual-tokenization-and-vector-database-retrieval)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：基于样本驱动的开放词汇分割，使用深度学习方法
+3. [Weaving Light and Time: Unified Harmonic-Geometric Representation Learning for Dense RGB-Event Parsing](/202607/13/2607.09143v1-weaving-light-and-time-unified-harmonic-geometric-representation-learning-for-dense-rgb-event-parsing)  
    标签：评分：9.0/10、query:image-fusion
-   evidence：光学与PolInSAR多模态深度学习融合
-2. [OBBSeg: Irregular Lesion Segmentation under Oriented Bounding Box Annotations](/202607/12/2607.06007v1-obbseg-irregular-lesion-segmentation-under-oriented-bounding-box-annotations)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：使用定向边界框的弱监督医学图像分割
-3. [Token-Based Dual-view Fusion and Adaptation of Large Vision Models for Breast Cancer Classification](/202607/12/2607.06309v1-token-based-dual-view-fusion-and-adaptation-of-large-vision-models-for-breast-cancer-classification)  
-   标签：评分：9.0/10、query:image-fusion
-   evidence：基于令牌的双视图融合用于乳腺癌分类，使用深度学习
-4. [Pixel-Precise Explainable Stress Indexing: A Semantic Segmentation Framework for Disease Severity Quantification in Field Crops](/202607/12/2607.06585v1-pixel-precise-explainable-stress-indexing-a-semantic-segmentation-framework-for-disease-severity-quantification-in-field-crops)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：语义分割用于病害严重程度量化
-5. [HPR-SAM: Hierarchical Probabilistic Representation Learning for Prompt-free SAM-based Medical Image Segmentation](/202607/12/2607.06972v1-hpr-sam-hierarchical-probabilistic-representation-learning-for-prompt-free-sam-based-medical-image-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习和SAM的医学图像分割
-6. [An Edge-aware Prompt-enhanced SAM for Ultrasound Image Segmentation](/202607/12/2607.07240v1-an-edge-aware-prompt-enhanced-sam-for-ultrasound-image-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：超声图像分割的边缘感知SAM
-7. [LDFE: Laplacian Decoupled Feature Enhancement Block for Dual-Stream CNN-based RGB-IR Object Detection](/202607/12/2607.08076v1-ldfe-laplacian-decoupled-feature-enhancement-block-for-dual-stream-cnn-based-rgb-ir-object-detection)  
-   标签：评分：9.0/10、query:image-fusion
-   evidence：RGB-IR多模态特征融合用于目标检测
-8. [Multi-Resolution Feature Stem for Diabetic Retinopathy lesion segmentation](/202607/12/2607.08679v1-multi-resolution-feature-stem-for-diabetic-retinopathy-lesion-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：使用多分辨率特征茎的糖尿病视网膜病变分割
-9. [SAM-MT: Real-Time Interactive Multi-Target Video Segmentation](/202607/12/2607.08688v1-sam-mt-real-time-interactive-multi-target-video-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的实时多目标视频分割
+   evidence：面向密集RGB-事件解析的统一骨干网络，实现多模态融合
+4. [An Interpretable Deep Learning Framework for Discovery and Clinical Validation of Deep Radiomic Signatures in Tumor Classification](/202607/13/2607.03593v1-an-interpretable-deep-learning-framework-for-discovery-and-clinical-validation-of-deep-radiomic-signatures-in-tumor-classification)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：深度学习医学图像分割用于肿瘤分类
+5. [Phase-Preserving Trimodal Transformer for Tropical Forest Biomass Estimation Using Optical and PolInSAR Data](/202607/13/2607.03663v3-phase-preserving-trimodal-transformer-for-tropical-forest-biomass-estimation-using-optical-and-polinsar-data)  
+   标签：评分：8.0/10、query:image-fusion
+   evidence：深度学习方法融合光学与PolInSAR多模态数据
+6. [Repurposing CLIP to Localize at Pixel Level](/202607/13/2607.05253v1-repurposing-clip-to-localize-at-pixel-level)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：重新利用CLIP进行像素级语义分割
+7. [REBASE: Reference-Background Subspace Elimination for Training-Free In-Context Segmentation](/202607/13/2607.09082v1-rebase-reference-background-subspace-elimination-for-training-free-in-context-segmentation)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：基于基础模型的无需训练上下文分割
 
 ### 速读区论文标签
-1. [Foundation Models vs. Radiomics for Lung Computed Tomography: A Benchmark of Feature Extractors, Classification Heads, and Segmentation Choices](/202607/12/2607.01001v1-foundation-models-vs-radiomics-for-lung-computed-tomography-a-benchmark-of-feature-extractors-classification-heads-and-segmentation-choices)  
+1. [GeoSelect: Spatial-Program Execution for Training-Free Referring Remote Sensing Image Segmentation](/202607/13/2607.03869v1-geoselect-spatial-program-execution-for-training-free-referring-remote-sensing-image-segmentation)  
    标签：评分：8.0/10、query:image-seg
-   evidence：使用深度学习和放射组学对肺CT分割选择进行基准测试
-2. [HistoSeg++: Delving deeper with attention and multiscale feature fusion for biomarker segmentation](/202607/12/2607.01675v1-histoseg-delving-deeper-with-attention-and-multiscale-feature-fusion-for-biomarker-segmentation)  
+   evidence：遥感图像中的无训练指向性分割
+2. [From RGB Generation to Dense Field Readout: Pixel-Space Dense Prediction with Text-to-Image Models](/202607/13/2607.06553v2-from-rgb-generation-to-dense-field-readout-pixel-space-dense-prediction-with-text-to-image-models)  
    标签：评分：8.0/10、query:image-seg
-   evidence：使用注意力和多尺度特征融合的深度学习医学图像分割
-3. [RadiomicNet: A Hybrid Radiomics-Guided Lightweight Architecture for Interpretable Medical Image Segmentation](/202607/12/2607.02185v1-radiomicnet-a-hybrid-radiomics-guided-lightweight-architecture-for-interpretable-medical-image-segmentation)  
+   evidence：利用文本到图像模型进行包括语义掩码在内的像素级密集预测
+3. [Widest-Path Reachability Fields for Connectivity-Preserving Slender Structure Segmentation](/202607/13/2607.07123v1-widest-path-reachability-fields-for-connectivity-preserving-slender-structure-segmentation)  
    标签：评分：8.0/10、query:image-seg
-   evidence：使用CNN和放射组学注意力的医学图像分割
-4. [When Token Compression Breaks: Structural Pruning vs. Token Reduction for Robust ViT Segmentation under High Compression](/202607/12/2607.02237v1-when-token-compression-breaks-structural-pruning-vs-token-reduction-for-robust-vit-segmentation-under-high-compression)  
+   evidence：保持连通性的细长结构分割，如视网膜血管
+4. [Dual-Correlation Hypergraph Network for Unaligned RGBT Video Object Detection and A Large-scale Benchmark](/202607/13/2607.08191v1-dual-correlation-hypergraph-network-for-unaligned-rgbt-video-object-detection-and-a-large-scale-benchmark)  
+   标签：评分：8.0/10、query:image-fusion
+   evidence：RGB-T多模态融合用于视频目标检测
+5. [HSA: Hierarchical Slot Attention for Multi-granularity Scene-Decomposition](/202607/13/2607.08249v1-hsa-hierarchical-slot-attention-for-multi-granularity-scene-decomposition)  
    标签：评分：8.0/10、query:image-seg
-   evidence：对比语义分割的token压缩与结构剪枝方法
-5. [Exploring SAM Supervision for Fine-Grained UAV Target Segmentation under Data Scarcity](/202607/12/2607.03754v1-exploring-sam-supervision-for-fine-grained-uav-target-segmentation-under-data-scarcity)  
+   evidence：使用层次化槽注意力的无监督场景分解
+6. [TMI: Text-to-Image Meets Image-to-Image for Complementary Data Synthesis to Boost Long-Tailed Instance Segmentation](/202607/13/2607.08201v1-tmi-text-to-image-meets-image-to-image-for-complementary-data-synthesis-to-boost-long-tailed-instance-segmentation)  
    标签：评分：7.0/10、query:image-seg
-   evidence：使用SAM进行无人机目标语义分割
-6. [PulmoSight-XAI: An Explainable Multi-View Attention Ensemble with Gradient Boosting Meta-Learning for Multi-Label Chest X-Ray Classification](/202607/12/2607.04478v1-pulmosight-xai-an-explainable-multi-view-attention-ensemble-with-gradient-boosting-meta-learning-for-multi-label-chest-x-ray-classification)  
-   标签：评分：7.0/10、query:image-fusion
-   evidence：用于胸部X光分类的多尺度特征融合与注意力机制
-7. [Vision Pretraining for Dense Spatial Perception](/202607/12/2607.05247v1-vision-pretraining-for-dense-spatial-perception)  
+   evidence：通过数据合成提升实例分割
+7. [Attribute Retrieving for Open-Vocabulary Endoscopic Compositional Referring Segmentation](/202607/13/2607.08397v1-attribute-retrieving-for-open-vocabulary-endoscopic-compositional-referring-segmentation)  
    标签：评分：7.0/10、query:image-seg
-   evidence：以边界为中心的预训练用于密集空间感知，可应用于分割
-8. [NegROI: Click-Centric Uncertainty-Guided Refinement with Scene-Conditioned Negative Prompts for Robust Interactive 3D Segmentation](/202607/12/2607.05955v1-negroi-click-centric-uncertainty-guided-refinement-with-scene-conditioned-negative-prompts-for-robust-interactive-3d-segmentation)  
+   evidence：内镜医学图像分割的深度学习方法
+8. [Super-Generalist: Towards Comprehensive and Accurate Medical Image Understanding via Generalist-Specialist Synergy](/202607/13/2607.09135v1-super-generalist-towards-comprehensive-and-accurate-medical-image-understanding-via-generalist-specialist-synergy)  
    标签：评分：7.0/10、query:image-seg
-   evidence：基于点击中心的交互式3D分割
-9. [G$^2$TAM: Geometry Grounded Track Anything Model](/202607/12/2607.03789v1-g2tam-geometry-grounded-track-anything-model)  
+   evidence：面向医学图像理解的通才-专家框架，涵盖分割
+9. [Decoupling Language Guidance from Backbones for Text-Guided Medical Segmentation](/202607/13/2607.09481v1-decoupling-language-guidance-from-backbones-for-text-guided-medical-segmentation)  
+   标签：评分：7.0/10、query:image-seg
+   evidence：基于深度学习的医学图像分割
+10. [Beyond Isolated Objects: Relationship-aware Open Vocabulary Scene Understanding via 3D Scene Graph Analysis](/202607/13/2607.05348v1-beyond-isolated-objects-relationship-aware-open-vocabulary-scene-understanding-via-3d-scene-graph-analysis)  
    标签：评分：6.0/10、query:image-seg
-   evidence：统一的基于图像/视频的3D可提示实例跟踪框架
-10. [InfraNet: Quality-Aware RGB Guidance for Efficient Infrared Object Detection](/202607/12/2607.03795v1-infranet-quality-aware-rgb-guidance-for-efficient-infrared-object-detection)  
-   标签：评分：6.0/10、query:image-fusion
-   evidence：非对称RGB-红外融合用于目标检测
-11. [Sparse4D-Radar: An Efficient and Robust Framework for Surround-View 3D Object Detection via 4D Radar-Camera Fusion](/202607/12/2607.04098v1-sparse4d-radar-an-efficient-and-robust-framework-for-surround-view-3d-object-detection-via-4d-radar-camera-fusion)  
-   标签：评分：6.0/10、query:image-fusion
-   evidence：通过雷达-相机融合的环视3D目标检测，使用可变形融合模块
-12. [Fully Rotation-Equivariant Spectral-Spatial Learning for Multispectral Object Detection](/202607/12/2607.05148v1-fully-rotation-equivariant-spectral-spatial-learning-for-multispectral-object-detection)  
-   标签：评分：6.0/10、query:image-fusion
-   evidence：用于多光谱目标检测的全旋转等变光谱-空间学习
+   evidence：提出基于关系感知的开放词汇3D场景分割方法
+11. [TACoS: Weakly Supervised Learning of Two-Dimensional Materials from Scribble Annotations to Precise Segmentation](/202607/13/2607.07169v1-tacos-weakly-supervised-learning-of-two-dimensional-materials-from-scribble-annotations-to-precise-segmentation)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：弱监督二维材料分割
+12. [`Attention-Guided Cross-Temporal Clustering for Self-Supervised Video Object Segmentation](/202607/13/2607.07230v1-attention-guided-cross-temporal-clustering-for-self-supervised-video-object-segmentation)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：自监督视频对象分割
 
 
 <div class="dpr-home-promo-card">

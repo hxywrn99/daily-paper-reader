@@ -1,0 +1,504 @@
+Title: Dual-Correlation Hypergraph Network for Unaligned RGBT Video Object Detection and A Large-scale Benchmark
+
+URL Source: https://arxiv.org/pdf/2607.08191v1
+
+Published Time: Fri, 10 Jul 2026 00:34:05 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+> JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 1
+
+# Dual-Correlation Hypergraph Network for Unaligned RGBT Video Object Detection and A Large-scale Benchmark 
+
+Qishun Wang, Yapeng Li, Bin Luo, Zhengzheng Tu, and Chenglong Li, Senior Member, IEEE 
+
+Abstract —RGB-Thermal (RGBT) Video Object Detection (VOD) has gained significant traction due to its ability to overcome the limitations of conventional RGB-based VOD under challenging conditions. However, spatial misalignment commonly exists between RGBT image pairs. To address this, we pro-pose a Dual-Correlation Hypergraph Network (DHNet) that captures high-dimensional complementary information by ex-plicitly modeling two types of correlations: temporal correlation across consecutive frames and spatial correlation from cross-modal features. Specifically, we first design a Patch-based Spatial Alignment Module (PSAM) to sequentially align the multimodal features at the local region level. Subsequently, we introduce a Dual Hypergraph Fusion Module (DHFM), which constructs separate temporal and multimodal hypergraphs to enhance object discriminability through dual-correlation learning. Fur-thermore, the field currently lacks a large-scale, scene-diverse benchmark dataset for comprehensive evaluation. To address this gap, we construct DVT-VOD1000, a large-scale RGBT VOD dataset containing 1,000 video sequences with 103,464 RGBT image pairs. The dataset covers diverse scenarios, including campuses, parks, transportation, rural areas, night scenes, rain, and snow. Comprehensive experiments on VT-VOD50 and our DVT-VOD1000 demonstrate that DHNet achieves state-of-the-art detection accuracy. The dataset and source code will be made publicly available on https://github.com/tzz-ahu/ to support academic research. 
+
+Index Terms —RGB-Thermal, video object detection, multi-modal fusion, hypergraph, benchmark dataset. 
+
+I. I NTRODUCTION 
+
+# AS a key visual perception task, Video Object Detection (VOD) serves as a core component in fields like security surveillance and autonomous driving [1]–[3]. However, VOD that relies solely on RGB information remains susceptible to robustness issues in extreme scenarios, such as low-light conditions at night, overexposure, and adverse weather in-cluding rain, snow, and fog. To mitigate these limitations, the work by Wang et al. [4] introduces a method that combines RGB and thermal (RGBT) for VOD and creates a corre-sponding benchmark dataset, VT-VOD50. The authors apply manual processing to this dataset to achieve consistency in both resolution and spatial distribution. However, the VT-VOD50 dataset contains only 100 RGBT video sequences and fewer than 10,000 image pairs. Furthermore, its data 
+
+Corresponding author: Zhengzheng Tu. Qishun Wang, Yapeng Li, Zhengzheng Tu, and Bin Luo are with Anhui Provincial Key Laboratory of Multimodal Cognitive Computation, School of Computer Science and Technology, Anhui University, Hefei 230601, China (e-mail: qishunahu@163.com; zhengzhengahu@163.com; luobin@ahu.edu.cn). Chenglong Li is with Anhui Provincial Key Laboratory of Multimodal Cognitive Computation, School of Artificial Intelligence, Anhui University, Hefei, 230601, China (e-mail: lcl1314@foxmail.com). VT-VOD50 
+
+DV T-VOD1000 (ours) 
+
+RGB image Thermal image 
+
+Thermal image RGB image 
+
+(a) 
+
+(b) 
+
+Fig. 1. Existing VT-VOD50 and our proposed DVT-VOD1000, commonly exhibit weak spatial alignment of objects. As shown in (b), this issue manifests as significant regional variations in the degree of misalignment. 
+
+originates exclusively from traffic scenarios, representing a single data domain. These limitations pose constraints on the comprehensive evaluation of RGBT VOD methods and adversely affect model generalization. Wang et al. [4] introduce EINet for RGBT VOD. The model employs a negative activation function to identify noise regions within the thermal image. These regions subsequently suppress background noise in the corresponding RGB image, thereby mitigating the impact of imaging noise on the network learning process. PTMNet [5] has been proposed to combine early and middle fusion strategies to enhance object detection accuracy in RGBT videos. The framework demonstrates that early fu-sion effectively reduces the semantic gap between multimodal features, thereby improving the integration of RGBT features in the mid-term fusion stage. However, PTMNet does not ac-count for weakly aligned RGBT image pairs, which may con-strain the effectiveness of cross-modal interaction. However, both EINet and PTMNet are designed under the assumption of perfectly aligned RGBT inputs, thereby overlooking the spatial misalignment that commonly exists in real-world scenarios. As illustrated in Fig. 1 (a), despite the manual alignment of VT-VOD50, noticeable spatial misalignment persists between the RGB and thermal images, which consequently degrades the performance of RGBT fusion. In summary, there are two main issues: first, the neglect of the misalignment problem that is commonly present in RGBT video pairs by existing methods; second, a lack of large-scale, multi-scene benchmark datasets in the RGBT VOD field. 0000–0000/00$00.00 © 2021 IEEE arXiv:2607.08191v1 [cs.CV] 9 Jul 2026 JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 2
+
+To address these issues, we first propose a novel Dual-Correlation Hypergraph Network (DHNet) for RGBT VOD that effectively mitigates the misalignment challenge through a patch-by-patch alignment strategy. Specifically, we first introduce a Patch-based Spatial Alignment Module (PSAM), which addresses the problem of regionally varying alignment by applying decentralized local spatial transformations. We then utilize Local Binary Pattern (LBP) [6] to extract global detailed positional information from RGB features and inject it into the thermal features to achieve further global alignment. Finally, we propose a Dual-Correlation Hypergraph Fusion Module (DHFM) that models the correlation between RGB and thermal, as well as the correlation between RGB and its temporally adjacent frame, enabling spatial-temporal feature fusion. Furthermore, we construct a large-scale evaluation dataset for RGBT VOD, named DVT-VOD1000. The dataset covers a wide range of spatial scenarios—such as campuses, rural areas, transportation zones, and suburban areas—as well as diverse temporal scenarios, including nighttime, seasonal variations, rainy days, and snowy conditions. DVT-VOD1000 contains 1,000 RGBT videos and over 103,000 RGBT image pairs. The dataset is captured using a DJI dual-modal (RGBT) drone platform. To account for perspective and spatial dif-ferences between multispectral sensors, the platform’s built-in algorithms perform super-resolution and alignment, yet ultimately exhibit spatial misalignment, as shown in Fig. 1 (b). The main contributions of this work are summarized as follows:  
+
+> •
+
+We propose a DHNet that alleviates the prevalent mis-alignment problem in RGBT-VOD by integrating local spatial alignment with global positional priors, and sub-sequently learns high-order cross-modal correlations and performs feature fusion by constructing a hypergraph between multimodal features.  
+
+> •
+
+We propose PSAM to perform patch-wise spatial trans-formations on unaligned RGBT image pairs for initial alignment. Next, we introduce DHFM, which employs hypergraph to jointly model higher-order correlations among RGB images, thermal images, and temporal frames, thereby achieving spatial-temporal feature fusion.  
+
+> •
+
+We introduce DVT-VOD1000, a large-scale benchmark dataset for RGBT VOD. It captures diverse real-world spatial scenes using drone platforms, comprising 1,000 aligned RGB-thermal video sequences and over 103,000 RGBT image pairs.  
+
+> •
+
+Evaluations across a wide range of detectors on our DVT-VOD1000 and the VT-VOD50 indicate that DHNet achieves state-of-the-art performance. Extensive experi-ments further confirm its effectiveness in handling weakly aligned scenarios. II. R ELATED WORK 
+
+A. Multispectral Object Detection 
+
+Multispectral object detection addresses the limitations of RGB-based detection under challenging imaging conditions, such as extreme illumination, rain, and fog [7]–[10]. Fang et al. [11] introduce a cross-modal fusion transformer that enhances the capacity to model long-range dependencies and global information during multimodal fusion. They argue that its attention mechanism uncovers latent relationships between RGB and thermal features while also capturing intra-modal contextual information. Similarly, Shen et al. [12] propose a novel dual cross-attention feature fusion method that captures complementary information between modalities by means of cross-modal queries. Zhao et al. [13] propose a coarse-to-fine approach for multimodal fusion. Specifically, they first design a redundant spectrum removal module to perform coarse denoising within each modality, and then introduce a dynamic feature selection module that adaptively selects and fuses informative complementary features. Hu et al. [14] propose to leverage light intensity for dynamically analyzing the distinct contributions of visible and infrared information, and then to utilize edge information for guiding the enhanced network to locate objects during the fusion process. To address the issue that CNNs focus only on local features in RGBT fusion, while Transformers are overly complex, Dong et al. [15] propose using a state space model [16] to first map RGBT features to a hidden state space, thereby reducing modal differences before performing efficient fusion. To tackle the common issue of spatial misalignment in RGBT image pairs, Zhao et al. propose RGFNet [17], which leverages reflection components to progressively register RGB and ther-mal images, thereby mitigating the challenge under varying lighting conditions. 
+
+B. Video Object Detection 
+
+VOD extends image-based detection by incorporating tem-poral information across video sequences, thereby mitigating challenges such as object blurring and occlusion that often arise in individual frames. Zhu et al. [18] argue that computing features for every frame in a video is computationally expensive; they therefore propose a method that employs optical flow to propagate feature maps across adjacent similar frames, thereby reducing redundant computation. Similarly, Zhu et al. [19] propose an approach that leverages optical flow to deform and ag-gregate features from neighboring frames onto the current frame, thereby enhancing temporal feature representation. To address scenarios where objects are continuously occluded in video sequences, Chen et al. [20] propose a method that synergistically enhances object features in the current frame by combining local positional correlation with global semantic similarity, thereby effectively mitigating the challenges posed by occlusion or blurring. RGB-based VOD exhibits limited robustness under extreme imaging conditions such as low-light environments. To address this, Wang et al. [4] first introduce the RGBT VOD task and propose a method that leverages ther-mal features after negative activation to suppress noise in RGB features, thereby enhancing foreground object representation. To mitigate domain differences in multimodal fusion, Wang et al. propose PTMNet [5], which integrates early and middle fusion strategies to enhance fusion performance. Specifically, JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 3RGB 
+
+## F 1-t
+
+> RGB
+
+## Ft
+
+> T
+
+## Ft
+
+Pro. 
+
+Pro. 
+
+LBP 
+
+CC 
+
+> Pairwise
+> Distance
+> Pairwise
+> Distance
+
+Pro. Projection 
+
+CC Concatenation and 
+
+Convolution 
+
+Information transmission 
+
+Element-wise addition     
+
+> Detection Head
+> PSAM PSAM
+> 1 0 ……1
+> 0 0 ……1
+> ……
+> 1 1 ……0
+> 1 0 ……1
+> 01……1
+> ……
+> 10……0
+> DHFM
+
+Predictions 
+
+Encoder RGB 
+
+## f 1-t
+
+> RGB
+
+## ft
+
+> T
+
+## ft
+
+> RGB
+
+## f 1-t
+
+> RGB
+
+## ft
+
+> T
+
+## ft
+
+> RGB
+
+## ft
+
+## ~       
+
+> Fig. 2. The core architecture of DHNet. The PSAM first performs local spatial alignment on the two input feature maps in a region-by-region manner. Subsequently, we utilize LBP to extract global object location information from FRGB tand inject it into FTtto achieve global calibration. Following this, the proposed DHFM constructs high-order correlations among temporally adjacent and cross-modal features via hypergraph learning.
+
+PTMNet performs pixel-level fusion of images from different modalities at the network input stage, thereby reducing seman-tic differences between modalities during feature extraction. III. M ETHOD 
+
+A. Overview 
+
+Our DHNet (as shown in Fig. 2) builds upon the YOLOV8 framework [21], adopting its feature encoder and detection head. The DHNet employs a shared backbone network for the two RGB frames F RGB t and F RGB t−1 , whereas the thermal frame F Tt uses a separate backbone that shares the same structure but maintains independent parameters. Next, the PSAM performs patch-level spatial transformation alignment on both temporally adjacent features and multimodal features. Given that spatial discrepancies caused by multimodal sensor distortion are more substantial, we employ LBP to extract global positional details from the current RGB frame, which are then injected into the corresponding thermal frame. Subse-quently, DHFM conducts hypergraph-based feature fusion on the three previously derived features ( f RGB t−1 , f RGB t and f Tt ). The fused representation is finally fed into the detection head to generate the prediction result. DHNet adopts the same loss function as the baseline, and its detailed formulation is omitted for brevity. 
+
+B. PSAM: Patch-based Spatial Alignment Module 
+
+Weak alignment constitutes a common challenge in RGBT VOD datasets. The proposed DVT-VOD1000 benchmark ex-hibits this issue with varying degrees of misalignment across different spatial regions. This regional inconsistency motivates the implementation of localized spatial transformations on the thermal image to achieve effective spatial alignment. To over-come this challenge, we introduce the PSAM, whose architec-ture is depicted in Fig. 3. The PSAM takes two input features, denoted as f RGB t ∈ RC×H×W and f Tt ∈ RC×H×W . It begins by dividing each feature into multiple non-overlapping patches in the spatial dimension using a sliding window, thereby generating two corresponding patch sequences 
+
+n
+
+P (i)RGB 
+
+oNi=1 
+
+and 
+
+n
+
+P (i)T
+
+oNi=1 
+
+. To alleviate the computational burden as-sociated with densely aligning multiple patch blocks, we first employ a 1×1 convolutional layer to reduce the channel dimensionality. The resulting feature block is then transformed into a compact descriptor through global average pooling and flattening. Finally, this descriptor is passed through a linear layer followed by a non-linear activation function to produce discriminative features. This procedure is summarized by the following equation: 
+
+f (i) 
+
+> RGB
+
+= ϕ(P (i) 
+
+> RGB
+
+), f (i) 
+
+> T
+
+= ϕ(P (i) 
+
+> T
+
+). (1) Here, ϕ() denotes a feature encoder with shared weight parameters. The pairs of patch features are subsequently concatenated along the channel dimension and fed into the affine transformation prediction, as follows: 
+
+ϑ(i) = ψ([ f (i) 
+
+> RGB
+
+, f (i) 
+
+> T
+
+]) ∈ R6, (2) where ψ corresponds to the affine transformation prediction process. The ϑ(i) is subsequently transformed into an affine JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 4Conv 
+
+> BN
+> ReLU
+> AAP
+> ReLU
+> Linear
+> Conv
+> BN
+> ReLU
+> AAP
+> ReLU
+> Linear
+
+C
+
+> Linear
+> ReLU
+> Linear
+
+Transformation 
+
+Matrix 
+
+w
+
+C Channle 
+
+Concatenation 
+
+Patch 
+
+Embedding BN BatchNorm2d Reconstruction AAP AdaptiveAvgPool2d w Warp 
+
+# Patch-based Spatial Align Module 
+
+> RGB
+
+# ft
+
+> T
+
+# ft
+
+> )1(
+> RGB
+
+## P
+
+> )1(
+> T
+
+## P
+
+> T
+
+# ft
+
+# ~ 
+
+> Fig. 3. Illustration of the patch-based alignment process in the PSAM.
+
+matrix A(i) according to the following formula: 
+
+A(i) =
+
+"
+
+1 + ϑ(i)1 ϑ(i)2 ϑ(i)3
+
+ϑ(i)4 1 + ϑ(i)5 ϑ(i)6
+
+#
+
+. (3) The sampling grid generated by matrix A(i) is used to spatially transform P (i) 
+
+> T
+
+, aligning it with the P (i) 
+
+> RGB
+
+. The transformed 
+
+P (i) 
+
+> T
+
+is then re-inserted into the thermal feature f Tt at its original spatial indices. By iterating this procedure, the aligned feature ˜f Tt consistent with the RGB feature f RGB t is recon-structed. The procedure for aligning the adjacent temporal frame using PSAM is analogous to the one described above; it simply requires replacing input f Tt with f RGB t−1 .
+
+C. DHFM: Dual-Correlation Hypergraph Fusion Module 
+
+Most existing RGBT VOD methods are limited to mod-eling pairwise feature relationships, and consequently cannot simultaneously capture multimodal and temporal consistency. To address this, we propose the DHFM that models spatiotem-poral feature consistency in a unified manner and effectively captures higher-order dependencies. The schematic of the DHFM is depicted in Fig. 2. It comprises two symmetrical branches with identical structures and shared weights, dedicated to modeling temporal infor-mation and capturing multimodal complementary features, respectively. The module takes three feature maps ( f RGB t−1 ∈
+
+RC×H×W , f RGB t ∈ RC×H×W and f Tt ∈ RC×H×W ) as inputs, which correspond to middle stage features of F RGB t−1 ,
+
+F RGB t and F Tt . The HRC module first proceeds to reshape these input features into a set of vertex representations: 
+
+[V RGB t−1 
+
+> Ni=1
+
+, V RGB t 
+
+> Nj=1
+
+, V Tt
+
+> Nk=1
+
+] ∈ RN ×C , N = H×W. 
+
+(4) We consider the multimodal branch as an example to illustrate this process. For the given pair of nodes ( V RGB t i, V Tt j ), we compute the Euclidean distance dij between them. Subse-quently, a threshold τ (set to 8 in this work) is applied to filter out low-relevance edges with distances exceeding this value, thereby generating the final hyperedges. This process finally produces a binary sparse matrix H ∈ RN ×N , which stores the hyperedges for all node pairs. A two-step message aggregation is then performed based on the correlation matrix H. First, vertex information from the thermal features is aggregated onto the hyperedges. Subsequently, the information from the hyperedges is aggregated back onto the vertices of the RGB features. These two steps are formulated as follows: 
+
+˜V RGB t = δ2(δ1(V Tt , H T ), H ). (5) Here, δ1 and δ2 denote the message propagation from vertex to hyperedge and from hyperedge to vertex, respectively. For their detailed architectural designs, please refer to [22]. Subsequently, the new vertex set ˜V RGB t which aggregates the thermal features is reconstructed back into a feature map, yielding the updated representation ˜f RGB t .Following the same procedure described above, the temporal information for features f RGB t and f RGB t−1 is aggregated. In essence, the DHFM seamlessly integrates multimodal and temporal fusion for RGBT VOD within a unified hypergraph-based framework, formulating it as a holistic high-order infor-mation transfer process. IV. DVT-VOD1000: A L ARGE -SCALE DRONE -BASED 
+
+RGBT VOD D ATASET 
+
+A. Motivation and Data Collection 
+
+The field of RGBT VOD continues to attract growing research interest. However, the widely used VT-VOD50 [4] dataset offers limited scope for comprehensive model evalua-tion due to its constrained scale and narrow range of scenes. To address these limitations, this work introduces DVT-VOD1000, a new large-scale benchmark for RGBT VOD. With its extensive real-world scenes and substantial size, DVT-VOD1000 enables it to serve as a more robust platform for both training and evaluating video object detectors. The DVT-VOD1000 is captured using a DJI Mavic 3Enterprise series drone platform [23], specifically the Mavic 3T. This platform integrates a wide-angle camera, a telephoto camera, and a thermal imaging camera in its gimbal, making it suitable for applications such as urban patrols, wilderness search and rescue, and nighttime operations. The wide-angle JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 5
+
+camera is equipped with a 48-megapixel sensor and provides an 84° field of view, supporting video recording at 1920 ×
+
+1080 resolution and 30 Frames Per Second (FPS). The tele-photo camera features a 12-megapixel sensor with a 15° field of view. The thermal imaging camera supports a temperature measurement range of −20 °C to 150 °C and delivers video at a resolution of 640 × 512. Both RGB and thermal modalities are recorded simultaneously. The built-in algorithm crops the RGB image and applies super-resolution to the thermal image, resulting in a unified output resolution of 960 × 770 for both modalities. Finally, the RGB and thermal videos are segmented into multiple frames at 24 FPS and stored in the dataset. 
+
+B. Scene and Environmental Diversity 
+
+The collection of the DVT-VOD1000 dataset spans over twelve months. It encompasses a wide spectrum of real-world scenarios, thereby serving to provide rich scene diversity information for both model training and evaluation. To fully illustrate the scene diversity of the DVT-VOD1000 dataset, six representative RGBT image pairs are carefully selected and arranged, as shown in Fig. 4. Group (a) depicts a main urban road during peak hours, where intersecting roads and tree occlusion present challenges for object recognition. Group (b) presents a pedestrian movement scenario in apark, containing multiple object categories such as pedestrians, streetlights, and trash cans, while also dealing with issues like object occlusion and small object sizes. Group (c) shows a suburban road section at dusk, during which the dynamic range of the RGB image is significantly compressed and complicated by headlight glare. In contrast, the thermal image exhibits a clear response to vehicle heat sources. Group (d) captures a rural night scene, where ambient light is extremely low and RGB images suffer from significant noise, making thermal imagery the primary source of information and validating the model’s detection capability under extreme low light, long distance, and small object conditions. Group (e) displays a snowy scene on a school campus in winter, where the thermal image enhances the contrast between foreground and background while the RGB image presents more complex background textures. Group (f) features low-altitude scenes captured from a drone perspective similar to road surveillance, with object scale and viewing angle differing from those in previous groups, thereby allowing evaluation of the model’s generalization ability. 
+
+C. Annotation 
+
+We adhere to the instance-level granularity standard for object detection tasks and expand the category definitions in three key aspects: first, traffic participants, which include person, bicycle, car, taxi, motorcycle, bus, van, and truck; sec-ond, traffic facilities, comprising traffic-light, zebra-crossing, road-sign, and traffic-sign; and finally, infrastructure elements, which include trash-bin, street-light, and surveillance-camera. In total, the DVT-VOD1000 dataset encompasses 15 distinct categories. We employ LabelImg as the annotation tool, which is a visual image annotation utility that supports exporting annotation files in PASCAL VOC [24] XML format and enables conversion to and from COCO [25] format. Each XML file corresponds to a single image frame and includes the category labels and location information of all predefined objects present in the corresponding RGB image. Annotation is performed solely on the RGB modality to prevent potential conflicts arising from spatial misalignment between RGB and thermal images during network training. This approach ensures that the network optimizes its parameters based exclusively on annotations from the RGB modality. To ensure annotation quality and consistency, a team of over ten annotators labels the data concurrently. A dedicated supervisor then verifies all annotations to minimize inter-operator variability. This comprehensive process spans one month. 
+
+D. Statistics and Scale 
+
+The DVT-VOD1000 dataset comprises 500 RGBT video pairs. The frame length distribution across these pairs is pre-sented in Fig. 5 (a), ranging from 15 to 3,202 frames, with the majority containing fewer than 1,500 frames (approximately one minute in duration). Fig. 5 (b) illustrates the category distribution and respective proportions of the 15 object classes in DVT-VOD1000. The “car” class constitutes nearly half of all instances, followed by the “person” class. Conversely, categories such as “taxi” and “bus” contain relatively few instances. This long-tailed distribution aligns with real-world traffic scenarios, demonstrating that the dataset’s statistical characteristics closely reflect naturalistic class imbalances. Table I presents a comprehensive comparison of our DVT-VOD1000 with existing RGBT object detection datasets, in-cluding dataset size, resolution, and the number of classes, among other attributes. Existing datasets primarily consist of static images, where the largest examples include KAIST (95,328 images) [26] and DroneVehicle (56,878 images) [27]. In contrast, our DVT-VDO1000 is a video dataset comprising 206,928 frames—more than twice the size of KAIST. This substantial volume of sequential data provides rich temporal contextual information, thereby offering greater value for moving object detection and temporal consistency learning. The DVT-VOD1000 dataset features medium-to-high resolu-tion with uniform image dimensions, thereby avoiding the complexities associated with multi-scale training. While most existing datasets prioritize precise alignment, real-world RGB and thermal infrared sensors frequently exhibit misalignment due to variations in installation, viewpoint, and focal length. We intentionally preserve this inherent misalignment to better reflect practical application conditions. Furthermore, DVT-VOD1000 provides greater category diversity than comparable datasets, which enhances model generalization in complex real-world scenarios. As a drone-based platform, it also in-troduces significant challenges—such as motion blur, scale variation, rotation, and occlusion—that are less prevalent in fixed-viewpoint vehicle or surveillance systems, thereby de-manding greater algorithmic robustness. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 6RGB 
+
+Thermal 
+
+(a) (b) (c) (d) (e) (f) 
+
+Fig. 4. The DVT-VOD1000 dataset comprises a diverse range of RGBT image pairs captured across various typical scenarios. bus 
+
+surveillance-camera 
+
+taxi 
+
+traffic-light 
+
+traffic-sign 
+
+trash-bin 
+
+truck 
+
+bicycle 
+
+car 
+
+motorcycle 
+
+person 
+
+road-sign 
+
+street-light 
+
+van 
+
+zebra-crossing 
+
+car 
+
+1116281 
+
+person 
+
+302551 
+
+motorcycle 
+
+188965 
+
+trash-bin 
+
+32268 
+
+truck 
+
+35477 
+
+street-light 
+
+234960 
+
+zebra-crossing 
+
+60868 
+
+traffic-light 
+
+34483 
+
+surveillance 
+
+-camera 
+
+14581 
+
+van 
+
+51279 
+
+bicycle 
+
+49829 
+
+taxi 
+
+12294 
+
+bus 
+
+10493 
+
+road-sign 
+
+238400 
+
+traffic-sign 
+
+25463 
+
+(a) (b) 
+
+(c) 
+
+Fig. 5. (a) depicts the video sequences in the DVT-VOD1000 dataset and their length distribution. (b) presents the distribution of the 15 object categories. (c) details the number of instances for each category. TABLE I WE PRESENT A COMPREHENSIVE COMPARISON OF OUR DVT-VOD1000 DATASET WITH EXISTING RGBT OBJECT DETECTION DATASETS .
+
+Dataset Type Images Resolution Misaligned Classes Platform Year 
+
+VEDAI [28] Image 12000 1024 ×1024 ✕ 9 drone 2015 KAIST [26] Image 95328 640 ×480 ✕ 3 driving 2015 CVC14 [29] Image 17036 640 ×512 ✓ 1 driving 2016 FLIR [30] Image 24680 640 ×512 ✓ 4 driving 2019 LLVIP [31] Image 30976 1080 ×720 ✕ 1 surveillance 2021 DroneVehicle [27] Image 56878 640 ×512 ✕ 5 drone 2022 M3FD [32] Image 8400 1024 ×768 ✕ 6 various 2022 DVTOD [33] Image 4358 1920 ×1080 ✓ 3 drone 2024 VT-VOD50 [4] Video 18898 640 ×368-1920 ×1080 ✕ 7 traffic 2025 
+
+DVT-VOD1000(Ours) Video 206928 960 ×770 ! 15 drone -JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 7                                                                                                                                           
+
+> TABLE II WE EVALUATE DHN ET ALONGSIDE CURRENT MAINSTREAM DETECTION MODELS ON DVT-VOD1000, EMPHASIZING THE BEST RESULTS IN BOLD . T HE SYMBOL “-” INDICATES THAT THE MEASUREMENT CONDITIONS ARE NOT MET OR THAT THE RESULT REMAINS UNOBTAINABLE .Methods Backbone Type AP50(%) AP(%) FPS Params(M) FLOPs(G) Faster R-CNN [34] ResNet-50 Image 22.8 8.5 26 41.4 134.4 CFT [11] CFB 11.9 3.98 222.2 73.7 -YOLOV10-M [35] CSPNet 28.3 8.91 210 16.5 64 YOLOV13-S [35] -28.4 9.26 476 9.0 21
+> TOOD [36] ResNet-50 25 10.1 25.8 32 199 Deformable DETR [37] ResNet-50 18.3 0.7 20.7 41.1 197 RetinaNet [38] ResNet-50 22.6 9.2 38.4 36.62 168 DINO [39] ResNet-50 29.9 12 16.7 47.7 274 DDQ DETR [40] ResNet-50 29.4 12 13 48.3 275
+> EI 2Det [14] CSPDarknet53 30.2 12.4 -128.66 -RGFNet [17] CSPDarknet 29.3 12.4 37.57 79.54 273 M-SpecGene [41] ViT-B 29.5 11.8 12.5 116 538 Fusion-Mamba [15] YOLOv5 29.4 11.4 24.63 59.6 112.9 DFF [18] ResNet-50 Video 22.4 -40.4 62.1 24.9 FGFA [19] ResNet-50 23.7 -964.5 41 RDN [42] ResNet-50 24.8 -11.3 --MEGA [20] ResNet-50 25.0 -16.2 --EINet [4] Darknet53 21.9 7.99 204.2 11.6 78.2 PTMNet [5] CSPDarknet53 23.0 8.82 72.5 11.4 77.8 DHNet-S (Ours) CSPDarknet53 Video 28.5 11.4 73 7.18 27.2 DHNet-L (Ours) CSPDarknet53 31.7 13.7 23.3 82 552.6
+
+V. E XPERIMENTS 
+
+A. Datasets 
+
+We assess model performance on the existing VT-VOD50 dataset [4] and our proposed DVT-VOD1000. The VT-VOD50 dataset, being the first dedicated to RGBT-VOD, features seven object categories across diverse real-world conditions like day-time and nighttime. This diversity allows it to effectively test algorithm robustness against significant illumination changes. 
+
+B. Experimental Details 
+
+We implement our experiments using the PyTorch frame-work with Python 3.8. The training runs on two NVIDIA GeForce RTX 3090 GPUs (each with 24GB memory), with DHNet trained for 100 epochs at a batch size of 18 per GPU. The input resolution is set to 640 ×640 pixels. To maintain spatial consistency across multimodal images, we disable potentially disruptive augmentations such as mosaic and mixup, retaining only color augmentation and horizontal flipping. All other training settings, including the learning rate optimizer, remain consistent with the baseline. For image-based and unimodal detectors, pixel-level fusion of RGB and thermal images is performed to accommodate multimodal inputs. We primarily evaluate and compare the model’s detection accuracy and inference speed. For accuracy assessment, we employ the mAP and AP50 metrics, which are standard in object detection tasks. The Average Precision (AP) measures the detection performance for a single object class; it is characterized by its ability to balance precision and recall across various confidence thresholds. AP50 specifically de-notes the AP calculated at an IoU threshold of 0.5. In multi-class detection scenarios, the mean Average Precision (mAP) represents the mean of AP values across all classes, thereby indicating the model’s overall detection capability on the dataset. For speed evaluation, we use FPS, a common metric in video analysis that quantifies the number of frames processed per second and indicates whether the model meets real-time processing requirements. 
+
+C. Comparative Experiments 
+
+To comprehensively compare the performance of our DHNet with existing mainstream detectors, a thorough evalu-ation is conducted on two RGBT VOD datasets: VT-VOD50 and the proposed DVT-VOD1000. Our DHNet is available in two versions: DHNet-S, which is designed to balance accuracy and efficiency, and DHNet-L, which is optimized for maximum performance. DHNet-L is a scaled-up version of DHNet-S with increased depth and width. 
+
+1) Results in DVT-VOD1000: Table II presents the results of training and evaluating various detectors on the proposed DVT-VOD1000 dataset. Our DHNet-L achieves an AP50 score of 31.7%, ranking first among all compared methods and outperforming the second-best method, EI 2Det (30.2%), by 1.5 %. Our DHNet-S achieves an AP50 score of 28.5%, surpassing all other video detectors and exceeding the second-best video-based method, MEGA (25.0% AP50), by 3.5%. DHNet-S also demonstrates superior performance compared to most image-based detectors. Moreover, DHNet-S strikes a favorable balance between model efficiency and accuracy, delivering 28.5% AP50 at 73 FPS with only 7.18M parameters and 27.2G FLOPs. In contrast, EI 2Det has a substantially larger parameter count of 128.66M. Although EINet and PTM-Net also maintain relatively small parameter sizes, their AP50 scores are only 21.9% and 23.0%, respectively—considerably lower than that of DHNet-S. Table II further reveals that the AP50 scores of most video object detectors remain below 25%, significantly lagging JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 8                                                                                                                       
+
+> TABLE III WE EVALUATE DHN ET ALONGSIDE CURRENT MAINSTREAM DETECTION MODELS ON VT-VOD50, EMPHASIZING THE BEST RESULTS IN BOLD . T HE SYMBOL “-” INDICATES THAT THE MEASUREMENT CONDITIONS ARE NOT MET OR THAT THE RESULT REMAINS UNOBTAINABLE .Methods Backbone Type AP50(%) AP(%) YOLOV3 [43] Darknet53 Image 33.9 17.4 CFT [11] CFB Image 42.5 18.9 YOLOV9-C [44] GELAN Imgae 49.1 26.9 YOLOV10-M [35] CSPNet Image 46.2 25.2 TOOD [36] ResNet-50 Image 36.3 19 Deformable DETR [37] ResNet-50 Imgae 42.5 23.3 RT-DETR [45] ResNet-50 Imgae 40.2 21.6 DINO [39] ResNet-50 Image 47.4 25.9 DDQ DETR [40] ResNet-50 Image 48.3 26.5 DiffusionDet [46] ResNet50 Image 46.9 25.1
+> EI 2Det [14] CSPDarknet53 Image 53.6 26.3 RGFNet [17] CSPDarknet Image 52.9 29.3 M-SpecGene [41] ViT-B Image 49.6 29.2 Fusion-Mamba [15] YOLOv5 Image 56 30 DFF [18] ResNet-50 Video 33.5 14.1 FGFA [19] ResNet-50 Video 35.1 15.8 RDN [42] ResNet-50 Video 40 -SELSA [47] ResNet-50 Video 39.4 17.4 MEGA [20] ResNet-50 Video 27.8 -Temporal ROI Align [48] ResNet-50 Video 38 17 CVA-Net [49] ResNet-50 Video 39.7 19.7 STNet [50] ResNet-50 Video 38.4 18.4 EINet [4] Darknet53 Video 46.3 24 PTMNet [5] CSPDarknet53 Video 51.4 27.1 MSENet [51] CSPDarknet53 Video 50.3 27.6 DHNet-S (Ours) CSPDarknet53 Video 55.5 30 DHNet-L (Ours) CSPDarknet53 Video 57.5 33.7
+
+behind high-performing multimodal image detectors such as 
+
+EI 2Det and M-SpecGene. This suggests that temporal infor-mation aggregation alone offers limited benefits, whereas a well-designed cross-modal fusion mechanism plays a more critical role in enhancing detection performance in RGBT videos. 
+
+2) Results in VT-VOD50: Table III presents the results of training and evaluating various detectors on the VT-VOD50 dataset. Even powerful image-based detectors, such as DDQ DETR (48.3% on AP50) and YOLOV9-C (49.1% on AP50), still underperform dedicated video-based detectors like MSENet and PTMNet when applied to video streams, which often contain motion blur and occlusion. In contrast, our proposed DHNet-L achieves 57.5% on AP50, surpassing the YOLOV9-C by 8.4%. RGFNet [17] is specifically designed to address spatial misalignment in RGB-thermal image pairs. Despite not leveraging temporal information, it achieves a strong performance of 52.9% AP50. EI 2Det also achieves excellent detection performance, benefiting from the guidance of illumination and edge information. Fusion-Mamba achieves the best performance among the compared image detectors, reaching 56% AP50 through cross-modal interactions in the hidden state space. Among the video detectors evaluated, MSENet [51] and PTMNet [5] achieve the great performance, both featuring dedicated multimodal fusion designs. This underscores that video detectors designed for single-modality input (such as CVA-Net and STNet) are constrained by the limitations of a single imaging modality and thus fail to fully exploit the complementary information from RGB and thermal images. Our DHNet-S and DHNet-L outperform PTMNet by 4.1% and 6.1% on AP50, respectively. This significant improvement demonstrates the effectiveness of our fusion strategy in leveraging multimodal temporal information. 
+
+D. Ablation Studies 
+
+We conduct detailed ablation studies on each component of DHNet to validate the effectiveness of the proposed method. 
+
+1) Study on Each Component: To validate the effectiveness of our proposed modules, we incrementally construct DHNet from the baseline method, as illustrated in Table IV. Groups (a) and (b) present the training and testing results on the baseline using RGB and thermal images, respectively. It is observed that using only thermal images as input yields significantly inferior performance compared to using RGB ones, as thermal images not only lack crucial texture and detail information but also exhibit spatial misalignment with the RGB-based ground-truth annotations. This further underscores the necessity of a dedicated RGBT fusion strategy. The group (c) reports the results of applying PSAM for alignment and information aggregation using two temporal RGB frames, achieving a 1.6% improvement on AP50 over (a). The group (d) shows the results of employing PSAM for spatial alignment and feature fusion with one RGB and one thermal image as input, leading to gains of 1.7% and 16.9% over (a) and (b), respectively, demonstrating the effectiveness of PSAM in fusing spatially unaligned multimodal inputs. The group (e) presents the results obtained by incorporating LBP to inject RGB edge information into the thermal modality, building upon the configuration in (d). Finally, by integrating PSAM, JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 9
+
+TABLE IV ABLATION STUDY ON EACH COMPONENT OF DHN ET . T HE STUDY IS BASED ON THE DVT-VOD1000 DATASET .Groups Data PSAM LBP DHFM AP50(%) AP(%) Params(M) FLOPs(G) (a) RGB 25.6 9.9 3.01 8.21 (b) T 10.4 4.1 3.01 8.21 (c) RGB ✓ 27.2 11 4.43 15.9 (d) RGBT ✓ 27.3 11.3 4.51 11.8 (e) RGBT ✓ ✓ 28 11.5 5.8 21.8 DHNet RGBT ✓ ✓ ✓ 28.5 11.4 7.18 27.2 TABLE V ABLATION STUDY ON PATCH SIZE IN PSAM. T HE STUDY IS BASED ON THE DVT-VOD1000 DATASET .Groups patch size AP50(%) AP(%) Params(M) FLOPs(G) (a)( Ours ) 5×5 27.2 11 7.18 27.2 (b) 8×8 26.2 10.6 7.31 27.4 (c) 3×3 25.9 10.1 7.02 27.1 TABLE VI ABLATION STUDY ON RGBT FUSION METHODS . T HE STUDY IS BASED ON THE VT-VOD50 DATASET .Methods AP50(%) AP(%) Params(M) FLOPs(G) Cross Attention [52] 53.4 28.8 7.37 27.4 DCEvo [53] 54.5 29.2 8.8 32.6 TDF [5] 49.6 26.9 20.9 32.4 TDFusion [54] 37.7 20.4 8.38 31.5 DHFM( Ours ) 55.5 30 7.18 27.2 
+
+LBP, and DHFM, we construct DHNet, which achieves an overall AP50 improvement of 2.9% over the group (a). 
+
+2) Study on Patch Size in PSAM: To further investigate the alignment mechanism of PSAM, we conduct a series of ablation experiments focusing on patch size. The results in Table V show that a 5 × 5 patch size achieves the highest accuracy, improving AP50 by 1.0% and 1.3% compared to the 
+
+8×8 and 3×3 patch sizes, respectively. Our analysis indicates that a 3 × 3 patch size is too small to capture sufficiently discriminative spatial context features. In contrast, an 8 × 8
+
+patch size introduces excessive background and redundant information, which may complicate the alignment process and ultimately degrade accuracy. 
+
+3) Comparison of DHFM with Other Fusion Methods: 
+
+We conduct a series of ablation experiments on the RGBT fusion method to demonstrate the effectiveness of our DHFM, with the results presented in Table VI. The results demonstrate that our DHFM achieves an AP50 of 55.5%, which is 1.0% higher than the second-best method, DCEvo (54.5%), and an AP of 30.0%, also surpassing DCEvo (29.2%). Compared to Cross Attention, DHFM outperforms it by 2.1% in AP50, highlighting its effectiveness in cross-modal fusion. Moreover, DHFM has only 7.18 million parameters—the smallest among all compared methods—along with the lowest computational cost, indicating that DHFM strikes a favorable balance be-tween efficiency and accuracy. In contrast, TDF and TDFusion yield lower accuracy, with the latter not undergoing task-specific fine-tuning, which may account for its suboptimal performance. VI. C ONCLUSION 
+
+This work proposes a novel Dual-Correlation Hypergraph Network (DHNet) for RGBT VOD, which alleviates the chal-lenge of cross-modal spatial misalignment. We first propose PSAM to perform spatial transformation and alignment of different local regions in RGBT image pairs, as the misalign-ment varies across different locations in the image. We then propose DHFM, which leverages a hypergraph to model high-dimensional feature relationships between RGB and T, thereby aggregating complementary features across modalities more effectively. Additionally, we construct a large-scale dataset, named DVT-VOD1000, to evaluate RGBT VOD methods. This dataset is collected from a drone platform and con-sists of 1000 videos spanning 15 common categories. DVT-VOD1000 covers a wide range of real-world scenes, providing comprehensive evaluation capabilities and offering significant potential for RGBT VOD research. REFERENCES [1] S.-C. Huang and B.-H. Chen, “Highly accurate moving object detection in variable bit rate video-based traffic monitoring systems,” IEEE transactions on neural networks and learning systems , vol. 24, no. 12, pp. 1920–1931, 2013. [2] A. Taylor, S. Leblanc, and N. Japkowicz, “Anomaly detection in auto-mobile control network data with long short-term memory networks,” in 2016 IEEE international conference on data science and advanced analytics (DSAA) . IEEE, 2016, pp. 130–139. [3] W. Li, C. Pan, R. Zhang, J. Ren, Y. Ma, J. Fang, F. Yan, Q. Geng, X. Huang, H. Gong et al. , “Aads: Augmented autonomous driving simulation using data-driven algorithms,” Science robotics , vol. 4, no. 28, p. eaaw0863, 2019. [4] Q. Wang, Z. Tu, C. Li, H. Wang, and K. Wang, “Erasure-based interaction network for red-green-blue and thermal object detection and a unified benchmark,” Engineering Applications of Artificial Intelligence ,vol. 157, p. 111155, 2025. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 10 
+
+[5] Q. Wang, Z. Tu, C. Li, and J. Tang, “High performance rgb-thermal video object detection via hybrid fusion with progressive interaction and temporal-modal difference,” Information Fusion , vol. 114, p. 102665, 2025. [6] T. Ojala, M. Pietikainen, and D. Harwood, “Performance evaluation of texture measures with classification based on kullback discrimination of distributions,” in Proceedings of 12th international conference on pattern recognition , vol. 1. IEEE, 1994, pp. 582–585. [7] M. Zhou, Y. Li, G. Yang, X. Wei, H. Pu, J. Luo, and W. Jia, “Cofnet: contrastive object-aware fusion using box-level masks for multispectral object detection,” IEEE Transactions on Multimedia , 2025. [8] Z. Chen, Y. Qian, X. Yang, C. Wang, and M. Yang, “Amfd: Distillation via adaptive multimodal fusion for multispectral pedestrian detection,” 
+
+IEEE Transactions on Multimedia , 2025. [9] S. Shin, C. Lee, G.-M. Park, and J. U. Kim, “Ssmpd: Semi-supervised learning for multispectral pedestrian detection,” IEEE Transactions on Multimedia , 2025. [10] F. Yang, W. Li, L. Li, M. Yang, and J. Zhang, “Dwsf-net: A dynamic wavelet-based spatial-frequency fusion network for multispectral object detection,” IEEE Transactions on Multimedia , 2026. [11] F. Qingyun, H. Dapeng, and W. Zhaokui, “Cross-modality fu-sion transformer for multispectral object detection,” arXiv preprint arXiv:2111.00273 , 2021. [12] J. Shen, Y. Chen, Y. Liu, X. Zuo, H. Fan, and W. Yang, “Icafusion: Iterative cross-attention guided feature fusion for multispectral object detection,” Pattern Recognition , vol. 145, p. 109913, 2024. [13] T. Zhao, M. Yuan, F. Jiang, N. Wang, and X. Wei, “Removal then selection: A coarse-to-fine fusion perspective for rgb-infrared object detection,” IEEE Transactions on Intelligent Transportation Systems ,2025. [14] K. Hu, Y. He, Y. Li, J. Zhao, S. Chen, and Y. Kang, “Ei 2 det: Edge-guided illumination-aware interactive learning for visible-infrared object detection,” IEEE Transactions on Circuits and Systems for Video Technology , 2025. [15] W. Dong, H. Zhu, S. Lin, X. Luo, Y. Shen, G. Guo, and B. Zhang, “Fusion-mamba for cross-modality object detection,” IEEE Transactions on Multimedia , 2025. [16] Y. Liu, Y. Tian, Y. Zhao, H. Yu, L. Xie, Y. Wang, Q. Ye, J. Jiao, and Y. Liu, “Vmamba: Visual state space model,” Advances in neural information processing systems , vol. 37, pp. 103 031–103 063, 2024. [17] Z. Zhao, W. Zhang, Y. Xiao, C. Li, and J. Tang, “Reflectance-guided progressive feature alignment network for all-day uav object detection,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , 2025. [18] X. Zhu, Y. Xiong, J. Dai, L. Yuan, and Y. Wei, “Deep feature flow for video recognition,” in Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition , 2017, pp. 2349–2358. [19] X. Zhu, Y. Wang, J. Dai, L. Yuan, and Y. Wei, “Flow-guided feature aggregation for video object detection,” in Proceedings of the IEEE International Conference on Computer Vision , 2017, pp. 408–417. [20] Y. Chen, Y. Cao, H. Hu, and L. Wang, “Memory enhanced global-local aggregation for video object detection,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2020, pp. 10 337–10 346. [21] G. Jocher, J. Qiu, and A. Chaurasia, “Ultralytics YOLO,” Jan. 2023. [Online]. Available: https://github.com/ultralytics/ultralytics [22] Y. Feng, J. Huang, S. Du, S. Ying, J.-H. Yong, Y. Li, G. Ding, R. Ji, and Y. Gao, “Hyper-yolo: When visual object detection meets hypergraph computation,” IEEE Transactions on Pattern Analysis and Machine Intelligence , 2024. [23] DJI, “Mavic 3,” https://enterprise.dji.com/cn/mavic-3-enterprise/specs, 2025, accessed: 2025-06-05. [24] M. Everingham, L. Van Gool, C. K. Williams, J. Winn, and A. Zisser-man, “The pascal visual object classes (voc) challenge,” International journal of computer vision , vol. 88, no. 2, pp. 303–338, 2010. [25] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ramanan, P. Doll´ ar, and C. L. Zitnick, “Microsoft coco: Common objects in context,” in Computer Vision–ECCV 2014: 13th European Conference, Zurich, Switzerland, September 6-12, 2014, Proceedings, Part V 13 .Springer, 2014, pp. 740–755. [26] Y. Choi, N. Kim, S. Hwang, K. Park, J. S. Yoon, K. An, and I. S. Kweon, “Kaist multi-spectral day/night data set for autonomous and as-sisted driving,” IEEE Transactions on Intelligent Transportation Systems ,vol. 19, no. 3, pp. 934–948, 2018. [27] Y. Sun, B. Cao, P. Zhu, and Q. Hu, “Drone-based rgb-infrared cross-modality vehicle detection via uncertainty-aware learning,” IEEE Trans-actions on Circuits and Systems for Video Technology , vol. 32, no. 10, pp. 6700–6713, 2022. [28] S. Razakarivony and F. Jurie, “Vehicle detection in aerial imagery: A small target detection benchmark,” Journal of Visual Communication and Image Representation , vol. 34, pp. 187–203, 2016. [29] Cvc-14: Visible-fir day-night pedestrian sequence dataset. [Online]. Available: https://adas.cvc.uab.es/elektra/enigma-portfolio/ cvc-14-visible-fir-day-night-pedestrian-sequence-dataset/ [30] A. Gonz´ alez, Z. Fang, Y. Socarras, J. Serrat, D. V´ azquez, J. Xu, and A. M. L´ opez, “Pedestrian detection at day/night time with visible and fir cameras: A comparison,” Sensors , vol. 16, no. 6, p. 820, 2016. [31] X. Jia, C. Zhu, M. Li, W. Tang, and W. Zhou, “Llvip: A visible-infrared paired dataset for low-light vision,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2021, pp. 3496–3504. [32] J. Liu, X. Fan, Z. Huang, G. Wu, R. Liu, W. Zhong, and Z. Luo, “Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2022, pp. 5802–5811. [33] K. Song, X. Xue, H. Wen, Y. Ji, Y. Yan, and Q. Meng, “Misaligned visible-thermal object detection: A drone-based benchmark and base-line,” IEEE Transactions on Intelligent Vehicles , 2024. [34] S. Ren, K. He, R. Girshick, and J. Sun, “Faster r-cnn: Towards real-time object detection with region proposal networks,” IEEE transactions on pattern analysis and machine intelligence , vol. 39, no. 6, pp. 1137–1149, 2016. [35] A. Wang, H. Chen, L. Liu, K. Chen, Z. Lin, J. Han, and G. Ding, “Yolov10: Real-time end-to-end object detection,” arXiv preprint arXiv:2405.14458 , 2024. [36] C. Feng, Y. Zhong, Y. Gao, M. R. Scott, and W. Huang, “Tood: Task-aligned one-stage object detection,” in ICCV , 2021. [37] X. Zhu, W. Su, L. Lu, B. Li, X. Wang, and J. Dai, “Deformable detr: Deformable transformers for end-to-end object detection,” in 
+
+International Conference on Learning Representations , 2021. [Online]. Available: https://openreview.net/forum?id=gZ9hCDWe6ke [38] T.-Y. Lin, P. Goyal, R. Girshick, K. He, and P. Doll´ ar, “Focal loss for dense object detection,” in Proceedings of the IEEE international conference on computer vision , 2017, pp. 2980–2988. [39] H. Zhang, F. Li, S. Liu, L. Zhang, H. Su, J. Zhu, L. M. Ni, and H.-Y. Shum, “Dino: Detr with improved denoising anchor boxes for end-to-end object detection,” 2022. [40] S. Zhang, X. Wang, J. Wang, J. Pang, C. Lyu, W. Zhang, P. Luo, and K. Chen, “Dense distinct query for end-to-end object detection,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2023, pp. 7329–7338. [41] K. Zhou, F. Yang, S. Wang, B. Wen, C. Zi, L. Chen, Q. Shen, and X. Cao, “M-specgene: Generalized foundation model for rgbt multispec-tral vision,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2025, pp. 7861–7872. [42] J. Deng, Y. Pan, T. Yao, W. Zhou, H. Li, and T. Mei, “Relation distillation networks for video object detection,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2019, pp. 7023–7032. [43] J. Redmon and A. Farhadi, “Yolov3: An incremental improvement,” 
+
+arXiv preprint arXiv:1804.02767 , 2018. [44] C.-Y. Wang, I.-H. Yeh, and H.-Y. M. Liao, “Yolov9: Learning what you want to learn using programmable gradient information,” arXiv preprint arXiv:2402.13616 , 2024. [45] Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, and J. Chen, “Detrs beat yolos on real-time object detection,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2024, pp. 16 965–16 974. [46] S. Chen, P. Sun, Y. Song, and P. Luo, “Diffusiondet: Diffusion model for object detection,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2023, pp. 19 830–19 843. [47] H. Wu, Y. Chen, N. Wang, and Z. Zhang, “Sequence level semantics aggregation for video object detection,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2019, pp. 9217–9225. [48] T. Gong, K. Chen, X. Wang, Q. Chu, F. Zhu, D. Lin, N. Yu, and H. Feng, “Temporal roi align for video object recognition,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 35, no. 2, 2021, pp. 1442–1450. [49] Z. Lin, J. Lin, L. Zhu, H. Fu, J. Qin, and L. Wang, “A new dataset and a baseline model for breast lesion detection in ultrasound videos,” in Medical Image Computing and Computer Assisted Intervention – MICCAI 2022 , L. Wang, Q. Dou, P. T. Fletcher, S. Speidel, and S. Li, Eds. Cham: Springer Nature Switzerland, 2022, pp. 614–623. [50] C. Qin, J. Cao, H. Fu, R. M. Anwer, and F. S. Khan, “A spatial-temporal deformable attention based framework for breast lesion detection in JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 11 
+
+videos,” in International Conference on Medical Image Computing and Computer-Assisted Intervention . Springer, 2023, pp. 479–488. [51] Q. Wang, Z. Tu, K. Wang, L. Gu, and C. Guo, “Mixture of scale experts for alignment-free rgbt video object detection and a unified benchmark,” 2025. [Online]. Available: https://arxiv.org/abs/2410.12143 [52] H. Lin, X. Cheng, X. Wu, and D. Shen, “Cat: Cross attention in vision transformer,” in 2022 IEEE international conference on multimedia and expo (ICME) . IEEE, 2022, pp. 1–6. [53] J. Liu, B. Zhang, Q. Mei, X. Li, Y. Zou, Z. Jiang, L. Ma, R. Liu, and X. Fan, “Dcevo: Discriminative cross-dimensional evolutionary learning for infrared and visible image fusion,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2025, pp. 2226–2235. [54] H. Bai, J. Zhang, Z. Zhao, Y. Wu, L. Deng, Y. Cui, T. Feng, and S. Xu, “Task-driven image fusion with learnable fusion loss,” in Proceedings of the Computer Vision and Pattern Recognition Conference , 2025, pp. 7457–7468.
