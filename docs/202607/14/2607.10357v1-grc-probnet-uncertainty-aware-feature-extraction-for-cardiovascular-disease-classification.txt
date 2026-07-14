@@ -1,0 +1,288 @@
+Title: GRC-ProbNet: Uncertainty-aware Feature Extraction for Cardiovascular Disease Classification
+
+URL Source: https://arxiv.org/pdf/2607.10357v1
+
+Published Time: Tue, 14 Jul 2026 01:51:53 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# GRC-ProbNet: Uncertainty-aware Feature Extraction for Cardiovascular Disease Classification 
+
+## Yash Shah 1, Omar Todd 1, Philipp Seeböck 2, Georg Langs 2, Ben Glocker 1,and Raghav Mehta #, 1 1Imperial College London, UK 
+
+> 2
+
+Medical University of Vienna, Austria  
+
+> #
+
+Email: raghav.mehta@imperial.ac.uk 
+
+Abstract 
+
+The automatic detection and classification of cardiovascular disease (CVD) from computed tomography (CT) images plays an important role in clinical practice. Recently, a hybrid pipeline ( GRC-Net ) for CVD classification was proposed, which leverages a deep-learning-based segmentation and registration method to extract radiomic and geometric features. However, GRC-Net relies on a deterministic seg-mentation mask, without considering the inherent ambiguity associated with car-diac anatomy. In this paper, we propose GRC-ProbNet , which takes advantage of a deep ensemble to produce multiple segmentation masks for a given input. From these masks, we extract multiple uncertainty features. We analyze these uncer-tainty features for both their correlation with segmentation error and their propa-gation effects on downstream CVD classification performance. Our experiments on the publicly available MM-WHS and ASOCA datasets show that the uncertainty measure that best reflects segmentation quality is not necessarily the one that pro-vides the strongest signal for downstream CVD classification. Overall, our results demonstrate that GRC-ProbNet utilizing uncertainty features substantially improves CVD classification AUROC (92.92%) compared to the baseline GRC-Net model (91.25%). Our code is publicly available: https://github.com/biomedia-mira/ GRC-ProbNet .
+
+Keywords: Cardiovascular Disease · Uncertainty Quantification · Cardiac CT ·
+
+Foundation Models. 
+
+# 1 Introduction 
+
+Cardiovascular disease (CVD) remains one of the leading causes of mortality worldwide, accounting for an estimated 20.5 million deaths in 2025, with cardiovascular mortality projected to rise by 73.4% between 2025 and 2050 as populations age [1]. Cardiac com-puted tomography (CT) has become a central non-invasive imaging modality for the diagnosis of CVD. However, analysing these scans manually is time-consuming, requiring significant clinical expertise [2]. These challenges motivate the development of automated, 1arXiv:2607.10357v1 [cs.CV] 11 Jul 2026 segmentation-based pipelines that can deliver fast, consistent, and reproducible analysis at scale. Deep learning is the leading approach for analysing cardiac images. It has been extensively applied to the automated detection and quantification of coronary artery dis-ease in CT angiography, demonstrating strong agreement with expert radiologist annota-tions [6, 3, 7]. In addition to improving accuracy, these methods often reduce reporting times and support decision-making in time-critical settings such as acute cardiac care [4]. A key limitation of existing cardiac image analysis pipelines is their inability to accu-rately represent the inherent ambiguity observed in cardiac anatomy. Their deterministic outputs do not align with the inter-rater variation that would be present across multi-ple expert annotations. This limitation reduces their efficacy for meaningful uncertainty propagation and analysis in downstream stages. Recently, many methods have been proposed that allow approximating the uncer-tainty associated with model outputs; these include approximate Bayesian methods, such as Monte Carlo Dropout [11], Deep Ensembles [12], and Stochastic Segmentation net-works [13]. Each of these produces multiple plausible predictions, and their variability quantifies model uncertainties. Recent works report that propagating these uncertain-ties in cascaded inference tasks leads to improvement in downstream tasks [5, 14, 9, 10]. However, most of these existing approaches propagate uncertainty directly between deep networks, bypassing explicit feature extraction. Consequently, a key question remains unanswered: when intermediate explicit features are extracted between cascaded tasks, what is the most effective way to represent and propagate this uncertainty? This motivates two research questions. First, can segmentation uncertainty provide a complementary diagnostic signal for downstream CVD classification within a hybrid pipeline with both deep learning and non-deep learning components? Second, which representation and encoding of uncertainty should be propagated for downstream clas-sification tasks, and in particular, does the uncertainty that best predicts segmentation error also improve classification performance the most? We make the following contributions: 
+
+• We introduce GRC-ProbNet , an uncertainty-aware framework that propagates sev-eral uncertainty representations – including predictive entropy, KL divergence, and aleatoric maps – through an atlas-based radiomic and geometric feature extraction pipeline for CVD classification. 
+
+• We systematically evaluate different uncertainty types (total, epistemic, and aleatoric) and encoding strategies (global versus per-structure), comparing them against a de-terministic baseline. 
+
+• We find that the uncertainty measure most correlated with segmentation error is not necessarily the one that performs best for classification. Predictive entropy aligns most closely with segmentation error, whereas KL divergence provides more consistent downstream performance improvement. 
+
+# 2 Method 
+
+We build on GRC-Net [8]: a modular hybrid pipeline that decomposes CVD classifica-tion into a sequence of interpretable stages, and extend it with an explicit uncertainty 2Figure 1: Overview of the proposed framework. N (ex. 5) independently fine-tuned Anatomix models segment each input CT; outputs pass through an Atlas-ISTN, produc-ing deformation fields and warped atlas probability maps. These are aggregated into a mean probability map, from which the consensus segmentation and the uncertainty maps are derived. From these, the radiomic, geometric, and uncertainty features are extracted and propagated to a multilayer perceptron (MLP) for downstream CVD classification. stage, producing GRC-ProbNet . The resulting pipeline consists of four stages (Fig. 1): (i) segmentation of cardiac structures from the input CT; (ii) registration to a population-derived healthy atlas, producing deformation fields; (iii) uncertainty maps to quantify segmentation variability; and (iv) downstream CVD classification using radiomic, geo-metric, and uncertainty features. 
+
+Segmentation and Registration: Following GRC-Net [8], we leverage the Anatomix model [18] for the segmentation component and the Atlas Image-and-Spatial Transformer Network (Atlas-ISTN) framework [19] for registration and atlas construction. Anatomix has been shown to outperform other cardiac structure segmentation models [8], such as TotalSegmentator [15]. For our pipeline, we fine-tune the Anatomix model on a small dataset (see Sec. 3.1). The Atlas-ISTN framework jointly learns segmentation and reg-istration while constructing a population-based anatomical atlas. This atlas captures statistical anatomical variations and enables the extraction of geometric features, such as deformation fields, which quantify deviations from the normative atlas. To mitigate Atlas-ISTN’s reliance on large, labeled datasets for segmentation, we integrate our fine-tuned Anatomix model into the framework. Finally, we train the registration and atlas construction components of Atlas-ISTN on the same dataset. 
+
+Radiomic and Geometric Feature Extraction: We extract two complementary fea-ture types per cardiac structure based on the segmentation masks and atlas registrations obtained from the previously described models. Radiomic features, which characterise tissue appearance and morphology, are computed from the CT intensities within the Anatomix-generated structure segmentation masks. Using PyRadiomics [20], we extract first-order statistics describing the intensity distribution (e.g., mean, variance, skewness), 33D shape descriptors (e.g., volume, surface area, sphericity), and texture features that describe the spatial arrangement of intensities. This produces 107 radiomic features per structure. Additionally, geometric features describe how each structure deforms relative to the healthy atlas. Specifically, per-structure displacement vectors are taken from the deformation field output by Atlas-ISTN and reduced via principal component analysis (PCA). This results in up to three eigenvalues per structure, which serve as compact descriptors of anatomical variation. Finally, for a given number of cardiac structures (S), the radiomic and geometric features are concatenated into a single combined vector: 
+
+(107 × S)
+
+| {z }
+
+> radiomic
+
++ (3 × S)
+
+| {z }
+
+> geometric
+
+= 110 × S features .
+
+## 2.1 Uncertainty Estimation and Feature Extraction 
+
+We estimate uncertainty through a multi-seed deep ensemble [12], as it has been shown to perform better than other uncertainty generation methods in previous studies [5, 9]. As shown in Fig. 1, five Anatomix models are independently fine-tuned under identical train-ing configurations, differing only in the initial random seed. The disagreement between them serves as an approximation of segmentation uncertainty. All five segmentations are passed through the same frozen Atlas-ISTN. The choice of five seeds is a practical trade-off between computational cost and variability coverage. 
+
+2.1.1 Uncertainty Representations: 
+
+Predictive uncertainty decomposes into two components: aleatoric and epistemic [22]. Aleatoric uncertainty arises from noise and ambiguity that is inherent within the data. Epistemic uncertainty reflects limited knowledge in the model. Both are captured by the deep ensemble [23]. Let K be the number of seeds, C the number of classes, x a voxel, and p(i) 
+
+> c
+
+(x) the softmax probability assigned to class c by seed i. Averaging the per-seed predictions gives a mean probability: 
+
+¯pc(x) = 1
+
+K
+
+> K
+
+X
+
+> i=1
+
+p(i) 
+
+> c
+
+(x).
+
+Using this value for each class, we can calculate the total predictive entropy, which captures both the epistemic and aleatoric components: 
+
+H[¯ p(x)] 
+
+| {z }
+
+> total
+
+= −
+
+> C
+
+X
+
+> c=1
+
+¯pc(x) log ¯ pc(x).
+
+Epistemic disagreement is described by the divergence of each seed from the consensus, and hence the Kullback–Leibler (KL) divergence is used to measure how far a single seed deviates from the mean map. Averaging the KL across seeds gives the Jensen-Shannon divergence (JSD), which is a summary of inter-seed disagreement [23]: 
+
+KL  p(i)(x) ∥ ¯p(x) = X
+
+> c
+
+p(i) 
+
+> c
+
+(x) log p(i) 
+
+> c
+
+(x)¯pc(x) ,
+
+JSD [¯ p(x)] 
+
+| {z }
+
+> epistemic
+
+= 1
+
+K
+
+> K
+
+X
+
+> i=1
+
+KL  p(i)(x) ∥ ¯p(x) .
+
+4Subtracting this epistemic term from the total entropy isolates the aleatoric compo-nent [23]. This is the uncertainty that remains within the individual predictions once the inter-seed disagreement is removed: 
+
+AE [¯ p(x)] 
+
+| {z }
+
+> aleatoric
+
+= H[¯ p(x)] 
+
+| {z }
+
+> total
+
+− JSD [¯ p(x)] 
+
+| {z }
+
+> epistemic
+
+.
+
+These values are calculated at the voxel level to produce either a single global un-certainty map or C structure-specific maps, where C represents the total number of segmented structures. From these maps, we extract image-level uncertainty features by averaging the values in two manner: (i) across all voxels from global uncertainty maps, or (ii) exclusively within each assigned structure from structure-specific maps. While the single-feature approach captures the global uncertainty of an image, the C-feature ap-proach provides structure-specific uncertainty. We compare these maps/feature represen-tations for each uncertainty measure against the segmentation error map (the difference between ground-truth and predicted segmentations) before propagating the features to the downstream classifier. 
+
+# 3 Experiments and Results 
+
+## 3.1 Datasets and Implementation Details 
+
+We use two cardiac CT datasets: the Multi-Modality Whole Heart Segmentation (MM-WHS) [16] and ASOCA [17] datasets for segmentation and classification stages of the pipeline, respectively. The MM-WHS dataset consists of 20 labelled CT volumes from healthy patients, each annotated with seven cardiac structures: Myocardium, Left Atrium, Left Ventricle, Right Atrium, Right Ventricle, Aorta, Pulmonary Arteries. We both fine-tune Anatomix on this dataset and use it to train the registration component of the Atlas-ISTN. In our experiments, we split the MM-WHS dataset into training, validation, and testing sets in a 13/1/6 ratio, respectively.The uncertainty and segmentation error maps produced for the test set were used for both quantitative and qualitative evaluation. Downstream CVD classification utilizes the ASOCA dataset, which contains 40 coro-nary CT angiography scans, evenly split between healthy and diseased subjects. Due to the small dataset size, we use stratified 5-fold cross-validation (over three random seeds), and report results averaged across all runs. For the disease classification task, we employ a simple multilayer perceptron (MLP). The following hyperparameters were tuned using Bayesian Optimization [21] for each feature set: Hidden layer count L ∈ [1 , 12] , Hidden unit size H ∈ [8 , 512] , Dropout probability p ∈ [0 , 0.5] , Learning rate η ∈ [10 −4, 10 −2]
+
+(log-uniform), Number of training epochs E ∈ { 100 , 125 , 150 , . . . , 400 }
+
+## 3.2 Which uncertainty metric tracks segmentation error? 
+
+We first ask which uncertainty representation best localises where the segmentation is erroneous. For each test subject in MM-WHS, we generate an error map , which is the voxel-wise mismatch between the consensus Anatomix segmentation and the ground-truth. Next, we compute the entropy, KL, and aleatoric maps in both multi-class and per-structure form. We measure the normalised cross-correlation (NCC) between each un-certainty map and the error map. NCC captures how strongly two maps co-vary spatially, 5Table 1: Mean normalised cross correlation (NCC) between each uncertainty map and the segmentation error map on MM-WHS, per structure. Higher values indicate stronger correspondence between uncertainty and segmentation error.                                     
+
+> Left Left Right Right Pulmonary Method Overall Myocardium Atrium Ventricle Atrium Ventricle Aorta Artery
+> Entropy (total) 0.521 0.525 0.501 0.524 0.528 0.494 0.515 0.462 KL (epistemic) 0.408 0.362 0.308 0.433 0.366 0.401 0.392 0.330 Aleatoric 0.510 0.524 0.505 0.517 0.523 0.487 0.514 0.461
+
+Figure 2: Representative sample showing the original CT image, Anatomix segmenta-tions, and ground-truth segmentation (top row), followed by the corresponding error maps and entropy, KL-divergence, and aleatoric uncertainty maps (multi-class and per-structure). Brighter regions indicate higher uncertainty. with higher values indicating that uncertainty is high precisely where the segmentation is wrong. Table 1 shows the total entropy achieves the highest correspondence with segmentation error (overall NCC 0.521 ), the aleatoric map follows very closely ( 0.510 ), and the KL divergence trails substantially ( 0.408 ). The single-sample visualisation in Fig. 2 provides a qualitative evaluation. The entropy and aleatoric maps contain the most detail, and they co-localise with the error regions, whereas the KL map concentrates on sharp inter-seed disagreement at thin structure boundaries. The observation that the entropy and aleatoric maps behave almost identically, whereas the KL (epistemic) map is significantly weaker, suggests that segmentation errors are caused primarily by inherent ambiguity in the data. Consequently, one might expect total entropy and aleatoric uncertainty to be the most useful signals to propagate for downstream tasks. We test this hypothesis by measuring how classification performance changes when each uncertainty representation is incorporated into the feature descriptor. 6Table 2: Downstream CVD classification on ASOCA: deterministic baseline vs uncertainty-augmented variants. Mean ±std over 5-fold CV and 3 seeds. Best results per metric are highlighted in bold .
+
+Method AUROC (%) Precision (%) Recall (%) 
+
+GRC-Net[8] 91.25 ±09.35 82.00 ±13.96 90.00 ±12.25 
+
+> GRC-ProbNet
+> variants
+
++ E.G . 89.58 ±10.12 81.11 ±12.50 91.67 ±14.91 
+
++ E.S. 92.71 ±10.68 84.59 ±13.81 91.67 ±14.91 
+
++ K.G. 85.83 ±13.05 83.33 ±14.64 88.33 ±15.46 
+
++ K.S. 92.92 ±08.50 88.48 ±13.40 88.33 ±12.47 
+
++ A.G. 91.25 ±10.72 83.44 ±14.16 88.33 ±15.46 
+
++ A.S. 89.38 ±09.67 82.00 ±11.90 90.00 ±15.28 
+
+## 3.3 Which uncertainty encoding best improves classification? 
+
+The deterministic GRC-Net feature vector ( 110 ×7 features) serves as our baseline, and we evaluate six uncertainty-augmented variants, each appending one uncertainty summary to the baseline vector, differing only in what is appended: 
+
+Uncertainty-augmented variants (appended to the 770-dim GRC-Net )   
+
+> (E.G. ) Entropy, global ( +1 )(E.S. ) Entropy, per-structure ( +7 )(K.G. ) KL, global ( +1 )(K.S. ) KL, per-structure ( +7 )(A.G. ) Aleatoric, global ( +1 )(A.S. ) Aleatoric, per-structure ( +7 )
+
+Global variants append a single scalar feature; per-structure variants append one feature per cardiac structure. To ensure that observed differences can be attributed to the encod-ing rather than to training variability, all variants use the same ASOCA cross-validation folds and seed configurations. The GRC-Net baseline is also run under identical conditions. Results are reported in Table 2. We observe that segmentation uncertainty does carry a diagnostically useful signal. Every per-structure variant ( E.S. , K.S. , and A.S. ) matches or exceeds the deterministic baseline in accuracy, and the best encodings ( K.S. and E.S. )improve classification performance for almost all metrics. A clear pattern separates how 
+
+uncertainty is encoded from whether it is included. Per-structure encodings ( E.S. , K.S. ,and A.S. ) consistently outperform their global single-scalar counterparts ( E.G. , K.G. ,and A.G. ). A single number captures only how uncertain the model is overall and discards 
+
+where that uncertainty lies. In contrast, per-structure features can preserve the spatial information necessary to detect region-specific failure modes. The most striking result is the relationship between these results and the error-localisation analysis in the previous section (Sec. 3.2). Entropy showed the strongest correlation with segmentation error, while KL was the weakest by a clear margin. How-ever, for downstream classification, KL matches entropy in AUC, and achieves slightly higher precision. This suggests that accurately identifying segmentation errors is not the same as identifying disease. Entropy is dominated by boundary ambiguity that occurs in both healthy and diseased cases, and this makes it a strong indicator of segmentation error but a less specific marker of disease. In contrast, KL captures inter-seed disagree-ment, which is a measure of epistemic uncertainty. Diseased structures are likely to lie closer to the segmentation model’s decision boundary, and they may produce more of this disagreement than healthy anatomy. Overall, the uncertainty measure that best predicts 7segmentation error is not necessarily the one that provides the strongest signal for disease classification. 
+
+# 4 Discussion and Conclusion 
+
+This work investigated whether segmentation uncertainty can improve a modular hybrid pipeline for cardiovascular disease classification. Our results show that uncertainty pro-vides complementary information beyond deterministic segmentations, with GRC-ProbNet 
+
+improving classification performance over the baseline GRC-Net pipeline. More impor-tantly, the choice of uncertainty representation has a clear effect on downstream perfor-mance, showing that how uncertainty is encoded is as important as including uncertainty itself. A single global uncertainty number tends to lose spatial information and is not as useful for classification compared to structure-specific uncertainty. These findings also suggest that evaluating uncertainty solely by its ability to predict segmentation error may be insufficient. The representation that best reflects segmentation quality is not neces-sarily the one that provides the strongest signal for downstream disease classification, and vice versa. This is crucial in many medical imaging pipelines that involve both deep-and non-deep-learning components, since uncertainty is explicitly represented before fea-ture extraction and classification, rather than being absorbed into an end-to-end learned model. Future work will evaluate the framework on larger cohorts, incorporate multiple expert annotators directly into the pipeline to model the gold standard of inter-observer variability, and finally, investigate uncertainty propagation through the registration stage. 
+
+# Acknowledgment 
+
+This work was supported by the European Union’s Horizon Europe research and innova-tion programme for the AI-POD project under grant agreement 101080302 . Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or HaDEA. Neither the European Union nor the granting authority can be held responsible for them. 
+
+# References 
+
+[1] Chong, B., Jayabaskaran, J., Jauhari, S.M., Chan, S.P., Goh, R., Kueh, M.T.W., et al.: Global burden of cardiovascular diseases: projections from 2025 to 2050. Euro-pean Journal of Preventive Cardiology 32 (11), 1001–1015 (2025). 10.1093/eurjpc/ zwae281 
+
+[2] Luijnenburg, S.E., Robbers-Visser, D., Moelker, A., Vliegen, H.W., Mulder, B.J., Helbing, W.A.: Intra-observer and interobserver variability of biventricular func-tion, volumes and mass in patients with congenital heart disease measured by CMR imaging. International Journal of Cardiovascular Imaging 26 (1), 57–64 (2010). 
+
+10.1007/s10554-009-9501-y 
+
+[3] Litjens, G., Kooi, T., Bejnordi, B.E., Setio, A.A.A., Ciompi, F., Ghafoorian, M., van der Laak, J.A.W.M., van Ginneken, B., Sánchez, C.I.: A survey on deep learning 8in medical image analysis. Medical Image Analysis 42 , 60–88 (2017). 10.1016/j. media.2017.07.005 
+
+[4] Topol, E.J.: High-performance medicine: the convergence of human and artifi-cial intelligence. Nature Medicine 25 (1), 44–56 (2019). https://www.nature.com/ articles/s41591-018-0300-7 
+
+[5] Mehta, R., Christinck, T., Nair, T., Bussy, A., Premasiri, S., Costantino, M., Chakravarthy, M.M., Arnold, D.L., Gal, Y., Arbel, T.: Propagating uncertainty across cascaded medical imaging tasks for improved deep learning inference. IEEE Transactions on Medical Imaging 41 (2), 360–373 (2021). https://ieeexplore. ieee.org/document/9541203 
+
+[6] Lin, A., Manral, N., McElhinney, P., Killekar, A., Matsumoto, H., Kwiecinski, J., Pieszko, K., Razipour, A., Grodecki, K., Park, C., et al.: Deep learning-enabled coronary CT angiography for plaque and stenosis quantification and cardiac risk prediction: an international multicentre study. The Lancet Digital Health 4(4), e256–e265 (2022). https://www.thelancet.com/journals/landig/ article/PIIS2589-7500(22)00022-X/fulltext 
+
+[7] Alvén, J., Petersen, R., Hagerman, D., Sandstedt, M., Kitslaar, P., Bergström, G., Fagman, E., Hjelmgren, O.: PlaqueVit: a vision transformer model for fully auto-matic vessel and plaque segmentation in coronary computed tomography angiogra-phy. European Radiology , 1–11 (2025). https://link.springer.com/article/10. 1007/s00330-025-11410-w 
+
+[8] Mittal, A., Mehta, R., Todd, O., Seeböck, P., Langs, G., Glocker, B.: Cardiovascular disease classification using radiomics and geometric features from cardiac CT. arXiv preprint arXiv:2506.22226 (2025). https://arxiv.org/abs/2506.22226 
+
+[9] Wundram, A.M., Fischer, P., Wunderlich, S., Faber, H., Koch, L.M., Berens, P. and Baumgartner, C.F.: Leveraging probabilistic segmentation models for improved glaucoma diagnosis: A clinical pipeline approach. In Medical Imaging with Deep Learning (2024). https://openreview.net/forum?id=kcbAZwxCFV 
+
+[10] Fischer, P., Thomas, K., Baumgartner, C. F.: Uncertainty estimation and prop-agation in accelerated MRI reconstruction. In International Workshop on Uncer-tainty for Safe Utilization of Machine Learning in Medical Imaging (2023). https: //link.springer.com/chapter/10.1007/978-3-031-44336-7_9 
+
+[11] Gal, Y., Ghahramani, Z.: Dropout as a Bayesian Approximation: Represent-ing Model Uncertainty in Deep Learning. arXiv preprint arXiv:1506.02142 (2016). 
+
+https://arxiv.org/abs/1506.02142 
+
+[12] Lakshminarayanan, B., Pritzel, A., Blundell, C.: Simple and scalable predictive un-certainty estimation using deep ensembles. arXiv preprint arXiv:1612.01474 (2017). 
+
+https://arxiv.org/abs/1612.01474 
+
+[13] Monteiro, M., Le Folgoc, L., de Castro, D.C., Pawlowski, N., Marques, B., Kamnit-sas, K., van der Wilk, M., Glocker, B.: Stochastic segmentation networks: Modelling spatially correlated aleatoric uncertainty. arXiv preprint arXiv:2006.06015 (2020). 
+
+https://arxiv.org/abs/2006.06015 
+
+9[14] Feiner, L.F., Menten, M.J., Hammernik, K., Hager, P., Huang, W., Rueckert, D., Braren, R.F., Kaissis, G.: Propagation and attribution of uncertainty in medical imaging pipelines. In: International Workshop on Uncertainty for Safe Utilization of Machine Learning in Medical Imaging , (2023). https://link.springer.com/ chapter/10.1007/978-3-031-44336-7_1 
+
+[15] Wasserthal, J., Breit, H.C., Meyer, M.T., Pradella, M., Hinck, D., Sauter, A.W., Heye, T., Boll, D.T., Cyriac, J., Yang, S., Bach, M., Segeroth, M.: TotalSegmentator: Robust segmentation of 104 anatomic structures in CT images. Radiology: Artificial Intelligence 5(5), e230024 (2023). 10.1148/ryai.230024 
+
+[16] Zhuang, X., Li, L., Payer, C., Štern, D., Urschler, M., Heinrich, M.P., Oster, J., Wang, C., Smedby, Ö., Bian, C., Yang, X., Heng, P.-A., Mortazi, A., Bagci, U., Yang, G., Sun, C., Galisot, G., Ramel, J.-Y., Brouard, T., Tong, Q., Si, W., Liao, X., Zeng, G., Shi, Z., Zheng, G., Wang, C., MacGillivray, T., Newby, D., Rhode, K., Ourselin, S., Mohiaddin, R., Keegan, J., Firmin, D., Yang, G.: Evaluation of algorithms for multi-modality whole heart segmentation: An open-access grand challenge. Medical Image Analysis 58 , 101537 (2019). 10.1016/j.media.2019.101537 
+
+[17] Gharleghi, R., et al.: Automated segmentation of normal and diseased coronary arteries – The ASOCA challenge. Computerized Medical Imaging and Graphics 97 ,102049 (2022). 10.1016/j.compmedimag.2022.102049 
+
+[18] Dey, N., Billot, B., Wong, H.E., Wang, C.J., Ren, M., Grant, P.E., Dalca, A.V., Golland, P.: Anatomix: Stable representations for any biomedical image. Project page (2025). https://www.neeldey.com/anatomix/ . Accessed 19 Jan 2026 [19] Sinclair, M., Schuh, A., Hahn, K., Petersen, K., Bai, Y., Batten, J., Schaap, M., Glocker, B.: Atlas-ISTN: Joint segmentation, registration and atlas construc-tion with image-and-spatial transformer networks. arXiv preprint arXiv:2012.10533 
+
+(2020). https://arxiv.org/abs/2012.10533 
+
+[20] van Griethuysen, J.J.M., Fedorov, A., Parmar, C., Hosny, A., Aucoin, N., Narayan, V., Beets-Tan, R.G.H., Fillon-Robin, J.C., Pieper, S., Aerts, H.J.W.L.: Computa-tional Radiomics System to Decode the Radiographic Phenotype. Cancer Research 
+
+77 (21), e104–e107 (2017). 10.1158/0008-5472.CAN-17-0339 
+
+[21] Akiba, T., Sano, S., Yanase, T., Ohta, T., Koyama, M.: Optuna: A next-generation hyperparameter optimization framework. arXiv preprint arXiv:1907.10902 (2019). 
+
+https://arxiv.org/abs/1907.10902 
+
+[22] Kendall, A., Gal, Y.: What uncertainties do we need in bayesian deep learning for computer vision?. Advances in neural information processing systems (2017). 
+
+https://arxiv.org/abs/1703.04977 
+
+[23] Kahl, K.C., Lüth, C., Zenk, M., Maier-Hein, K., Jaeger, P.F.: Val-ues: A framework for systematic validation of uncertainty estimation in semantic segmentation. In International Conference on Learning Represen-tations (2024). https://proceedings.iclr.cc/paper_files/paper/2024/hash/ 1548d98b62d3a4382a31ba77d89186cd-Abstract-Conference.html 
+
+10

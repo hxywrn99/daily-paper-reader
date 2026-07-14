@@ -1,0 +1,285 @@
+Title: Adversarially Guided Diffusion for LiDAR Range Image Synthesis
+
+URL Source: https://arxiv.org/pdf/2607.09787v1
+
+Published Time: Tue, 14 Jul 2026 00:04:37 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# Adversarially Guided Diffusion for LiDAR Range Image Synthesis 
+
+Stavros Bouras 1[0009 −0009 −2948 −1833] , Antonios Makris 1[0000 −0003 −0514 −4292] ,Alexandros Gkillas 2[0000 −0001 −5339 −2018] , Aris S. Lalos 2[0000 −0003 −0511 −9302] ,and Konstantinos Tserpes 1[0000 −0001 −5183 −1443]  
+
+> 1
+
+School of Electrical and Computer Engineering, National Technical University of Athens, Greece {stavros_bouras,antoniosmakris,tserpes}@mail.ntua.gr  
+
+> 2
+
+Industrial Systems Institute, Athena Research Center, Patras Science Park, Greece 
+
+{gillas,lalos}@athenarc.gr 
+
+Abstract. LiDAR semantic segmentation is a key perception task in au-tonomous driving, where false predictions can affect downstream plan-ning and safety-critical decision-making. Although adversarial attacks, and specifically adversarial examples, have been widely studied for im-age classification and 3D point cloud segmentation, unrestricted adver-sarial examples remain largely unexplored in the space of 2D range im-ages, which are projections of 3D point clouds. The proposed method is, to the best of our knowledge, the first diffusion-based unrestricted ad-versarial attack against 2D range-image segmentation, using adversarial guidance from a segmentation loss. By applying guidance directly during sampling, the method produces unrestricted adversarial examples that remain close to the learned LiDAR data manifold while inducing struc-tured segmentation errors. Experiments on the SemanticKITTI dataset using RangeNet++ and CENet segmentation networks demonstrate that the attack provides adjustable degradation across guidance strengths and transfers across segmentation architectures. Compared with norm-bounded FGSM and SegPGD baselines, the proposed attack offers a distinct effectiveness–realism trade-off, achieving controllable white-box and transfer degradation while maintaining competitive distributional and visual realism. 
+
+Keywords: Adversarial diffusion sampling · LiDAR Diffusion Model ·
+
+Unrestricted adversarial examples. 
+
+# 1 Introduction 
+
+Deep Learning (DL) models are increasingly deployed in real-world, safety-critical perception tasks such as semantic segmentation [14], where reliable scene understanding is required under strict operational constraints [37]. In the auto-motive domain specifically, segmentation networks must process live data sourced from Light Detection and Ranging (LiDAR) sensors to understand the surround-ing scene. LiDAR sensors provide accurate depth information in the form of 3D arXiv:2607.09787v1 [cs.CV] 8 Jul 2026 2 S. Bouras et al. 
+
+point clouds, making them particularly valuable for autonomous driving per-ception. Semantic segmentation can then be applied to these LiDAR points, or to LiDAR-derived representations, to assign semantic labels to relevant scene elements and support accurate, robust, and real-time scene understanding in complex driving environments [10]. LiDAR semantic segmentation can be performed directly on the 3D point cloud [19] or on their 2D range image projection space [22]. This projection is widely adopted in the literature, offering a computationally efficient alternative to direct 3D point-cloud processing and enabling more scalable operations in 2D space for embedded automotive systems. However, given their reliance on complex DL architectures, LiDAR semantic segmentation networks inherit the susceptibility of conventional deep neural networks to adversarial examples [30, 12]. These adversarial inputs are deliberately crafted perturbations designed to mislead the model while remaining imperceptible or structurally inconspicuous. For LiDAR semantic segmentation, such attacks may take the form of point per-turbation, point injection, point removal, or physically realizable object-based manipulations [38]. These attacks can corrupt the predicted segmentation map by producing large, spatially coherent misclassification regions. As a result, er-roneous semantic outputs may propagate to downstream autonomous-driving modules, affecting obstacle avoidance, braking, lane keeping, and path planning [3]. To address this challenge, recent work leverages generative models, particu-larly diffusion models, which produce realistic, high-fidelity samples and can be steered during sampling through guidance. This makes it possible to construct adversarial examples that fool the target model while remaining on the data manifold, rather than relying on small perturbations of a fixed input. So far, this approach has been demonstrated for RGB image classification and single-label classification [8, 6], as well as for LiDAR segmentation in the 3D point-cloud domain [32]. To the best of our knowledge, this paper presents the first diffusion-based un-restricted adversarial attack on LiDAR semantic segmentation in the 2D range-image space. Our work steers a latent diffusion model using the gradient of a dense per-pixel segmentation loss, thus injecting adversarial objectives directly into the reverse diffusion process. As a result, the generation is being guided towards realistic LiDAR range images that mislead the segmentation process while preserving the geometric structure of genuine scenes. The contributions of our work can be summarized as follows: 
+
+– We introduce the first diffusion-based adversarial attack on LiDAR range image semantic segmentation, guiding a latent diffusion model with the gra-dient of a segmentation loss during the reverse process. 
+
+– We show that the attack offers controllable degradation across a range of attack strengths, while retaining strong transferability to black-box archi-tectures. Adversarially Guided Diffusion for LiDAR Range Image Synthesis 3
+
+– We show that the generated adversarial scenes can remain statistically close to real LiDAR data, demonstrating the unrestricted perturbations can pre-serve realism. The remainder of the paper is organized as follows: Section 2 presents the necessary preliminaries and reviews related work on adversarial diffusion gen-eration and adversarial examples on semantic segmentation. Section 3 presents the proposed adversarially guided diffusion-based attack. Section 4 presents the experimental setup and evaluates the results. Finally, Section 5 concludes with key insights and outlines directions for future work. 
+
+# 2 Preliminaries & Related Work 
+
+2.1 Adversarial Examples Bounded Adversarial Examples. Adversarial examples, which were first for-malized for image classification [30, 12], are a type of inference-time adversar-ial attacks that introduce small, imperceptible perturbations to the original clean samples with the goal of misleading a victim model into producing in-correct outputs. Popular algorithms for crafting adversarial examples include the Fast Gradient Sign Method (FGSM) [12], which perturbs a given input 
+
+x by a single step in the direction that increases the training loss L, so that 
+
+x′ = x + ϵ · sign( ∇xL(x, y )) , with L(x, y ) denoting the loss between the model’s prediction on x and the true label y, and ∇xL(x, y ) its gradient with respect to the input. Building on this, Projected Gradient Descent (PGD) [21] applies this update iteratively. Optimization-based attacks have also been proposed for crafting adversarial examples [4]. 
+
+Unrestricted Adversarial Examples. The aforementioned attacks are re-stricted (i.e., bounded), since they apply a small perturbation to a fixed input x,subject to a closeness constraint (e.g., a fixed ℓp bound or a minimization of the perturbation norm). Unrestricted Adversarial Examples (UAEs) are a type of adversarial attack that moves beyond these constraints. Instead of perturbing a fixed input, they generate realistic new inputs from scratch (e.g., via generative models) that fool perception models while remaining on the benign data man-ifold [28]. Different generative models can be leveraged for this purpose, such as Generative Adversarial Networks (GANs) [11] as presented in [33]. However, since Diffusion Models (DMs) have been shown to outperform GANs on image generation [9], later implementations choose DMs as the generative model that drives the UAE generation [8, 6]. 
+
+2.2 Diffusion Models 
+
+Diffusion models, established by Denoising Diffusion Probabilistic Models (DDPMs) [17], generate data by reversing a fixed forward noising process. The forward pro-cess is a fixed Markov chain that adds Gaussian noise according to a variance schedule β1, . . . , β T , with q(xt | xt−1) := N (xt; √1 − βt xt−1, β tI), which allows 4 S. Bouras et al. 
+
+xt to be sampled directly from x0 as xt = √¯αt x0 + √1 − ¯αt ϵ, with ϵ ∼ N (0, I)
+
+and ¯αt = Qts=1 (1 − βs). The reverse process is a parameterized Markov chain starting from xT ∼ N (0, I), with pθ (xt−1 | xt) = N (xt−1; μθ (xt, t ), Σ θ (xt, t )) ,implemented by training a network ϵθ (xt, t ) to predict the added noise. This noise-prediction objective is equivalent to score estimation, since sθ (xt, t ) = 
+
+− 1√1− ¯αt
+
+ϵθ (xt, t ) ≈ ∇ xt log pt(xt) [17, 29], where pt denotes the noisy data distri-bution at timestep t. This view enables steering the sampling trajectory, as will be detailed in Section 2.3. To accelerate sampling, Denoising Diffusion Implicit Models (DDIMs) [27] use the same training objective as DDPMs but replace the stochastic Markovian reverse process with a non-Markovian sampling procedure, enabling generation over a sparse subset of timesteps. 
+
+2.3 Guidance in Diffusion Models 
+
+DMs support both unconditional generation, where the model learns pdata (x),and conditional generation, where it learns pdata (x | c) for a condition c. Condi-tional generation uses the conditional score ∇xt log pt(xt | c) = ∇xt log pt(xt) + 
+
+∇xt log pt(c | xt), thereby guiding the reverse denoising process toward sam-ples satisfying c. The generally intractable guidance term ∇xt log pt(c | xt)
+
+is approximated in several ways: (i) Classifier Guidance (CG), (ii) Classifier-Free Guidance (CFG), and (iii) Training-Free Guidance (TFG) [20]. (i) CG [9] trains an auxiliary time-conditional classifier pψ (c | xt, t ), whose input gradient 
+
+∇xt log pψ (c | xt, t ) ≈ ∇ xt log pt(c | xt) is used so that ∇xt log pt(xt | c, ω ) = 
+
+∇xt log pt(xt) + ω ∇xt log pt(c | xt), with ω the guidance scale. (ii) CFG [18] achieves conditioning by modifying the gradient of the score, without rely-ing on an explicit classifier, so that ∇xt log pt(xt | c, ω ) = ω ∇xt log pt(xt |
+
+c) + (1 − ω) ∇xt log pt(xt), approximating those individual scores with neural networks. (iii) TFG [36] leverages an external differentiable objective (e.g., a loss) whose gradient provides the guidance signal during the reverse denoising process. TFG can be injected in either the data space or the noise space [20]: the former modifies the predicted clean sample ˆx0 so that ˆx0(xt) + ηt G0, with 
+
+G0 := −∇ x0 L(x0, c), while the latter modifies the score or noise prediction at timestep t so that ∇xt log pt(xt | c) ≈ ˆs(xt)+ ηt Gt, where ηt controls the strength of the guidance correction. Data-space guidance avoids differentiating through the DM, unlike the noise-space correction. 
+
+2.4 Related Work Adversarial Diffusion Generation. DMs can be leveraged to generate UAEs by incorporating adversarial objectives into the generation process. In the task of classification , one line of work addresses this task by leveraging a DM as a generative prior while performing adversarial optimization over variables in its generation pipeline. This can be done either by optimizing inverted diffusion latents [5] or by applying an adversarial optimization attack (e.g., PGD) to the intermediate denoised samples at each step [6]. Another approach to generate Adversarially Guided Diffusion for LiDAR Range Image Synthesis 5
+
+UAEs with DMs is through the guidance mechanisms described in Section 2.3. In this case, the reverse process is steered toward samples that remain realistic while inducing failure in a target model. The diffusion prior keeps the generated samples close to the learned data manifold, while the adversarial guidance term nudges them toward regions that degrade the target model’s performance. As described in Section 2.3, and following the classifier-guidance principle, a repre-sentative work presented in [8], steered a class-conditional DM with the gradient of a target classifier in order to craft UAEs for image classification. In the context of 3D point-cloud semantic segmentation , the authors in [32] followed the TFG paradigm and nudged the reverse process with a segmentation-loss gradient, bounding the generation pipeline with geometric constraints. 
+
+Adversarial Examples on Semantic Segmentation. Adversarial exam-ples were extended from classification to semantic segmentation with Dense Ad-versary Generation (DAG) [34], which also demonstrated transferability in this setting. Subsequent work systematically evaluated segmentation robustness un-der ℓ∞-bounded attacks [1], while stronger segmentation-specific methods such as MLAttack [15] and SegPGD [13] were later proposed. Unrestricted adversar-ial examples have also been studied for 2D camera-image segmentation using a GAN-based approach [26]. However, diffusion-based unrestricted attacks for segmentation have so far been explored only in the 3D point-cloud domain [32], leaving the 2D LiDAR range-image setting unaddressed. We fill this gap by developing diffusion-based UAEs that operate directly on LiDAR range images. 
+
+# 3 Proposed Attack 
+
+3.1 Overview 
+
+Unlike prior unrestricted diffusion-based attacks, which have addressed image classification and, in the case of semantic segmentation, the 3D point-cloud do-main, this work presents an unrestricted diffusion-based attack on semantic seg-mentation networks operating on 2D range images, i.e., the projection of LiDAR point clouds onto a 2D grid. Each LiDAR scan, originating from 3D scans, is represented as a 2D range image through spherical projection [22, 35]. This pro-jection assigns each 3D point to a pixel in a 2D grid based on the direction from which the LiDAR sensor observed it. The resulting image, of height H and width 
+
+W , consists of rows and columns that correspond to the sensor’s vertical and horizontal viewing angles, and pixels that store the distance of the corresponding point from the sensor. The goal of the proposed attack is to generate unrestricted adversarial ex-amples (UAEs), namely adversarial 2D LiDAR range images targeting seman-tic segmentation networks. In semantic segmentation, a model receives a range image as input and predicts a class label for each pixel. Our attack aims to generate samples that remain realistic and consistent with the clean data distri-bution, while inducing erroneous pixel-level predictions and degrading the target model’s performance. In contrast to perturbation-based attacks, the generated samples are designed to remain on the clean data manifold. 6 S. Bouras et al. 
+
+3.2 Attack Formulation 
+
+Our attack builds on the TFG setting described in Section 2.3, where an external differentiable loss can be used to steer the reverse diffusion process through its gradient, without the need of retraining the DM conditionally or relying on a separate noise-aware model. In our case, this loss is a dense segmentation loss that measures the failure of a surrogate segmentation network on the generated range images. As a result, the guidance term, expressed as the gradient of the aforementioned loss, steers the generation process toward samples that induce incorrect pixel-level predictions, rather than toward samples satisfying a clean condition. The proposed attack leverages a pretrained conditional denoising network 
+
+ϵθ (zt, t, c) of a latent DM, where zt is the noisy latent at timestep t, and c is the semantic conditioning map. The conditioning map represents a dense label map y ∈ { 0, . . . , K − 1}H×W , where each pixel is assigned a semantic class. The set of valid pixels (i.e., pixels not assigned the unlabeled class 0) is denoted as Ωvalid = {(i, j ) : yij ̸ = 0 }. For the computation of the adversarial signal, a pretrained segmentation network gψ takes as input a range image and out-puts per-pixel class logits. Since the diffusion model operates in latent space, it relies on an encoder-decoder setup to transform range images into latent rep-resentations and reconstruct them back into image space. Therefore, evaluating the segmentation loss requires decoding the latent into a range image. Since the diffusion model leverages a decoder with a non-differentiable quantization step, we use a differentiable decode that sidesteps quantization, allowing gradients to propagate back to the latent representation in order to compute the guidance gradient. The decoded output is subsequently passed through the segmentation network gψ , obtaining the predictions that will be used to compute the adversar-ial objective. This objective quantifies the extent to which the generated range image induces incorrect pixel-level predictions from the segmenter.Two modes can be realized: the untargeted mode and the targeted . In the former, the ob-jective pushes predictions away from the conditioning labels y, whereas in the latter, it pushes predictions toward a target label map ˜y. Both are realized as a dense per-pixel cross-entropy, computed over the valid pixels Ωvalid in the un-targeted mode and over the source-class pixels Ωsrc in the targeted mode. The two objectives are presented below: 
+
+Luntargeted adv (z) = 1
+
+|Ωvalid |
+
+X
+
+> (i,j )∈Ωvalid
+
+CE  gψ (z)ij , y ij 
+
+,
+
+Ltargeted adv (z) = − 1
+
+|Ωsrc |
+
+X
+
+> (i,j )∈Ωsrc
+
+CE  gψ (z)ij , ˜yij 
+
+,
+
+(1) where Ωsrc = {(i, j ) ∈ Ωvalid : yij = csrc } represents the pixels whose ground-truth label is the source class csrc , and CE denotes the per-pixel cross-entropy. The attack nudges the latent obtained after a deterministic DDIM update. The deterministic ( η = 0 ) sampler omits the per-step stochastic term of the Adversarially Guided Diffusion for LiDAR Range Image Synthesis 7
+
+reverse process, making the sampling trajectory fully determined by the initial latent zT and the conditioning map c. This also enables paired evaluation be-tween clean counterparts xclean , which can be generated from the same zT and c
+
+with adversarial guidance disabled. The corresponding adversarial samples xadv 
+
+will be generated in parallel with adversarial guidance enabled. As a result, dif-ferences between the two samples can be attributed to the guidance term rather than to randomness in the sampling process. All the parameters for this paired evaluation are detailed in Section 4.1. Given the noise prediction ˆϵt = ϵθ (zt, t, c) and the clean latent estimate 
+
+ˆz0 = zt−√1− ¯αt ˆϵt√ ¯αt , the deterministic DDIM step is obtained as 
+
+z ddim  
+
+> t−1
+
+= √¯αt−1 ˆz0 + p1 − ¯αt−1 ˆϵt. (2) The adversarial guidance step is applied to the DDIM-updated latent only after a predefined portion of the reverse trajectory has elapsed. This choice leaves the early denoising steps unchanged, allowing the conditional diffusion model to first establish the global scene structure before the adversarial signal is introduced. This is particularly important in the TFG setting, where guidance is provided by an external surrogate segmentation network that is not trained to operate on noisy intermediate range images at every timestep t. Activating the attack only after the sample has reached a sufficient level of realism and structure makes the surrogate loss more meaningful and stabilizes the guidance process. The guidance, is then defined with respect to the current DDIM-updated latent as follows: 
+
+gt = ∇z Ladv (z) z=z ddim 
+
+> t−1
+
+, zt−1 = z ddim  
+
+> t−1
+
++ s · gt
+
+∥gt∥2
+
+. (3) After the reverse sampling process is completed, the final clean and adversarial latents are mapped back to the 2D range-image space, providing xclean and xadv ,respectively. Figure 1 illustrates the overall pipeline, with the upper branch depicting the adversarial reverse process and the lower branch the paired clean baseline, gen-erated from the same initial noise. Finally, the complete conditional adversarial DDIM sampling process is summarized in Algorithm 1. 
+
+# 4 Experiments 
+
+4.1 Experimental Setup Dataset. The evaluation was conducted on the SemanticKITTI dataset [2], a standard LiDAR semantic segmentation benchmark, which contains per-point class annotations across 20 classes, one of which was an “unlabeled” class, that was excluded from the evaluation of the experiments. The point clouds were projected to 64 × 1024 range images. Sequence 08 was the held-out sequence that was used for the validation across all experiments. It served both as the 8 S. Bouras et al. 
+
+Fig. 1. Overview of the proposed attack. 
+
+Algorithm 1 Conditional Adversarial DDIM Sampling 
+
+Require: pretrained conditional latent diffusion ϵθ (frozen); frozen surrogate seg-menter gψ ; conditioning c with dense labels y; DDIM steps T ; guidance scale 
+
+s; start fraction τ ⋆; terminal latent zT ∼ N (0, I)
+
+Ensure: adversarial range image xadv 
+
+1: for t = T, T − 1, . . . , 1 do 
+
+2: ˆϵt ← ϵθ (zt, t, c) ▷ noise prediction (no gradient) 3: ˆz0 ← zt − √1 − ¯αt ˆϵt
+
+√¯αt
+
+▷ predicted clean latent 4: z ddim  
+
+> t−1
+
+← √¯αt−1 ˆz0 + √1 − ¯αt−1 ˆϵt ▷ deterministic DDIM step, η = 0 
+
+5: τ ← (T − t)/T 
+
+6: if τ ≥ τ ⋆ then 
+
+7: stop gradients into ϵθ ; enable gradients on z ddim 
+
+> t−1
+
+8: gt ← ∇ z Ladv (z) z=z ddim 
+
+> t−1
+
+9: zt−1 ← z ddim  
+
+> t−1
+
++ s · gt
+
+∥gt∥2
+
+▷ L 2-normalized adversarial nudge 10: else 
+
+11: zt−1 ← z ddim  
+
+> t−1
+
+▷ no guidance ( τ < τ ⋆)12: end if 
+
+13: end for 
+
+14: return xadv = D(z0)
+
+source for the conditioning label maps during the sampling process and as the 
+
+real -LiDAR reference distribution for realism comparison. 
+
+Diffusion Model. The proposed attack is developed on top of a pretrained latent diffusion model for LiDAR scene synthesis [25]. The diffusion model op-erates in a latent space, with a VQ-VAE encoder [31] mapping range images to spatially-downsampled latent representations. Sampling was performed with deterministic DDIM ( η = 0 ) for T = 50 denoising steps. For conditioning, the Adversarially Guided Diffusion for LiDAR Range Image Synthesis 9
+
+semantic-map-conditioned variant of the model, sem2lidar, was used. It was con-ditioned on a dense SemanticKITTI label map, producing 64 ×1024 range images. 
+
+Segmentation networks. Two off-the-shelf SemanticKITTI-pretrained seg-mentation networks were used and kept frozen: RangeNet++ [22] and CENet [7]. The attack is evaluated by applying each segmenter to clean range images gener-ated by the conditional DM and to their adversarial counterparts, and measuring the resulting degradation in segmentation performance. To evaluate both white-box and transfer settings, one network is used as the surrogate whose gradients guide sampling, while the other is used only for black-box evaluation. The net-works are not fine-tuned on generated samples, avoiding circularity in the evalu-ation. Since both networks are pretrained on real scans, they yield lower absolute 
+
+mean Intersection over Union (mIoU) scores when segmenting clean generated samples than when segmenting real scans. Since the scope of this work is to propose an attack that enables adversarial guidance in the sampling process of diffusion models operating on LiDAR data, we report attack effectiveness as the relative mIoU reduction from the clean generated baseline, which isolates the effect of the perturbation and is invariant to the absolute segmentation quality of the generator. We additionally report per-class IoU, where the absolute values for the dominant scene classes remain substantial and reveal how the degradation is distributed across the semantic categories. 
+
+Generation and Evaluation. Each surrogate network guides the genera-tion of 1024 conditional samples. The evaluation examines both attack effective-ness and the realism of the generated adversarial samples. For the former, the relative white-box mIoU reduction on the surrogate (WB drop %) and on the transfer network is reported (Transfer drop %), together with the per-class IoU, which shows how the degradation is distributed across the semantic classes. For the latter, realism is measured with a FID-based perceptual metric, the Fréchet Range Image Distance (FRID) [16, 25], computed over 1024 real scans from se-quence 08. To avoid circularity, the FRID feature extractor is a segmentation network (RangeNet++) different from the surrogate that guided the sampling (CENet). In addition, metrics that measure the maximum absolute per-pixel de-viation between clean and adversarial samples ( L∞), the mean squared per-pixel deviation over the sample (MSE) and the geometric distortion measured as the Chamfer Distance (CD) complement the realism evaluation. 
+
+Proposed attack parameters. The proposed attack exposes two adjustable parameters. The guidance scale s controls the magnitude of the adversarial nudge applied to the latent at each guided step. The start fraction τ ⋆ controls when guidance begins along the sampling trajectory: a smaller τ ⋆ applies guidance over more sampling steps, while a larger τ ⋆ restricts it to the final steps. 
+
+Baselines. For comparison, two norm-bounded attacks that operate on the decoded range image space, Fast Gradient Sign Method (FGSM) [12] and SegPGD [13], are considered. FGSM is used as the canonical single-step attack, while SegPGD is considered as a state-of-the-art iterative attack developed specifi-cally for semantic segmentation. SegPGD has been shown to outperform base-line adversarial attacks such as PGD and other segmentation specific attacks, 10 S. Bouras et al. 
+
+including DAG and MLAttack. Since our contribution lies in the unrestricted regime, these two baselines are not direct competitors but serve to establish a norm-bounded reference against which the behaviour of UAEs can be contrasted. FGSM is applied as a single step, while SegPGD uses 20 iterations with step size 
+
+α = 0 .01 , each evaluated at three perturbation budgets ( ϵ ∈ { 0.016 , 0.063 , 0.120 }
+
+and {0.004 , 0.016 , 0.120 }, respectively). 
+
+Attack modes. The proposed attack supports two attack modes: untar-geted , which maximizes the segmentation loss against the ground-truth labels, degrading the performance of the segmentation network across the scene, and 
+
+targeted , which drives the prediction of a chosen source region toward a spec-ified target class. For the baseline comparison, the untargeted mode is used, since the baseline attacks also operate in an untargeted manner. The targeted functionality of the proposed method is demonstrated in Figure 3. 
+
+4.2 Results 
+
+Table 1 reports the overall effectiveness of the attack. The proposed attack shows that increasing the guidance scale s consistently degrades performance on both the white-box and transfer target models, indicating that s provides control over the attack strength. In addition, the realism metrics show the trade-off between increasing the guidance scale and moving away from the real-data distribution. However, the attack can still achieve strong distributional similarity to real data, with FRID scores close to the clean generated baseline for s = 3 (statistically indistinguishable) and s = 6 , while achieving a relative performance drop of up to 46 .8% in the white-box setting and up to 40 .1% in the transfer setting. The CD values further indicate that the proposed guided diffusion attack produces larger structured geometric changes than the norm-bounded baselines. For example, CD increases from 0.52 at s = 3 to 1.02 at s = 6 , while the FRID remains close to the clean generated baseline. This suggests that moder-ate guidance can introduce meaningful geometric changes without substantially degrading distributional realism. The results also indicate that, compared with FGSM, our attack achieves a favorable effectiveness-realism trade-off at s = 10 , reaching a WB drop of 64.2%, slightly higher than FGSM ϵ = 0 .120 , which reaches 63.2%. However, our attack’s FRID of 136.1 is significantly more realistic than 207.5, with a lower Chamfer distance as well, 1.38 compared with 2.39. This indicates that adversarial guidance during generation can achieve strong white-box degradation without the large distributional shift observed for high-budget FGSM. In addition, compared to SegPGD, the strongest white-box perturbation baseline, a key finding appears in the transferability of our attack at comparable white-box strength and realism. SegPGD at ϵ = 0 .004 achieves a slightly higher white-box drop than the proposed method at s = 6 , 53.3% versus 46.8%, and a similar FRID, 106.9 versus 108.6. However, its transfer drop is substantially lower, 21.7% compared with 40.1% for the proposed method. This suggests that there are settings in which the proposed unrestricted diffusion-based attack un-der adversarial guidance produces samples that generalize more effectively across Adversarially Guided Diffusion for LiDAR Range Image Synthesis 11 
+
+segmentation architectures than low-budget post-hoc perturbations. It therefore provides a distinct unrestricted alternative with stronger transfer behavior under comparable realism. The interpretation of the results should be done under the scope that our proposed attack operates under a different regime than that of the two baselines. Ours is an unrestricted generative attack that modifies the reverse diffusion tra-jectory itself, while FGSM and SegPGD are post-hoc norm-bounded attacks applied to already-generated range images. Therefore the L∞ values should not be conceived as evidence of lower realism, but as an expected consequence of not enforcing a pointwise perturbation budget. In fact, prior diffusion-based unrestricted attack work [5] showed that L∞ alone is an unsuitable indicator of human perception, and that in attacks constrained by a small perturbation budget, the perturbation can be easily perceived by the human eye as notice-able high-frequency noise. In contrast, the UAEs remain well-imperceptible. The claim made in [5] is also supported in our case, as shown in Figure 2. In addition, in the same work, the authors noted that unrestricted attacks with larger L∞
+
+values can achieve better transferability to black-box models, since they manip-ulate high-level semantics, which is also depicted in our results earlier. Finally, adversarial samples with lower L∞ have been shown to be more easily defended by purification techniques [24, 23]. Tables 2 and 3 further demonstrate how the degradation is distributed across semantic classes, in both the CENet white-box setting (the surrogate) and the RangeNet++ transfer setting, even though the latter is not used for gradient computation, confirming that the adversarial effect is not limited to the surrogate model. Conditioning labels (GT) 
+
+> CLEAN range image
+> Ours (s10) range image
+> FGSM (eps 0.120) range image
+> SegPGD (eps 0.120) range image
+
+Fig. 2. Range-image comparison for a single scene. From top to bottom: the clean generated range image, and three attacks at their high-strength settings (Ours s = 10 ,FGSM ϵ = 0 .120 , SegPGD ϵ = 0 .120 ). The norm-bounded baselines exhibit high-frequency noise across the range image, whereas the guided generation preserves smooth, scene-consistent structure. 12 S. Bouras et al. 
+
+Table 1. Attack comparison on SemanticKITTI (CENet surrogate, RangeNet++ FRID extractor, n=1024 ). mIoU reported as relative drop (%) from the clean gener-ated baseline (CENet 9.19, RangeNet++ 18.91). FRID is measured against real scans. Attack WB drop % Transfer drop % L∞ MSE CD FRID clean – – – – – 106.9 Ours ( s=3 ) 25.7 18.7 1.93 0.0052 0.52 98.6 Ours ( s=6 ) 46.8 40.1 1.98 0.0108 1.02 108.6 Ours ( s=10 ) 64.2 58.4 2.00 0.0160 1.38 136.1 FGSM ϵ=0 .016 54.3 45.9 0.037 0.0002 0.23 109.8 FGSM ϵ=0 .063 61.3 65.7 0.067 0.0030 1.08 135.5 FGSM ϵ=0 .120 63.2 77.5 0.121 0.0109 2.39 207.5 SegPGD ϵ=0 .004 53.3 21.7 0.028 0.00001 0.10 106.9 SegPGD ϵ=0 .016 91.6 60.0 0.033 0.0001 0.18 107.8 SegPGD ϵ=0 .120 98.0 69.9 0.121 0.0036 0.77 133.4 
+
+Table 2. Per-class IoU under the CENet white-box attack (absolute IoU, clean (unattacked generated baseline) and adversarial, n=1024 ). s{3, 6, 10 }: our attack at guidance scale; F =FGSM, S =SegPGD at the given ϵ.Class clean s3 s6 s10 F.016 F.063 F.120 S.004 S.016 S.120 car 42.06 19.51 5.83 1.20 4.65 2.28 1.18 3.76 0.01 0.00 road 65.73 57.85 48.23 35.62 53.60 33.82 26.60 50.68 3.22 0.18 sidewalk 37.39 29.02 20.46 11.20 1.98 13.09 18.34 5.40 2.55 0.10 building 13.38 12.42 11.25 9.73 11.59 12.21 12.16 12.83 6.72 2.23 fence 1.68 1.36 0.84 0.65 0.75 1.11 1.02 0.96 0.33 0.23 traffic-sign 1.87 1.68 0.71 0.50 0.86 0.58 0.39 1.23 0.10 0.02 
+
+4.3 Complementary results Surrogate independence. To verify that the attack does not depend on the specific guiding network, a complementary experiment with RangeNet++ as the surrogate was conducted , evaluating realism with an independent CENet feature extractor. The attack reaches comparable white-box degradation (46.4%) to the CENet-surrogate setting (46.8%), and the resulting FRID (1.97) remains close to that of the clean samples (1.43), confirming that both effectiveness and realism are independent of the choice of surrogate. As this FRID is computed in CENet feature space, its scale differs from the RangeNet++-based FRID reported elsewhere and is only comparable within this experiment. 
+
+Effect of the start fraction τ ⋆. The start fraction τ ⋆ controls when guid-ance begins during sampling. Lower values of τ ⋆ apply guidance earlier and Adversarially Guided Diffusion for LiDAR Range Image Synthesis 13 
+
+Table 3. Per-class IoU under the RangeNet++ transfer evaluation (absolute IoU, clean and adversarial, n=1024 ). s{3, 6, 10 }: our attack at guidance scale; F =FGSM, S=SegPGD at the given ϵ.Class clean s3 s6 s10 F.016 F.063 F.120 S.004 S.016 S.120 car 68.52 51.31 31.32 16.59 53.16 26.82 10.23 67.35 57.98 19.61 road 66.18 48.39 24.99 9.04 10.51 4.49 3.24 30.72 13.52 3.92 sidewalk 44.78 35.27 23.78 12.50 3.73 0.72 0.58 17.62 5.92 0.62 building 43.59 39.79 35.02 29.08 29.59 16.35 9.87 44.01 35.43 12.22 vegetation 65.97 63.24 58.89 52.15 57.08 48.76 42.34 67.47 58.81 45.44 terrain 20.10 16.24 12.70 11.20 10.76 8.82 6.42 12.16 11.77 10.58 
+
+Fig. 3. Targeted attack example: Top row: clean / adversarial range images. Middle row: clean / adversarial segmentations. Bottom row: the conditioning semantic map and a per-pixel outcome map for the source (road) region. Outcome map: Green: road pixels reclassified as the target class sidewalk, Yellow:road pixels reassigned to other classes, Grey: road pixels that remain road, Red: collateral changes on non-source pixels. Of clean road predictions, 35 .8% are reclassified as sidewalk, 13 .1% as other classes, and 51 .1% remain road. 
+
+therefore guide a larger fraction of the trajectory, whereas higher values delay guidance and preserve more of the unguided generative process. For a fixed guid-ance scale of s = 6 , starting guidance earlier at τ ⋆ = 0 .25 increases the attack strength compared with the default τ ⋆ = 0 .5, raising the white-box drop from 
+
+46 .8% to 53 .6% and the transfer drop from 40 .1% to 51 .2% . This increases FRID from 108 .6 to 123 .2, indicating reduced realism. Conversely, for s = 10 , delay-ing guidance to τ ⋆ = 0 .75 reduces FRID from 136 .1 to 117 .2, but lowers the white-box and transfer drops from 64 .2% to 50 .5% and from 58 .4% to 36 .0% ,respectively. Overall, τ ⋆ controls the trade-off between attack effectiveness and sample realism. 
+
+Targeted Attack functionality. To showcase the functionality of the tar-geted attack, Figure 3 illustrates the targeted mode for an attack that aims to reclassify road pixels as sidewalk. 14 S. Bouras et al. 
+
+# 5 Conclusions 
+
+This paper introduces, to the best of our knowledge, the first diffusion-based un-restricted adversarial attack for LiDAR range-image semantic segmentation. Un-like norm-bounded attacks that apply post-hoc perturbations to existing inputs, the proposed method steers the reverse trajectory of a conditional latent diffusion model using adversarial guidance from a dense segmentation loss. Experiments show controllable white-box and transfer degradation through the guidance pa-rameters, while the generated range images remain realistic and close to the learned data distribution. Compared with FGSM and SegPGD, the method of-fers a complementary unrestricted adversarial regime in the 2D range-image space, producing smoother, scene-consistent samples, avoiding high-frequency artifacts, and showing stronger transferability in some settings. Future work will explore the broader design space of adversarial guidance, including different injection points along the reverse sampling trajectory and alternative guidance-scaling strategies. A complementary direction is to train a noise-aware surrogate segmenter on noisy range images, which could provide more reliable gradients across the entire reverse trajectory. 
+
+Acknowledgments. This paper has received funding from the European Union’s Horizon Europe research and innovation actions under grant agreement No 101168560 (CoEvolution). Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the Commission. Neither the European Union nor the granting authority can be held responsible for them. 
+
+# References  
+
+> 1. Arnab, A., Miksik, O., Torr, P.H.: On the robustness of semantic segmentation models to adversarial attacks. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 888–897 (2018) 2. Behley, J., Garbade, M., Milioto, A., Quenzel, J., Behnke, S., Stachniss, C., Gall, J.: Semantickitti: A dataset for semantic scene understanding of lidar sequences. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 9297–9307 (2019) 3. Cao, Y., Xiao, C., Cyr, B., Zhou, Y., Park, W., Rampazzi, S., Chen, Q.A., Fu, K., Mao, Z.M.: Adversarial sensor attack on lidar-based perception in autonomous driving. In: Proceedings of the 2019 ACM SIGSAC conference on computer and communications security. pp. 2267–2281 (2019) 4. Carlini, N., Wagner, D.: Towards evaluating the robustness of neural networks. In: 2017 ieee symposium on security and privacy (sp). pp. 39–57. Ieee (2017) 5. Chen, J., Chen, H., Chen, K., Zhang, Y., Zou, Z., Shi, Z.: Diffusion models for imperceptible and transferable adversarial attack. IEEE Transactions on Pattern Analysis and Machine Intelligence 47 (2), 961–977 (2024) 6. Chen, X., Gao, X., Zhao, J., Ye, K., Xu, C.Z.: Advdiffuser: Natural adversarial example synthesis with diffusion models. In: Proceedings of the IEEE/CVF Inter-national Conference on Computer Vision. pp. 4562–4572 (2023)
+
+Adversarially Guided Diffusion for LiDAR Range Image Synthesis 15 7. Cheng, H.X., Han, X.F., Xiao, G.Q.: Cenet: Toward concise and efficient lidar semantic segmentation for autonomous driving. In: 2022 IEEE international con-ference on multimedia and expo (ICME). pp. 01–06. IEEE (2022) 8. Dai, X., Liang, K., Xiao, B.: Advdiff: Generating unrestricted adversarial examples using diffusion models. In: European Conference on Computer Vision. pp. 93–109. Springer (2024) 9. Dhariwal, P., Nichol, A.: Diffusion models beat gans on image synthesis. Advances in neural information processing systems 34 , 8780–8794 (2021) 10. Feng, D., Haase-Schütz, C., Rosenbaum, L., Hertlein, H., Glaeser, C., Timm, F., Wiesbeck, W., Dietmayer, K.: Deep multi-modal object detection and semantic segmentation for autonomous driving: Datasets, methods, and challenges. IEEE Transactions on Intelligent Transportation Systems 22 (3), 1341–1360 (2020) 11. Goodfellow, I., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D., Ozair, S., Courville, A., Bengio, Y.: Generative adversarial networks. Communications of the ACM 63 (11), 139–144 (2020) 12. Goodfellow, I.J., Shlens, J., Szegedy, C.: Explaining and harnessing adversarial examples. arXiv preprint arXiv:1412.6572 (2014) 13. Gu, J., Zhao, H., Tresp, V., Torr, P.H.: Segpgd: An effective and efficient adver-sarial attack for evaluating and boosting segmentation robustness. In: European Conference on Computer Vision. pp. 308–325. Springer (2022) 14. Guo, Y., Liu, Y., Georgiou, T., Lew, M.S.: A review of semantic segmentation using deep neural networks. International journal of multimedia information retrieval 
+
+7(2), 87–93 (2018) 15. Gupta, P., Rahtu, E.: Mlattack: Fooling semantic segmentation networks by multi-layer attacks. In: German conference on pattern recognition. pp. 401–413. Springer (2019) 16. Heusel, M., Ramsauer, H., Unterthiner, T., Nessler, B., Hochreiter, S.: Gans trained by a two time-scale update rule converge to a local nash equilibrium. Advances in neural information processing systems 30 (2017) 17. Ho, J., Jain, A., Abbeel, P.: Denoising diffusion probabilistic models. Advances in neural information processing systems 33 , 6840–6851 (2020) 18. Ho, J., Salimans, T.: Classifier-free diffusion guidance. arXiv preprint arXiv:2207.12598 (2022) 19. Hu, Q., Yang, B., Xie, L., Rosa, S., Guo, Y., Wang, Z., Trigoni, N., Markham, A.: Randla-net: Efficient semantic segmentation of large-scale point clouds. In: Pro-ceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 11108–11117 (2020) 20. Lai, C.H., Song, Y., Kim, D., Mitsufuji, Y., Ermon, S.: The principles of diffusion models. arXiv preprint arXiv:2510.21890 (2025) 21. Madry, A., Makelov, A., Schmidt, L., Tsipras, D., Vladu, A.: Towards deep learning models resistant to adversarial attacks. arXiv preprint arXiv:1706.06083 (2017) 22. Milioto, A., Vizzo, I., Behley, J., Stachniss, C.: Rangenet++: Fast and accurate lidar semantic segmentation. In: 2019 IEEE/RSJ international conference on in-telligent robots and systems (IROS). pp. 4213–4220. IEEE (2019) 23. Naseer, M., Khan, S., Hayat, M., Khan, F.S., Porikli, F.: A self-supervised ap-proach for adversarial robustness. In: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition. pp. 262–271 (2020) 24. Nie, W., Guo, B., Huang, Y., Xiao, C., Vahdat, A., Anandkumar, A.: Diffusion models for adversarial purification. arXiv preprint arXiv:2205.07460 (2022) 16 S. Bouras et al. 25. Ran, H., Guizilini, V., Wang, Y.: Towards realistic scene generation with lidar dif-fusion models. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (2024) 26. Shen, G., Mao, C., Yang, J., Ray, B.: Advspade: Realistic unrestricted attacks for semantic segmentation. arXiv preprint arXiv:1910.02354 (2019) 27. Song, J., Meng, C., Ermon, S.: Denoising diffusion implicit models. arXiv preprint arXiv:2010.02502 (2020) 28. Song, Y., Shu, R., Kushman, N., Ermon, S.: Constructing unrestricted adversar-ial examples with generative models. Advances in neural information processing systems 31 (2018) 29. Song, Y., Sohl-Dickstein, J., Kingma, D.P., Kumar, A., Ermon, S., Poole, B.: Score-based generative modeling through stochastic differential equations. arXiv preprint arXiv:2011.13456 (2020) 30. Szegedy, C., Zaremba, W., Sutskever, I., Bruna, J., Erhan, D., Goodfellow, I., Fer-gus, R.: Intriguing properties of neural networks. arXiv preprint arXiv:1312.6199 (2013) 31. Van Den Oord, A., Vinyals, O., et al.: Neural discrete representation learning. Advances in neural information processing systems 30 (2017) 32. Wang, Y., Wu, L., Zhang, Z., Huo, L., Feng, J., Wang, J., Jin, J.: Transferable adversarial attacks on 3d point cloud semantic segmentation via diffusion models in autonomous driving. IEEE Transactions on Consumer Electronics (2026) 33. Xiao, C., Li, B., Zhu, J.Y., He, W., Liu, M., Song, D.: Generating adversarial examples with adversarial networks. arXiv preprint arXiv:1801.02610 (2018) 34. Xie, C., Wang, J., Zhang, Z., Zhou, Y., Xie, L., Yuille, A.: Adversarial examples for semantic segmentation and object detection. In: Proceedings of the IEEE in-ternational conference on computer vision. pp. 1369–1378 (2017) 35. Xu, C., Wu, B., Wang, Z., Zhan, W., Vajda, P., Keutzer, K., Tomizuka, M.: Squeezesegv3: Spatially-adaptive convolution for efficient point-cloud segmenta-tion. In: European Conference on Computer Vision. pp. 1–19. Springer (2020) 36. Ye, H., Lin, H., Han, J., Xu, M., Liu, S., Liang, Y., Ma, J., Zou, J., Ermon, S.: Tfg: Unified training-free guidance for diffusion models. Advances in Neural Information Processing Systems 37 , 22370–22417 (2024) 37. Zhang, J., Zhao, X., Chen, Z., Lu, Z.: A review of deep learning-based semantic segmentation for point cloud. IEEE access 7, 179118–179133 (2019) 38. Zhu, Y., Miao, C., Hajiaghajani, F., Huai, M., Su, L., Qiao, C.: Adversarial attacks against lidar semantic segmentation in autonomous driving. In: Proceedings of the 19th ACM conference on embedded networked sensor systems. pp. 329–342 (2021)
