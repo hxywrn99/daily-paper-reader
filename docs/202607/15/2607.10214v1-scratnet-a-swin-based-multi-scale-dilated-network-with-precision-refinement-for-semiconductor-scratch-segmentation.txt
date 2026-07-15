@@ -1,0 +1,545 @@
+Title: ScratNet: A Swin-Based Multi-Scale Dilated Network with Precision Refinement for Semiconductor Scratch Segmentation
+
+URL Source: https://arxiv.org/pdf/2607.10214v1
+
+Published Time: Tue, 14 Jul 2026 00:36:13 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+> 1
+
+# ScratNet: A Swin-Based Multi-Scale Dilated Network with Precision Refinement for Semiconductor Scratch Segmentation 
+
+Sachin Ranjan and Hoon Kim 
+
+Abstract —Surface scratch defects in semiconductor manufac-turing pose significant challenges due to their irregular shapes, low contrast, and varying scales. Traditional inspection methods often struggle to detect such defects reliably, especially in complex imaging scenarios. While deep learning approaches based on Convolutional Neural Networks (CNNs) have improved accu-racy, they often fail to capture fine-grained edge details. To address these limitations, we propose ScratNet, a novel end-to-end scratch segmentation framework that integrates a modified Swin Transformer backbone with a tailored decoder. The decoder incorporates a Multi-Scale Dilated Aggregation (MDA) module to capture both local and global context, a Stem Integration Module (SIM) to restore spatial detail, and a Precision Refinement (PR) branch that enhances boundary sharpness using anisotropic con-volutions. Through this stage-adaptive feature aggregation and boundary-aware refinement, ScratNet achieves superior accuracy on thin and irregular defects. Extensive experiments demon-strate that ScratNet consistently outperforms existing methods, providing a scalable and robust solution for automated scratch inspection in high-precision manufacturing. 
+
+Index Terms —scratch segmentation, silicon wafer, vision trans-former, semiconductor 
+
+I. I NTRODUCTION 
+
+Silicon chips are fundamental to modern technologies in-cluding the internet-of-things (IoT), telecommunications, au-tomotive systems, and artificial intelligence (AI) and are a key driver of industrial growth. Semiconductor manufacturing involves hundreds of intricate steps, with defects potentially arising at any stage. Surface defects, particularly scratches, can significantly degrade device performance and reliability, resulting in lower yields and increased production costs [1]. As demand for integrated circuits (ICs) continues to grow, faster and more complex production processes have further increased the risk of manufacturing defects. These defects can originate from various sources such as robotic handling, contamination, leaks, or process variations, making effective defect detection and segmentation essential for maintaining high productivity and quality control. Given the direct impact of IC substrate quality on the per-formance of final semiconductor products, rigorous inspection remains a critical step in the manufacturing process. However, maintaining consistent wafer quality throughout production 
+
+S. Ranjan is with the Machine Intelligence and Data Science (MINDS) Lab and the M.S. Program in Electronics Engineering, Incheon National University, Incheon 22012, South Korea. H. Kim is with the Machine Intelligence and Data Science (MINDS) Lab and the Department of Electronics Engineering, Incheon National University, Incheon 22012, South Korea). 
+
+is a complex and ongoing challenge. Surface scratches, in particular, are among the most common and critical defects, yet they remain difficult to detect reliably using conventional techniques. Traditional inspection methods, such as manual visual inspection and rule-based image processing typically rely on handcrafted features and operator expertise [2]. These approaches are labor-intensive, slow, and prone to incon-sistency [3]–[5], especially as device geometries shrink and integration density increases [6]. Furthermore, they often lack a reliable defect-free reference image, limiting their ability to accurately distinguish true defects from process variations. To address these limitations, the semiconductor industry is in-creasingly turning to automated and intelligent inspection tech-nologies. These methods aim to improve detection accuracy, reduce material waste, and support higher yields by effectively identifying defects at various stages of production [7]–[9]. The emergence of machine learning (ML) and deep learn-ing (DL) has revolutionized quality control in semiconductor manufacturing. Deep learning models particularly CNNs and autoencoders have proven highly effective in learning com-plex spatial features from wafer images, enabling accurate, consistent, and rapid scratch detection without manual feature engineering [10]. This shift has led to higher product yields, reduced inspection costs, and improved scalability compared to traditional manual methods [11]. DL-based inspection systems [12]–[16] also excel at detect-ing minute defects, delivering significant gains in both accu-racy and processing speed while lowering operational costs. More recently, transformer-based networks such as ViT [17], Swin [18], DiNAT [19], and SegFormer [20] have outper-formed CNNs in segmentation tasks by leveraging both local and global self-attention mechanisms. In [21], transformers and CNNs were combined in a cascaded architecture to bet-ter distinguish cracks from complex backgrounds. Similarly, in [22], the strengths of both architectures were integrated to improve segmentation and classification of wafer defects in SEM images. The objective of quality inspection is to detect all defects, including those that are not explicitly defined or anticipated. Industrial scratch images often suffer from significant noise, variable illumination, and low contrast, which complicate ac-curate and efficient detection, particularly on complex surfaces and at scale. Moreover, sectors such as aerospace, military, semiconductors, and microelectronics require not only the identification and localization of scratches but also precise pixel-level segmentation to measure defect size and morphol-arXiv:2607.10214v1 [cs.CV] 11 Jul 2026 2
+
+ogy. Addressing these demands remains a major challenge for both traditional and modern inspection techniques. To address these limitations, a variety of deep learning-based scratch segmentation methods have emerged, aiming to overcome the shortcomings of classical approaches. In this paper, we propose a novel scratch segmentation framework, ScratNet, which integrates a modified Swin Transformer back-bone with a custom decoder. The decoder includes a multi-scale dilation aggregation module that captures global con-textual information from Swin backbone stages, a stem inte-gration module that reintroduces low-level spatial details, and a precision refinement branch that sharpens high-resolution feature maps to accurately segment subtle, thin-line defects.  
+
+> •
+
+We propose ScratNet , a multi-level, multi-scale, end-to-end trainable scratch segmentation framework that integrates a modified Swin-Base Transformer with multi-scale dilated aggregation and precision refinement for accurate detection of thin and irregular scratches.  
+
+> •
+
+We develop a Multi-Scale Dilated Aggregation module that integrates multi-scale features from all four modified Swin stages using both dilated and non-dilated con-volutions to capture global and local context. A stem integration module further enhances feature fusion by incorporating low-level structural details.  
+
+> •
+
+We introduce a precision refinement branch that sharp-ens boundaries using anisotropic convolutions, signifi-cantly improving segmentation accuracy on challenging scratch patterns.  
+
+> •
+
+ScratNet achieves state-of-the-art performance on a semi-conductor scratch segmentation datasets, demonstrating superior segmentation quality and robustness. The remainder of this article is organized as follows. Section II reviews related work. Section III describes the proposed methods, including the problem statement, ScratNet architecture, and loss function. Section IV presents the dataset descriptions, experimental setup, results, and ablation studies. Finally, Section V concludes the paper and provides insights into future work. II. R ELATED WORK 
+
+A. Scratch Segmentation 
+
+Scratch segmentation in semiconductor imaging has pro-gressed from early image-processing techniques to advanced deep learning frameworks, reflecting a broader shift from handcrafted feature engineering to automated feature learning. Early approaches to defect detection primarily relied on handcrafted features and signal processing techniques. In [23], a generalized complete local binary pattern was employed to capture texture irregularities on hot-rolled steel surfaces. Similarly, [24] introduced an entity sparse pursuit model that integrated prior knowledge of defects to detect anomalies. While effective in specific scenarios, these methods were sensitive to variations in illumination and noise and often required manual tuning when applied to new tasks. Subsequent efforts adopted image signal processing (ISP) techniques, which involved converting image signals into digital signals for further processing such as transformation and enhance-ment [25]–[27]. In [28] applied a two-dimensional wavelet transform with a modified modulus ratio to localize defects, achieving high accuracy with minimal test data. In [29], an on-line detection system was developed using short-time discrete wavelet transforms and laser reflections, enabling microcrack detection without the need for image preprocessing. In [30], a wafer inspection method was proposed using circle template matching and spatial mapping between the physical layout and image space, with templates extracted directly from the wafer image. Later, machine learning-based methods became popular for surface defect detection by formulating the task as a data-driven learning problem. In [31], k-Nearest Neighbors were used to distinguish between global and local defects, group similar patterns, and identify recurring defect distributions. In [32], a decision tree approach classified defect types by extracting and analyzing shape-based features. A semi-supervised approach in [33] further enabled the detection of fine scratches using limited labeled data through texture pattern analysis. With the rise of deep learning, CNNs became the leading approach for defect detection, offering higher accuracy and ro-bustness by automatically learning features from data [6], [34]. In [35], deep CNNs were used to significantly improve wafer scratch detection. In [36], performance was further enhanced by combining learned features with traditional handcrafted features. In [37], both traditional machine learning and deep learning methods were explored for wafer defect detection, using models such as Logistic Regression, Support Vector Ma-chines, Adaptive Boosting, and deep neural networks. In [38], a deformable CNN model was proposed to focus on defect areas and classify complex mixed defects more accurately. In [39], separate models for each defect type were used and combined into a unified system for improved recognition in mixed-defect cases. More recent studies introduced advanced model designs. A post-processing pipeline [40] was used to improve segmen-tation under challenging lighting and occlusion conditions. RA-UNet [41] incorporated residual and attention modules for better localization in scanning electron microscope (SEM) im-ages. In [42], multi-scale attention mechanisms were employed to handle defects of varying shapes and sizes. In [43], CNNs and Transformers were combined to capture both detailed local features and broader context, highlighting the growing relevance of transformer-based models in this domain. Overall, the field progressed from manual, rule-based tech-niques to automated, learning-based systems. These advance-ments improved the ability to handle challenges such as class imbalance, subtle defects, and complex backgrounds, significantly enhancing scratch detection performance across semiconductor inspection tasks. 
+
+B. Image Segmentation 
+
+Image segmentation has seen remarkable progress since the introduction of Fully Convolutional Networks (FCNs) [44], which laid the foundation for end-to-end learning in dense 3Precision     
+
+> Refinement
+> (90x90x64) (45x45x128)
+> (180x180x64)
+> (45x45x128) (23x23x256)
+> (180x180x64)
+> (11x11x512)
+> Swin
+> Stage
+> 4
+> Swin
+> Stage
+> 3
+> Swin
+> Stage
+> 2
+> (6x6x1024)
+> (180x180x3)
+> Swin
+> Stage
+> 1
+> (180x180x2)
+> Multi -scale
+> Dilation
+> Aggregation +
+> Stem Integration
+> Module
+> 3x3 Conv (Stem 2)
+> 3x3 Conv (Stem 1)
+> Fig. 1. The proposed ScratNet architecture for scratch segmentation in semiconductor images. The input is first processed by a modified Swin Transformer backbone, followed by the Multi-Scale Dilated Aggregation with Stem Integration Module. The resulting features are then refined using the Precision Refinement module to produce a pixel-wise segmentation map that accurately localizes scratches.
+
+prediction tasks. Building on this foundation, U-Net [45] emerged as a pivotal model, particularly in biomedical and industrial imaging, due to its symmetrical encoder–decoder structure and skip connections that help preserve spatial details across multiple scales. The successful adaptation of U-Net for defect detection in industrial environments was demonstrated in [46]–[48]. Subsequent innovations have addressed the need for capturing features at multiple resolutions. The Feature Pyramid Network (FPN) [49] introduced lateral connections and top-down pathways to explicitly fuse hierarchical features. DeepLab models further improved segmentation performance by incorporating atrous (dilated) convolutions within the Atrous Spatial Pyramid Pooling (ASPP) module [50], which expands the receptive field without increasing computational cost. Transformer-based architectures have also made significant contributions to segmentation. Swin Transformer [18] intro-duced a hierarchical window-based self-attention mechanism that enables fine-grained localization while preserving global context. Although initially designed for human pose estima-tion, the Waterfall Transformer (WTPose) [51] demonstrates the utility of hierarchical token aggregation for modeling long-range dependencies. Similarly, the High-Resolution Network (HRNet) [52], [53] maintains high-resolution representations throughout the network, making it particularly suitable for identifying small and sparsely distributed defects. Despite recent advances, general-purpose segmentation models often struggle with wafer-level imagery due to high defect variability, extreme scale differences, and severe class imbalance [6], [54]. These challenges frequently lead to high false-negative rates, even in architectures equipped with mul-tiscale or attention mechanisms. To address this, we propose ScratNet, a tailored framework that integrates Swin-based multi-scale dilated aggregation and precision-guided refine-ment. ScratNet enhances micro-defect focus and contextual understanding, offering improved segmentation performance in complex semiconductor inspection tasks. III. M ETHODS 
+
+A. Problem Formulation 
+
+Let X = {xi}ni=1 denote a dataset images and Y =
+
+{yi}ni=1 the corresponding pixel-wise annotations, where yi ∈{0, . . . , C − 1}H×W and C = 2 in the binary setting (scratch vs. background). The objective is to learn a segmentation model f (·; θ) parameterized by θ, which maps an input image 
+
+xi ∈ RH×W ×3 to its semantic mask: 
+
+ˆyi = f (xi; θ). (1) Model parameters are optimized by minimizing a task-specific segmentation loss L:
+
+θ⋆ = arg min 
+
+> θ
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+L(f (xi; θ), y i) . (2) This formulation is general and does not impose constraints on image size, aspect ratio, or scratch morphology. While our focus is on binary scratch detection, the same framework naturally extends to multi-class defect segmentation when 
+
+C > 2.
+
+B. ScratNet 
+
+We propose ScratNet , an encoder–decoder network de-signed to capture multi-scale global features while preserving fine structural boundaries in segmentation tasks, as illustrated in Figure 1. The encoder is based on a modified Swin Trans-former, which applies hierarchical self-attention to extract spatial and contextual features across multiple scales. The decoder, referred to as MSP , consists of three complemen-tary components: (i) Multi-Scale Dilated Aggregation (MDA), which fuses multi-level features using stage-aware dilated convolutions; (ii) Stem Integration Module (SIM), which in-tegrates high-resolution stem cues with decoder features; and (iii) Precision Refinement (PR), which employs lightweight asymmetric kernels to sharpen thin and elongated structures. The overall design is backbone-agnostic, making it suitable for CNN- and transformer-based encoders with feature pyramid structures. 
+
+1) Modified Swin Transformer: The Swin Transformer [18] is a hierarchical vision transformer that builds feature pyramids by progressively reducing spatial resolution through patch merging and applying window-based multi-head self-attention (W-MSA). To improve the extraction of low-level cues im-portant for detecting fine and irregular scratches, we replace the standard patch partitioning layer with a lightweight stem 4(11x11x512) 
+
+> Stage 3
+> Backbone
+> Features
+> 1x1
+> Conv
+> DilateBlock
+> Rate: (4,1)
+> Upsample
+> x2
+> (23x23x256)
+> Stage 2
+> Backbone
+> Features
+> 1x1
+> Conv
+> DilateBlock
+> Rate: (6,1)
+> Upsample
+> x2
+> (45x45x128)
+> Stem 2
+> Features
+> 3x3
+> Conv
+> Stage 4
+> Backbone
+> Features
+> (6x6x1024)
+> DilateBlock
+> Rate: (2,1)
+> 1x1
+> Conv
+> (90x90x64)
+> Stem 1
+> Features
+> 3x3
+> Conv
+> Upsample
+> x2
+> (45x45x128)
+> Stage 1
+> Backbone
+> Features
+> 1x1
+> Conv
+> Upsample
+> x2
+> DilateBlock
+> Rate: (8,1)
+> Upsample
+> x2
+> 3x3
+> Conv
+> (180x180x64)
+
+Multi -scale Dilated Aggregation (MDA) Stem Integration Module (SIM) 
+
+Fig. 2. The proposed Multi-Scale Dilated Aggregation (MDA) with Stem Integration Module (SIM). MDA takes as input feature maps from all four stages of the modified Swin backbone (input size: 180 × 180 , together with low-level features from the stem that are passed to SIM.By combining dilated and non-dilated convolutions in a cascaded structure, MDA preserves contextual and spatial information while expanding the receptive field. The low-level features are then concatenated through SIM, reinforcing spatial detail and enabling more accurate fine-grained segmentation. 3 x 3 Conv 
+
+Dilation = R 
+
+BatchNorm 
+
+ReLU 3 x 3 Conv 
+
+Dilation = 1 
+
+BatchNorm 
+
+ReLU 
+
+Fig. 3. The proposed Dilated Block (DiBlock) module contains two sequential 
+
+3 × 3 convolutional layers with dilation rates (R,1). Each layer is followed by Batch Normalization and ReLU activation. The first dilated convolution captures global contextual information, while the second convolution refines local spatial features, enabling a balanced representation of both global and local context. 
+
+module composed of two successive 3×3 convolutional layers, each followed by stride-2 pooling. This design reduces reso-lution while expanding channels, thereby preserving texture and edge information that may be lost in conventional patch tokenization. The stem module is formulated as: 
+
+S1 = Pool  σ(W1 ∗ X + b1), (3) 
+
+S2 = Pool  σ(W2 ∗ S1 + b2), (4) where X is the input image, Wℓ and bℓ are the convolutional weights and biases for layer ℓ, ∗ denotes convolution, σ(·) is a ReLU activation, and Pool( ·) indicates stride-2 pooling. The stem output is then passed to the original four-stage Swin hierarchy, where each stage alternates between window-based and shifted-window self-attention to capture both local dependencies and cross-window interactions, while progres-sively downsampling and expanding channel depth. 
+
+2) MSP Decoder: The MSP decoder integrates three mod-ules to progressively combine semantic context with high-resolution spatial information for accurate scratch segmenta-tion, as shown in Figure 2. 3x1  
+
+> Conv
+> 1x3
+> Conv
+> 5x1
+> Conv
+> 1x5
+> Conv
+> MDA +
+> SIM
+> Features
+> (180x180x64) (180x180x2)
+> 1x1
+> Conv
+
+Fig. 4. The proposed Precision Refinement (PR) block. It takes aggregated features from the MDA module and applies parallel anisotropic convolutions with varying kernel sizes to enhance boundary precision. The outputs are concatenated and passed through a 1 × 1 convolution followed by a softmax layer to produce the final pixel-wise segmentation map. 
+
+a) Multi-Scale Dilated Aggregation (MDA): To address the contextual information lost during progressive downsam-pling, the Multi-Scale Dilated Aggregation (MDA) module aggregates multi-level features from all Swin Transformer stages in a top-down manner. Let Fi ∈ RHi×Wi×Ci denote the feature map from Stage i ∈ { 1, 2, 3, 4}. Each Fi is first projected to a uniform channel dimension (e.g., C = 256 )using a 1 × 1 convolution, followed by a dilated block DiBlock i(·), as shown in Figure 3. The DiBlock consists of two successive 3 × 3 convolutions with dilation rates (ri, 1) ,where ri ∈ { 8, 6, 4, 2} corresponds to Stages 1 through 4, separated by ReLU activation. The aggregation begins from the deepest stage (Stage 4), which provides high-level semantic information: 
+
+D4 = DiBlock 4(Conv 1×1(F4)) . (5) For each shallower stage i ∈ { 1, 2, 3}, the processed output 
+
+Di+1 is progressively upsampled by bilinear interpolation 
+
+Up( ·) to match the spatial size of Fi, and concatenated with 
+
+Fi using Concat( ·) to form ˜Di:
+
+˜Di = Concat (Up (Di+1 ), F i) , (6) 5
+
+which is then refined by a 1×1 convolution and a dilate block: 
+
+Di = DiBlock i
+
+
+
+Conv 1×1( ˜Di)
+
+
+
+. (7) This progressive top-down fusion starts from deep semantic features (Stage 4) and gradually incorporates finer spatial de-tails from earlier stages, yielding a context-rich representation for decoding. 
+
+b) Stem Integration Module (SIM): The Stem Integration Module (SIM) extends MDA by incorporating high-resolution spatial cues from the stem network. SIM applies only 3 × 3
+
+convolutions to progressively combine stem features with D1
+
+from MDA. Formally, SIM is defined as: 
+
+eS2 = Conv 3×3(Concat( D1, S 2)) , (8) 
+
+eS1 = Conv 3×3
+
+
+
+Concat(Up( eS2), S 1)
+
+
+
+, (9) 
+
+Fout = Conv 3×3
+
+
+
+Up( eS1)
+
+
+
+. (10) Here, Fout represents the final refined feature map, combining the MDA output with stem-level details for decoding. 
+
+c) Precision Refinement (PR) Module: The Precision Refinement (PR) module enhances boundary localization, par-ticularly for thin and irregular scratches, by applying four parallel asymmetric convolutions to the aggregated feature map Fout :
+
+PR 1 = Conv 1×3(Fout ), PR 2 = Conv 3×1(Fout ),
+
+PR 3 = Conv 1×5(Fout ), PR 4 = Conv 5×1(Fout ). (11) These filters capture horizontal details ( 1 × 3), vertical structures ( 3 × 1), and elongated patterns ( 1 × 5, 5 × 1). Their outputs are concatenated along the channel dimension: 
+
+PR out = Concat(PR 1, PR 2, PR 3, PR 4), (12) and projected to class logits using a 1×1 convolution followed by a softmax: 
+
+Y = Softmax(Conv 1×1(PR out )) , (13) where each pixel in Y represents the probability of background versus scratch. Thus, PR complements MDA and SIM by refining boundaries for precise scratch segmentation. 
+
+C. Loss Function 
+
+To handle class imbalance between defect (foreground) and background pixels, we adopt a composite loss that combines Binary Cross-Entropy (BCE) and Dice loss: 
+
+Ltotal = λ LBCE + μ LDice , (14) where λ and μ balance the contributions of each term. The BCE loss is defined as: 
+
+LBCE = − 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+h
+
+yi log( pi) + (1 − yi) log(1 − pi)
+
+i
+
+, (15) where N is the number of pixels, yi ∈ { 0, 1} is the ground truth label, and pi is the predicted probability. The Dice loss, which directly compensates for fore-ground–background imbalance, is defined as: 
+
+LDice = 1 − 2 P 
+
+> i
+
+yipi
+
+P 
+
+> i
+
+yi + P 
+
+> i
+
+pi
+
+. (16) This formulation maximizes overlap between predictions and ground truth, encouraging accurate delineation of scratch regions. IV. E XPERIMENTS 
+
+A. Dataset 
+
+Two datasets were used to evaluate the proposed scratch segmentation framework. The first consists of 749 integrated circuit (IC) images with corresponding ground truth masks. After an 80:20 split, 600 images were used for training and 149 for testing. To improve robustness, horizontal and vertical flips were applied to the training set, expanding it to 1800 image– mask pairs. All IC images have a resolution of 180 × 180 
+
+pixels. In addition to the fixed split, k-fold cross-validation (k = 5) was also performed to provide a more reliable performance estimate. The second dataset contains 8200 wafer images with ground truth masks at a resolution of 224 × 224 pixels. Following the same 80:20 protocol, 7300 images were used for training and 900 for testing, with augmentation applied only to the training set. In both datasets, the input images are three-channel RGB, while the ground truth masks are single-channel. For binary segmentation, the masks were converted into a two-channel one-hot format representing background and scratch classes. 
+
+B. Experimental Setup 
+
+To benchmark the proposed ScratNet architecture, we con-ducted comparisons against several representative baselines, including UNet [41], [47], ResNet [56], HRNet [52], and Swin Transformer [18] backbones combined with widely adopted decoders such as the Fully Convolutional Network (FCN) [44], Feature Pyramid Network (FPN) [49], and UPerNet [46]. These models were selected for their proven effectiveness in semantic segmentation, ensuring a fair and comprehensive evaluation. While UPerNet effectively captures multi-scale contextual information through feature fusion, ScratNet distin-guishes itself by introducing two key components: the Multi-scale Dilated Aggregation (MDA) module, which performs stage-adaptive dilated aggregation compatible with hierarchi-cal encoders, and the Precision Refinement (PR) module, which employs asymmetric kernels to enhance the detection of thin and elongated defect boundaries. All models were trained to achieve their optimal perfor-mance under comparable training conditions. Specifically, all implementations were developed in PyTorch, with pretrained backbone weights initialized from the Timm library. Train-ing was performed on NVIDIA TITAN Xp GPUs equipped with 11 GB of memory. Each model was trained for up to 120 epochs with early stopping, using a batch size of 32 and an initial learning rate of 1 × 10 −4, which was reduced by a factor of 0.1 when validation performance plateaued. The 6
+
+TABLE I QUANTITATIVE COMPARISON OF DIFFERENT ENCODER –DECODER COMBINATIONS FOR SCRATCH SEGMENTATION ON THE IC IMAGE DATASET . R ESULTS ARE REPORTED SEPARATELY FOR SCRATCH -ONLY REGIONS (INCLUDING BOUNDARY -AWARE METRICS ) AND FULL IMAGES (SCRATCH + BACKGROUND ). HERE , P REC . DENOTES PRECISION , A CC . DENOTES ACCURACY , B-I OU DENOTES BOUNDARY IOU, AND H. D IST . DENOTES HAUSDORFF DISTANCE .FOR ALL METRICS EXCEPT HAUSDORFF DISTANCE , HIGHER VALUES INDICATE BETTER PERFORMANCE . A LL RESULTS WERE GENERATED BY OUR IMPLEMENTATION . B EST RESULTS FOR EACH BACKBONE ARE HIGHLIGHTED IN BOLD .
+
+Backbone Decoder Aug. Scratch Region Only Full Image (Scratch + Background) IoU Dice B-IoU H. Dist. IoU Dice Recall Prec. Acc. 
+
+UNet [45] - ✗ 79.48 88.11 24.17 44.00 66.98 79.57 79.48 81.71 98.70 - ✓ 81.55 90.74 27.89 37.27 69.10 82.87 82.55 84.62 98.82 
+
+ResNet50 [55] FCN [44] ✗ 79.86 88.39 24.39 43.49 68.04 80.34 79.86 82.54 98.75 FPN [49] ✗ 80.91 88.95 24.78 38.42 68.79 80.93 80.96 82.83 98.71 UPerNet [46] ✗ 81.37 89.17 24.98 31.96 69.98 81.28 82.47 82.99 98.79 ScratNet (Ours) ✗ 82.92 90.51 25.73 27.60 72.26 83.37 83.92 83.53 98.90 ScratNet (Ours) ✓ 84.99 92.00 26.27 26.12 73.45 84.20 84.99 85.90 98.98 
+
+HRNet [52] FCN [44] ✗ 79.73 88.38 24.25 43.71 66.64 79.34 79.73 80.77 98.65 FPN [49] ✗ 80.32 88.68 25.50 39.82 67.09 79.65 80.32 80.97 98.67 UPerNet [46] ✗ 80.98 88.91 26.28 38.81 68.62 80.51 80.58 81.23 98.70 ScratNet (Ours) ✗ 81.42 89.82 26.53 35.25 69.21 81.80 82.42 81.57 98.72 ScratNet (Ours) ✓ 83.80 90.87 28.64 31.69 72.83 83.80 84.01 83.92 98.92 
+
+Swin-Tiny [18] FCN [44] ✗ 80.13 88.56 24.17 38.83 69.92 81.80 82.35 81.86 98.83 FPN [49] ✗ 82.87 90.16 24.27 29.97 71.60 82.97 83.43 82.41 98.86 UPerNet [46] ✗ 83.35 90.68 25.46 28.54 71.88 83.02 83.92 83.94 98.91 ScratNet (Ours) ✗ 84.28 91.21 26.36 26.78 72.28 83.43 84.28 84.08 98.94 ScratNet (Ours) ✓ 85.36 91.88 28.79 24.80 73.65 84.40 84.81 85.21 98.99 
+
+Swin-Small [18] FCN [44] ✗ 82.48 89.68 24.47 31.73 69.07 81.16 82.36 80.73 98.78 FPN [49] ✗ 83.36 90.63 25.57 29.67 71.79 82.14 83.48 81.34 98.84 UPerNet [46] ✗ 84.82 91.14 26.18 28.40 71.87 83.18 83.93 82.45 98.91 ScratNet (Ours) ✗ 85.35 92.02 28.39 24.40 72.05 83.23 84.35 83.42 98.92 ScratNet (Ours) ✓ 86.63 92.76 32.93 23.97 74.93 84.60 85.75 84.92 98.99 
+
+Swin-Base [18] FCN [44] ✗ 82.30 89.59 24.08 31.90 69.43 81.40 82.56 80.17 98.71 FPN [49] ✗ 83.93 90.44 25.87 29.45 70.09 81.70 83.60 81.30 98.77 UPerNet [46] ✗ 84.56 91.39 26.51 28.74 71.25 82.83 84.93 82.44 98.79 ScratNet (Ours) ✗ 85.82 92.18 28.90 24.91 72.73 83.80 85.70 83.30 98.92 ScratNet (Ours) ✓ 87.32 93.48 33.86 23.35 75.07 85.72 88.36 85.30 99.02 
+
+Adam optimizer was used for convolution-based architectures, whereas AdamW was applied to transformer-based models. This consistent experimental setup enables a fair comparison and highlights the superior performance and architectural novelty of ScratNet in addressing fine-grained defect segmen-tation. 
+
+C. Evaluation Metrics 
+
+To evaluate the performance of ScratNet, we use standard region-based segmentation metrics, including Intersection over Union (IoU), Dice coefficient, Accuracy, Precision, Recall, and F1 score. IoU measures the overlap between predicted and ground-truth regions, while the Dice coefficient emphasizes correctly predicted pixels. Recall quantifies the proportion of defect pixels correctly identified, whereas Precision measures the correctness of predicted defect pixels. Accuracy reflects the overall proportion of correctly classified pixels. Since Recall and Precision can be imbalanced, the F1 score provides a harmonic trade-off between the two. For binary segmentation tasks, the Dice coefficient is mathematically equivalent to the F1 score. The formulations of these metrics are as follows: IoU = T P T P + F P + F N (17) Dice = 2T P 
+
+2T P + F P + F N (18) Recall = T P T P + F N (19) Precision = T P T P + F P (20) Accuracy = T P + T N T P + F P + F N + T N (21) where T P , F P , F N , and T N denote true positives, false pos-itives, false negatives, and true negatives, respectively. Since region-level metrics may overlook structural accuracy along fine boundaries, we also include boundary-sensitive measures. Specifically, Boundary IoU [57] evaluates edge overlap within a tolerance band, while Hausdorff Distance [58] quantifies boundary deviation. 
+
+D. Results 
+
+Tables I and II present results under two evaluation settings: scratch-only and full-image. In the scratch-only setting, the evaluation focuses only on defect regions, reporting IoU, Dice, and boundary-aware metrics such as Boundary IoU and Hausdorff Distance. Recall and Accuracy are omitted here because, once background pixels are excluded, they overlap with IoU and provide no additional insight. Boundary IoU appears lower (around 5–35% ) than region-based metrics 7
+
+TABLE II QUANTITATIVE COMPARISON OF DIFFERENT ENCODER –DECODER COMBINATIONS FOR SCRATCH SEGMENTATION ON THE WAFER IMAGE DATASET .RESULTS ARE REPORTED SEPARATELY FOR SCRATCH -ONLY REGIONS (INCLUDING BOUNDARY -AWARE METRICS ) AND FULL IMAGES (SCRATCH +
+
+> BACKGROUND
+
+). H ERE , P REC . DENOTES PRECISION , A CC . DENOTES ACCURACY , B-I OU DENOTES BOUNDARY IOU, AND H. D IST . DENOTES 
+
+HAUSDORFF DISTANCE . F OR ALL METRICS EXCEPT HAUSDORFF DISTANCE , HIGHER VALUES INDICATE BETTER PERFORMANCE . A CCURACY IS OMITTED FROM SCRATCH -ONLY RESULTS AS IT IS IDENTICAL TO IOU VALUES . A LL RESULTS WERE GENERATED BY OUR IMPLEMENTATION . B EST RESULTS FOR EACH BACKBONE ARE HIGHLIGHTED IN BOLD .
+
+Backbone Decoder Aug. Scratch Region Only Full Image (Scratch + Background) IoU Dice Prec. B-IoU H. Dist. IoU Dice Recall Prec. Acc. 
+
+UNet [45] - ✗ 69.59 78.87 99.09 5.13 59.48 45.88 58.84 71.61 63.86 84.27 - ✓ 71.01 79.27 99.56 6.38 53.95 50.93 63.83 69.59 71.29 87.97 
+
+ResNet50 [55] FCN [44] ✗ 72.92 81.99 99.15 7.39 50.27 52.95 65.92 72.75 71.74 87.91 FPN [49] ✗ 73.57 81.97 99.29 7.42 48.97 56.02 69.47 73.32 75.12 88.09 UPerNet [46] ✗ 74.71 83.00 99.33 7.97 45.28 62.15 73.95 74.71 79.94 93.42 ScratNet (Ours) ✗ 75.79 83.99 99.78 8.37 44.18 63.73 74.61 75.17 80.26 92.23 ScratNet (Ours) ✓ 77.64 85.44 99.91 8.52 42.59 65.58 76.26 75.64 81.60 93.39 
+
+HRNet [52] FCN [44] ✗ 71.76 80.64 99.35 6.86 53.12 55.75 68.13 71.76 75.87 89.46 FPN [49] ✗ 73.61 82.13 99.44 7.19 48.46 59.23 71.48 72.97 79.81 89.84 UPerNet [46] ✗ 73.97 82.51 99.51 7.30 45.77 63.09 73.61 73.97 82.06 92.28 ScratNet (Ours) ✗ 75.47 83.72 99.56 8.21 44.57 64.61 74.30 75.35 83.95 92.87 ScratNet (Ours) ✓ 77.43 85.05 99.89 8.43 42.86 66.92 75.06 77.43 85.26 93.79 
+
+Swin-Tiny [18] FCN [44] ✗ 71.12 80.10 99.19 6.50 53.68 61.02 71.74 71.12 80.12 90.09 FPN [49] ✗ 72.57 81.47 99.26 7.27 50.87 62.43 72.49 73.57 81.77 92.14 UPerNet [46] ✗ 73.22 81.92 99.56 7.52 48.52 64.90 74.51 75.42 83.92 92.89 ScratNet (Ours) ✗ 74.35 82.71 99.78 7.85 45.41 66.11 75.01 77.13 85.13 93.40 ScratNet (Ours) ✓ 76.94 84.95 99.89 8.58 43.10 68.74 75.76 79.79 87.94 94.44 
+
+Swin-Small [18] FCN [44] ✗ 72.37 81.38 99.49 7.17 50.87 62.59 72.79 73.67 81.98 92.27 FPN [49] ✗ 73.92 82.98 99.72 7.67 48.16 64.98 74.80 75.52 83.98 92.95 UPerNet [46] ✗ 75.17 83.48 99.79 8.11 44.74 65.49 74.95 75.29 84.64 93.28 ScratNet (Ours) ✗ 77.84 85.36 99.84 8.63 42.39 67.59 75.34 77.61 87.58 94.06 ScratNet (Ours) ✓ 79.85 87.46 99.89 8.91 39.75 69.31 76.22 80.84 88.60 95.89 
+
+Swin-Base [18] FCN [44] ✗ 73.03 81.58 99.67 7.76 46.70 62.84 72.85 73.81 82.14 92.89 FPN [49] ✗ 74.61 82.89 99.78 7.95 45.27 65.76 74.99 75.81 84.73 93.33 UPerNet [46] ✗ 76.69 84.84 99.81 8.45 43.45 66.95 75.15 77.17 85.17 93.61 ScratNet (Ours) ✗ 78.35 85.79 99.85 8.96 41.43 68.84 76.81 79.94 88.13 94.89 ScratNet (Ours) ✓ 81.17 87.96 99.89 9.47 35.07 71.76 78.07 82.54 90.43 97.53 
+
+since it evaluates performance in a narrow band around the defect boundary, where even small misalignments reduce the score. Hausdorff Distance complements this by measuring the maximum deviation between predicted and ground-truth edges. In contrast, the full-image evaluation includes both defect and background pixels, reporting IoU, Dice, Recall, Precision, and Accuracy, thereby offering a holistic view of model performance across the entire image. 
+
+1) Results on IC dataset: Table I presents a detailed com-parison of different backbone–decoder configurations on the IC image scratch dataset, evaluated under both scratch-only and full-image settings. In the scratch-only evaluation, clear improvements are observed when moving from conventional decoders (FCN, FPN, UPerNet) to the proposed ScratNet module. For example, with ResNet50, IoU increases from 79.86% (FCN) to 82.92% and 84.99% (ScratNet without and with augmentation), while Dice improves from 88.39% to 92.00%. Similar trends are observed for HRNet, where Scrat-Net achieves 83.80% IoU and 90.87% Dice, outperforming other decoders. Transformer-based backbones yield the highest scores, with Swin-Small and Swin-Base reaching 86.63% and 87.21% IoU, respectively, and corresponding Dice values above 92%. Boundary-aware metrics also highlight ScratNet’s advantage: Boundary IoU steadily rises (e.g., from 0.24 with FCN to 0.34 with ScratNet for Swin-Base), while Hausdorff Distance drops from over 40 pixels in CNN backbones to as low as 23 pixels with Swin-Base, indicating significantly tighter edge alignment. In the full-image evaluation, traditional CNN backbones such as UNet establish the weakest baseline, showing limited segmentation capability even with augmentation. Stronger CNN backbones like ResNet50 and HRNet achieve noticeable improvements, particularly when paired with the proposed ScratNet decoder, which consistently outperforms standard decoders such as FCN, FPN, and UPerNet. The most signif-icant gains are achieved with transformer-based backbones. Among them, Swin-based models provide the highest overall performance, confirming that the combination of hierarchical feature pyramids with the proposed decoder delivers state-of-the-art results on scratch segmentation tasks. 
+
+2) Results on Wafer Dataset: Table II presents a detailed comparison of different backbone–decoder configurations on the wafer scratch dataset, evaluated under both scratch-only and full-image settings. Compared to the IC dataset, segmen-tation on the wafer dataset is more challenging, as reflected in generally lower IoU and Dice values. In the scratch-only evaluation, performance improves consistently when moving from conventional decoders (FCN, FPN, UPerNet) to the proposed ScratNet module. For example, with ResNet50, IoU increases from 72.92% (FCN) to 75.79% and 77.64% (Scrat-Net without and with augmentation), while Dice improves from 81.99% to 85.44%. HRNet follows a similar trend, where ScratNet achieves 77.43% IoU and 85.05% Dice, surpassing other decoders. Transformer-based backbones again deliver the highest scores: Swin-Small and Swin-Base with ScratNet achieve 79.85% and 81.17% IoU, respectively, with Dice 8
+
+Image Label ResNet50+FCN Swin-B+FCN Swin-B+FPN Swin-B+UPerNet Swin-B+Ours 
+
+IoU: 46.52 IoU: 58.69 IoU: 70.69 IoU: 85.74 IoU: 89.10 
+
+IoU: 68.22 IoU: 80.97 IoU: 80.70 IoU: 75.07 IoU: 78.58 
+
+IoU: 59.12 IoU: 74.53 IoU: 74.96 IoU: 75.98 IoU: 77.88 
+
+IoU: 58.88 IoU: 60.97 IoU: 60.10 IoU: 72.04 IoU: 71.71 
+
+IoU: 56.07 IoU: 68.60 IoU: 61.23 IoU: 59.52 IoU: 66.23 
+
+Fig. 5. Qualitative comparison of scratch segmentation results on the IC dataset across different decoder modules. Each row shows an input IC image, its ground truth segmentation mask, and predictions from ResNet50+FCN, Swin-B+FCN, Swin-B+FPN, Swin-B+UPerNet, and our proposed Swin-B+Ours. IoU values are reported based on the overlap between ground truth and predicted masks for both scratch and background regions. TABLE III COMPARISON OF SAM EVALUATED IN ZERO -SHOT MODE WITH POST -PROCESSING AND IN BOUNDING BOX –PROMPT FINE -TUNING , AGAINST OUR SUPERVISED SWIN -B + S CRAT NET MODEL ON IC AND WAFER DATASETS . R ESULTS ARE REPORTED SEPARATELY FOR SCRATCH -ONLY REGIONS 
+
+(INCLUDING BOUNDARY -AWARE METRICS ) AND FULL IMAGES (SCRATCH + BACKGROUND ). P REC . DENOTES PRECISION , A CC . DENOTES ACCURACY ,B-I OU DENOTES BOUNDARY IOU, AND H. D IST . DENOTES HAUSDORFF DISTANCE . B EST RESULTS WITHIN EACH DATASET ARE HIGHLIGHTED IN BOLD .
+
+Dataset Model Training Scratch Region Only Full Image (Scratch + Background) IoU Dice Prec. B-IoU H. Dist. IoU Dice Recall Prec. Acc. 
+
+IC Dataset SAM (Post-Processing) [59] Zero-shot 42.81 51.00 87.25 7.30 138.21 7.33 11.71 11.81 10.22 59.92 SAM (Box Prompt) [59] Fine-tuning 78.33 84.28 100 18.94 109.63 51.66 64.19 78.33 58.18 96.80 
+
+Ours (Swin-B + ScratNet) Fine-tuning 85.82 92.18 100 28.90 24.91 72.73 83.80 85.70 83.30 98.92 
+
+Wafer Dataset SAM (Post-Processing) [59] Zero-shot 38.10 47.22 91.69 5.12 103.09 33.64 41.56 40.84 34.51 52.81 SAM (Box Prompt) [59] Fine-tuning 72.23 79.01 99.77 8.13 82.44 49.85 65.61 70.39 60.13 93.17 
+
+Ours (Swin-B + ScratNet) Fine-tuning 78.35 85.79 99.85 8.96 41.43 68.84 76.81 79.94 88.13 94.89 
+
+values approaching 88%. Boundary-aware metrics reinforce these improvements. Boundary IoU rises steadily across mod-els (e.g., from 0.05 with UNet to 0.09 with ScratNet for Swin-Base), while Hausdorff Distance decreases notably, from nearly 60 pixels with UNet to about 35 pixels with Swin-Base, indicating much tighter boundary alignment. In the full-image evaluation, the overall performance follows the same pattern but with slightly smaller margins, since background regions are easier to segment. UNet provides the weakest baseline, reaching only 45.88% IoU and 58.84% Dice, with limited improvement from augmentation. CNN backbones such as ResNet50 and HRNet provide moderate 9
+
+Image Label ResNet50+FCN Swin-B+FCN Swin-B+FPN Swin-B+UPerNet Swin-B+Ours 
+
+IoU: 78.77 IoU: 82.88 IoU: 80.05 IoU: 85.39 IoU: 84.17 
+
+IoU: 86.59 IoU: 90.11 IoU: 89.35 IoU: 87.75 IoU: 91.81 
+
+IoU: 65.53 IoU: 63.20 IoU: 71.06 IoU: 58.83 IoU: 70.22 
+
+IoU: 69.34 IoU: 44.30 IoU: 62.36 IoU: 71.12 IoU: 70.43 
+
+IoU: 29.85 IoU: 51.63 IoU: 47.43 IoU: 45.63 IoU: 40.93 
+
+Fig. 6. Qualitative comparison of scratch segmentation results on the Wafer dataset across different decoder modules. Each row shows an input Wafer image, its ground truth segmentation mask, and predictions from ResNet50+FCN, Swin-B+FCN, Swin-B+FPN, Swin-B+UPerNet, and our proposed Swin-B+Ours. IoU values are reported based on the overlap between ground truth and predicted masks for both scratch and background regions. TABLE IV ABLATION STUDY EVALUATING THE IMPACT OF THE STEM INTEGRATION 
+
+MODULE (SIM), DECODER TYPE , AND PRECISION REFINEMENT (PR)  
+
+> USING
+
+RES NET 50 AND SWIN -B ASE BACKBONES . R ESULTS ARE BASED ON SCRATCH REGIONS ONLY AND ARE REPORTED IN TERMS OF IOU AND 
+
+DICE SCORE . “A UG .” DENOTES THE USE OF DATA AUGMENTATION . B OLD VALUES INDICATE THE BEST PERFORMANCE .                                              
+
+> Backbone Aug. Decoder Module IoU Dice SIM Decoder PR
+> ResNet50 [55]
+> ✗✗MDA (Ours) ✗79.33 89.37
+> ✗✗MDA (Ours) ✓82.15 90.21
+> ✗✓MDA (Ours) ✓82.92 90.51
+> ✓✓MDA (Ours) ✓84.99 92.00
+> Swin-Base [18]
+> ✗✗MDA (Ours) ✗82.19 90.81
+> ✗✗MDA (Ours) ✓84.96 91.45
+> ✗✓MDA (Ours) ✓85.82 92.18
+> ✓✓MDA (Ours) ✓87.32 93.48
+
+gains, especially with ScratNet, which consistently outper-forms FCN, FPN, and UPerNet. The strongest results are again obtained with transformer-based backbones: Swin-Base paired with ScratNet achieves 71.76% IoU and 78.07% Dice in full-image evaluation. These results confirm that the proposed decoder significantly improves both global segmentation accu-racy and boundary localization, with the greatest advantages observed when combined with Swin backbones. 
+
+3) Qualitative Analysis: Figure 5 and Figure 6 present qualitative comparisons of scratch segmentation results on the IC and Wafer datasets, respectively. Each row shows the input image, its ground-truth mask, and predictions gener-ated by ResNet50+FCN, Swin-B+FCN, Swin-B+FPN, Swin-B+UPerNet, and Swin-B integrated with the proposed decoder (MDP). These visual results highlight the differences between baseline models and the proposed method, particularly in capturing thin and irregular scratch boundaries. 
+
+4) Zero-Shot and Fine-Tuned Evaluation with SAM: 
+
+The Segment Anything Model [59] is a vision foundation model designed for prompt-based, general-purpose segmenta-tion across diverse visual domains. Unlike task-specific archi-tectures, SAM is trained on a large-scale dataset to generate segmentation masks from point, box, or automatic prompts without additional fine-tuning. To investigate its applicability to scratch segmentation, we conducted experiments in both zero-shot and fine-tuned settings on our binary dataset (scratch vs. background). In the zero-shot setting, each test image was provided as 10 
+
+input to SAM, which typically produced multiple candidate masks. Since our task involves only two classes, we employed a post-processing filtering strategy to obtain a fair binary comparison. Specifically, all candidate masks were compared with the ground-truth annotation, and only the mask with the highest overlap was retained, while irrelevant regions were discarded. This strategy of selecting the most relevant SAM mask has also been adopted in recent works [60], [61], yielding a single binary scratch mask prediction per image. For fine-tuning, we explored SAM’s box-prompt setting. Be-cause our dataset does not include bounding box annotations, we generated bounding boxes directly from the ground-truth masks and provided them as prompts during training. This experiment was intended as an upper-bound analysis of SAM’s performance under prompt-guided fine-tuning. The training hyperparameters were kept consistent with those used in our other supervised experiments. We report results for both zero-shot and bounding box–prompt fine-tuning in Table III. The analysis shows that SAM’s zero-shot predictions produce numerous false positives due to irrelevant regions, resulting in poor IoU and Dice scores. Post-processing improves alignment with ground truth, yet SAM still lags behind our proposed model, particularly in capturing fine, thin, and irregular defect structures. Even under box-prompt fine-tuning, SAM does not surpass our architec-ture. These findings highlight that, while SAM demonstrates impressive generalization in natural image domains, it is less effective for highly specialized tasks such as micro-defect segmentation, where domain-specific architectures remain es-sential. 
+
+E. Ablation Study 
+
+We performed a comprehensive ablation study to evaluate the contribution of individual components within the proposed decoder. Experiments were conducted on the IC dataset using two representative backbones: ResNet50 and Swin-Base. The decoder design was analyzed in terms of three key modules: the Stem Integration Module, the Multi-scale Dilated Ag-gregation block, and the Precision Refinement module. The study was organized in two stages: first, a stepwise addition of modules to assess their incremental impact, and second, a fine-grained analysis of configuration parameters to explore optimal design choices. Quantitative results are reported in Tables IV and V, where performance is measured using IoU and Dice scores over both scratch and background regions. 
+
+1) Ablation on Decoder Module Composition: In this stage, we analyze the cumulative impact of decoder components through stepwise integration. Results are reported in Table IV. For the ResNet50 backbone, baseline decoders FCN and FPN achieve IoU scores of 76.38% and 77.81%, respectively. Replacing them with our MDA decoder improves the IoU to 79.33%, highlighting the benefit of multi-scale contextual aggregation. Adding the PR module further boosts IoU to 82.15%, reflecting its role in refining fine-grained boundaries. Integrating the SIM module yields a final IoU of 84.92%, benefiting from restored low-level spatial detail. With full module integration and data augmentation, the model reaches an IoU of 84.99% and a Dice score of 92.00%. A similar trend is observed with the Swin-Base backbone. Starting from baseline decoders, FCN and FPN achieve IoU scores of 79.31% and 80.79%, respectively. Substituting them with MDA increases IoU to 82.19%, and incorporating the PR module lifts performance to 84.08%. Adding SIM further enhances segmentation accuracy to 85.70%. With full mod-ule integration and data augmentation, the Swin-Base model achieves the highest performance: an IoU of 86.21% and a Dice score of 92.37%. 
+
+2) Fine-grained Analysis of Decoder Configurations: To better understand the internal design decisions within each module, we conducted a detailed analysis of their configuration parameters, summarized in Table V. Initially, we configured MDA with standard 3×3 convolutions using non-dilation rates of (1), (1), (1), (1) across all 4 DilateBlocks in MDA module. This configuration, focused solely on local context, yielded modest results, demonstrating limited capability in capturing the complex geometry of scratches. To expand spatial context, we increased the dilation rates to (2), (4), (6), (8). This led to better results for both backbones, validating the effective-ness of multi-scale receptive fields. However, the single-stage dilated convolution approach introduced redundancy, as all DilateBlocks captured similarly scaled features. To address this, we employed dilation pairs (2,1), (4,1), (6,1), and (8,1), which provide a balance between local and global feature capture. This adjustment yielded a performance increase for both backbones: IoU improved from 73.52% to 74.34% for ResNet50 and from 80.29% to 81.49% for Swin-Base. These results confirm that multi-scale filters are better suited for modeling thin, curved, and fragmented scratch structures. The integration of the SIM module further enhanced spatial precision by reintroducing early-stage encoder features. In ResNet50, IoU increased slightly from 74.34% to 74.72%, while Swin-Base showed a more substantial improvement from 81.49% to 84.29%. This demonstrates that transformer-based encoders benefit considerably from spatial detail restora-tion. The PR module delivered the most significant perfor-mance gains by leveraging anisotropic convolutional kernels to sharpen boundary representations and suppress noise. For ResNet50, it improved IoU from 74.72% to 75.40% with smaller kernels (e.g., 1 × 2, 2 × 1, 1 × 3, 3 × 1), and up to 84.92% with larger ones ( 1×3, 3×1, 1×5, 5×1). In the Swin-Base backbone, PR increased IoU from 84.29% to 85.70%, confirming its effectiveness in refining micro-structural details and enhancing segmentation quality. When all components SIM, asymmetrically dilated MDA, and PR are combined with data augmentation, the Swin-Base model achieves peak performance. An IoU of 86.21% and Dice score of 92.37% were recorded, the highest among all config-urations. These findings validate the synergy between Swin’s hierarchical feature extraction and our decoder’s architectural enhancements. 
+
+F. Efficiency Analysis 
+
+Table VI compares different decoder architectures using ResNet50 and Swin-Base backbones on both the IC and Wafer 11 
+
+TABLE V ABLATION STUDY OF DECODER COMPONENTS AND PRECISION REFINEMENT (PR) MODULES USING RES NET 50 AND SWIN -B BACKBONES . MDA  
+
+> DENOTES
+
+MULTI -S CALE DILATED AGGREGATION WITH VARIED DILATION RATES , AND SIM DENOTES THE STEM INTEGRATION MODULE . R ESULTS INCLUDE BOTH SCRATCH AND BACKGROUND REGIONS , REPORTED IN TERMS OF IOU AND DICE SCORE . “A UG .” DENOTES THE USE OF DATA AUGMENTATION . B OLD VALUES INDICATE THE BEST PERFORMANCE .
+
+Backbone Aug. Decoder Module IoU Dice SIM MDA PR 
+
+ResNet50 [55] 
+
+✗ ✗ (1), (1), (1), (1) ✗ 71.49 79.29 
+
+✗ ✗ (2), (4), (6), (8) ✗ 73.52 80.49 
+
+✗ ✗ (2,1), (4,1), (6,1), (8,1) ✗ 74.34 81.51 
+
+✗ ✓ (2,1), (4,1), (6,1), (8,1) ✗ 74.72 81.74 
+
+✗ ✓ (2,1), (4,1), (6,1), (8,1) (1×2), (2×1), (1×3), (3×1) 75.40 82.21 
+
+✗ ✓ (2,1), (4,1), (6,1), (8,1) (1×3), (3×1), (1×5), (5×1) 82.92 90.51 
+
+✓ ✓ (2,1), (4,1), (6,1), (8,1) (1×3), (3×1), (1×5), (5×1) 84.99 92.00 
+
+Swin-B [18] 
+
+✗ ✗ (1), (1), (1), (1) ✗ 79.17 85.91 
+
+✗ ✗ (2), (4), (6), (8) ✗ 80.29 86.88 
+
+✗ ✗ (2,1), (4,1), (6,1), (8,1) ✗ 81.49 87.41 
+
+✗ ✓ (2,1), (4,1), (6,1), (8,1) ✗ 84.29 90.71 
+
+✗ ✓ (2,1), (4,1), (6,1), (8,1) (1×2), (2×1), (1×3), (3×1) 85.08 91.70 
+
+✗ ✓ (2,1), (4,1), (6,1), (8,1) (1×3), (3×1), (1×5), (5×1) 85.82 92.18 
+
+✓ ✓ (2,1), (4,1), (6,1), (8,1) (1×3), (3×1), (1×5), (5×1) 87.32 93.48 
+
+TABLE VI EFFICIENCY AND ACCURACY COMPARISON OF RES NET 50 AND SWIN -B ASE BACKBONES WITH DIFFERENT DECODERS ON IC AND WAFER DATASETS 
+
+(WITHOUT AUGMENTATION ). R ESULTS ARE REPORTED FOR SCRATCH -ONLY IOU AND DICE , ALONG WITH LATENCY (L, MS ), GFLOP S (GF), AND PARAMETERS (M). B OLD VALUES INDICATE THE BEST PERFORMANCE WITHIN EACH BACKBONE .
+
+Backbone Decoder IC Dataset Wafer Dataset IoU (%) Dice (%) L (ms) GF Par. (M) IoU (%) Dice (%) L (ms) GF Par. (M) 
+
+ResNet50 [55] FCN [44] 79.86 88.39 9.2 3.0 27.1 72.92 81.99 14.2 4.6 27.1 FPN [49] 80.91 88.95 13.0 3.6 30.3 73.57 81.97 20.1 5.6 30.3 UPerNet [46] 81.37 89.17 7.9 9.9 40.4 74.71 83.00 7.4 7.6 31.5 ScratNet (Ours) 82.92 90.51 10.5 5.8 38.2 75.79 83.99 16.3 9.0 38.2 Swin-Base [18] FCN [44] 82.30 89.59 13.1 11.9 91.2 73.03 81.58 20.3 18.5 91.2 FPN [49] 83.93 90.44 13.9 12.3 91.7 74.61 82.89 21.6 19.0 91.7 UPerNet [46] 84.56 91.39 20.5 15.3 92.3 76.69 84.84 19.6 17.8 92.8 ScratNet (Ours) 85.82 92.18 14.5 12.7 96.1 78.35 85.79 22.4 19.7 96.1 
+
+datasets, evaluated on an NVIDIA Titan X (11 GB) GPU. The input resolution was set to 180 × 180 for IC images and 
+
+224 × 224 for Wafer images, which explains the consistently higher latency observed for Wafer models. Across both backbones, ScratNet consistently achieves su-perior segmentation performance compared to FCN, FPN, and UPerNet. With ResNet50, ScratNet delivers higher accu-racy while maintaining moderate computational complexity, striking a favorable balance between latency, FLOPs, and parameter count. In contrast, UPerNet achieves lower latency on ResNet50 but at the expense of reduced segmentation quality. For Swin-Base, ScratNet provides the strongest performance among all decoders, achieving improved accuracy while re-maining competitive in latency and FLOPs. Unlike UPerNet, which introduces additional overhead when paired with Trans-former backbones, ScratNet integrates more efficiently with hierarchical feature maps, providing both accuracy and effi-ciency gains. Overall, these results demonstrate that ScratNet generalizes well across both CNN and Transformer backbones, offering consistent improvements in segmentation accuracy while keeping computational costs low. V. C ONCLUSION 
+
+In this work, we proposed ScratNet, a scratch segmentation model that leverages a modified Swin Transformer for feature extraction and introduces a powerful decoder composed of two key components: the Dilated Multi-scale Aggregation with Stem Integration (MDA) module and the Precision Refinement (PR) module. The MDA module combines dilated and stan-dard convolutional kernels to capture both local and global features across multiple scales. This multi-scale aggregation enables the model to effectively detect scratches of varying sizes, shapes, and orientations. The PR module further refines the segmentation results by employing anisotropic convolu-tional kernels to enhance boundary accuracy, particularly for thin and irregular scratches often overlooked by conventional methods. It improves edge sharpness and reduces noise, re-sulting in cleaner and more precise segmentation masks. Together, these modules significantly enhance the model’s ability to identify fine and complex surface defects. In future work, we plan to explore more advanced filtering techniques and lightweight decoder architectures to further improve the model’s speed and robustness for real-world deployment. REFERENCES [1] L. Gao, H. Liu, M. Yang, L. Chen, Y. Wan et al. , “STransFuse: Fusing swin transformer and convolutional neural network for remote sensing image semantic segmentation,” IEEE journal of selected topics in applied earth observations and remote sensing , vol. 14, pp. 10 990– 11 003, 2021. [2] A. Jimenez-Cortadi, I. Irigoien, F. Boto, B. Sierra, and G. Rodriguez, “Predictive maintenance on the machining process and machine tool,” 
+
+Applied Sciences , vol. 10, no. 1, p. 224, 2019. 12 
+
+[3] X. Xie, “A review of recent advances in surface defect detection using texture analysis techniques,” ELCVIA: electronic letters on computer vision and image analysis , pp. 1–22, 2008. [4] S.-H. Huang and Y.-C. Pan, “Automated visual inspection in the semi-conductor industry: A survey,” Computers in industry , vol. 66, pp. 1–10, 2015. [5] M. El-Agamy, M. Awad, and H. Sonbol, “Automated inspection of surface defects using machine vision,” The International Conference on Applied Mechanics and Mechanical Engineering , vol. 17, pp. 1–13, 04 2016. [6] J. Ma, T. Zhang, C. Yang, Y. Cao, L. Xie, H. Tian, and X. Li, “Review of wafer surface defect detection methods,” Electronics , vol. 12, no. 8, p. 1787, 2023. [7] S. Hamdioui, M. Taouil, and N. Z. Haron, “Testing open defects in memristor-based memories,” IEEE Transactions on Computers , vol. 64, no. 1, pp. 247–259, 2013. [8] P. Huang, M. Tsai, C. Huang, P. Lin, L. Huang et al. , “Warpage, stresses and koz of 3d tsv dram package during manufacturing processes,” in 2012 14th International Conference on Electronic Materials and Packaging (EMAP) . IEEE, 2012, pp. 1–5. [9] J.-C. Chien, M.-T. Wu, and J.-D. Lee, “Inspection and classification of semiconductor wafer surface defects using CNN deep learning networks,” Applied Sciences , vol. 10, no. 15, p. 5340, 2020. [10] P. Damacharla, A. Rao, J. Ringenberg, and A. Y. Javaid, “Tlu-net: a deep learning approach for automatic steel surface defect detection,” in 2021 International Conference on Applied Artificial Intelligence (ICAPAI) .IEEE, 2021, pp. 1–6. [11] G. S. May, T. S. Kim, G. Triplett, and I. Yun, “Artificial intelligence in semiconductor manufacturing,” Wiley Encyclopedia of Electrical and Electronics Engineering , 2001. [12] F. Liu, H. Wang, P. Feng, and L. Zeng, “Integrated circuit packaging defect analysis and deep learning detection method,” IEEE Transactions on Components, Packaging and Manufacturing Technology , 2024. [13] Y. Liu, K. Xu, and J. Xu, “Periodic surface defect detection in steel plates based on deep learning,” Applied Sciences , vol. 9, no. 15, p. 3127, 2019. [14] T. Sweeney, S. Coleman, and D. Kerr, “Deep learning for semiconductor defect classification,” in 2022 IEEE 20th International Conference on Industrial Informatics (INDIN) . IEEE, 2022, pp. 572–577. [15] M. A. Reza, Z. Chen, and D. J. Crandall, “Deep neural network– based detection and verification of microelectronic images,” Journal of Hardware and Systems Security , vol. 4, no. 1, pp. 44–54, 2020. [16] S.-H. Chen and C.-C. Tsai, “Smd led chips defect detection using a yolov3-dense model,” Advanced engineering informatics , vol. 47, p. 101255, 2021. [17] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai et al. ,“An image is worth 16x16 words: Transformers for image recognition at scale,” arXiv preprint arXiv:2010.11929 , 2020. [18] Z. Liu, Y. Lin, Y. Cao, H. Hu, Y. Wei et al. , “Swin transformer: Hierarchical vision transformer using shifted windows,” in Proceedings of the IEEE/CVF international conference on computer vision , 2021, pp. 10 012–10 022. [19] A. Hassani and H. Shi, “Dilated neighborhood attention transformer,” 
+
+arXiv preprint arXiv:2209.15001 , 2022. [20] E. Xie, W. Wang, Z. Yu, A. Anandkumar, J. M. Alvarez, and P. Luo, “Segformer: Simple and efficient design for semantic segmentation with transformers,” Advances in neural information processing systems ,vol. 34, pp. 12 077–12 090, 2021. [21] C. Zhang, J. Yu, Y. Zhao, H. Wu, and G. Wu, “Cracks segmentation of engineering structures in complex backgrounds using a concatenation of transformer and cnn models driven by scene understanding information,” in Structures , vol. 65. Elsevier, 2024, p. 106685. [22] Y. Luo, Z. Mei, Y. Qiao, and Y. Chen, “Scsnet: a novel transformer-cnn fusion architecture for enhanced segmentation and classification on high-resolution semiconductor micro-scale defects,” Applied Intelligence ,vol. 55, no. 6, p. 439, 2025. [23] H. Luo, J. Pan, and W. Zhang, “Generalized complete local binary pattern for robust scratch detection,” IEEE Transactions on Industrial Informatics , vol. 16, no. 7, pp. 4690–4701, 2020. [24] X. Hu, D. Wei, Z. Wang, J. Shen, and H. Ren, “Hypergraph video pedestrian re-identification based on posture structure relationship and action constraints,” Pattern recognition , vol. 111, p. 107688, 2021. [25] H. Zhang, “Research on the optimizing process of the basic image processing algorithms,” in Cyber Security Intelligence and Analytics .Springer, 2020, pp. 212–217. [26] A. Caggiano, J. Zhang, V. Alfieri, F. Caiazzo, R. Gao et al. , “Machine learning-based image processing for on-line defect recognition in addi-tive manufacturing,” CIRP annals , vol. 68, no. 1, pp. 451–454, 2019. [27] J. Rajeswari and M. Jagannath, “Advances in biomedical signal and im-age processing–a systematic review,” Informatics in Medicine Unlocked ,vol. 8, pp. 13–19, 2017. [28] C.-H. Yeh, F.-C. Wu, W.-L. Ji, and C.-Y. Huang, “A wavelet-based approach in detecting visual defects on semiconductor wafer dies,” IEEE Transactions on Semiconductor Manufacturing , vol. 23, no. 2, pp. 284– 292, 2010. [29] W.-R. Yang, “Short-time discrete wavelet transform for wafer microc-rack detection,” in 2009 IEEE International Symposium on Industrial Electronics . IEEE, 2009, pp. 2069–2074. [30] H. Han, C. Gao, Y. Zhao, S. Liao, L. Tang, and X. Li, “Polycrystalline silicon wafer defect segmentation based on deep convolutional neural networks,” Pattern Recognition Letters , vol. 130, pp. 234–241, 2020. [31] T. Yuan, W. Kuo, and S. J. Bae, “Detection of spatial defect patterns generated in semiconductor fabrication processes,” IEEE Transactions on Semiconductor Manufacturing , vol. 24, no. 3, pp. 392–403, 2011. [32] M. Piao, C. H. Jin, J. Y. Lee, and J.-Y. Byun, “Decision tree ensemble-based wafer map failure pattern recognition based on radon transform-based features,” IEEE Transactions on Semiconductor Manufacturing ,vol. 31, no. 2, pp. 250–257, 2018. [33] P. Liu, “Non-destructive detection of sub-micron imperceptible scratches on laser chips based on consistent texture entropy recursive optimization semi-supervised network,” arXiv preprint arXiv:2503.13125 , 2025. [34] J.-C. Chien, M.-T. Wu, and J.-D. Lee, “Inspection and classification of semiconductor wafer surface defects using cnn deep learning networks,” 
+
+Applied Sciences , vol. 10, no. 15, p. 5340, 2020. [35] G. Wen, Z. Gao, Q. Cai, Y. Wang, and S. Mei, “A novel method based on deep convolutional neural networks for wafer semiconductor surface defect inspection,” IEEE Transactions on Instrumentation and Measurement , vol. 69, no. 12, pp. 9668–9680, 2020. [36] D. V. Patel, R. Bonam, and A. A. Oberai, “Deep learning-based detection, classification, and localization of defects in semiconductor processes,” Journal of Micro/nanolithography, MEMS, and MOEMS ,vol. 19, no. 2, pp. 024 801–024 801, 2020. [37] K. C.-C. Cheng, L. L.-Y. Chen, J.-W. Li, K. S.-M. Li, N. C.-Y. Tsai 
+
+et al. , “Machine learning-based detection method for wafer test induced defects,” IEEE Transactions on Semiconductor Manufacturing , vol. 34, no. 2, pp. 161–167, 2021. [38] J. Wang, C. Xu, Z. Yang, J. Zhang, and X. Li, “Deformable convolutional networks for efficient mixed-type wafer defect pattern recognition,” 
+
+IEEE Transactions on Semiconductor Manufacturing , vol. 33, no. 4, pp. 587–596, 2020. [39] K. Kyeong and H. Kim, “Classification of mixed-type defect patterns in wafer bin maps using convolutional neural networks,” IEEE Transactions on Semiconductor Manufacturing , vol. 31, no. 3, pp. 395–402, 2018. [40] S. Xu, S. Hao, C. Song, and Z. Zeng, “A wafer scratch detection method for correction and completing results of semantic segmentation,” in 2024 IEEE 2nd International Conference on Image Processing and Computer Applications (ICIPCA) . IEEE, 2024, pp. 295–299. [41] Y. Qiao, Y. Chen, F. Liu, Z. Mei, Y. Luo et al. , “RA-UNet: A new deep learning segmentation method for semiconductor wafer defect analysis on fine-grained scanning electron microscope (sem) images,” 
+
+IEEE Transactions on Semiconductor Manufacturing , 2025. [42] G. Zhao, Y. Lin, X. Zheng, B. Chen, S. Wang, et al. , “Global context enhanced resolution networks for sapphire scratch detection and classi-fication,” Optics & Laser Technology , vol. 184, p. 112522, 2025. [43] Y. Qiao, Z. Mei, Y. Luo, and Y. Chen, “Deepsem-net: Enhancing sem defect analysis in semiconductor manufacturing with a dual-branch cnn-transformer architecture,” Computers & Industrial Engineering , vol. 193, p. 110301, 2024. [44] J. Long, E. Shelhamer, and T. Darrell, “Fully convolutional networks for semantic segmentation,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2015, pp. 3431–3440. [45] O. Ronneberger, P. Fischer, and T. Brox, “U-net: Convolutional networks for biomedical image segmentation,” in Medical image computing and computer-assisted intervention–MICCAI 2015: 18th international con-ference, Munich, Germany, October 5-9, 2015, proceedings, part III 18 .Springer, 2015, pp. 234–241. [46] T. Xiao, Y. Liu, B. Zhou, Y. Jiang, and J. Sun, “Unified perceptual parsing for scene understanding,” in Proceedings of the European conference on computer vision (ECCV) , 2018, pp. 418–434. [47] N. Ranjan, S. Bhandari, Y.-C. Kim, and H. Kim, “Polycrystalline silicon wafer scratch segmentation based on deep convolutional autoencoder,” in 2022 International Conference on Electronics, Information, and Communication (ICEIC) . IEEE, 2022, pp. 1–4. [48] S. Ranjan and H. Kim, “Xcnet: Enhancing defect detection in sensor boards through data quality analysis and convolutional neural networks,” 13 
+
+Journal of Semiconductor Technology and Science , vol. 25, no. 3, pp. 245–256, 2025. [49] T.-Y. Lin, P. Doll´ ar, R. Girshick, K. He, B. Hariharan et al. , “Feature pyramid networks for object detection,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2017, pp. 2117– 2125. [50] L.-C. Chen, G. Papandreou, F. Schroff, and H. Adam, “Rethinking atrous convolution for semantic image segmentation,” arXiv preprint arXiv:1706.05587 , 2017. [51] N. Ranjan, B. Artacho, and A. Savakis, “Wtpose: Waterfall transformer for multi-person pose estimation,” in Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision Workshops (WACVW) , 2025. [52] J. Wang, K. Sun, T. Cheng, B. Jiang, C. Deng et al. , “Deep high-resolution representation learning for visual recognition,” IEEE trans-actions on pattern analysis and machine intelligence , vol. 43, no. 10, pp. 3349–3364, 2020. [53] S. Ranjan, Y.-C. Kim, N. Ranjan, S. Bhandari, and H. Kim, “Large-scale road network traffic congestion prediction based on recurrent high-resolution network,” Applied Sciences , vol. 13, no. 9, p. 5512, 2023. [54] Y.-T. Li, Y.-C. Chan, C.-C. Huang, Y.-C. Hsu, and S.-H. Chen, “Yoloseg with applications to wafer die particle defect segmentation,” Scientific Reports , vol. 15, no. 1, p. 2311, 2025. [55] K. He, X. Zhang, S. Ren, and J. Sun, “Deep residual learning for image recognition,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2016, pp. 770–778. [56] H. Chen and Z. Zhang, “Surface defect detection in industrial appli-cations using reference-based deep learning,” IEEE Transactions on Industrial Informatics , vol. 11, no. 6, pp. 1309–1318, 2015. [57] B. Cheng, R. Girshick, P. Doll´ ar, A. C. Berg, and A. Kirillov, “Boundary iou: Improving object-centric image segmentation evaluation,” in Pro-ceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2021, pp. 15 334–15 342. [58] M.-P. Dubuisson and A. K. Jain, “A modified hausdorff distance for object matching,” in Proceedings of 12th international conference on pattern recognition , vol. 1. IEEE, 1994, pp. 566–568. [59] A. Kirillov, E. Mintun, N. Ravi, H. Mao, C. Rolland, L. Gustafson, T. Xiao, S. Whitehead, A. C. Berg, W.-Y. Lo et al. , “Segment anything,” in Proceedings of the IEEE/CVF international conference on computer vision , 2023, pp. 4015–4026. [60] S. Li, J. Cao, P. Ye, Y. Ding, C. Tu, and T. Chen, “Clipsam: Clip and sam collaboration for zero-shot anomaly segmentation,” Neurocomputing ,vol. 618, p. 129122, 2025. [61] H. Borgli, H. K. Stensland, and P. Halvorsen, “Better image segmenta-tion with classification: Guiding zero-shot models using class activation maps,” in International Conference on Multimedia Modeling . Springer, 2025, pp. 105–111. 
+
+Sachin Ranjan received his Diploma from Tribhu-van University, Nepal, in 2015 and his B.E. degree from Uttarakhand Technical University, India, in 2019. He is currently pursuing M.S. degree in Elec-tronics Engineering at Incheon National University (INU), South Korea, where he is working as aResearch Assistant at the Machine Intelligence and Data Science (MINDS) Lab. His research interests include image processing, machine learning, com-puter vision, robotics, 6G mobile communication systems, the Internet of Things (IoT), and AI Ethics. 
+
+Hoon Kim received his B.S. degree in Electri-cal Engineering from Korea Advanced Institute of Science and Technology (KAIST), Korea in 1998, and M.S., and Ph.D. degrees in Engineering from Information and Communication University (ICU), Korea in 1999, and 2004, respectively. He had been working with Samsung Advanced Institute of Tech-nology (SAIT) during 2004 to 2005, while serving as a Senior Engineer in Communications and Networks Laboratory Division joining the project of design and performance analysis of radio transmission technol-ogy for beyond 3G and 4G mobile communication systems. He also had been working with Ministry of Information and Communications (MIC) from 2005 to 2007 as a deputy director in Broadband Communications Division in charge of promotion policies on broadband communications industry such as WiMAX. He joined Stanford University as a visiting scholar and a visiting professor during 2007 to 2008 and 2014 to 2015, respectively, and worked on developing radio resource management algorithms and cross layer optimization schemes for 4/5G mobile communications systems. He is currently a Professor of the Department of Electronics Engineering at Incheon National University where he has been working with the same department since 2008. His research interests include 6G mobile communication systems, internet of things, artificial intelligence, and big data. He is a Member of KICS, IEIE, IEEE, and IEICE.

@@ -1,0 +1,1362 @@
+Title: Unpaired Joint Distribution Modeling via Multi-Scale Image Representations
+
+URL Source: https://arxiv.org/pdf/2607.08198v1
+
+Published Time: Fri, 10 Jul 2026 00:46:49 GMT
+
+Number of Pages: 25
+
+Markdown Content:
+# Unpaired Joint Distribution Modeling via Multi-Scale Image Representations 
+
+## Yihang Zou ∗
+
+## , Hui Zhang †
+
+## , Zuowei Shen ‡
+
+## , Chenglong Bao §
+
+Abstract This paper studies the problem of learning a joint distribution from marginal observa-tions, which is inherently ill-posed due to the ambiguity of feasible couplings. We propose LUD-MSR, a latent-variable probabilistic framework that models the joint distribution via auxiliary representations and optimizes evidence lower bounds using only marginal data. Under mild assumptions, we establish an upper bound on the distribution approxi-mation error. This analysis reveals a trade-off in representation learning between domain consistency and information preservation. To address this trade-off, we introduce a Multi-Scale image Representation (MSR) mapping that exploits structural similarity at coarse scales while suppressing domain-specific variations. We show that MSR achieves a more favorable balance of this trade-off compared to existing approaches. Experiments on real-world denoising benchmarks, including cryo-electron microscopy (cryo-EM), demonstrate the effectiveness of the proposed framework. 
+
+Key words. Unpaired joint distribution modeling, probability graphical model, approximation error analysis, cryo-EM. 
+
+# 1 Introduction 
+
+The success of deep learning critically depends on the availability of high-quality paired training data [31, 32]. However, in many scientific and engineering applications, collecting aligned samples ( x, y) ∼ qX,Y 
+
+is expensive or infeasible [21, 49]. This challenge has motivated approaches that relax the requirement for paired supervision, including self-supervised [7, 19, 23, 34, 42, 43] and unpaired [12, 26, 47, 51, 64] learning methods. In the latter scenario, where only the marginal distributions x ∼ qX and y ∼ qY are available, the objective is to infer a joint distribution p(x, y) capable of generating pseudo-paired samples for downstream network training. Mathematically, unpaired learning is formulated as seeking a joint distribution p(x, y) that approximates the true distribution qX,Y while satisfying the marginal constraints 
+
+Z
+
+p(x, y) d y = qX (x),
+
+Z
+
+p(x, y) d x = qY (y). (1) This problem is ill-posed because the set of joint distributions satisfying (1) is generally not unique. Com-mon strategies to alleviate this issue include regularizing x and y via discriminative terms [8, 25], cycle-consistency losses [40,45,64], contrastive objectives [22,36,44], or structural assumptions on latent variables 
+
+> ∗
+
+Yau Mathematical Sciences Center and Department of Mathematical Sciences, Tsinghua University, Beijing, China (zou-yh21@mails.tsinghua.edu.cn). 
+
+> †
+
+Qiuzhen College, Tsinghua University, Beijing, China (zhanghui23@mails.tsinghua.edu.cn). 
+
+> ‡
+
+Department of Mathematics, National University of Singapore, Singapore (matzuows@nus.edu.sg). 
+
+> §
+
+Yau Mathematical Sciences Center, Tsinghua University, Beijing, China, Beijing Institute of Mathematical Sciences and Applications, Beijing, China, and State Key Laboratory of Membrane Sciences, Tsinghua University, Beijing, China (clbao@tsinghua.edu.cn). 
+
+1arXiv:2607.08198v1 [cs.CV] 9 Jul 2026 (e.g., independence between domain-shared and domain-specific factors [24, 33, 53, 62]). While empirically successful across various tasks, these methods often rely on heuristic designs and lack theoretical justifica-tion, potentially leading to unstable or inconsistent pseudo-paired sample generation. To address these challenges, we propose LUD-MSR, an interpretable framework for modeling joint distributions from unpaired data. We introduce a probabilistic graphical model to characterize the joint distribution, utilizing two auxiliary variables, hx and hy, to represent x and y, respectively. Within this graph, we derive training objectives using the evidence lower bounds (ELBOs) for the likelihoods log p(x|hx)and log p(y|hy), requiring only samples from qX and qY . Under specific assumptions, we characterize the error between the true joint distribution and our derived model. This analysis reveals an inherent trade-off between domain consistency and information preservation , directly motivating our structural design principles for hx and hy. For real-world image noise modeling, we explicitly construct hx and hy via a Multi-Scale image Representation (MSR) mapping and theoretically demonstrate that MSR achieves a superior balance of this trade-off compared to existing approaches. Furthermore, our framework can be naturally extended for the semi-supervised case. Through a clean-to-noisy generation pipeline, LUD-MSR synthesizes realistic paired samples for downstream denoising tasks. Our main contributions are summarized as 
+
+(i) We propose LUD-MSR, a novel unpaired joint distribution modeling framework. Theoretical analysis demonstrates that LUD-MSR achieves a superior trade-off between domain consistency and information preservation, thereby significantly reducing the distribution approximation error compared to existing meth-ods. 
+
+(ii) LUD-MSR synthesizes realistic pseudo-training pairs for real-world denoising tasks. It surpasses existing noise modeling approaches on standard denoising benchmarks and demonstrates the advantages for the problem of cryo-EM image denoising. 
+
+# 2 Related Works 
+
+Unpaired joint distribution modeling. Given the scarcity of paired data, unpaired joint distribution modeling seeks to learn the joint distribution qX,Y solely from the marginals x ∼ qX and y ∼ qY . To alle-viate this inherent ill-posedness, early approaches [21, 64] employed cycle-consistent adversarial networks. However, strict pixel-level cycle constraints often restrict generation diversity and induce geometric distor-tions. To address these limitations, subsequent works have maximized mutual information via contrastive learning, utilizing patch-wise frameworks [44], dual objectives [36], or dynamic anchor sampling [22]. Be-yond contrastive methods, disentangled representations [24,33] explicitly promote diversity by decomposing the latent space into domain-shared content and domain-specific styles. This paradigm has been further augmented with physical priors, such as density and depth decomposition [57], to handle complex real-world degradations [8]. Recently, unpaired learning has shifted toward mathematically rigorous optimal transport (OT) and diffusion models. Representative methods include approximating the OT plan via shortest path regularization [55] and formulating high-fidelity translation with Schr¨ odinger Bridges [50]. Modern archi-tectures also revisit classic regularization strategies, such as integrating cycle consistency into text-guided diffusion [40] or incorporating adversarial training for single-step generation [45]. Nevertheless, developing efficient joint distribution models that incorporate both interpretability and task-specific inductive biases remains a critical open challenge. 
+
+Noise modeling. Real-world noise exhibits spatial correlations and complex patterns arising from the intractable image signal processing (ISP) pipeline. Although physics-informed approaches simulate real-world noise [5, 17], significant domain shifts persist due to hand-crafted model limitations. Consequently, research shifted toward learning-based noise modeling. DANet [58] jointly optimizes a denoiser and a noise generator via adversarial training. Flow-sRGB [30] employs normalizing flows (NFs) to capture noise distributions using camera metadata. NeCA [15] introduces a neighborhood-correlation network to model spatial dependencies, while NAFlow [27] utilizes NFs to represent camera-specific noise as Gaussian mixtures. However, these supervised methods remain constrained by paired data scarcity. Unpaired noise modeling mitigates this reliance, operating as a special case of unpaired joint distribution modeling where 2Figure 1: Overview of the LUD-MSR training pipeline. (a) Stage I: Training the Multi-Scale image Representation (MSR) mapping. (b) Stage II: Training the probabilistic graphical model. The parameters of the pre-trained MSR mapping remain frozen during this stage. 
+
+qX and qY denote clean and noisy image distributions, respectively. C2N [25] proposes an adversarial clean-to-noisy generation framework. DeFlow [53] uses NFs to decouple noise and signals in latent space, whereas LUD-VAE [62] employs a probabilistic graphical model with inference invariance enforced via linear diffusion. Nevertheless, designing effective latent representations and model priors to fully exploit inherent joint distribution correlations remains an open challenge. 
+
+Multi-scale image representation. Because paired clean and noisy images share content features at coarser scales while exhibiting distinct degradation statistics at finer scales [37, 48], employing multi-scale image representations (e.g., wavelet decomposition [39]) effectively disentangles signal structures from noise across frequency bands. However, this approach presents an inherent trade-off: operating at coarser scales increases domain consistency but discards fine structural details, diminishing the original signal representa-tion. Consequently, optimally balancing these competing objectives remains a pivotal challenge in unpaired noise modeling. 
+
+# 3 Methodology 
+
+This section is organized as follows. We first introduce LUD-MSR, an unpaired joint distribution modeling approach based on a novel probabilistic graphical model that utilizes auxiliary variables hx and hy to represent x and y, respectively. For the specific application of image noise modeling, we detail the explicit construction of hx and hy via a Multi-Scale image Representation (MSR) mapping. Finally, we extend LUD-MSR to accommodate semi-supervised scenarios. Throughout this paper, we assume x, y ∈ RK . For paired samples ( x, y) ∼ qX,Y , we define the residual as n = y − x, which follows the marginal distribution qn. The covariance matrices ΣX = EqX (x)[xx ⊤] and 
+
+Σn = Eqn(n)[nn ⊤] are assumed to be well-defined. The notation f (x) ≲ g(x) (or f (x) ≳ g(x)) indicates that f (x) ≤ C g (x) (or f (x) ≥ C g (x)) for some constant C > 0. 
+
+## 3.1 The Design of LUD-MSR 
+
+Given the marginal distributions qX and qY , LUD-MSR aims to recover the true joint distribution qX,Y .We first propose a latent-variable probabilistic graphical model to characterize the generative processes of 
+
+x ∼ qX and y ∼ qY , as illustrated in Figure 2. Here, hx and hy denote frozen auxiliary representations associated with x and y, respectively. These variables are specifically designed to bridge the implicit coupling between the two domains, enabling joint distribution modeling. Their explicit construction is detailed in Section 3.2. We introduce two latent variables, z and zn, representing the domain-shared 3Figure 2: Probabilistic graphical model of LUD-MSR. The generative processes for the x ∼ qX and y ∼ qY
+
+are illustrated in (a) and (b) , respectively. content and the y-specific component, respectively. We assume that x, hx, and hy are generated solely by 
+
+z, whereas y is generated jointly by z and zn.To approximate the intractable posterior distributions, we design the following inference models 
+
+q(z|x, hx) = αq (z|x) + (1 − α)q(z|hx),q(z|y, hy) = αq (z|y) + (1 − α)q(z|hy),q(z, zn|y, hy) = q(z|y, hy)q(zn|y, z),
+
+(2) where α ∈ [0 , 1]. Furthermore, we derive the x-to-y and y-to-x conditional generation pipelines from our probabilistic graphical model as 
+
+p(y|x) = Eq(z|x)p(zn|z)p(y|z, zn),p(x|y) = Eq(z|y)p(x|z), (3) which in turn induce the joint generative models 
+
+pX→Y(x, y) = qX (x)p(y|x),pY→X(x, y) = qY (y)p(x|y). (4) Within our probabilistic graphical model, the inference and generative models are parameterized as Gaus-sian networks. Detailed architectural specifications are provided in Appendix A. In the following, we quantify the discrepancy between our generative framework and the true joint distribution under mild assumptions. 
+
+Assumption 1. (i) There exist constants ε0 > 0 and η > 0 such that for (x, y) ∼ qX,Y , the following inequalities hold 
+
+e−η ≤ p(y|x)
+
+p(y|hy) ≤ eη if min {p(y|x), p (y|hy)} ≤ ε0, (5) e−η ≤ p(x|y)
+
+p(x|hx) ≤ eη if min {p(x|y), p (x|hx)} ≤ ε0. (6) 
+
+(ii) Let φ(z; y) = Ep(zn|z)p(y|z, zn), assume that ∥φ(z; y)∥∞ is essentially bounded with respect to y ∼ qY ,and that ∥p(x|z)∥∞ is essentially bounded with respect to x ∼ qX .Remark. Assumption 1(i) imposes a tail-equivalence condition via (5) and (6), bounding the low-probability discrepancies between p(y|x) and p(y|hy), as well as between p(x|y) and p(x|hx). This precludes pathologi-cal tail behaviors and regularizes the generative mappings. Additionally, Assumption 1(ii) posits essentially bounded conditional densities for x and y given z to guarantee model stability. Under this assumption, we establish a bound on the discrepancy between the generated and true joint distributions, as formalized in the following theorem. 4Theorem 1. Let pX→Y and pY→X be defined as in (4) . Suppose the Assumption 1 holds, we have 
+
+DKL (qX,Y || pX→Y) + DKL (qX,Y || pY→X)
+
+≲ − EqX (x) log p(x|hx) − EqY (y) log p(y|hy)+
+
+q
+
+EqX (x)DKL (q(z|x)|| q(z|hx)) + 
+
+q
+
+EqY (y)DKL (q(z|y)|| q(z|hy)) + EqX,Y (x,y)∥q(z|hx) − q(z|hy)∥1.
+
+(7) 
+
+Proof of Theorem 1. Our proof strategy consists of the following steps: (i) bound the log-likelihood dis-crepancy between log p(y|x) and log p(y|hy) via |p(y|x) − p(y|hy)|, and bound the discrepancy between log p(x|y) and log p(x|hx) via |p(x|y) − p(x|hx)|; (ii) estimate the upper bounds of EqX,Y (x,y)|p(y|x) −
+
+p(y|hy)| and EqX,Y (x,y)|p(x|y) − p(x|hx)|; and (iii) control the distribution discrepancies DKL (qX,Y || pX→Y)and DKL (qX,Y || pY→X) using the above results. 
+
+(i) Invoking the regularity condition in (5), we bound the log-likelihood discrepancy between log p(y|x)and log p(y|hy) as 
+
+|log p(y|x) − log p(y|hy)| ≤ | log p(y|x) − log p(y|hy)| · I(min {p(y|x), p (y|hy)} ≤ ε0)+ |log p(y|x) − log p(y|hy)| · I(min {p(y|x), p (y|hy)} > ε 0)
+
+≤η + ε−10 |p(y|x) − p(y|hy)| ,
+
+(8) where I(·) denotes the indicator function. Similarly, by (6), we obtain 
+
+|log p(x|y) − log p(x|hx)| ≤ η + ε−10 |p(x|y) − p(x|hx)| . (9) 
+
+(ii) For any ( x, y) ∼ qX,Y , we quantify the discrepancies between p(y|x) and p(y|hy), and symmetrically between p(x|y) and p(x|hx). Given the generative process of our proposed graphical model, we obtain 
+
+|p(y|hy) − p(y|x)| = R (q(z|hy) − q(z|x)) p(zn|z)p(y|z, zn)d zdzn
+
+= R φ(z; y) ( q(z|x) − q(z|hy)) d z
+
+≤∥ φ(z; y)∥∞ · ∥ q(z|x) − q(z|hy)∥1 .
+
+Symmetrically, we have 
+
+|p(x|hx) − p(x|y)| = R (q(z|hx) − q(z|y)) p(x|z)d z
+
+≤∥ p(x|z)∥∞ · ∥ q(z|hx) − q(z|y)∥1.
+
+Applying the triangle inequality to the L1 norm, we obtain 
+
+|p(y|hy) − p(y|x)| ≤∥ φ(z; y)∥∞ (∥q(z|x) − q(z|hx)∥1 + ∥q(z|hx) − q(z|hy)∥1)
+
+|p(x|hx) − p(x|y)| ≤∥ p(x|z)∥∞ (∥q(z|y) − q(z|hy)∥1 + ∥q(z|hx) − q(z|hy)∥1). (10) 
+
+(iii) According to (8) and (9), we obtain the conditional KL divergence bounds 
+
+DKL (qY |X (y|x)|| p(y|x)) =DKL (qY |X (y|x)|| p(y|hy)) + EqY |X (y|x) log p(y|hy )
+
+> p(y|x)
+
+≤ − H(qY |X ) − EqY |X (y|x) log p(y|hy) + η + ε−10 EqY |X (y|x) |p(y|x) − p(y|hy)|
+
+(11) for x ∼ qX , and 
+
+DKL (qX|Y (x|y)|| p(x|y)) =DKL (qX|Y (x|y)|| p(x|hx)) + EqX|Y (x|y) log p(x|hx)
+
+> p(x|y)
+
+≤ − H(qX|Y ) − EqX|Y (x|y) log p(x|hx) + η + ε−10 EqX|Y (x|y) |p(x|y) − p(x|hx)|
+
+5for y ∼ qY , where H(p) = −Ep(x) log p(x) denotes the Shannon entropy of the distribution p. Recalling the definitions of pX→Y and pY→X in (4), the joint KL divergences in (7) are expressed as 
+
+DKL (qX,Y || pX→Y) = EqX (x)DKL (qY |X (y|x)|| p(y|x)) ,DKL (qX,Y || pY→X) = EqY (y)DKL (qX|Y (x|y)|| p(x|y)) .
+
+Combining (10) with Pinsker’s inequality yields the following upper bounds 
+
+DKL (qX,Y || pX→Y) ≤ − H(qY |X ) + η − EqY (y) log p(y|hy)+ √2ε−10 EqY (y)∥φ(z; y)∥∞
+
+q
+
+EqX (x)DKL (q(z|x)|| q(z|hx)) + ε−10 EqX,Y (x,y)∥φ(z; y)∥∞∥q(z|hx) − q(z|hy)∥1,DKL (qX,Y || pY→X) ≤ − H(qX|Y ) + η − EqX (x) log p(x|hx)+ √2ε−10 EqX (x)∥p(x|z)∥∞
+
+q
+
+EqY (y)DKL (q(z|y)|| q(z|hy)) + ε−10 EqX,Y (x,y)∥p(x|z)∥∞∥q(z|hx) − q(z|hy)∥1,
+
+Note that the terms −H(qY |X ), −H(qX|Y ), and η are constant with respect to the optimization of the generative model. 
+
+The loss function. Theorem 1 motivates us to train the proposed probabilistic graphical model by minimizing the first four terms in (7). Using the variational inference framework, we derive the ELBOs for log p(x|hx) and log p(y|hy) as log p(x|hx) ≥ Eq(z|x,hx) log p(x|z) − α D KL (q(z|x)|| q(z|hx)) = ELBO x, (12) log p(y|hy) ≥ Eq(z,zn|y,hy ) log p(y|z, zn) − α D KL (q(z|y)|| q(z|hy)) 
+
+− Eq(z|y,hy )DKL (q(zn|y, z)|| p(zn|z)) = ELBO y. (13) A detailed derivation of (12) and (13) is provided in Appendix B. Since (12) and (13) contain the third and fourth term in (7), the loss function is defined as 
+
+L(up) g = −  EqX (x)ELBO x + EqY (y)ELBO y
+
+ . (14) Consequently, the evaluation of (14) only requires samples from marginal distributions qX and qY .Notably, the final term in (7) (namely, the inference invariance term) depends on the auxiliary repre-sentations hx and hy. Consequently, these representations must be carefully designed to mitigate this error prior to training the probabilistic graphical model. The design of these auxiliary representations is guided by the following two principles [domain consistency ] hx = hy for ( x, y) ∼ qX,Y . (15) [information preservation ] hx = x for x ∼ qX . (16) The domain consistency condition is intended to effectively reduce the inference invariance error. However, enforcing this condition in isolation can lead to degenerate solutions (e.g., hx = hy ≡ 0 for all x ∼ qX
+
+and y ∼ qY ). This observation naturally motivates the information preservation requirement. We detail the construction of hx and hy and analyze the trade-off between these two competing requirements in the subsequent subsection. In summary, the LUD-MSD framework consists of two sequential stages: 
+
+Stage I: Learn the auxiliary representations hx and hy using (18). 
+
+Stage II: With hx and hy fixed, train the probabilistic graphical model using (14). The overall LUD-MSR training pipeline is illustrated in Figure 1 and detailed in Algorithm 1. 6Algorithm 1 LUD-MSR training (unpaired) 
+
+Require: Marginal distributions qX and qY 
+
+> 1:
+
+while h has not converged do ▷ Stage I : Train auxiliary representations  
+
+> 2:
+
+Sample x ∼ qX and y ∼ qY 
+
+> 3:
+
+Update h by minimizing L(up)  
+
+> h
+
+defined in (18)  
+
+> 4:
+
+end while  
+
+> 5:
+
+Freeze parameters of the mapping h 
+
+> 6:
+
+while pX→Y has not converged do ▷ Stage II : Train probabilistic graphical model  
+
+> 7:
+
+Sample x ∼ qX and y ∼ qY 
+
+> 8:
+
+Compute hx = h(x) and hy = h(y) 
+
+> 9:
+
+Update pX→Y by minimizing L(up) g defined in (14)  
+
+> 10:
+
+end while  
+
+> 11:
+
+return Joint generative model pX→Y(x, y)
+
+## 3.2 The Construction of Auxiliary Representations 
+
+Given a hypothesis space H, we aim to find a mapping h ∈ H such that hx = h(x) and hy = h(y). The domain consistency (15) and information preservation (16) conditions naturally gives the loss function min  
+
+> h∈H
+
+EqX (x)∥x − h(x)∥1 + EqX,Y (x,y)∥h(x) − h(y)∥1.
+
+Note that the second term is intractable due to the absence of paired samples. To approximate it, we use the result 
+
+EqX,Y (x,y)∥h(x) − h(y)∥1 ≤EqX (x)pσ (nx)∥h(x) − h(x + nx)∥1 + EqY (y)pσ (ny )∥h(y) − h(y + ny)∥1
+
++ EqX,Y (x,y)pσ (nx)pσ (ny )∥h(x + nx) − h(y + ny)∥1
+
+(17) where pσ = N (0, σ 2I). While the first two terms in (17) can be explicitly minimized using unpaired data, the third term becomes statistically indistinguishable as σ → ∞ .
+
+Proposition 1. Assume that the mapping h is bounded. Then 
+
+lim  
+
+> σ→∞
+
+∥EqX,Y (x,y)pσ (nx)pσ (ny )[h(x + nx) − h(y + ny)] ∥1 = 0 .
+
+The proof is given in Appendix C. Consequently, we formulate the surrogate loss as 
+
+L(up)  
+
+> h
+
+=EqX (x)∥x − h(x)∥1 + EqX (x)pσ (nx)∥h(x) − h(x + nx)∥1
+
++ EqY (y)pσ (ny )∥h(y) − h(y + ny)∥1. (18) While (18) provides a general objective for learning h across arbitrary data modalities, we leverage task-specific structural properties to incorporate an explicit model prior through the design of H.
+
+Design of H for image denoising. In the context of image denoising, we have y = x+n for ( x, y) ∼ qX,Y ,where x, y, and n denote the clean image, the noisy image, and the noise component, respectively. We now present the construction of the hypothesis space H for this specific task. Given that the energy of natural images is predominantly concentrated in low frequencies [13] and that clean-noisy pairs exhibit significant structural similarity in low-frequency subbands [48], a natural strategy is to design h to extract compact, multi-scale low-frequency features. That is, 
+
+H = {(Dm)⊤ ◦ D m | D : x 7 →↓ 2 (klow ∗ x)} (19) where klow represents a low-pass filter and ↓2 denotes downsampling by a factor of 2. The following proposition quantitatively validates the trade-off between domain consistency (15) and information preser-vation (16). 7Proposition 2. Let klow = ( 14 , 12 , 14 ) . If H is defined as in (19) and h ∈ H , we obtain 
+
+EqX,Y (x,y)∥h(x) − h(y)∥22 ≲ K/ 23m,
+
+EqX (x)∥x − h(x)∥22 ≳ K (1 − 2−3m).
+
+The proof is provided in Appendix D. These results indicate that while increasing m enhances the representation invariance between clean and noisy images, it simultaneously incurs information loss by attenuating high-frequency components. Consequently, the primary challenge is to maintain this invariance while preserving more high-frequency information within the mapping. Building upon our previous work [3], we define the hypothesis space H as the Multi-Scale image Representation (MSR) mapping class 
+
+HMSR = {h : x 7 → f −1([ f (x)] 1: d, 0) | d ∈ N, f ∈ Diff( RK )} (20) where Diff( RK ) denotes the space of diffeomorphisms on RK , and the term [ f (x)] 1: d represents the sub-vector corresponding to the first d dimensions of f (x). Specifically, we implement the MSR mapping in practice as 
+
+h(x) = f −1([ f (x)] 1: K/ 2T , 0), (21) where the invertible mapping f = fT ◦ · · · ◦ f1 is composed of T scale levels, each level fl = gl ◦ W comprises a normalizing flow gl and a wavelet operator W . Compared to the general class defined in (20), we set 
+
+d = K/ 2T to explicitly capture the low-frequency features at the T -th scale level. In our experiments, we set 
+
+T = 3 and employ the linear B-spline wavelet tight frame [11] as W . Detailed architectural specifications for the invertible mapping f are provided in Appendix E. 
+
+Remark. (i) The class HMSR defined in (20) simplifies to the class of orthogonal projections 
+
+HOP = {h : x 7 → Hx | H ∈ S K 
+
+> +
+
+, H2 = H}. (22) if we restrict f ∈ O(K). This space serves as a linear surrogate for the MSR mappings. (ii) In LUD-VAE [62], the hypothesis space is constructed using noise injection mappings 
+
+HNI = {h : x 7 → x + nσ | nσ ∼ pσ , σ > 0}. (23) Different hypothesis spaces induce different errors for the domain consistency (15) and information preser-vation (16). We will provide the theoretical analysis in Section 4. 
+
+## 3.3 Extension to the Semi-Supervised Case 
+
+LUD-MSR can be extended to the semi-supervised case, where the goal is to estimate the joint distribution 
+
+qX,Y using unpaired data x ∼ qX and y ∼ qY , together with a limited set of paired samples ( xk, yk) ∼ qX,Y .In this setting, in addition to optimizing LUD-MSR with the unpaired objectives L(up)  
+
+> h
+
+and L(up) g defined in (18) and (14), we further incorporate the paired samples to enhance the overall training procedure. 
+
+Stage I: During the training of MSR mapping h, we directly use paired samples to minimize the domain consistency and information preservation errors: 
+
+L(p)  
+
+> h
+
+= EqX,Y (x,y) [∥h(x) − h(y)∥1 + ∥x − h(x)∥1] . (24) 
+
+Stage II: To train the probabilistic graphical model, we use paired samples to maximize the conditional log-likelihoods log p(y|x) + log p(x|y). By setting 
+
+q(z|x, y) = αq (z|x) + (1 − α)q(z|y), (25) we have log p(x|y) ≥Eq(z|x,y) log p(x|z) − αD KL (q(z|x)|| q(z|y)) ,
+
+log p(y|x) ≥Eq(z|x,y)q(zn|y,z) log p(y|z, zn) − (1 − α)DKL (q(z|y)|| q(z|x)) 
+
+− Eq(z|x,y)DKL (q(zn|y, z)|| p(zn|z)) .
+
+(26) 8The derivation of (26) is deferred to Appendix B. Therefore, the loss function for the paired samples is 
+
+L(p) g = − Eq(z|x,y) log p(x|z) − Eq(z|x,y)q(zn|y,z) log p(y|z, zn)+ αD KL (q(z|x)|| q(z|y)) + (1 − α)DKL (q(z|y)|| q(z|x)) + Eq(z|x,y)DKL (q(zn|y, z)|| p(zn|z)) .
+
+(27) Please refer to Algorithm 2 for the training procedure of LUD-MSR in the semi-supervised setting. 
+
+Remark. In the semi-supervised setting, our training objective promotes accurate distribution modeling according to (7) by bounding the inference invariance error 
+
+∥q(z|hx) − q(z|hy)∥1 ≲pDKL (q(z|x)|| q(z|y)) + pDKL (q(z|y)|| q(z|x)) + pDKL (q(z|x)|| q(z|hx)) + 
+
+q
+
+DKL (q(z|y)|| q(z|hy)) ,
+
+Specifically, the paired loss L(p) (g) in (27) minimizes the first two terms of this bound, while the unpaired loss 
+
+L(up) (g) in (14) penalizes the latter two. 
+
+Algorithm 2 LUD-MSR training (semi-supervised) 
+
+Require: Marginal distributions qX and qY , and a limited set of paired samples {(xk, yk)} ∼ qX,Y . 
+
+> 1:
+
+while h has not converged do ▷ Stage I : Train auxiliary representations  
+
+> 2:
+
+Sample x ∼ qX and y ∼ qY 
+
+> 3:
+
+Update h by minimizing L(up)  
+
+> h
+
+defined in (18)  
+
+> 4:
+
+Sample ( xk, yk) ∼ qX,Y  
+
+> 5:
+
+Update h by minimizing L(p)  
+
+> h
+
+defined in (24)  
+
+> 6:
+
+end while  
+
+> 7:
+
+Freeze parameters of the mapping h 
+
+> 8:
+
+while pX→Y has not converged do ▷ Stage II : Train probabilistic graphical model  
+
+> 9:
+
+Sample x ∼ qX and y ∼ qY 
+
+> 10:
+
+Compute hx = h(x) and hy = h(y) 
+
+> 11:
+
+Update pX→Y by minimizing L(up) g defined in (14)  
+
+> 12:
+
+Sample ( xk, yk) ∼ qX,Y  
+
+> 13:
+
+Update pX→Y by minimizing L(p) g defined in (27)  
+
+> 14:
+
+end while  
+
+> 15:
+
+return Joint generative model pX→Y(x, y)
+
+# 4 Theoretical Analysis for the MSR mapping 
+
+This section provides an analysis of the MSR mapping h, which entails an inherent trade-off between the domain consistency (15) and information preservation (16) conditions. We first demonstrate that these two conditions are incompatible. 
+
+Proposition 3. If the conditional entropy satisfies H(x|y) = −EqX,Y (x,y) log qX|Y (x|y) > 0, then (15) 
+
+and (16) cannot hold simultaneously . 
+
+The proof is given in Appendix F. The condition H(x|y) > 0 implies that x contains domain-specific stochasticity and cannot be deterministically derived from y. Therefore, to quantitatively analyze the trade-off between these competing objectives, we consider the following optimization problem 
+
+e∗H = min  
+
+> h∈H
+
+EqX (x)∥x − hx∥22
+
+s.t. EqX,Y (x,y)∥q(z|hx) − q(z|hy)∥1 ≤ ε. 
+
+(28) 9This quantity characterizes the reconstruction capability of h under a relaxed domain invariance (i.e., inference invariance) constraint, where ε controls the level of allowable deviation. We evaluate the behavior of the minimal error e∗H across (i) the noise injection mapping class HNI defined in (23); (ii) the orthogonal projection mapping class HOP defined in (22); and (iii) the MSR mapping class 
+
+HMSR defined in (20). Throughout our analysis, we assume linear Gaussian inference models of the form 
+
+q(z|h) = N (z|Ah, Γ) for h ∈ { hx, hy}, where A ∈ Rk×K has full row rank, Γ ∈ S k
+
+> ++
+
+, and k is the latent dimension. The following theorem characterizes e∗H for the hypothesis classes HNI and HOP .
+
+Theorem 2. (i) Let HNI be defined as in (23) . Then the minimal information preservation error e∗HNI 
+
+defined in (28) satisfies e∗HNI ≳ K2 (erf −1( ε 
+
+> 2
+
+)) −2, where erf( z) = 2√π
+
+R z 
+
+> 0
+
+e−t2
+
+dt. In particular, e∗HNI ≳ K2 ε−2
+
+for sufficiently small ε > 0.(ii) Let HOP be defined as in (22) . Then the minimal information preservation error e∗HOP defined in (28) 
+
+satisfies 
+
+e∗ ≲ K − ε2. (29) 
+
+Proof of Theorem 2. (i) Under the given assumptions, the inference model is expressed as q(z|hx) = 
+
+N (z|Ax, σ 2AA ⊤ + Γ). Let Bσ = σ2AA ⊤ + Γ. According to [16, Sec. 3.2.1], we obtain 
+
+∥q(z|hx) − q(z|hy)∥1 = 2erf( ∥B− 12  
+
+> σA(x−y)∥2
+> 2√2
+
+).
+
+Define Sε := erf −1   ε
+
+> 2
+
+. Then, the constraint 
+
+EqX,Y (x,y)∥q(z|hx) − q(z|hy)∥1 ≤ ε (30) implies that Tr( A⊤B−1 
+
+> σ
+
+AΣn) ≤ 8S2 
+
+> ε
+
+. Observing that the asymptotic equivalence Tr( A⊤B−1 
+
+> σ
+
+AΣn) ≍ K/σ 2
+
+holds in the large-noise regime, where ≍ denotes equivalence up to a constant. Therefore, a necessary condition to satisfy (30) is σ2 ≳ K/S 2 
+
+> ε
+
+. Regarding the expected reconstruction error, we have 
+
+EqX (x)∥x − hx∥22 = Kσ 2.
+
+It follows that e∗HNI ≳ K2S−2 
+
+> ε
+
+. In particular, using the expansion erf −1(z) = √π 
+
+> 2
+
+z + o(z), we arrive at the bound e∗HNI ≳ K2ε−2 for sufficiently small ε > 0. 
+
+(ii) We have q(z|hx) = N (z|AH x, Γ) based on the problem setup, where H ∈ S K is an orthogonal projection matrix of rank d. Invoking the result from [16, Sec. 3.2.1], we obtain 
+
+EqX,Y (x,y)∥q(z|hx) − q(z|hy)∥21 ≤ 2 
+
+> π
+
+Tr( A⊤Γ−1AH ΣnH) ≤ κ d, 
+
+where κ = 2 
+
+> π
+
+∥Γ−1∥2 ∥A∥22 ∥Σn∥2. This implies that 
+
+EqX,Y (x,y)∥q(z|hx) − q(z|hy)∥1 ≤ √κd ≲ √d. (31) Thus, a sufficient condition to guarantee (30) is d ≲ ε2. To minimize the information preservation error given by 
+
+EqX (x)∥x − hx∥22 = Tr( ΣX (I − H)) ,
+
+we construct H as the orthogonal projection onto the top d principal components of ΣX , maximizing the rank d subject to the sufficient condition d ≲ ε2. By choosing the maximum valid integer d ≍ ε2, the minimal reconstruction error achieved by this construction is Tr( ΣX (I − H)) ≍ K − d ≍ K − ε2.
+
+Consequently, the optimal information loss satisfies e∗HOP ≲ K − ε2.10 Although Theorem 2 indicates that utilizing an orthogonal projection as a linear surrogate for the MSR mapping theoretically yields a lower information preservation error than noise injection for a fixed inference invariance tolerance, the dependency on the image dimension K in (29) remains a significant source of error. We attribute this limitation to the inherent constraints of linear mappings, which lack the expressive capacity to effectively disentangle the noise component from the signal distribution . Instead, we consider the nonlinear MSR mapping class HMSR defined in (20). We establish the following bounds for e∗HMSR ,relying on the expressivity of nonlinear mappings. 
+
+Theorem 3. Let HMSR be defined as in (20) . Define the intrinsic intersection rank r∗ as 
+
+r∗ = min dim( V fX ∩ V f 
+
+> n
+
+)s.t. V fX = Im  EqX (x)[fxf ⊤ 
+
+> x
+
+], V f 
+
+> n
+
+= Im  EqX,Y (x,y)[fnf ⊤ 
+
+> n
+
+],
+
+fx = f (x), fn = f (y) − f (x), f ∈ Diff( RK ).
+
+(32) 
+
+Then, the minimal information loss e∗HMSR defined in (28) satisfies the following conditions: (i) If r∗ = 0 , then e∗HMSR = 0 .(ii) If r∗ > 0, then e∗HMSR ≲ r∗ − ε2.Proof of Theorem 3. (i) Consider the case where r∗ = 0. Let f ∗ ∈ Diff( RK ) be the optimal solution to (32), and denote the transformed signal and noise components as fx = f ∗(x) and fn = f ∗(y) − f ∗(x), respectively. Let Σ∗ 
+
+> X
+
+= EqX (x)[fxf ⊤ 
+
+> x
+
+], Σ∗ 
+
+> n
+
+= EqX,Y (x,y)[fnf ⊤ 
+
+> n
+
+], and define the image spaces V ∗ 
+
+> X
+
+= Im( Σ∗ 
+
+> X
+
+)and V ∗ 
+
+> n
+
+= Im( Σ∗
+
+> n
+
+). By assumption, V ∗ 
+
+> X
+
+∩ V ∗ 
+
+> n
+
+= {0}. Defining h = ( f ∗)−1 ◦ proj V ∗ 
+
+> X
+
+◦ f ∗, where proj V ∗
+
+> X
+
+denotes the orthogonal projector onto V ∗ 
+
+> X
+
+, we bound the squared inference invariance error 
+
+EqX,Y (x,y)∥q(z|hx) − q(z|hy)∥21 ≲EqX,Y (x,y)∥hx − hy∥22
+
+≲EqX,Y (x,y)∥proj V ∗ 
+
+> X
+
+(f ∗(x) − f ∗(y)) ∥22
+
+=Tr(proj V ∗ 
+
+> X
+
+Σ∗
+
+> n
+
+) = 0 .
+
+Simultaneously, the information preservation error satisfies 
+
+EqX (x)∥x − hx∥22 ≲EqX (x)∥(I − proj V ∗ 
+
+> X
+
+) f ∗(x)∥22
+
+=Tr(( I − proj V ∗ 
+
+> X
+
+) Σ∗ 
+
+> X
+
+) = 0 .
+
+This demonstrates e∗HMSR = 0. 
+
+(ii) For the case r∗ > 0, we first consider the simplified scenario where f in (32) is the identity map and h
+
+is a linear projection h(x) = Hx, with H ∈ S K 
+
+> +
+
+and H2 = H. Let RK be decomposed as RK = L3 
+
+> i=1
+
+Vi,such that Im( ΣX ) = V1 ⊕ V2 and Im( Σn) = V2 ⊕ V3. Let ri = dim( Vi). Without loss of generality, we assume V1 = span( {ei}r1
+
+> i=1
+
+), V2 = span( {ei}r1+r2
+
+> i=r1+1
+
+), and V3 = span( {ei}Ki=r1+r2+1 ), where ei is the i-th standard basis vector. We construct the block diagonal matrix H as 
+
+H = diag ( Ir1+d, 0r2+r3−d) . (33) As established in (31), a sufficient condition to satisfy (30) is d ≲ ε2. With the structure of H defined in (33), the information preservation error becomes 
+
+EqX (x)∥x − hx∥22 = Tr( ΣX (I − H)) ≍ r2 − d ≍ r2 − ε2. (34) For the general case, let f ∗ ∈ Diff( RK ) be the optimal solution to (32). We derive a result analogous to (34) by analyzing the covariance matrices in the transformed space: Σ∗ 
+
+> X
+
+= EqX (x)[fxf ⊤ 
+
+> x
+
+] and Σ∗ 
+
+> n
+
+=
+
+EqX,Y (x,y)[fnf ⊤ 
+
+> n
+
+]. In this setting, we define h = ( f ∗)−1 ◦ H ◦ f ∗, where H follows the structure in (33). Consequently, the rank term r2 in (34) corresponds directly to the intrinsic intersection rank r∗ defined in (32), yielding the final bound e∗ 
+
+> MSR
+
+≲ r∗ − ε2.Theorem 3 characterizes the information preservation error via the intrinsic separability of the signal and noise components. Specifically, it demonstrates that perfect inference invariance q(z|hx) = q(z|hy)is achievable with zero information loss, provided the underlying signal and noise manifolds are perfectly separable. 11 5 Experiments 
+
+This section comprehensively evaluates the practical performance of LUD-MSR, encompassing real-world noise modeling and downstream denoising applications, with a specific focus on the challenging cryo-EM image denoising task. The highest quantitative scores are highlighted in bold .
+
+## 5.1 Results for the Generated Noisy Images 
+
+In this part, we evaluate the fidelity of images synthesized via the clean-to-noisy generation pipeline of LUD-MSR, i.e., pX→Y defined in (4). 
+
+Experimental settings. LUD-MSR is trained on the SIDD-Medium dataset [2], which comprises 320 clean-noisy image pairs captured across 5 camera sensors and 15 ISO levels. We generate training data by randomly cropping 300 patches of size 256 × 256 per image, yielding 96,000 paired samples. To simulate the unpaired setting, we partition these pairs into two disjoint subsets of 48,000 samples each, using clean images from the first subset and noisy images from the second. For semi-supervised experiments, we sample random subsets of 0.01% (10 pairs), 0.1% (96 pairs), and 1% (960 pairs) of the total data to serve as the paired domain. 
+
+Training details. LUD-MSR trains in two stages, as outlined in Algorithm 1 and Algorithm 2. In Stage I, we train the MSR mapping for 20k, 50k, 65k, and 200k iterations for the unpaired, 10-pair, 96-pair, and 960-pair settings, respectively. We optimize using AdamW [38] with an initial learning rate of 2 × 10 −4, halved every 50k iterations. We use a batch size of 8 and 128 × 128 random crops with flips and rotations. The Gaussian noise level σ in (18) is sampled uniformly from [0 , 40 255 ]. In Stage II, we optimize the probabilistic graphical model for 500k iterations using Adam [28]. The initial learning rate of 10 −4 is halved at 100k, 175k, 250k, 325k, 400k, and 450k iterations. We use a batch size of 8, 64 × 64 random crops with augmentations, and empirically set the mixture weight to α = 0 .5 in (2) and (25). 
+
+Compared methods. Given that LUD-MSR is capable of synthesizing realistic noisy images in both unpaired and semi-supervised scenarios, we compare LUD-MSR against (i) unpaired noise modeling meth-ods [25,53,62] and (ii) semi-supervised approaches [63]. We also include supervised noise models [15,27,30, 58, 63] as a reference. Synthesized noise quality is assessed via Average KL Divergence (AKLD) [58] and Fr´ echet Inception Distance (FID) [20]. Table 1: Quantitative Evaluation of Noise Generation Performance on Real-World Noise Datasets                                                                        
+
+> Model # Paired Data SIDD validation SIDD+ AKLD FID AKLD FID C2N [25] 00.2802 34.04 0.8252 38.97 DeFlow [53] –39.45 ––LUD-VAE [62] 0.2177 35.72 0.2497 69.67 LUD-MSR 0.1111 18.05 0.1459 38.24
+> SeNM-VAE [63] 0.01% (10) 0.1282 17.25 0.2113 45.23 LUD-MSR 0.1099 16.19 0.1471 35.76
+> SeNM-VAE [63] 0.1% (96) 0.1162 16.76 0.1649 37.21 LUD-MSR 0.1097 15.09 0.1505 34.96
+> SeNM-VAE [63] 1% (960) 0.1166 15.10 0.1717 40.88 LUD-MSR 0.1083 14.35 0.1507 34.39
+> DANet [58] 100% 0.2124 26.25 0.4153 72.95 Flow-sRGB [30] 0.4716 28.60 0.5855 45.14 NeCA-S [15] 1.0470 36.43 1.7921 56.36 NeCA-W [15] 0.1436 19.96 0.2408 29.27 NAFlow [27] 0.1306 18.31 0.2911 39.21 SeNM-VAE [63] 0.1180 13.79 0.1626 37.78
+
+Results. Table 1 summarizes the quantitative noise synthesis results on the SIDD validation set and the SIDD+ dataset [1]. LUD-MSR significantly outperforms state-of-the-art unpaired and semi-supervised 12 Figure 3: Visual comparison of noisy images generated by various noise modeling methods on the SIDD validation set. KLD ( ↓) is computed following [58] with L = 1. baselines, achieving performance that is highly competitive with fully supervised models. This demonstrates the superiority of our probabilistic graphical model design and the inductive bias introduced by the MSR mapping (21). A qualitative comparison in Figure 3 confirms that LUD-MSR generates markedly more realistic noise patterns than the unpaired baselines, where C2N produces over-smoothed textures, and LUD-VAE introduces noticeable artifacts from excessive information loss. Furthermore, LUD-MSR exhibits robust generalization on the SIDD+ dataset, effectively capturing noise conditioned on scenes and lighting conditions unseen in the SIDD-Medium training set. 
+
+## 5.2 Results for Downstream task: Real-World Image Denoising 
+
+In this part, We evaluate the downstream performance of LUD-MSR on real-world denoising benchmarks. 
+
+Experimental settings. Using trained LUD-MSR, we generate a pseudo-paired training dataset by sampling clean images from the SIDD-Medium set and synthesizing their noisy counterparts via the clean-to-noisy generation pipeline. We train a DnCNN [60] denoiser on this synthetic dataset and evaluate it across real-world benchmarks, including SIDD validation set, SIDD benchmark, DND benchmark [46], and the SIDD+, PolyU [56], CC [41] datasets. Denoising quality is assessed via Peak Signal-to-Noise Ratio (PSNR) and Structural Similarity Index (SSIM). 
+
+Training details. Following the protocols in [62, 63], we train DnCNN for 300k iterations using Adam. The initial learning rate of 10 −4 is halved every 100k iterations. We use a batch size of 64 and 40 × 40 random crops with flips and rotations. We validate denoising performance on the SIDD validation set every 5k iterations, selecting the checkpoint with the highest PSNR for final evaluation. 
+
+Compared methods. We compare LUD-MSR against representative noise modeling methods [15, 25, 27, 30, 58, 62, 63]. We also include a DnCNN model trained on real paired data as a reference. 
+
+Results. Table 2 details the quantitative denoising performance, where LUD-MSR outperforms competing methods by achieving the highest PSNR and SSIM scores across most benchmarks. Qualitative comparisons in Figure 4 confirm that LUD-MSR restores cleaner images with sharper details. We attribute these gains to our joint distribution modeling framework, which captures diverse, realistic noise characteristics to effectively bridge the domain gap between synthetic training data and real-world distributions. 
+
+## 5.3 Application in Cryo-EM Denoising 
+
+We apply LUD-MSR to the challenging task of cryo-EM image denoising. Specifically, we employ LUD-MSR to model the complex, signal-dependent noise distributions inherent to real-world cryo-EM micrographs. We then train a denoising network on the generated pseudo-paired dataset to recover high-fidelity biological structures from low-SNR observations. 
+
+Experimental settings. We conduct experiments on three real-world cryo-EM datasets: EMPIAR-10025 [6], EMPIAR-10028 [54], and EMPIAR-10077 [14]. To construct the unpaired training data, we 13 Figure 4: Visual comparison of denoising results for DnCNN models trained on synthetic data from various noise modeling methods. PSNR/SSIM are reported. Table 2: Quantitative Denoising Performance of DnCNN Models Trained on Synthetic Data from Various Noise Modeling Methods                                                                                                                                                                                                                     
+
+> Methods # Paired Data SIDD validation SIDD benchmark DND SIDD+ PolyU CC PSNR SSIM PSNR SSIM PSNR SSIM PSNR SSIM PSNR SSIM PSNR SSIM C2N [25] 034.11 0.818 35.34 0.806 36.08 0.903 34.27 0.852 37.07 0.955 35.24 0.938
+> DeFlow [53] 33.82 –––36.71 0.923 ––––––LUD-VAE [62] 34.91 0.892 35.49 0.883 37.60 0.933 34.52 0.891 33.68 0.942 31.25 0.920 LUD-MSR 36.81 0.899 37.20 0.890 38.54 0.942 34.91 0.892 37.44 0.956 36.01 0.936 SeNM-VAE [63] 0.01% (10) 36.73 0.891 37.12 0.881 37.94 0.936 35.42 0.898 37.16 0.954 35.37 0.926 LUD-MSR 37.14 0.902 37.52 0.894 38.31 0.942 35.96 0.904 37.47 0.957 36.36 0.950
+> SeNM-VAE [63] 0.1% (96) 36.92 0.895 37.32 0.886 38.21 0.942 35.09 0.860 35.60 0.938 34.32 0.906 LUD-MSR 37.42 0.901 37.72 0.892 38.78 0.947 35.79 0.901 37.50 0.954 35.75 0.928
+> SeNM-VAE [63] 1% (960) 37.28 0.902 37.58 0.895 38.44 0.943 35.46 0.889 37.34 0.953 35.40 0.918 LUD-MSR 37.68 0.903 37.95 0.895 38.87 0.947 35.44 0.891 37.39 0.953 35.63 0.924
+> DANet [58] 100% 36.25 0.885 36.63 0.875 38.21 0.943 34.82 0.882 37.17 0.958 33.86 0.928 Flow-sRGB [30] 33.24 0.868 34.41 0.857 36.09 0.895 34.12 0.872 36.12 0.953 33.46 0.920 NeCA-W [15] 37.04 0.900 37.35 0.892 38.70 0.946 35.65 0.901 37.25 0.958 36.23 0.949 NAFlow [27] 37.23 0.898 37.61 0.891 38.53 0.943 36.63 0.924 36.59 0.951 34.94 0.937 SeNM-VAE [63] 38.28 0.907 38.55 0.900 39.09 0.950 35.67 0.898 36.46 0.931 34.21 0.881 Real Noise 100% 38.40 0.909 38.65 0.901 39.04 0.949 35.94 0.903 36.61 0.930 34.50 0.889
+
+select reference proteins from the protein data bank (PDB) that are structurally homologous to the target macromolecules. Leveraging sequence similarity, these homologues typically share low-frequency structural features with the target proteins. Specifically, we utilize structures 6HVR (for 10025), 7ZJW (for 10028), and 8UTJ (for 10077) as references. The atomic coordinates of these homologous proteins are first converted into 3D density maps at the target resolution. Subsequently, we project these density maps from random orientations to generate noise-free simulated projections. To faithfully mimic the physical imaging process, we apply contrast transfer function (CTF) modulation matched to the intensity profile of the real data to these projections, thereby establishing the pseudo-clean domain. We assess downstream performance by analyzing the quality of the denoised 2D particle class averages. For quantitative comparison against other cryo-EM denoising methods, we employ the estimated Signal-to-Noise Ratio (SNR) [35] as our primary metric. 
+
+Training details. Our pipeline trains the LUD-MSR and a subsequent denoising network using identical configurations across all datasets. For LUD-MSR, we optimize the MSR mapping using AdamW for 300k iterations with a batch size of 4. The initial learning rate of 2 × 10 −4 is halved at 50k, 100k, 150k, and 200k iterations. The training objective follows (18), where the Gaussian noise level σ is uniformly sampled from [0 , 0.99]. The probabilistic graphical model is optimized via Adam for 300k iterations with a batch 14 Figure 5: Visual comparison of denoising results across three real-world cryo-EM datasets: EMPIAR-10025, EMPIAR-10028, and EMPIAR-10077. size of 2, starting with a 10 −4 learning rate halved at 75k, 150k, 200k, and 250k iterations. For downstream denoising, we train the DRUNet [59] architecture for 300k iterations using Adam. We use a batch size of 8 and an initial learning rate of 10 −4, halved every 50k iterations. 
+
+Compared methods. We compare LUD-MSR against prominent model-based approaches, including the low-pass filter, the fast Gaussian binomial filter [18], and BM3D [10], alongside the state-of-the-art learning-based method Topaz [4]. Table 3: Quantitative Comparison of Cryo-EM Image Denoising Methods Based on Estimated SNR [35].                     
+
+> Dataset Low-Pass Gaussian [18] BM3D [10] Topaz [4] LUD-MSR 10025 1.94 -0.68 11.69 -4.73 14.54
+> 10028 5.62 -0.09 4.89 -0.75 13.62
+> 10077 0.36 -0.92 4.41 -0.75 13.08
+
+Results. Table 3 presents the estimated SNR results for the evaluated cryo-EM denoising approaches. LUD-MSR significantly surpasses existing baselines. Visual comparisons in Figure 5 confirm that while competing methods struggle to distinguish signal from background noise under extremely low-SNR condi-tions, LUD-MSR successfully restores particles with high-fidelity structural details and fine textures. This substantial improvement underscores LUD-MSR’s capacity to capture complex real-world noise character-istics, demonstrating its potential for challenging scientific applications. 
+
+## 5.4 Ablation Study 
+
+Our default MSR mapping (21) employs T = 3 scale levels and a linear B-spline wavelet tight frame for the wavelet module W . In this part, we ablate these two configurations and report the resulting PSNR and SSIM metrics on the SIDD validation set. 
+
+Scale levels T . While keeping the wavelet module W fixed as a linear B-spline wavelet tight frame, we evaluate the impact of T on noise synthesis fidelity and downstream denoising performance. As shown in Table 4, T = 3 yields the best overall performance, indicating an optimal trade-off between domain consistency and information preservation. 
+
+Wavelet module W . We compare the use of a (linear B-spline) wavelet tight frame for W against the Haar wavelet. Furthermore, interpreting our MSR mapping (21) as a learnable resizing operator, we evaluate non-learnable interpolation baselines formulated as h = Is ◦ I 1/s , where Iτ denotes Bicubic or Bilinear resizing with a scale factor of τ . To ensure a fair comparison of feature granularity, we set T = 3 for the learnable mappings and s = 8 for the non-learnable baselines. Table 5 demonstrates that the wavelet tight frame achieves the best noise generation quality and downstream denoising performance. This result 15 Table 4: Ablation Study on the Scale Levels T within the MSR Design.                                 
+
+> TMSR Performance Noise Gen. Denoising Rec. PSNR Align. PSNR FID AKLD PSNR SSIM 145.45 36.27 24.99 0.1276 36.24 0.8918 241.77 38.02 22.94 0.1083 36.67 0.8993
+> 339.41 40.22 18.05 0.1111 36.81 0.8991 437.71 41.27 22.04 0.1213 36.67 0.8949
+
+Table 5: Ablation Study on the wavelet module. “TF” Refers to “Wavelet Tight Frame”.                                
+
+> MSR Impl. MSR Performance Noise Gen. Denoising Rec. PSNR Align. PSNR FID AKLD PSNR SSIM Bilinear 36.90 36.79 33.55 0.1465 35.22 0.8870 Bicubic 38.14 35.07 32.66 0.1231 35.47 0.8846 Haar 39.43 38.00 18.89 0.1093 35.97 0.8959 TF 39.41 40.22 18.05 0.1111 36.81 0.8991
+
+confirms the advantages of our data-adaptive design strategy, while the performance gain of the wavelet tight frame over the Haar wavelet highlights the benefits of its representation flexibility. 
+
+# 6 Conclusion 
+
+We propose LUD-MSR, a novel unpaired joint distribution modeling framework based on a probabilistic graphical model utilizing two auxiliary variables. For image noise modeling, we explicitly construct these variables via Multi-Scale image Representation (MSR) mapping. Theoretical analysis establishes that LUD-MSR achieves a superior trade-off between domain consistency and information preservation compared to existing approaches, thus significantly reducing joint distribution approximation error. Through its clean-to-noisy generation pipeline, LUD-MSR synthesizes high-fidelity paired data, effectively boosting downstream denoising performance. Furthermore, LUD-MSR demonstrates exceptional versatility on the challenging task of cryo-EM image denoising. 
+
+# A Architecture of Probabilistic Graphical Model 
+
+Hierarchical structure. To enhance generative performance, we adopt a hierarchical VAE [9, 52] archi-tecture for the probabilistic graphical model of LUD-MSR. Specifically, we represent the latent variables z
+
+and zn as sequences across L = 7 layers 
+
+z =  z1, z2, . . . , zL , zn =  z1
+
+> n
+
+, z2
+
+> n
+
+, . . . , zL
+
+> n
+
+ .
+
+Applying the chain rule of probability, we obtain the following autoregressive decompositions 
+
+q(z|x) = QLl=1 q(zl|z>l , x), q(z|hx) = QLl=1 q(zl|z>l , hx),q(z|y) = QLl=1 q(zl|z>l , y), q(z|hy) = QLl=1 q(zl|z>l , hy),
+
+where z>l = ( zl+1 , . . . , zL). Furthermore, we define 
+
+p(zn|z) = QLl=1 p(zl
+
+> n
+
+|z>l  
+
+> n
+
+, z≥l),q(zn|y, z) = QLl=1 q(zl
+
+> n
+
+|y, z>l  
+
+> n
+
+, z≥l),
+
+16 Figure 6: Hierarchical architecture of the probabilistic graphical model of LUD-MSR. where z≥l and z>l  
+
+> n
+
+are defined analogously to z>l . Consequently, the full KL divergence terms DKL (q(z|x)|| q(z|hx)), 
+
+DKL (q(z|y)|| q(z|hy)), and DKL (q(zn|y, z)|| p(zn|z)) can be decomposed layer-wise as 
+
+DKL (q(z|x)|| q(z|hx)) = PLl=1 DKL (q(zl|x, z>l )|| q(zl|hx, z>l )) ,DKL (q(z|y)|| q(z|hy)) = PLl=1 DKL (q(zl|y, z>l )|| q(zl|hy, z>l )) ,DKL (q(zn|y, z)|| p(zn|z)) = PLl=1 DKL (q(zl
+
+> n
+
+|y, z≥l, z>l  
+
+> n
+
+)|| p(zl
+
+> n
+
+|z≥l, z>l  
+
+> n
+
+)) .
+
+The distributions q(zl|x, z>l ), q(zl|hx, z>l ), q(zl|y, z>l ), q(zl|hy, z>l ), p(zl
+
+> n
+
+|z≥l, z>l  
+
+> n
+
+), and q(zl
+
+> n
+
+|y, z≥l, z>l  
+
+> n
+
+)are modeled as parameterized Gaussian distributions, facilitating the analytical computation of the con-stituent KL divergences. 
+
+Model architecture. Our hierarchical architecture is illustrated in Figure 6. For the x-domain branch, we define 
+
+q(zl|x, z>l ) = N (μl
+
+> z
+
+(el
+
+> z
+
+, dl), σl
+
+> z
+
+(el
+
+> z
+
+, dl)) , (35) where el 
+
+> z
+
+and dl denote the encoding and decoding features at the l-th level, respectively. The networks 
+
+μl 
+
+> z
+
+and σl 
+
+> z
+
+map these input features to the mean and standard deviation of the Gaussian distribution. The encoding features {el
+
+> z
+
+}Ll=0 are obtained recursively via 
+
+e0 
+
+> z
+
+= E(x), el 
+
+> z
+
+= f l
+
+> z
+
+(el−1 
+
+> z
+
+),
+
+where E denotes the Input Convolution (InConv) block, and f l 
+
+> z
+
+represents the l-th basic encoding block. The decoding features are calculated in reverse order as 
+
+dL = 0, dl−1 = φl(zl + dl),
+
+where φl is the l-th basic decoding block, and zl is sampled from N (μl
+
+> z
+
+(el
+
+> z
+
+, dl), σl
+
+> z
+
+(el
+
+> z
+
+, dl)). We design 
+
+q(zl|hx, z>l ), q(zl|hy, z>l ), and q(zl|y, z>l ) to share the same structural definition as q(zl|x, z>l ). Specifi-cally, q(zl|hx, z>l ) and q(zl|hy, z>l ) share network weights with q(zl|x, z>l ). For the y-domain branch, we define 
+
+q(z>l  
+
+> n
+
+|y, z≥l, z>l  
+
+> n
+
+) = N (μlq (dl
+
+> n
+
+, zl, el
+
+> n
+
+), σlq (dl
+
+> n
+
+, zl, el
+
+> n
+
+), (36) 17 where el 
+
+> n
+
+and dl 
+
+> n
+
+denote the respective encoding and decoding features at the l-th level. Here, zl is assumed to be sampled from N (μl
+
+> z
+
+(el
+
+> n
+
+, dl
+
+> n
+
+), σl
+
+> z
+
+(el
+
+> n
+
+, dl
+
+> n
+
+)), utilizing the parameters μl 
+
+> z
+
+and σl 
+
+> z
+
+defined in (35). The networks μlq and σlq parameterize the mean and variance of the Gaussian distribution. The encoding feature 
+
+{el
+
+> n
+
+}Ll=0 is computed recursively as 
+
+e0 
+
+> n
+
+= E(y), el 
+
+> n
+
+= f l
+
+> n
+
+(el−1 
+
+> n
+
+),
+
+and the decoding feature is obtained via 
+
+dL 
+
+> n
+
+= 0, dl−1 
+
+> n
+
+= φl(zl 
+
+> n
+
++ zl + dl
+
+> n
+
+), (37) where zl 
+
+> n
+
+is sampled from (36). For the conditional distribution p(zl
+
+> n
+
+|z≥l, z>l  
+
+> n
+
+), we adopt a structural architecture identical to q(zl
+
+> n
+
+|y, z≥l, z>l  
+
+> n
+
+)and define 
+
+p(zl
+
+> n
+
+|z≥l, z>l  
+
+> n
+
+) = N (μlp(dl
+
+> n
+
+, zl), σlp(dl
+
+> n
+
+, zl)) ,
+
+where the decoding feature dl 
+
+> n
+
+is derived from (37), and the networks μlp and σlp parameterize the generative Gaussian distribution at the l-th level. Finally, for the generative model outputs, we define 
+
+p(x|z) = N (D(d0), I), p(y|z, zn) = N (D(d0
+
+> n
+
+), I),
+
+where D denotes the Output Convolution (OutConv) block. We adopt the Residual Dense Block (RDB) [61] as the basic internal unit for f l
+
+> z
+
+, f l
+
+> n
+
+, and φl.
+
+Controllable degradation generation. When applied to noise modeling, LUD-MSR should be capable of generating images at varying degradation levels from a single clean input. We achieve this by concatenating a target degradation parameter to the inputs of the Gaussian parameter networks μlp, σlp, μlq , and σlq ,explicitly conditioning the generation process. During training, the standard deviation of the residual 
+
+y − hy serves as the empirical estimate of the degradation level for y. During inference, a user-specified degradation scalar acts as the direct conditional input to μlp and σlp, enabling controllable image synthesis at the desired degradation severity. 
+
+# B Derivation of ELBOs 
+
+Derivation of (12) and (13) . According to the proposed probabilistic graphical model, we have the following decompositions 
+
+p(x|hx) = Ep(z|hx)p(x|z),p(y|hy) = Ep(z|hy )p(zn|z)p(y|z, zn).
+
+Applying the inference models defined in (2), we obtain log p(x|hx) ≥Eq(z|x,hx) log p(z|hx)p(x|z)
+
+q(z|x, hx)=Eq(z|x,hx) log p(x|z) − DKL (q(z|x, hx)|| p(z|hx)) ,
+
+log p(y|hy) ≥Eq(z|y,hy )q(zn|y,z) log p(z|hy)p(zn|z)p(y|z, zn)
+
+q(z|y, hy)q(zn|y, z)=Eq(z|y,hy )q(zn|y,z) log p(y|z, zn) − DKL (q(z|y, hy)|| p(z|hy)) 
+
+− Eq(z|y,hy )DKL (q(zn|y, z)|| p(zn|z)) .
+
+(38) By setting p(z|hx) = q(z|hx) and p(z|hy) = q(z|hy) via shared network parameters, we establish that 
+
+DKL (q(z|x, hx)|| p(z|hx)) ≤αD KL (q(z|x)|| q(z|hx)) ,DKL (q(z|y, hy)|| p(z|hy)) ≤αD KL (q(z|y)|| q(z|hy)) .
+
+18 Substituting these inequalities into (38) yields (12) and (13). 
+
+Derivation of (26) . Analogous to the derivation of (38), log p(x|y) ≥Eq(z|x,y) log p(x|z) − DKL (q(z|x, y)|| p(z|y)) ,
+
+log p(y|x) ≥Eq(z|x,y)q(zn|y,z) log p(y|z, zn) − DKL (q(z|x, y)|| p(z|x)) 
+
+− Eq(z|x,y)DKL (q(zn|y, z)|| p(zn|z)) .
+
+Similarly, by setting p(z|x) = q(z|x), p(z|y) = q(z|y), and applying the inference model defined in (25), 
+
+DKL (q(z|x, y)|| p(z|y)) ≤αD KL (q(z|x)|| q(z|y)) ,DKL (q(z|x, y)|| p(z|x)) ≤(1 − α)DKL (q(z|y)|| q(z|x)) .
+
+Substituting these upper bounds into the preceding inequalities yields (26). 
+
+Equivalence to ELBO Maximization. We demonstrate that minimizing the unpaired loss L(up) g defined in (14) is equivalent to maximizing the ELBO of the joint log-likelihood log p(x, y). This equivalence holds under two assumptions: (i) hx = hy for ( x, y) ∼ qX,Y , and (ii) p(y|x, hx) = p(y|hx). These assumptions are direct consequences of the domain consistency (15) and information preservation (16) conditions, respectively. Denoting the push-forward distributions as qhX = h#qX , qhY = h#qY , and qhX,Y =
+
+h#qX,Y , we obtain 
+
+p(x, y) = EqhX,Y (hx,hy )p(x, y|hx, hy)=EqhX,Y (hx,hy )p(x|hx, hy)p(y|x, hx, hy)=EqhX,Y (hx,hy )p(x|hx)p(y|hy).
+
+Consequently, log p(x, y) ≥ EqhX (hx) log p(x|hx) + EqhY (hy ) log p(y|hy).
+
+# C Proof of Proposition 1 
+
+Proof of Proposition 1. For x ∼ qX , let pYσ (·| x) denote the probability density function of the sum n + nσ ,where n ∼ qn|X (·| x) and nσ ∼ pσ . By assumption, there exists an M > 0 such that sup u |h(u)| ≤ M .Consequently, we obtain 
+
+∥EqX,Y (x,y)pσ (nx)pσ (ny )[h(x + nx) − h(y + ny)] ∥1
+
+≤EqX (x)
+
+R |h(x + n)| | pσ (n) − pYσ (n|x)|dn
+
+≤M EqX (x)∥pσ − pYσ (·| x)∥1
+
+≤M EqX (x)
+
+p2 DKL (pσ || pYσ (·| x)) = Mσ
+
+q
+
+EqX,Y (x,y)∥y − x∥22.
+
+Clearly, this upper bound approaches 0 as σ → ∞ .
+
+# D Proof of Proposition 2 
+
+Proof of Proposition 2. Given the definition of D in (19) and the specified low-pass filter klow = ( 14 , 12 , 14 ), 
+
+D operates as a strided band-Toeplitz matrix under Dirichlet boundary conditions, whose non-zero entries are confined to a diagonal band with a two-column shift between adjacent rows. Consequently, DD ⊤ is a symmetric tridiagonal Toeplitz matrix, with main diagonal entries of 38 and first off-diagonal entries of  
+
+> 116
+
+. By the Gershgorin circle theorem, the eigenvalues of DD ⊤ lie within [ 14 , 12 ]. This implies that the non-zero singular values of D lie within [ 12 , 1√2 ], yielding 2 −2mI ⪯ D m(Dm)⊤ ⪯ 2−mI. Since rank( Dm) = 
+
+K/ 2m, the matrix ( Dm)⊤Dm has K/ 2m non-zero eigenvalues, each bounded within [2 −2m, 2−m]. Thus, the 19 matrix I − (Dm)⊤Dm has K(1 − 2−m) eigenvalues equal to 1, while its remaining K/ 2m eigenvalues lie in [1 − 2−m, 1 − 2−2m]. Consequently, we obtain the following upper bound on the domain consistency error 
+
+EqX,Y (x,y)∥h(x) − h(y)∥22 =Tr  (Dm)⊤Dm(Dm)⊤Dm Eqn(n)[nn ⊤]
+
+≤2−m Tr  (Dm)⊤Dm Eqn(n)[nn ⊤]
+
+≲K/ 23m.
+
+Similarly, we lower bound the information preservation error 
+
+EqX (x)∥h(x) − x∥22 =Tr    I − (Dm)⊤Dm2 EqX (x)[xx ⊤]
+
+≳K (1 − 2−m) + K 2−m  1 − 2−2m2
+
+≍K (1 − 2−3m),
+
+where ≍ denotes equivalence up to a constant. 
+
+# E Architecture of Multi-Scale Image Representation (MSR) Map-ping 
+
+As established in (21), our MSR mapping is defined as 
+
+h(x) = f −1([ f (x)] 1: K/ 2T , 0),
+
+where the invertible mapping f = fT ◦ · · · ◦ f1 is composed of T = 3 scale levels, with each level defined as 
+
+fl = gl ◦ W . Here, W = ( W ⊤ 
+
+> L
+
+, W ⊤ 
+
+> H
+
+)⊤ represents a wavelet operator partitioned as 
+
+WL : x 7 →↓ 2 (klow ∗ x),
+
+WH : x 7 →   ↓2 (k(1) high ∗ x); . . . ; ↓2 (k(r)high ∗ x),
+
+where klow denotes a low-pass filter and {k(i)high }ri=1 constitutes a set of high-pass filters. In our implemen-tation, we employ the linear B-spline wavelet tight frame [11], which specifies 
+
+klow = ( 14 , 12 , 14 ),
+
+k(1) high = ( − 14 , 12 , − 14 ), k(2) high = ( √24 , 0, − √24 ).
+
+The normalizing flow gl = g(M ) 
+
+> l
+
+◦ · · · ◦ g(1)  
+
+> l
+
+comprises a sequence of M = 8 flow blocks. Each block g(i)
+
+> l
+
+adopts the architecture of the Glow step proposed in [29], consisting of an ActNorm layer, an invertible 1 × 1 convolution, and an affine coupling layer ϕ(i) 
+
+> l
+
+:
+
+g(i) 
+
+> l
+
+= ϕ(i) 
+
+> l
+
+◦ Inv 1×1 ◦ ActNorm .
+
+We refer the reader to [29] for the implementation details of the ActNorm and Inv 1×1 layers. Specifically, we formulate the affine coupling layer ϕ(i) 
+
+> l
+
+as 
+
+ϕ(i)
+
+> l
+
+ cL, cH
+
+ =
+
+(  cL, s(i) 
+
+> l
+
+(cL) ⊙ cH + t(i) 
+
+> l
+
+(cL) if i is odd, 
+
+ cL + t(i) 
+
+> l
+
+(cH ), cH
+
+ if i is even, where cL and cH denote the low- and high-frequency components of the input, respectively; s(i) 
+
+> l
+
+and t(i)
+
+> l
+
+parameterize the scale and shift coefficients; and ⊙ denotes the Hadamard product. Because each flow block 
+
+g(i) 
+
+> l
+
+is invertible and the wavelet operator W admits a pseudo-inverse W ⊤ due to the perfect reconstruction property W ⊤W = I, the overall invertibility of the mapping f is mathematically guaranteed. 20 F Proof of Proposition 3 
+
+Proof of Proposition 3. Let H(X) = −Ep(X) log p(X) denote the Shannon entropy of a random variable 
+
+X ∼ p, and let I(X; Y ) = Ep(X,Y ) log p(X,Y )  
+
+> p(X)p(Y)
+
+denote the mutual information. The information preservation condition implies 
+
+I(hx; x) = H(x) (39) while the domain consistency condition dictates that H(hx|y) = H(hy|y) = 0. By the data processing inequality, 
+
+I(x; y) ≥ I(hx; y) = H(hx) − H(hx|y) = H(hx).
+
+Since H(hx) ≥ I(hx; x), it follows that 
+
+I(x; y) ≥ I(hx; x). (40) Combining (39) and (40) yields H(x|y) = H(x) − I(x; y) ≤ 0, which contradicts the assumption that 
+
+H(x|y) > 0. 
+
+# References 
+
+[1] Abdelrahman Abdelhamed, Mahmoud Afifi, Radu Timofte, and Michael S Brown. Ntire 2020 challenge on real image denoising: Dataset, methods and results. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops , 2020. [2] Abdelrahman Abdelhamed, Stephen Lin, and Michael S Brown. A high-quality denoising dataset for smartphone cameras. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 1692–1700, 2018. [3] Chenglong Bao, Tongyao Pang, Zuowei Shen, Dihan Zheng, and Yihang Zou. Enhancing low-resolution image representation through normalizing flows. arXiv preprint arXiv:2601.06834 , 2026. [4] Tristan Bepler, Kotaro Kelley, Alex J Noble, and Bonnie Berger. Topaz-denoise: general deep denoising models for cryoem and cryoet. Nature communications , 11(1):5208, 2020. [5] Tim Brooks, Ben Mildenhall, Tianfan Xue, Jiawen Chen, Dillon Sharlet, and Jonathan T Barron. Un-processing images for learned raw denoising. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 11036–11045, 2019. [6] Melody G Campbell, David Veesler, Anchi Cheng, Clinton S Potter, and Bridget Carragher. 2.8 ˚ a reso-lution reconstruction of the thermoplasma acidophilum 20s proteasome using cryo-electron microscopy. 
+
+Elife , 4:e06380, 2015. [7] Shiyan Chen, Jiyuan Zhang, Zhaofei Yu, and Tiejun Huang. Exploring efficient asymmetric blind-spots for self-supervised denoising in real-world scenarios. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 2814–2823. IEEE, 2024. [8] Yang Chen et al. Unpaired deep image dehazing using contrastive disentanglement learning. In 
+
+European Conference on Computer Vision . Springer, 2022. [9] Rewon Child. Very deep vaes generalize autoregressive models and can outperform them on images. 
+
+arXiv preprint arXiv:2011.10650 , 2020. [10] Kostadin Dabov, Alessandro Foi, Vladimir Katkovnik, and Karen Egiazarian. Image denoising by sparse 3-d transform-domain collaborative filtering. IEEE Transactions on image processing ,16(8):2080–2095, 2007. [11] Ingrid Daubechies, Bin Han, Amos Ron, and Zuowei Shen. Framelets: Mra-based wavelet frames and applications. Applied and Computational Harmonic Analysis , 14(1):1–46, 2003. 21 [12] Carl Doersch, Abhinav Gupta, and Alexei A Efros. Unsupervised visual representation learning by context prediction. In Proceedings of the IEEE International Conference on Computer Vision (ICCV) ,pages 1422–1430, 2015. [13] David J Field. Relations between the statistics of natural images and the response properties of cortical cells. Journal of the Optical Society of America A , 4(12):2379–2394, 1987. [14] Niels Fischer, Piotr Neumann, Lars V. Bock, Cristina Maracci, Zhe Wang, Alena Paleskava, Andrey L. Konevega, Gunnar F. Schr¨ oder, Helmut Grubm¨ uller, Ralf Ficner, Marina V. Rodnina, and Holger Stark. The pathway to gtpase activation of elongation factor selb on the ribosome. Nature , 540:80–85, 2016. [15] Zixuan Fu, Lanqing Guo, and Bihan Wen. Srgb real noise synthesizing with neighboring correlation-aware noise model. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1683–1691, 2023. [16] Keinosuke Fukunaga. Introduction to statistical pattern recognition . Academic Press, 2nd edition, 1990. [17] Shi Guo, Zifei Yan, Kai Zhang, Wangmeng Zuo, and Lei Zhang. Toward convolutional blind denoising of real photographs. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 1712–1722, 2019. [18] Richard A Haddad, Ali N Akansu, et al. A class of fast gaussian binomial filters for speech and image processing. IEEE Transactions on Signal Processing , 39(3):723–727, 1991. [19] Kaiming He, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Doll´ ar, and Ross Girshick. Masked autoen-coders are scalable vision learners. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 16000–16009, 2022. [20] Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter. Gans trained by a two time-scale update rule converge to a local nash equilibrium. Advances in neural information processing systems , 30, 2017. [21] Judy Hoffman, Eric Tzeng, Taesung Park, Jun-Yan Zhu, Phillip Isola, Kate Saenko, Alexei Efros, and Trevor Darrell. Cycada: Cycle-consistent adversarial domain adaptation. In International conference on machine learning , pages 1989–1998. PMLR, 2018. [22] Xiangpeng Hu, Xin Zhou, Qisheng Huang, Zhiwen Shi, Lin Sun, and Qingqi Li. Qs-attn: Query-selected attention for contrastive learning in i2i translation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7188–7197, 2022. [23] Tao Huang, Songjiang Li, Xu Jia, Huchuan Lu, and Jianzhuang Liu. Neighbor2neighbor: Self-supervised denoising from single noisy images. In Proceedings of the IEEE/CVF Conference on Com-puter Vision and Pattern Recognition (CVPR) , 2021. [24] Xun Huang, Ming-Yu Liu, Serge Belongie, and Jan Kautz. Multimodal unsupervised image-to-image translation. In Proceedings of the European conference on computer vision (ECCV) , pages 172–189, 2018. [25] Geonwoon Jang, Wooseok Lee, Sanghyun Son, and Kyoung Mu Lee. C2n: Practical generative noise modeling for real-world denoising. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 2350–2359, 2021. [26] Yifan Jiang, Xinyu Gong, Ding Liu, Yu Cheng, Chen Fang, Xiaohui Shen, Jianchao Yang, Pan Zhou, and Zhangyang Wang. EnlightenGAN: Deep light enhancement without paired supervision. IEEE Transactions on Image Processing , 30:2340–2349, 2021. 22 [27] Dongjin Kim, Donggoo Jung, Sungyong Baik, and Tae Hyun Kim. srgb real noise modeling via noise-aware sampling with normalizing flows. In The Twelfth International Conference on Learning Representations , 2024. [28] Diederik P Kingma and Jimmy Ba. Adam: A method for stochastic optimization. arXiv preprint arXiv:1412.6980 , 2014. [29] Durk P Kingma and Prafulla Dhariwal. Glow: Generative flow with invertible 1x1 convolutions. 
+
+Advances in neural information processing systems , 31, 2018. [30] Shayan Kousha, Ali Maleky, Michael S Brown, and Marcus A Brubaker. Modeling srgb camera noise with normalizing flows. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 17463–17471, 2022. [31] Alex Krizhevsky, Ilya Sutskever, and Geoffrey E Hinton. Imagenet classification with deep convolu-tional neural networks. In Advances in neural information processing systems , volume 25, 2012. [32] Yann LeCun, Yoshua Bengio, and Geoffrey Hinton. Deep learning. nature , 521(7553):436–444, 2015. [33] Hsin-Ying Lee, Hung-Yu Tseng, Qi Mao, Jia-Bin Huang, Yu-Ding Lu, Maneesh Singh, and Ming-Hsuan Yang. Drit++: Diverse image-to-image translation via disentangled representations. International Journal of Computer Vision , 128(10):2402–2417, 2020. [34] W. Lee, S. Son, and K. M. Lee. AP-BSN: Self-supervised denoising for real-world images via asymmetric PD and blind-spot network. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 17725–17734, 2022. [35] Hongjia Li, Hui Zhang, Xiaohua Wan, Zhidong Yang, Chengmin Li, Jintao Li, Renmin Han, Ping Zhu, and Fa Zhang. Noise-transfer2clean: denoising cryo-em images based on noise modeling and transfer. 
+
+Bioinformatics , 38(7):2022–2029, 2022. [36] Nianjian Liu et al. Dual contrastive learning for unsupervised image-to-image translation. In Pro-ceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 3156–3164, 2021. [37] Pengju Liu, Hongzhi Zhang, Kai Zhang, Liang Lin, and Wangmeng Zuo. Multi-level wavelet-cnn for image restoration. In Proceedings of the IEEE conference on computer vision and pattern recognition workshops , pages 773–782, 2018. [38] Ilya Loshchilov and Frank Hutter. Decoupled weight decay regularization. arXiv preprint arXiv:1711.05101 , 2017. [39] St´ ephane G Mallat. A theory for multiresolution signal decomposition: the wavelet representation. 
+
+IEEE transactions on pattern analysis and machine intelligence , 11(7):674–693, 1989. [40] Chenlin Meng, Yutong He, Yang Gu, Shuang Yuan, Jiaming Song, Prafulla Ding, et al. Cyclenet: Rethinking cycle consistency in text-guided diffusion for image manipulation. In Advances in Neural Information Processing Systems , volume 36, 2023. [41] Seonghwan Nam, Youngbae Hwang, Yasuyuki Matsushita, and Seon Joo Kim. A holistic approach to cross-channel image noise modeling and its application to image denoising. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 1683–1691, 2016. [42] Maxime Oquab, Timoth´ ee Darcet, Th´ eo Moutakanni, Huy Vo, Marc Szafraniec, Vasil Vasiljevic, Pulin Sun, Leonid Pishchulin, Peter Tulloch, Rene Ranftl, et al. DINOv2: Learning robust visual features without supervision. arXiv preprint arXiv:2304.07193 , 2023. 23 [43] Tongyao Pang, Huan Zheng, Yuhui Quan, and Hui Ji. Recorrupted-to-recorrupted: Unsupervised deep learning for image denoising. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 2043–2052, 2021. [44] Taesung Park, Alexei A Efros, Richard Zhang, and Jun-Yan Zhu. Contrastive learning for unpaired image-to-image translation. In European conference on computer vision , pages 319–345. Springer, 2020. [45] Gaurav Parmar, Krishna Kumar Singh, Richard Zhang, Yijun Li, Jingwan Lu, and Jun-Yan Zhu. One-step image translation with text-to-image models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 22709–22719, 2024. [46] Tobias Plotz and Stefan Roth. Benchmarking denoising algorithms with real photographs. In Proceed-ings of the IEEE conference on computer vision and pattern recognition , pages 1586–1595, 2017. [47] Alec Radford, Luke Metz, and Soumith Chintala. Unsupervised representation learning with deep con-volutional generative adversarial networks. In International Conference on Learning Representations (ICLR) , 2016. [48] Daniel Ruderman and William Bialek. Statistics of natural images: Scaling in the woods. Advances in neural information processing systems , 6, 1993. [49] Tim Stuart, Andrew Butler, Paul Hoffman, Christoph Hafemeister, Efthymia Papalexi, William M Mauck III, Yuhan Hao, Marlon Stoeckius, Peter Smibert, and Rahul Satija. Comprehensive integration of single-cell data. Cell , 177(7):1888–1902, 2019. [50] Xuan Su, Jiaming Song, Chenlin Meng, and Stefano Ermon. Dual diffusion implicit bridges for image-to-image translation. In International Conference on Learning Representations , 2023. [51] Dmitry Ulyanov, Andrea Vedaldi, and Victor Lempitsky. Deep image prior. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 9446–9454, 2018. [52] Arash Vahdat and Jan Kautz. Nvae: A deep hierarchical variational autoencoder. Advances in neural information processing systems , 33:19667–19679, 2020. [53] Valentin Wolf, Andreas Lugmayr, Martin Danelljan, Luc Van Gool, and Radu Timofte. Deflow: Learning complex image degradations from unpaired data with conditional flows. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 94–103, 2021. [54] Wilson Wong, Xiao-chen Bai, Alan Brown, Israel S Fernandez, Eric Hanssen, Melanie Condron, Yan Hong Tan, Jake Baum, and Sjors HW Scheres. Cryo-em structure of the Plasmodium falciparum 
+
+80s ribosome bound to the anti-protozoan drug emetine. eLife , 3:e03080, jun 2014. [55] E. Xie et al. Unpaired image-to-image translation with shortest path regularization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2023. [56] Jun Xu, Hui Li, Zhetong Liang, David Zhang, and Lei Zhang. Real-world noisy image denoising: A new benchmark. In Proceedings of the IEEE conference on computer vision and pattern recognition ,pages 168–178, 2018. [57] Yang Yang, Chaoyue Wang, Risheng Liu, Lin Zhang, Xiaojie Guo, and Dacheng Tao. Self-augmented unpaired image dehazing via density and depth decomposition. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 2037–2046, 2022. [58] Zongsheng Yue, Qian Zhao, Lei Zhang, and Deyu Meng. Dual adversarial network: Toward real-world noise removal and noise generation. In Computer Vision–ECCV 2020: 16th European Conference, Glasgow, UK, August 23–28, 2020, Proceedings, Part X 16 , pages 41–58. Springer, 2020. 24 [59] Kai Zhang, Yawei Li, Wangmeng Zuo, Lei Zhang, Luc Van Gool, and Radu Timofte. Plug-and-play image restoration with deep denoiser prior. IEEE Transactions on Pattern Analysis and Machine Intelligence , 44(10):6360–6376, 2021. [60] Kai Zhang, Wangmeng Zuo, Yunjin Chen, Deyu Meng, and Lei Zhang. Beyond a gaussian denoiser: Residual learning of deep cnn for image denoising. IEEE transactions on image processing , 26(7):3142– 3155, 2017. [61] Yulun Zhang, Yapeng Tian, Yu Kong, Bineng Zhong, and Yun Fu. Residual dense network for image super-resolution. In Proceedings of the IEEE conference on computer vision and pattern recognition ,pages 2472–2481, 2018. [62] Dihan Zheng, Xiaowen Zhang, Kaisheng Ma, and Chenglong Bao. Learn from unpaired data for image restoration: A variational bayes approach. IEEE Transactions on Pattern Analysis and Machine Intelligence , 45(5):5889–5903, 2022. [63] Dihan Zheng, Yihang Zou, Xiaowen Zhang, and Chenglong Bao. Senm-vae: Semi-supervised noise modeling with hierarchical variational autoencoder. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 25889–25899, 2024. [64] Jun-Yan Zhu, Taesung Park, Phillip Isola, and Alexei A Efros. Unpaired image-to-image translation using cycle-consistent adversarial networks. In Proceedings of the IEEE international conference on computer vision , pages 2223–2232, 2017. 25
