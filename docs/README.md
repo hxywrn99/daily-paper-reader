@@ -6,56 +6,47 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-15
-- 运行时间：2026-07-15 21:29:19 UTC
+- 最新运行日期：2026-07-16
+- 运行时间：2026-07-16 21:25:14 UTC
 - 运行状态：成功
-- 本次总论文数：12
-- 精读区：7
-- 速读区：5
+- 本次总论文数：9
+- 精读区：5
+- 速读区：4
 
 ### 今日简报（AI）
-今日精选12篇论文，精读2篇高分工作：病理切片主动学习降低标注负担，及零样本伪装目标分割。优先阅读《Slide-Level Active Learning》与《GFR-SAM》这两篇9.0分论文，同时可关注速读中的医学图像理解与长尾实例分割方法。
-- 详情：[/202607/15/README](/202607/15/README)
+今天精选9篇论文，聚焦医学影像（乳腺、胰腺）分割分类与无监督跨模态语义分割。最值得关注两项：BiLoG-Net实现乳腺X线肿块分割与恶性分类双任务（9.0分），UMSS探索无监督多模态语义分割新范式（9.0分）。下一步可重点关注无监督/弱监督方法在临床影像中的迁移能力与效率评估。
+- 详情：[/202607/16/README](/202607/16/README)
 
 ### 精读区论文标签
-1. [Slide-Level Active Learning Reduces Annotation Burden in H&E images](/202607/15/2607.09831v1-slide-level-active-learning-reduces-annotation-burden-in-he-images)  
+1. [BiLoG-Net: A Bi-Context Location-Guided Network for Breast Mass Segmentation and Malignancy Classification in Mammography](/202607/16/2607.10188v2-bilog-net-a-bi-context-location-guided-network-for-breast-mass-segmentation-and-malignancy-classification-in-mammography)  
    标签：评分：9.0/10、query:image-seg
-   evidence：组织病理学分割的主动学习
-2. [GFR-SAM: Training-Free Referring Camouflaged Object Segmentation via Cross-Image Prompting](/202607/15/2607.11732v1-gfr-sam-training-free-referring-camouflaged-object-segmentation-via-cross-image-prompting)  
+   evidence：基于深度学习的乳腺肿块分割与恶性分类
+2. [UMSS: Towards Unsupervised Multi-modal Semantic Segmentation](/202607/16/2607.12372v1-umss-towards-unsupervised-multi-modal-semantic-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：无训练参照隐蔽目标分割
-3. [UMSS: Towards Unsupervised Multi-modal Semantic Segmentation](/202607/15/2607.12372v1-umss-towards-unsupervised-multi-modal-semantic-segmentation)  
+   evidence：无监督多模态语义分割
+3. [Active Learning for Efficient Annotation of Surgical Videos with Weak Supervision](/202607/16/2607.13237v1-active-learning-for-efficient-annotation-of-surgical-videos-with-weak-supervision)  
    标签：评分：9.0/10、query:image-seg
-   evidence：无监督多模态语义分割，涉及融合问题
-4. [UniMedSeg: Unified In-Context Learning for Multi-Paradigm 2D/3D Medical Image Segmentation](/202607/15/2607.12896v1-unimedseg-unified-in-context-learning-for-multi-paradigm-2d3d-medical-image-segmentation)  
+   evidence：医学图像分割，弱监督与主动学习
+4. [SARFA: Segment Anything with Radiomic Feature Alignment](/202607/16/2607.13323v1-sarfa-segment-anything-with-radiomic-feature-alignment)  
    标签：评分：9.0/10、query:image-seg
-   evidence：医学图像分割，使用深度学习
-5. [REBASE: Reference-Background Subspace Elimination for Training-Free In-Context Segmentation](/202607/15/2607.09082v1-rebase-reference-background-subspace-elimination-for-training-free-in-context-segmentation)  
+   evidence：基于深度学习的医学图像分割，结合SAM和影像组学特征
+5. [TMI: Text-to-Image Meets Image-to-Image for Complementary Data Synthesis to Boost Long-Tailed Instance Segmentation](/202607/16/2607.08201v1-tmi-text-to-image-meets-image-to-image-for-complementary-data-synthesis-to-boost-long-tailed-instance-segmentation)  
    标签：评分：8.0/10、query:image-seg
-   evidence：免训练上下文分割
-6. [Align and Segment: Unsupervised Learning for Building Segmentation From Misaligned Labels](/202607/15/2607.10841v1-align-and-segment-unsupervised-learning-for-building-segmentation-from-misaligned-labels)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：基于错位标签的无监督建筑分割，与图像分割和深度学习相关
-7. [Medical Image Segmentation based on Deep Active Contour and Mean Curvature Loss Function](/202607/15/2607.12586v1-medical-image-segmentation-based-on-deep-active-contour-and-mean-curvature-loss-function)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：基于深度主动轮廓和平均曲率损失的医学图像分割
+   evidence：数据合成提升长尾实例分割
 
 ### 速读区论文标签
-1. [Unpaired Joint Distribution Modeling via Multi-Scale Image Representations](/202607/15/2607.08198v1-unpaired-joint-distribution-modeling-via-multi-scale-image-representations)  
+1. [Align and Segment: Unsupervised Learning for Building Segmentation From Misaligned Labels](/202607/16/2607.10841v1-align-and-segment-unsupervised-learning-for-building-segmentation-from-misaligned-labels)  
+   标签：评分：7.0/10、query:image-seg
+   evidence：从不对齐标签进行无监督建筑分割
+2. [DeGuNet: Depth-Guided Ultra-Compact Backbones for Efficient LiDAR-Camera 3D Detection](/202607/16/2607.12419v1-degunet-depth-guided-ultra-compact-backbones-for-efficient-lidar-camera-3d-detection)  
    标签：评分：7.0/10、query:image-fusion
-   evidence：多尺度表示学习联合分布，可用于多模态融合
-2. [TMI: Text-to-Image Meets Image-to-Image for Complementary Data Synthesis to Boost Long-Tailed Instance Segmentation](/202607/15/2607.08201v1-tmi-text-to-image-meets-image-to-image-for-complementary-data-synthesis-to-boost-long-tailed-instance-segmentation)  
+   evidence：多模态LiDAR与相机融合
+3. [Multimodal Assessment of Pancreatic Cancer Resectability Using Deep Learning](/202607/16/2607.13826v1-multimodal-assessment-of-pancreatic-cancer-resectability-using-deep-learning)  
    标签：评分：7.0/10、query:image-seg
-   evidence：结合文本到图像和图像到图像的数据合成提升长尾实例分割
-3. [Super-Generalist: Towards Comprehensive and Accurate Medical Image Understanding via Generalist-Specialist Synergy](/202607/15/2607.09135v1-super-generalist-towards-comprehensive-and-accurate-medical-image-understanding-via-generalist-specialist-synergy)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：通用-专家协同的医学图像理解，包含分割任务
-4. [ScratNet: A Swin-Based Multi-Scale Dilated Network with Precision Refinement for Semiconductor Scratch Segmentation](/202607/15/2607.10214v1-scratnet-a-swin-based-multi-scale-dilated-network-with-precision-refinement-for-semiconductor-scratch-segmentation)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：基于Swin的多尺度膨胀网络半导体划痕分割
-5. [Adaptive Cross-Modal Fusion with Sparse Attention for Pedestrian Crossing Intention Prediction](/202607/15/2607.12293v1-adaptive-cross-modal-fusion-with-sparse-attention-for-pedestrian-crossing-intention-prediction)  
-   标签：评分：6.0/10、query:image-fusion
-   evidence：多模态视觉融合方法
+   evidence：医学图像分割与多模态融合
+4. [Improving Medical Image Generative Models with Fréchet Distance Loss](/202607/16/2607.13300v1-improving-medical-image-generative-models-with-frchet-distance-loss)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：改进生成模型以提升下游分割任务
 
 
 <div class="dpr-home-promo-card">
