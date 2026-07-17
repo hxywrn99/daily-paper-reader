@@ -6,47 +6,50 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-16
-- 运行时间：2026-07-16 21:25:14 UTC
+- 最新运行日期：2026-07-17
+- 运行时间：2026-07-17 21:35:47 UTC
 - 运行状态：成功
-- 本次总论文数：9
-- 精读区：5
-- 速读区：4
+- 本次总论文数：10
+- 精读区：4
+- 速读区：6
 
 ### 今日简报（AI）
-今天精选9篇论文，聚焦医学影像（乳腺、胰腺）分割分类与无监督跨模态语义分割。最值得关注两项：BiLoG-Net实现乳腺X线肿块分割与恶性分类双任务（9.0分），UMSS探索无监督多模态语义分割新范式（9.0分）。下一步可重点关注无监督/弱监督方法在临床影像中的迁移能力与效率评估。
-- 详情：[/202607/16/README](/202607/16/README)
+今日聚焦自动驾驶鸟瞰图分割的变分推理与医学图像域适应的鲁棒细化方法，辅以聚类算法、运动模糊检测及对象中心学习的速读研究。最值得精读的是《Variational Inference for Bird's Eye View Segmentation》和《CRISP》两篇高评分论文，分别代表自动驾驶感知和医学图像域适应的前沿方向。建议优先深入研读这两篇，并留意BOCCHI运动模糊检测基准的实用价值。
+- 详情：[/202607/17/README](/202607/17/README)
 
 ### 精读区论文标签
-1. [BiLoG-Net: A Bi-Context Location-Guided Network for Breast Mass Segmentation and Malignancy Classification in Mammography](/202607/16/2607.10188v2-bilog-net-a-bi-context-location-guided-network-for-breast-mass-segmentation-and-malignancy-classification-in-mammography)  
+1. [Variational Inference for Bird's Eye View Segmentation in Autonomous Driving](/202607/17/2607.14710v1-variational-inference-for-birds-eye-view-segmentation-in-autonomous-driving)  
    标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的乳腺肿块分割与恶性分类
-2. [UMSS: Towards Unsupervised Multi-modal Semantic Segmentation](/202607/16/2607.12372v1-umss-towards-unsupervised-multi-modal-semantic-segmentation)  
+   evidence：基于深度学习的鸟瞰图语义分割
+2. [CRISP: Constrained Refinement via Iterative Squeezing Process for Robust Medical Image Segmentation under Domain Shift](/202607/17/2607.15231v1-crisp-constrained-refinement-via-iterative-squeezing-process-for-robust-medical-image-segmentation-under-domain-shift)  
    标签：评分：9.0/10、query:image-seg
-   evidence：无监督多模态语义分割
-3. [Active Learning for Efficient Annotation of Surgical Videos with Weak Supervision](/202607/16/2607.13237v1-active-learning-for-efficient-annotation-of-surgical-videos-with-weak-supervision)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：医学图像分割，弱监督与主动学习
-4. [SARFA: Segment Anything with Radiomic Feature Alignment](/202607/16/2607.13323v1-sarfa-segment-anything-with-radiomic-feature-alignment)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的医学图像分割，结合SAM和影像组学特征
-5. [TMI: Text-to-Image Meets Image-to-Image for Complementary Data Synthesis to Boost Long-Tailed Instance Segmentation](/202607/16/2607.08201v1-tmi-text-to-image-meets-image-to-image-for-complementary-data-synthesis-to-boost-long-tailed-instance-segmentation)  
+   evidence：通过迭代挤压过程实现域偏移下鲁棒的医学图像分割
+3. [TMI: Text-to-Image Meets Image-to-Image for Complementary Data Synthesis to Boost Long-Tailed Instance Segmentation](/202607/17/2607.08201v1-tmi-text-to-image-meets-image-to-image-for-complementary-data-synthesis-to-boost-long-tailed-instance-segmentation)  
    标签：评分：8.0/10、query:image-seg
-   evidence：数据合成提升长尾实例分割
+   evidence：结合文本到图像与图像到图像合成辅助长尾实例分割
+4. [Align and Segment: Unsupervised Learning for Building Segmentation From Misaligned Labels](/202607/17/2607.10841v1-align-and-segment-unsupervised-learning-for-building-segmentation-from-misaligned-labels)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：使用空间变换器的无监督建筑分割方法
 
 ### 速读区论文标签
-1. [Align and Segment: Unsupervised Learning for Building Segmentation From Misaligned Labels](/202607/16/2607.10841v1-align-and-segment-unsupervised-learning-for-building-segmentation-from-misaligned-labels)  
+1. [Performance Benchmarking and Optimisation of Clustering Algorithms for Local and Non-Local Similarity Measure in Medical Image Analysis](/202607/17/2607.09821v1-performance-benchmarking-and-optimisation-of-clustering-algorithms-for-local-and-non-local-similarity-measure-in-medical-image-analysis)  
    标签：评分：7.0/10、query:image-seg
-   evidence：从不对齐标签进行无监督建筑分割
-2. [DeGuNet: Depth-Guided Ultra-Compact Backbones for Efficient LiDAR-Camera 3D Detection](/202607/16/2607.12419v1-degunet-depth-guided-ultra-compact-backbones-for-efficient-lidar-camera-3d-detection)  
+   evidence：医学图像中非局部相似性的聚类算法，可用于无监督分割
+2. [BOCCHI: A More Realistic and Challenging Benchmark for Local Motion Blur Detection with MSDCT-UNet](/202607/17/2607.10427v1-bocchi-a-more-realistic-and-challenging-benchmark-for-local-motion-blur-detection-with-msdct-unet)  
+   标签：评分：7.0/10、query:image-seg
+   evidence：局部运动模糊检测作为像素级分割任务
+3. [Slot-RAE: Streamlining Object-Centric Learning via Direct Representation Auto-Encoders](/202607/17/2607.11196v1-slot-rae-streamlining-object-centric-learning-via-direct-representation-auto-encoders)  
+   标签：评分：7.0/10、query:image-seg
+   evidence：提出基于自编码器的对象中心学习，与无监督分割相关
+4. [Beyond scalar losses: calibrating segmentation models via gradient vector field surgery](/202607/17/2607.14338v1-beyond-scalar-losses-calibrating-segmentation-models-via-gradient-vector-field-surgery)  
+   标签：评分：7.0/10、query:image-seg
+   evidence：医学图像分割模型校准
+5. [Weakly-Supervised RGB-D Salient Object Detection via SAM-driven Pseudo Annotation and State Space Interaction-based Diffusion](/202607/17/2607.15041v1-weakly-supervised-rgb-d-salient-object-detection-via-sam-driven-pseudo-annotation-and-state-space-interaction-based-diffusion)  
    标签：评分：7.0/10、query:image-fusion
-   evidence：多模态LiDAR与相机融合
-3. [Multimodal Assessment of Pancreatic Cancer Resectability Using Deep Learning](/202607/16/2607.13826v1-multimodal-assessment-of-pancreatic-cancer-resectability-using-deep-learning)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：医学图像分割与多模态融合
-4. [Improving Medical Image Generative Models with Fréchet Distance Loss](/202607/16/2607.13300v1-improving-medical-image-generative-models-with-frchet-distance-loss)  
+   evidence：RGB-D多模态融合用于显著检测
+6. [U-shaped Multi-granularity Learning for Vision-Language Models](/202607/17/2607.14966v1-u-shaped-multi-granularity-learning-for-vision-language-models)  
    标签：评分：6.0/10、query:image-seg
-   evidence：改进生成模型以提升下游分割任务
+   evidence：U形多粒度提示学习适用于密集预测任务如分割
 
 
 <div class="dpr-home-promo-card">

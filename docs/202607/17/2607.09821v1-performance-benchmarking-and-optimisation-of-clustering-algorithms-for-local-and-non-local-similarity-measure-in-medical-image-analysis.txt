@@ -1,0 +1,593 @@
+Title: Performance Benchmarking and Optimisation of Clustering Algorithms for Local and Non-Local Similarity Measure in Medical Image Analysis
+
+URL Source: https://arxiv.org/pdf/2607.09821v1
+
+Published Time: Tue, 14 Jul 2026 00:05:52 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# Performance Benchmarking and Optimisation of Clustering Algorithms for Local and Non-Local Similarity Measure in Medical Image Analysis 
+
+Sisipho Hamlomo 1,2 and Marcellin Atemkeng 1,3 
+
+> 1
+
+Department of Mathematics, Rhodes University, PO Box 94, Makhanda, 6140, South Africa  
+
+> 2
+
+Department of Statistics, Rhodes University, PO Box 94, Makhanda, 6140, South Africa  
+
+> 3
+
+National Institute for Theoretical and Computational Sciences (NITheCS), Stellenbosch 7600, South Africa 
+
+{s.hamlomo, m.atemkeng }@ru.ac.za 
+
+Abstract. Medical imaging generates high-resolution images posing sig-nificant storage, transmission, and computational challenges. While low-rank matrix approximation (LoRMA) techniques offer efficient compres-sion by exploiting structural redundancy, global approaches often fail to preserve local details critical for diagnosis. This paper focuses on clus-tering techniques that exploit non-local self-similarity to identify struc-turally similar regions in medical images. These clusters can be used for post-processing tasks such as adaptive image compression. We evaluate five clustering techniques: k-means, mini-batch k-means, agglomerative hierarchical clustering, balanced iterative reducing and clustering using hierarchies (BIRCH), and bisecting k-means across MRI, ultrasound, and chest X-ray modalities. All clustering techniques were optimised using random search, and cluster quality was assessed using the Silhouette score, the Davies-Bouldin (DB) index, and the Calinski-Harabasz (CH) index. Results demonstrate that standard k-means and bisecting k-means generally achieve strong cluster cohesion and separation across modali-ties. However, they tend to form a small number of clusters with high intra-cluster variability, limiting their effectiveness for post-processing tasks such as adaptive compression. Agglomerative clustering outper-formed other techniques for MRI and ultrasound in terms of intra-cluster homogeneity, making it more suitable for preserving fine diagnostic de-tails. For chest X-rays, mini-batch k-means achieved the best balance between clustering quality and intra-cluster compactness. BIRCH con-sistently underperformed across all modalities. 
+
+Keywords: Medical image compression, clustering, low-rank matrix ap-proximation, hyperparameter tuning 
+
+## 1 Introduction 
+
+Medical imaging plays an important role in modern healthcare, enabling accu-rate diagnosis, treatment planning, and disease monitoring. Advances in imag-arXiv:2607.09821v1 [eess.IV] 10 Jul 2026 2 Sisipho Hamlomo and Marcellin Atemkeng 
+
+ing modalities such as magnetic resonance imaging (MRI), computed tomog-raphy (CT), and ultrasound have significantly enhanced image resolution and diagnostic capability [1,2,3]. However, these high-resolution images produce vast amounts of high-dimensional data, posing data storage, transmission, and com-putational processing challenges during image analysis [4,5,6]. In addition, med-ical images often suffer from noise, artefacts, and variations due to different acquisition conditions, further complicating efficient image analysis [7]. There-fore, efficient image compression becomes essential to reduce the cost burden on healthcare data management systems. To address these challenges, various im-age compression techniques have been explored, broadly categorised into lossless and lossy methods. While lossless techniques preserve all original data, they of-ten achieve low compression ratios, which limits their practicality in bandwidth-constrained and storage-limited environments [8,9]. Consequently, lossy compres-sion methods, which aim to reduce data redundancy while preserving and ex-tracting important features, have received increased attention. Standard image compression techniques such as discrete cosine transform (DCT)-based JPEG [10,11,12] and wavelet-based JPEG2000 [13,14,15] have been widely applied. These methods have the advantage of being computationally efficient; however, they often struggle to maintain the fine structural details and diagnostic features inherent in medical images, leading to the potential loss of clinically significant information [16]. To address these shortcomings, researchers have explored tech-niques such as sparsity-based and dictionary learning methods [17,18,19], which introduce additional complexity and computational demands while improving the fidelity of reconstructed images. Low-rank matrix approximation (LoRMA) techniques have emerged as pow-erful tools for data compression due to their ability to capture the underlying low-dimensional structure of high-resolution medical images, effectively reduc-ing noise and preserving important features. However, this global approach often fails to capture local variations, leading to a loss of important fine details [20,21]. To address this limitation, recent research [22,23,24,25,26] has shifted toward patch-based and locally adaptive strategies that exploit non-local self-similarity in medical images to preserve essential anatomical features while reducing data redundancy. The fundamental idea behind these papers is to split the data matrix into overlapping patches, group structurally similar patches, and apply LoRMA for data matrix compression or denoising. While the idea of patch-grouping is established, a critical gap remains in understanding which clustering technique is most effective at forming the ho-mogeneous, low-variance clusters that are essential for high-fidelity, adaptive compression. Different clustering algorithms have inherent biases; some priori-tize global separation, which yields good overall metrics, while others may form tighter, more homogeneous groups at the cost of creating more clusters. This trade-off directly impacts compression performance: homogeneous clusters allow for more aggressive compression (higher compression ratios) while minimizing the loss of fine details, whereas clusters with high internal variability force a conservative compression strategy to avoid introducing artifacts or losing diag-Optimisation of Clustering Algorithms 3
+
+nostically crucial information. This paper addresses this gap by presenting a systematic benchmarking study. In particular, we examine five clustering meth-ods: k-means, mini-batch k-means, agglomerative hierarchical clustering, bal-anced iterative reducing and clustering using hierarchies and bisecting k-means, specifically on their ability to form compact, low-variance clusters suitable for adaptive LoRMA-based compression across different medical imaging modalities. We assess their effectiveness in forming compact, low-variance clusters across these modalities. These clusters are important for post-processing tasks such as per-cluster adaptive compression, since homogeneous clusters enable aggressive compression while preserving important features. We evaluated the clustering methods using the Silhouette score, Davies-Bouldin and Calinski-Harabasz in-dex, which quantify cohesion and separation. This work makes three contributions: we evaluated four clustering techniques using different medical imaging modalities; we used random search to tune hy-perparameters for every clustering algorithm; we provide a recommendation as to which clustering technique to use on which modality. The rest of this paper is organized as follows: Section 2 discusses the clus-tering techniques used for patch grouping; Section 3 details the hyperparameter tuning method used to optimize each clustering technique; Section 4 outlines the evaluation metrics used; Section 5 presents experimental results and analy-sis; and Section 6 concludes with findings and future directions. 
+
+## 2 Clustering techniques 
+
+To exploit redundancy and structural similarities in medical images, the image 
+
+A ∈ RH×W is divided into a set of overlapping square patches of size p × p.Each patch is extracted by sliding a window across the image with stride s < p ,ensuring overlap. The resulting patch Pi is reshaped (vectorized) into a column vector pi ∈ Rp2
+
+by stacking its pixel intensities in a fixed order (e.g., row-wise). Collectively, the image yields a patch set P = {p1, p2, . . . , pN }. Once patches are obtained, clustering algorithms are applied directly to this high-dimensional patch set to group similar patch regions. In this section, we discuss mini-batch k-means, agglomerative hierarchical clustering, balanced iterative reducing and clustering using hierarchies and bisecting k-means. The k-means theory is not discussed in this paper, and readers are referred to [26] for details. These five clustering methods were selected since they represent both partitioning-based approaches (k-means, mini-batch k-means, bisecting k-means) and hierarchical-based approaches (agglomerative, BIRCH). This selection provides a balanced benchmark in terms of scalability, computational efficiency, and ability to cap-ture local structure, which are critical in medical imaging tasks where both large data volumes and diagnostic fidelity must be considered. 
+
+2.1 Mini-batch k-means 
+
+Mini-batch k-means is a variant of the traditional k-means clustering algorithm that uses small random batches of data (mini-batches) to update the cluster 4 Sisipho Hamlomo and Marcellin Atemkeng 
+
+centroids, rather than using the entire dataset at each iteration. The objective is to partition these patches into K clusters that minimise the within-cluster variance. Let {μ(0) 1 , . . . μ(0)  
+
+> K
+
+} ⊂ Rp2
+
+denote the initial cluster centroids where each μ(0)  
+
+> k
+
+∈ Rp2
+
+is initialized either randomly or using a heuristic such as k-means++. The clustering objective function is given by min 
+
+> C1,..., CK
+> K
+
+X
+
+> k=1
+
+X
+
+> p∈C k
+
+∥p − μk∥2, (1) where Ck denotes the set of data points assigned to cluster Ck. At each iteration 
+
+t = 1 , . . . , T , a mini-batch 
+
+B(t) = {p(t)1 , . . . , p(t) 
+
+> b
+
+} ⊂ P (2) of size b ≪ N is sampled uniformly at random. Each point p ∈ B (t) is assigned to its nearest cluster according to 
+
+k∗(p) = arg min  
+
+> k∈{ 1,...,K }
+
+∥p − μ(t) 
+
+> k
+
+∥2. (3) Let B(t) 
+
+> k
+
+= {p ∈ B (t) | k∗(p) = k} be the set of mini-batch points assigned to cluster Ck at iteration t. Define a learning rate for each cluster 
+
+η(t) 
+
+> k
+
+= 1
+
+N (t) 
+
+> ck
+
++ 1 , (4) where N (t) 
+
+> ck
+
+is the cumulative number of data points assigned to cluster Ck up to iteration t, accounting for centroid updates at each step. The centroids are then updated using a batch-level residual correction 
+
+μ(t+1)  
+
+> k
+
+= μ(t) 
+
+> k
+
++ η(t) 
+
+> k
+
+· 1
+
+|B (t) 
+
+> k
+
+|
+
+X
+
+> p∈B (t)
+> k
+
+
+
+p − μ(t)
+
+> k
+
+
+
+, (5) provided that |B (t) 
+
+> k
+
+| > 0; otherwise, the centroid remains unchanged. 
+
+2.2 Hierarchical clustering 
+
+Hierarchical clustering groups similar data points by building a nested struc-ture of clusters, typically represented as a dendrogram. It is broadly categorised into divisive (top-down) and agglomerative (bottom-up) methods. In this pa-per, we adopt agglomerative hierarchical clustering as it avoids the complexity of deciding how to split nodes and assign child levels, which are key challenges in divisive clustering [27]. In agglomerative hierarchical clustering, the process begins at iteration t = 0 with 
+
+C(0) = C(0) 1 , . . . , C(0)  
+
+> N
+
+, C(0)  
+
+> i
+
+= {pi}. (6) Optimisation of Clustering Algorithms 5
+
+A linkage-based distance between any two clusters Ci and Cj is then defined. For instance, using single linkage 
+
+dsingle 
+
+ Ci, Cj
+
+ = min  
+
+> x∈C i,y∈C j
+
+∥x − y∥, (7) complete linkage 
+
+dcomplete 
+
+ Ci, Cj
+
+ = max  
+
+> x∈C i,y∈C j
+
+∥x − y∥, (8) or average linkage 
+
+davg 
+
+ Ci, Cj
+
+ = 1
+
+|C i| |C j |
+
+X
+
+> x∈C i
+
+X
+
+> y∈C j
+
+∥x − y∥. (9) At each iteration t, the pair  a, b  minimizing the chosen linkage distance is identified (a, b ) = arg min  
+
+> i̸=j
+
+d C(t) 
+
+> i
+
+, C(t)
+
+> j
+
+. (10) These two clusters are merged into a new cluster 
+
+C(t+1) new = C(t) 
+
+> a
+
+∪ C (t) 
+
+> b
+
+, (11) and the cluster set is updated as follows: 
+
+C(t+1) =  C(t) \ {C (t) 
+
+> a
+
+, C(t) 
+
+> b
+
+} ∪ {C (t+1) new }. (12) This process continues until a single cluster remains, yielding a dendrogram whose merge heights record the linkage distances. Alternatively, using Ward’s criterion, one merges at each step the pair  a, b  that minimises the increase in total within-cluster variance. If μ(t) 
+
+> i
+
+denotes the centroid of C(t) 
+
+> i
+
+, then merging 
+
+Ca and Cb incurs 
+
+∆E = |C (t) 
+
+> a
+
+| |C (t) 
+
+> b
+
+||C (t) 
+
+> a
+
+| + |C (t) 
+
+> b
+
+| μ(t) 
+
+> a
+
+− μ(t)
+
+> b
+> 22
+
+, (13) and the merge yielding the minimum ∆E is chosen. Once the full hierarchy is built, a flat partition into K clusters is obtained by “cutting” the dendrogram at the appropriate linkage threshold, producing clusters C1, . . . , CK .
+
+2.3 Balanced iterative reducing and clustering using hierarchies 
+
+Balanced iterative reducing and clustering using hierarchies (BIRCH) is a hi-erarchical clustering algorithm designed to efficiently handle large datasets by incrementally constructing a compact summary structure known as a clustering feature (CF) tree. Each node of the CF-tree stores a clustering feature CF( C) =  NC , LS C , SS C
+
+, (14) 6 Sisipho Hamlomo and Marcellin Atemkeng 
+
+where NC = |C| counts its patches, LS C = P 
+
+> p∈C
+
+p is their vector sum, and 
+
+SS C = P 
+
+> p∈C
+
+∥p∥2 records their squared-norm total. These three quantities add entry-wise over any disjoint union, so that a parent node’s CF exactly sum-marises the union of its children’s patches. That is, if C = Ca ∪C b and Ca ∩C b = ∅,then CF( C) = CF( Ca) + CF( Cb). (15) This ensures that every node’s summary perfectly captures all the patches it contains. From any CF, one computes the centroid LS C /N C and radius 
+
+r(C) = 
+
+r SS C
+
+NC
+
+− LS C
+
+NC
+
+> 2
+
+, (16) which quantifies the root-mean-square (RMS) distance of points from the cen-troid, reflecting the cluster’s spread. The CF-tree is controlled by a branching factor B (maximum entries per node), which limits the number of entries per node, and a threshold T , which caps the allowable radius of any leaf-level feature. Patches are gradually incorporated by always choosing, at each internal node, the entry whose feature would grow least in squared radius when augmented by the new patch, that is 
+
+j∗ = arg min 
+
+> 1≤j≤B
+
+h
+
+r CF j + p2 − r(CF j )2i
+
+. (17) The selected feature then increases its counts and sums by those of p, and the process continues down to a leaf. If the updated radius of that leaf feature remains at most T , the patch merges into it; otherwise, a fresh feature consisting of  1, p, ∥p∥2 is introduced. Whenever a node’s number of features exceeds B, it is split by identifying two “seed” features whose centroids lie furthest apart and partitioning the remainder according to the nearest seed. Once all N patches are summarised in the leaf features, their centroids are given by 
+
+{LS ℓ/N ℓ}Lℓ=1 , (18) where L denotes the total number of leaf-level CF entries. These centroids pro-vide a compact representation of P, to which a final flat clustering method (such as k-means or agglomerative clustering) is applied in order to produce the desired clusters C.
+
+2.4 Bisecting k-means 
+
+Bisecting k-means is a hierarchical clustering algorithm that recursively parti-tions a patch set P by applying two-means clustering to selected subsets until 
+
+K clusters are formed. It begins with a single cluster C(0) = {P} , and at each iteration t, a cluster C(t)sel ∈ C(t) is chosen for bisection. A two-means clustering is applied to C(t)sel , yielding two sub-clusters C(t+1)  
+
+> a
+
+and C(t+1)  
+
+> b
+
+, such that 
+
+C(t)sel = C(t+1)  
+
+> a
+
+∪ C (t+1)  
+
+> b
+
+and C(t+1)  
+
+> a
+
+∩ C (t+1)  
+
+> b
+
+= ∅, (19) Optimisation of Clustering Algorithms 7
+
+with corresponding centroids μ(t) 
+
+> a
+
+, μ(t) 
+
+> b
+
+∈ Rp2
+
+. The split quality is measured by the within-cluster sum of squares, that is WCSS (t) = X
+
+> p∈C (t+1)
+> a
+
+∥p − μ(t) 
+
+> a
+
+∥2 + X
+
+> p∈C (t+1)
+> b
+
+∥p − μ(t) 
+
+> b
+
+∥2. (20) To improve stability, the bisection is repeated ntry times with different initial-izations, and the split minimizing WCSS (t) is chosen. The updated clustering becomes 
+
+C(t+1) =
+
+
+
+C(t) \
+
+n
+
+C(t)sel 
+
+o 
+
+∪
+
+n
+
+C(t+1)  
+
+> a
+
+, C(t+1) 
+
+> b
+
+o
+
+. (21) This process continues until |C(t)| = K, producing a final clustering C = {C 1, . . . , CK }.
+
+## 3 Hyperparameter Tuning 
+
+Hyperparameter tuning aims to identify the set of model parameters that yields the best performance on a given task. In clustering, hyperparameters such as the number of clusters, batch sizes, linkage criteria, and tree thresholds can greatly influence the quality of the resulting clusters. To explore the hyperparameter space, the configuration vector is expressed as 
+
+θ =  K, α 1, . . . , α d
+
+ ∈ Θ, (22) where Θ denotes the feasible hyperparameter space. This space is constructed as a Cartesian product of sets, that is 
+
+Θ = K × A 1 × · · · × A d, K = {Kmin , . . . , K max }, (23) where each Aj denotes the admissible set for hyperparameter αj and K denotes the range of possible values for the number of clusters. To optimise, we perform a random search with budget T by drawing 
+
+θ1, · · · , θT
+
+> i.i.d
+
+∼ U(Θ). (24) Let 
+
+Γθ : P −→ C(P), (25) denote the clustering operator where C(P) is the set of all partitions of P. For fixed θ,
+
+Cθ = Γθ (P) = C1(θ), . . . , CK (θ) , (26) where each Ck(θ) ⊆ P and 
+
+> K
+
+[
+
+> k=1
+
+Ck(θ) = P, Ci(θ) ∩ C j (θ) = ∅ (i̸ = j). (27) 8 Sisipho Hamlomo and Marcellin Atemkeng 
+
+For each draw θt, we apply Γθt to P to obtain the partition {C k(θt)}Kk=1 and compute its average Silhouette score 
+
+ft = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+b(i; θt) − a(i; θt)max { a(i; θt), b (i; θt)} . (28) We record the pairs  θt, f t
+
+ for t = 1 , . . . , T and select 
+
+θ∗ = arg max   
+
+> t∈{ 1,2,...,T }
+
+ft. (29) 
+
+## 4 Evaluation Metrics 
+
+The cluster quality metrics Silhouette score, Calinski-Harabasz (CH) index and Davies-Bouldin (DB) index were used to evaluate the performance of each clus-tering technique. These evaluation metrics assess the quality of clustering results by measuring cohesion (how compact each cluster is) and separation (how well clusters are distinguished from one another). The Silhouette score quantifies how well each data point pi lies within its assigned cluster compared to other clus-ters. For a patch pi, let a(i) denote the average distance from pi to all other points in the same cluster (intra-cluster distance), that is 
+
+a(i) = 1
+
+Ck − 1
+
+X  
+
+> pj∈C k
+> j̸=i
+
+pi − pj 2 for pi ∈ C k (30) and let b(i) be the minimum average distance from pi to all points in the nearest different cluster (inter-cluster distance), that is 
+
+b(i) = min 
+
+> m̸=k
+
+1
+
+Cm
+
+X 
+
+> pj∈C m
+
+pi − pj 2. (31) Therefore, the silhouette value s(i) is defined as 
+
+s(i) = b(i) − a(i)max {a(i), b (i)} , (32) and lies in the interval [ −1, 1]. A value near +1 indicates that pi is well matched to its own cluster and poorly matched to others. A value near 0 suggests it lies on the decision boundary between two clusters, while negative values indicate likely misclassifications. The overall silhouette score is the average of s(i) over all patches. On the other hand, the CH index, also known as the variance ratio criterion, measures the ratio of between-cluster dispersion to within-cluster dispersion. Let 
+
+ck be the centroid of cluster Ck, and let c be the global centroid of all data. The CH index is defined as CH = Tr( BK )Tr( WK ) · N − KK − 1 , (33) Optimisation of Clustering Algorithms 9
+
+where Tr( BK ) denotes the trace of the between-cluster dispersion matrix Tr( BK ) = 
+
+> K
+
+X
+
+> k=1
+
+Nk∥ck − c∥2, (34) and Tr( WK ) denotes the trace of the within-cluster dispersion matrix Tr( WK ) = 
+
+> K
+
+X
+
+> k=1
+
+X
+
+> pi∈C k
+
+∥pi − ck∥2. (35) Higher values of CH indicate more distinct and well-separated clusters. The DB index quantifies the average similarity between each cluster and its most similar one, with similarity based on intra-cluster distances and inter-cluster separation. For each cluster Ck, define 
+
+sk = 1
+
+|C k|
+
+X
+
+> pi∈C k
+
+∥pi − ck∥, (36) the average distance of points to the cluster centroid. Then for clusters Ck and 
+
+Cm, define 
+
+Rk,m = sk + sm
+
+∥ck − cm∥ , (37) where Rk,m denotes the similarity measure between Ck and Cm. The DB index is the average over the maximum Rk,m for each cluster DB = 1
+
+K
+
+> K
+
+X
+
+> k=1
+
+max  
+
+> m̸=k
+
+Rk,m . (38) Lower values of DB indicate better clustering quality, with compact, well-separated clusters. 
+
+## 5 Results and Discussion 
+
+This study uses three publicly available medical imaging datasets sourced from Kaggle. From each dataset, a single representative image was randomly selected. The brain MRI was sourced from the BraTS2020 dataset, which contains multi-institutional, preoperative scans at 1 mm 3 resolution (including T1, T1Gd, T2, and FLAIR sequences) with expert-annotated segmentation masks. The breast ultrasound image came from the Breast Ultrasound Images dataset, comprising 780 images labelled as normal, benign, or malignant, each with a lesion segmen-tation mask. Finally, the chest X-ray was selected from the COVIDqu dataset, a collection of 33,920 images categorised as COVID-19, non-COVID pneumonia, or normal, all accompanied by lung segmentation masks. 10 Sisipho Hamlomo and Marcellin Atemkeng 
+
+Fig. 1 shows three medical imaging modalities analysed in this study: (a) a brain MRI scan, (b) an ultrasound image annotated with calliper measurements, and (c) a frontal chest X-ray radiograph. All images were split into overlapping patches of a fixed size, and clustering methods were applied to these patches to evaluate how well each technique groups similar regions across modalities. Hyperparameters for each clustering technique (e.g., number of clusters for k-means variants, linkage criteria for hierarchical clustering, threshold/branching factor for BIRCH) were tuned using random search over a predefined range to ensure each method achieved optimal results. 
+
+Fig. 1. Shows three medical imaging modalities analysed in this study: (a) a brain MRI scan, (b) an ultrasound image annotated with calliper measurements, and (c) a frontal chest X-ray radiograph. 
+
+Table 1 summarises clustering performance metrics: Silhouette score, DB index, CH index, and the optimal number of clusters selected for each method and modality. 
+
+Table 1. Comparison of clustering performance metrics across different medical imag-ing modalities (MRI, ultrasound, X-ray) using various clustering methods. The perfor-mance evaluation metrics include Silhouette score, DB and CH index. We also record the optimal number of clusters for each clustering technique.                                                                
+
+> Method MRI Ultrasound X-ray
+> Silhouette Davies-Bouldin Calinski-Harabasz No. of clusters Silhouette Davies-Bouldin Calinski-Harabasz No. of clusters Silhouette Davies-Bouldin Calinski-Harabasz No. of clusters K-means 0.814 0.705 8196.349 30.594 0.589 14449.452 20.540 0.631 7576.080 2Mini-batch k-means 0.779 0.963 6311.616 40.318 1.015 9395.139 40.456 0.714 8967.025 4Agglomerative 0.801 0.789 2785.943 70.511 0.485 920.711 11 0.444 0.902 3732.178 7Birch 0.746 1.366 4019.569 60.354 1.169 8465.552 40.420 0.759 7654.140 4Bisecting K-means 0.808 0.425 9421.159 20.594 0.589 14449.296 20.540 0.631 7575.771 2
+
+For the MRI modality, standard k-means achieves the highest Silhouette score (0.814), followed closely by bisecting k-means (0.808) and agglomerative cluster-Optimisation of Clustering Algorithms 11 
+
+ing (0.801). The lowest DB index is observed for bisecting k-means (0.425), indi-cating the most compact and well-separated clusters. It also attains the highest CH score (9421.16), showing strong clustering performance. While mini-batch k-means produces a reasonably high Silhouette score (0.779), its DB index is the highest (0.963), suggesting less optimal compactness compared to the other methods. For the ultrasound modality, standard k-means and bisecting k-means tie for the highest Silhouette score (0.594) and lowest DB index (0.589), with very similar CH scores (14449.45 and 14449.30, respectively), making them the top-performing methods. Agglomerative clustering, though exhibiting a reason-ably strong Silhouette score (0.511) and the lowest DB index (0.485), results in a significantly lower CH score (920.71), which may reflect the penalty im-posed by the CH index on the higher number of clusters (11) and potential imbalance in cluster sizes. In the X-ray modality, standard k-means and bisect-ing k-means both achieve the highest Silhouette score (0.540) and the lowest DB index (0.631), with nearly identical CH scores (7576.08 and 7575.77, respec-tively). Although mini-batch k-means attains a competitive CH score (8967.03), its lower Silhouette score (0.456) and higher DB index (0.714) suggest weaker intra-cluster cohesion and separation. The results of this study show that standard k-means and bisecting k-means generally yield strong clustering performance based on Silhouette scores, DB and CH indices, indicating good cohesion and separation among clusters. How-ever, when a post-processing task such as per-cluster adaptive compression is considered, intra-cluster variability becomes crucial. For example, Fig. 2 shows a box-plot comparison of intra-cluster variability for different clustering meth-ods applied to MRI image patches. Each box-plot represents the distribution of intra-cluster variability for a specific cluster across different clustering methods. As shown in Fig. 2, while k-means and bisecting k-means perform well overall in terms of clustering metrics, they form a small number of clusters with relatively high intra-cluster variability, which limits the flexibility of adaptive cluster-wise compression since aggressive compression within these clusters may result in the loss of important or clinically relevant features. While agglomerative clustering is more computationally intensive, it forms tighter, more homogeneous clusters with low intra-cluster variability, yielding low-rank structures that enable more effective compression while minimising the risk of degrading clinically relevant information. On the other hand, Fig. 3 indicates that k-means and bisecting k-means pro-duce two clusters with high intra-cluster variability, which limits their suitability for adaptive compression. Although agglomerative clustering performs slightly less in terms of clustering metrics, it forms a larger number of more homoge-neous clusters. This makes it more suitable for adaptive cluster-wise compression in ultrasound images, as it enables more effective low-rank approximations while preserving essential diagnostic details. While mini-batch k-means performs slightly below k-means and bisecting k-means in standard clustering metrics, Fig. 4 shows that it generates a larger 12 Sisipho Hamlomo and Marcellin Atemkeng 
+
+Fig. 2. Intra-cluster variability for MRI patches clustered using k-means, mini-batch k-means, agglomerative, birch and bisecting k-means methods. Each box-plot represents the variability within a specific cluster (C1–C7), with lower values indicating more homogeneous clusters. 
+
+Fig. 3. Intra-cluster variability for Ultrasound patches clustered using k-means, mini-batch k-means, agglomerative, birch and bisecting k-means methods. Each box-plot represents the variability within a specific cluster (C1–C11), with lower values indicat-ing more homogeneous clusters. Optimisation of Clustering Algorithms 13 
+
+number of clusters with lower intra-cluster variability, making it more effective for adaptive cluster-wise compression.  
+
+> Fig. 4. Intra-cluster variability for X-ray patches clustered using k-means, mini-batch k-means, agglomerative, and Birch methods. Each box-plot represents the variability within a specific cluster (C1–C7), with lower values indicating more homogeneous clus-ters.
+
+## 6 Conclusion 
+
+This study explored the effectiveness of clustering-based techniques for grouping structurally similar patches in high-resolution medical images, enabling adap-tive LoRMA-based compression during post-processing. The primary focus of our work is to investigate how the choice of clustering algorithm impacts not just standard clustering metrics, but more importantly, the intra-cluster homo-geneity that is critical for post-processing tasks like compression. By comparing standard k-means, mini-batch k-means, agglomerative hierarchical clustering, BIRCH and bisecting k-means across MRI, ultrasound, and chest X-ray modali-ties, we evaluated clustering performance using Silhouette scores, DB index, and CH index. Our results indicate that bisecting k-means and standard k-means generally achieved strong cluster quality in terms of cohesion and separation, particularly in the MRI modality, as reflected by high Silhouette and CH scores. However, as shown in Figs. 2 and 3, these methods form a small number of clusters with high intra-cluster variability, limiting their suitability for adaptive per-cluster compression. In contrast, agglomerative clustering, while more com-putationally intensive, produced tighter and more homogeneous clusters with lower intra-cluster variability for both MRI and ultrasound image patches, mak-ing it more appropriate for compression in those modalities. For chest X-ray 14 Sisipho Hamlomo and Marcellin Atemkeng 
+
+images, mini-batch k-means achieved the best balance between cluster quality and intra-cluster compactness, suggesting it is well-suited for adaptive compres-sion in that modality. Meanwhile, BIRCH showed relatively lower performance across all modalities in both clustering quality and intra-cluster variability, mak-ing it the least suitable for the compression framework considered. These findings suggest that the choice of clustering technique should be guided by both the imaging modality and the trade-off between computational efficiency and compression fidelity. Mini-batch k-means provides an efficient and effective option for chest X-ray images, where clustering quality and compactness align well. However, for MRI and ultrasound images, agglomerative clustering is more suitable due to its ability to form tighter, more homogeneous clusters that preserve fine structural and clinical details, as evidenced by lower intra-cluster variability. In future work, we will examine how variations in patch size influ-ence clustering behaviour and compression performance across different medical imaging modalities. 
+
+Acknowledgments This research was supported in part by the Department of Higher Education and Training (DHET) through the University Staff Doctoral Programme (USDP) and in part by the National Research Foundation of South Africa (Ref No.CSRP23040990793). The authors would like to thank Rhodes University for their financial support. 
+
+## References 
+
+1. Clare MC Tempany and Barbara J McNeil. Advances in biomedical imaging. Jama ,285(5):562–567, 2001. 2. NL M¨ uller. Computed tomography and magnetic resonance imaging: past, present and future. European Respiratory Journal , 19(35 suppl):3s–12s, 2002. 3. Shah Hussain, Iqra Mubeen, Niamat Ullah, Syed Shahab Ud Din Shah, Bakhtawar Abduljalil Khan, Muhammad Zahoor, Riaz Ullah, Farhat Ali Khan, and Mujeeb A Sultan. Modern diagnostic imaging technique applications and risk fac-tors in the medical field: a review. BioMed research international , 2022(1):5164970, 2022. 4. Choong Ho Lee and Hyung-Jin Yoon. Medical big data: promise and challenges. 
+
+Kidney research and clinical practice , 36(1):3, 2017. 5. Zhongyu Li, Xiaofan Zhang, Henning M¨ uller, and Shaoting Zhang. Large-scale retrieval for medical image analytics: A comprehensive review. Medical image analysis , 43:66–84, 2018. 6. Andreas S Panayides, Amir Amini, Nenad D Filipovic, Ashish Sharma, Sotirios A Tsaftaris, Alistair Young, David Foran, Nhan Do, Spyretta Golemati, Tahsin Kurc, et al. AI in medical imaging informatics: current challenges and future directions. 
+
+IEEE journal of biomedical and health informatics , 24(7):1837–1857, 2020. 7. Bhawna Goyal, Sunil Agrawal, and BS Sohi. Noise issues prevailing in various types of medical images. Biomedical & Pharmacology Journal , 11(3):1227, 2018. 8. Ilona Anna Kowalik-Urbaniak. The quest for ”diagnostically lossless” medical im-age compression using objective image quality measures . PhD thesis, University of Waterloo, 2015. Optimisation of Clustering Algorithms 15 9. Tick H Oh. JPEG2000 and JPEG: image quality comparison of compressed medical modalities. International Journal of Computers and Applications , 32(4):393–398, 2010. 10. Andrew B Watson et al. Image compression using the discrete cosine transform. 
+
+Mathematica journal , 4(1):81, 1994. 11. Nitesh Kumar More and Sipi Dubey. JPEG picture compression using discrete cosine transform. International Journal of Science and Research (IJSR) , 2(1):134– 138, 2013. 12. AM Raid, WM Khedr, Mohamed A El-Dosuky, and Wesam Ahmed. JPEG image compression using discrete cosine transform-a survey. arXiv preprint arXiv:1405.6147 , 2014. 13. James S Walker and Truong Q Nguyen. Wavelet-based image compression. Sub-chapter of CRC Press book: Transforms and Data Compression , pages 267–312, 2001. 14. Bryan E Usevitch. A tutorial on modern lossy wavelet image compression: foun-dations of JPEG 2000. IEEE signal processing magazine , 18(5):22–35, 2002. 15. Kamrul Hasan Talukder and Koichi Harada. Haar wavelet based approach for image compression and quality assessment of compressed image. arXiv preprint arXiv:1010.4084 , 2010. 16. Tick Hui Oh and Rosli Besar. Medical image compression using JPEG-2000 and JPEG: A comparison study. Journal of Mechanics in Medicine and Biology ,2(03n04):313–328, 2002. 17. Inbal Horev, Ori Bryt, and Ron Rubinstein. Adaptive image compression using sparse dictionaries. In 2012 19th International Conference on Systems, Signals and Image Processing (IWSSIP) , pages 592–595. IEEE, 2012. 18. Yijing Watkins, Oleksandr Iaroshenko, Mohammad Sayeh, and Garrett Kenyon. Image compression: Sparse coding vs. bottleneck autoencoders. In 2018 IEEE Southwest Symposium on Image Analysis and Interpretation (SSIAI) , pages 17– 20. IEEE, 2018. 19. P Anandan and RS Sabeenian. Medical image compression using wrapping based fast discrete curvelet transform and arithmetic coding. Circuits and Systems ,7(8):2059–2069, 2016. 20. Qiaoqiao Ding, Tianye Niu, Xiaoqun Zhang, and Yong Long. Image-domain multi-material decomposition for dual-energy CT based on prior information of material images. Medical physics , 45(8):3614–3626, 2018. 21. Debra F McGivney, Eric Pierre, Dan Ma, Yun Jiang, Haris Saybasili, Vikas Gulani, and Mark A Griswold. SVD compression for magnetic resonance fingerprinting in the time domain. IEEE transactions on medical imaging , 33(12):2311–2322, 2014. 22. Yao Wang, Jiangjun Peng, Qian Zhao, Yee Leung, Xi-Le Zhao, and Deyu Meng. Hyperspectral image restoration via total variation regularized low-rank tensor decomposition. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , 11(4):1227–1243, 2017. 23. Hui Liu, Qiang Guo, Guangli Wang, Brij B Gupta, and Caiming Zhang. Medical image resolution enhancement for healthcare using nonlocal self-similarity and low-rank prior. Multimedia Tools and Applications , 78:9033–9050, 2019. 24. Haijin Zeng, Xiaozhen Xie, Wenfeng Kong, Shuang Cui, and Jifeng Ning. Hyper-spectral image denoising via combined non-local self-similarity and local low-rank regularization. IEEE Access , 8:50190–50208, 2020. 25. Shiao Li, Fei Wang, and Song Gao. New non-local mean methods for MRI denoising based on global self-similarity between values. Computers in Biology and Medicine ,174:108450, 2024. 16 Sisipho Hamlomo and Marcellin Atemkeng 26. Sisipho Hamlomo, Marcellin Atemkeng, Yusuf Brima, Chuneeta Nunhokee, and Jeremy Baxter. A systematic review of low-rank and local low-rank matrix ap-proximation in big data medical imaging. Neural Computing and Applications ,pages 1–56, 2025. 27. Xingcheng Ran, Yue Xi, Yonggang Lu, Xiangwen Wang, and Zhenyu Lu. Compre-hensive survey on hierarchical clustering algorithms and the recent developments. 
+
+Artificial Intelligence Review , 56(8):8219–8264, 2023.
