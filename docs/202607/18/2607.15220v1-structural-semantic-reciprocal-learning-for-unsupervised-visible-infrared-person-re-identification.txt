@@ -1,0 +1,721 @@
+Title: Structural-Semantic Reciprocal Learning for Unsupervised Visible-Infrared Person Re-Identification
+
+URL Source: https://arxiv.org/pdf/2607.15220v1
+
+Published Time: Fri, 17 Jul 2026 01:40:41 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# Structural-Semantic Reciprocal Learning for Unsupervised Visible-Infrared Person Re-Identification 
+
+Moyao Tian 1,†, Shijia Liu 1,†, Yan Yang 3,4, Xin Yuan 1,2,∗, Minshi Chen 1,Wei Wang 1,2, and Xiao Wang 1,2 
+
+> 1
+
+School of Computer Science and Technology, Wuhan University of Science and Technology, Wuhan 430065, China  
+
+> 2
+
+Hubei Province Key Laboratory of Intelligent Information Processing and Real-Time Industrial System, Wuhan University of Science and Technology, Wuhan 430065, China  
+
+> 3
+
+State Key Laboratory of Robotics and Intelligent Systems, Shenyang Institute of Automation, Chinese Academy of Sciences, Shenyang 110016, China  
+
+> 4
+
+China University of Chinese Academy of Sciences, Beijing 100049, China 
+
+Abstract. Unsupervised visible-infrared person re-identification (USVI-ReID) is challenging due to the large modality gap and the lack of cross-modal identity annotations. Progressive association paradigms have been proposed to gradually bridge the gap, but they suffer from two critical bottlenecks: reliance on ambiguous global representations and unchecked propagation of pseudo-label noise in an open-loop manner. To address these issues, we propose Structural-Semantic Reciprocal Learning (SSRL), a framework that transforms open-loop association into a self-correcting closed-loop system. Structurally, we introduce Fine-grained Structural Decoupling (FSD) to extract discriminative body-part primitives as reli-able spatial anchors, complementing ambiguous holistic silhouettes with spatially consistent structural details. Semantically, we design a Closed-loop Semantic Calibration (CSC) mechanism that reconstructs shared semantic prototypes at each epoch and feeds them back into the train-ing loop, effectively filtering pseudo-label noise before the next clustering cycle. Through the reciprocal interaction between structural and seman-tic learning, SSRL achieves robust cross-modal representation. Extensive experiments demonstrate the competitive performance of SSRL against state-of-the-art USVI-ReID methods on both SYSU-MM01 and RegDB, notably surpassing several supervised counterparts on RegDB. 
+
+Keywords: Structural-Semantic Reciprocal Learning · Part-Based Struc-tural Decoupling · Closed-Loop Semantic Calibration · Unsupervised Visible-Infrared Person Re-Identification  
+
+> †
+
+Equal contribution  
+
+> ∗
+
+Corresponding author: Xin Yuan (yuanxincherry@gmail.com) arXiv:2607.15220v1 [cs.CV] 16 Jul 2026 2 Authors Suppressed Due to Excessive Length (a) Existing Method      
+
+> (b) Our SSRL
+> Open -loop
+> Association
+> (No Feedback)
+> Clustering
+> RGB
+> IR
+> Feature Manifold Collapse
+> Global Only
+> Purified Manifold
+> Upper
+> Middle
+> Lower
+> RGB
+> IR
+> +
+> +
+> Upper
+> Middle
+> Lower
+> Prototype Bank
+> Closed -loop Semantic Feedback
+> Clustering
+> Closed -loop Visible Stream Infrared Stream
+> Data Flow
+> Open -loop Association
+> Adaptive Partitions Visible Feature Infrared Feature Semantic Prototype
+> Global Feature Part Feature
+
+Fig. 1: Comparison of paradigms. (a) Open-loop methods scatter features; (b) SSRL yields consistent, purified cross-modal clusters. 
+
+## 1 Introduction 
+
+The goal of visible-infrared person re-identification (VI-ReID) [2,3,16,21] is to match the same pedestrian across visible and infrared images, which is crucial for 24-hour intelligent surveillance and public security. Significant progress has been made in supervised VI-ReID [1,16,17,18,19]. However, these methods rely heavily on manually annotated cross-modal identity labels, which are labor-intensive and expensive to obtain, limiting their applicability in real-world scenarios. To address this limitation, we investigate an unsupervised solution for VI-ReID. For unsupervised single-modality ReID, existing works [4,5,14] utilize clus-tering to generate pseudo-labels and learn discriminative representations within a homogeneous space. However, in the visible-infrared heterogeneous space, the large modality gap makes it difficult to maintain feature and semantic con-sistency across modalities. Specifically, cross-modality differences often exceed intra-modality inter-class variations, causing conventional clustering methods to fail in establishing reliable cross-modal links. Nonetheless, cross-modal corre-spondences play a critical role in bridging the modality gap [7,9,11]. Without reliable correspondences, the model can hardly learn modality-invariant features. Recent efforts [6,7,8,12,15] have attempted to mine cross-modal correspon-dences in an unsupervised manner. Most of these methods adopt progressive association paradigms, which start from reliable intra-modal clustering and grad-ually merge inter-modal identities. However, they suffer from two critical bot-tlenecks. First, they predominantly rely on monolithic global representations, neglecting fine-grained local structural details. As shown in Fig. 1(a), global fea-tures are vulnerable to modality-induced silhouette distortions and background clutter. Second, their association pipeline is open-loop: pseudo-label noise gen-Title Suppressed Due to Excessive Length 3
+
+erated during clustering propagates unchecked into subsequent training epochs, causing feature manifold collapse and severe identity mis-linking. To address these issues, we propose a Structural-Semantic Reciprocal Learn-ing (SSRL) framework that transforms conventional open-loop association into a self-correcting closed-loop system (Fig. 1(b)). Our framework is characterized by two synergistic designs. Structurally, we introduce Fine-grained Structural De-coupling (FSD) to extract body-part primitives as reliable spatial anchors. Unlike existing part-based methods that simply partition features to enrich represen-tation diversity [12,14], FSD uniquely projects local regions into independent, decoupled sub-spaces prior to clustering. In unsupervised cross-modal scenarios, this architectural constraint prevents localized modality style noise from corrupt-ing other identity cues, regularizing subsequent pseudo-label learning to main-tain strict cross-modal structural consistency. Semantically, we design a Closed-loop Semantic Calibration (CSC) mechanism. Unlike prior open-loop paradigms where label noise accumulates catastrophically, CSC establishes a feedback loop: at the end of each epoch, we reconstruct shared semantic prototypes from the current feature distribution and feed them back into the training loop. This prototype-based calibration acts as a semantic filter that purifies the feature manifold and suppresses pseudo-label noise before the next clustering cycle. The reciprocal interaction between structural anchoring and semantic cleaning pro-gressively refines both the feature representation and the supervisory signals. The main contributions of this paper can be summarized as follows: 
+
+– We propose a SSRL framework that transforms conventional open-loop pro-gressive association into a closed-loop self-correcting system, effectively sup-pressing pseudo-label noise accumulation through reciprocal interaction be-tween structural and semantic learning. 
+
+– We introduce the FSD module, which decouples body-part representations into structural primitives serving as reliable anchors for cross-modal pseudo-label learning under severe modality discrepancy. 
+
+– We design the CSC mechanism to establish a self-calibration loop using shared semantic prototypes, effectively suppressing noise accumulation in progressive learning without introducing extra inference cost. 
+
+– Extensive experiments demonstrate the remarkable advantages of SSRL over state-of-the-art unsupervised benchmarks, notably surpassing several super-vised counterparts on RegDB, proving that the integration of architectural structural precision and closed-loop semantic feedback is essential for robust unsupervised cross-modal retrieval. 
+
+## 2 Related Work 
+
+2.1 Supervised Visible-Infrared Person Re-Identification 
+
+Supervised visible-infrared person re-identification (SVI-ReID) aims to match pedestrian identities across visible (RGB) and infrared (IR) modalities under 4 Authors Suppressed Due to Excessive Length 
+
+full identity supervision. The primary challenge lies in severe modality discrep-ancy caused by heterogeneous imaging characteristics. Early SVI-ReID methods mainly learned modality-shared representations through global feature align-ment. AGW [1] introduced one of the earliest VI-ReID benchmarks with a two-stream framework, while CA [16] and DEEN [17] further improved global repre-sentations via channel enhancement and diverse embedding expansion. However, holistic global representations alone are insufficient under severe modality-induced feature drift, motivating structural-aware and fine-grained rep-resentation learning. PartMix [18] introduced part discovery regularization for local alignment, while PM-WGCN [19] modeled structural relationships through polymorphic masks and wavelet graph convolution, highlighting the importance of local semantic consistency. More recently, transformer-based methods [20,21] demonstrated strong capability in modeling global contextual dependencies and cross-modal interactions. Despite these advances, supervised VI-ReID methods still heavily rely on large-scale identity annotations, motivating growing interest in unsupervised cross-modality person re-identification. 
+
+2.2 Unsupervised Visible-Infrared Person Re-Identification 
+
+Recent unsupervised VI-ReID methods mainly address severe modality discrep-ancy through cross-modal association learning. Early one-step clustering meth-ods, such as H2H [4], directly performed cross-modal matching and pseudo-label learning, but suffered from unstable associations due to the large RGB-IR gap. To improve stability, progressive frameworks were introduced, including graph-based optimization [6], unified embedding learning [7], curriculum-style progres-sive association [9], and transport-based distribution alignment [11], enabling more reliable clustering and cross-modal correspondence. Beyond global association learning, recent studies explored fine-grained mod-eling and pseudo-label purification. PBE [15] enhanced cross-modal interac-tion through part-based feature learning, while APPD [12] introduced adaptive pseudo-label purification to mitigate clustering noise. However, existing methods still predominantly rely on holistic representations and open-loop optimization, where local structural cues are insufficiently exploited, and pseudo-label errors may progressively accumulate during iterative clustering. To overcome these lim-itations, we propose a Structural-Semantic Reciprocal Learning (SSRL) frame-work, which jointly leverages fine-grained structural decoupling and closed-loop semantic calibration to achieve more robust cross-modal representation learning. 
+
+## 3 Method 
+
+3.1 Overview 
+
+Given unlabeled visible Xv = {xvi }Nv 
+
+> i=1
+
+and infrared Xir = {xir j }Nir  
+
+> j=1
+
+images, unsu-pervised visible-infrared person re-identification learns modality-invariant repre-sentations without identity labels. To mitigate the modality gap and pseudo-label Title Suppressed Due to Excessive Length 5
+
+noise, we propose Structural-Semantic Reciprocal Learning (SSRL), as shown in Fig. 2, which synergizes architecture-level Fine-grained Structural Decoupling (FSD) and algorithm-level Closed-loop Semantic Calibration (CSC). FSD ex-tracts global features and local structural primitives as spatial anchors, while CSC leverages cross-modal semantic prototypes to iteratively rectify pseudo-supervision.Formally, an input image xm (m ∈ { v, ir }) is processed by a shallow encoder Em(·) and a shared backbone B(·) to extract a shared feature map 
+
+Am = B(Em(xm)) ∈ RC×H×W . FSD then maps Am into a global feature 
+
+f gm ∈ RD and K part primitives Fpm = {f pk m }k∈K via ( f gm, Fpm) = ΦFSD (Am), where K = {u, m, l } indexes the upper, middle, and lower part heads. The frame-work is optimized via an epoch-wise reciprocal loop: 
+
+θtΦFSD 
+
+−−−→ F t Clustering 
+
+−−−−−−→ Y t Aggregation 
+
+−−−−−−−→ P t Ltotal 
+
+−−−→ θt+1 , (1) where θt, Ft, Yt, and Pt denote the model parameters, extracted cross-modal features, synchronized pseudo-labels, and shared prototypes at epoch t, respec-tively. This reciprocal interaction simultaneously stabilizes structural primitives and purifies semantic supervision. Memory Supervision 
+
+> Global Branch
+> Gem
+> Pooling
+> Global
+> Bottleneck
+> Part Branch
+> Visible Image
+> Infrared Image
+> Visible
+> Encoder
+> Infrared
+> Encoder
+
+Fine-grained Structural Decoupling    
+
+> Horizontal
+> Adaptive
+> Pooling
+> Bottleneck
+> Head u
+> Bottleneck
+> Head m
+> Bottleneck
+> Head l
+> Shared
+> ResNet
+> Backbone
+> ...
+> Shared
+> Feature Map
+
+Closed -loop Feedback for Semantic Purification         
+
+> Feedback Loop
+> Memory Bank
+> Data Flow Upper -body Branch Global Branch Lower -body Branch Middle -body Branch
+> Distance matrix Inrared Feature Vector Semantic Prototype Infrared Feature Visible Feature Visible Feature Vector
+> 4.Shared Prototype Calibration
+> 1. Cross-modal Holistic Feature
+> Set Construction
+> ...
+> 2. Modal-invariant k-reciprocal
+> Jaccard Distance
+> 3. Cross -modal Clustering
+> and Conditional Aggregation
+
+Closed -loop 
+
+Semantic Calibration 
+
+> k-reciprocal
+> ...
+> Prototype Bank
+> ...
+
+Fig. 2: Framework of Structural-Semantic Reciprocal Learning (SSRL). SSRL integrates Fine-grained Structural Decoupling (FSD) and Closed-loop Seman-tic Calibration (CSC) reciprocally. FSD leverages modality-aware memories for spatial feature decoupling, while CSC generates semantic prototypes via cross-modal clustering to progressively refine representation learning. 
+
+3.2 Fine-grained Structural Decoupling Global Identity Branch. The global branch extracts holistic identity charac-teristics from the shared feature map Am ∈ RC×H×W . To retain finer spatial activations, Generalized-Mean (GeM) pooling is adopted to aggregate Am into 6 Authors Suppressed Due to Excessive Length 
+
+a global descriptor gm ∈ RC :
+
+gm = 1
+
+HW 
+
+> H
+
+X
+
+> h=1
+> W
+
+X
+
+> w=1
+
+(Am(h, w )) p + ϵ
+
+! 1
+
+> p
+
+, (2) where p = 3 and ϵ ensures numerical stability. Then, gm is projected via a global bottleneck layer Bg (·) to generate the holistic embedding f gm = Bg (gm)(m ∈ { v, ir }) for instance-level supervision and semantic calibration. 
+
+Horizontal Adaptive Pooling. To capture spatially stable local cues against background clutter and thermal noise, FSD horizontally partitions Am into three coarse spatial components. This is executed via an AdaptiveAvgPool2d((3,1)) 
+
+layer, formally denoted as the Horizontal Adaptive Pooling (HAP) operator: 
+
+pm,k = 1
+
+|Hk|W
+
+X
+
+> h∈Hk
+> W
+
+X
+
+> w=1
+
+Am(h, w ), (k ∈ K ), (3) where Hk represents the vertical coordinate range of the segment k, and K =
+
+{u, m, l } indexes the upper ( u), middle ( m), and lower ( l) body regions. This structural stripe partitioning yields robust cross-modal geometric anchors, inher-ently providing local spatial invariance against mild pedestrian pose variations. 
+
+Parallel Bottleneck Heads. To eliminate cross-region feature entanglement and gradient interference, FSD deploys three independent, non-sharing bottle-neck heads to process each horizontal bin individually.This process yields the fine-grained structural primitive k, denoted as f pk m ∈ RC :
+
+f pk m = N (Bpk (pm,k )) , (k ∈ K ), (4) where Bpk (·) denotes the k-th part bottleneck and N (·) represents L2 normaliza-tion. The fully decoupled primitive set is represented as Fpm = {f pk m }k∈K . Acting as reliable spatial anchors, these primitives provide consistent local evidence under radical modality changes and spatial misalignments. 
+
+Part Memory Supervision. To enhance part-level discriminability, we intro-duce a hierarchical part-specific memory supervision loss, Lpart = Luni part + Lall part .Specifically, the modality-specific part memory loss Luni part enforces intra-modality compactness: 
+
+Luni part = X
+
+> k∈K
+
+αk
+
+h
+
+Lnce 
+
+ f pk v , y v ; M pk v
+
+ + Lnce 
+
+
+
+f pk ir , y ir ; M pk ir 
+
+i 
+
+, (5) where M pk v and M pk ir denote non-parametric memories for the k-th primitive, 
+
+yv and yir are instance pseudo-labels, and Lnce (·) is the contrastive objective. The cross-modal term Lall part is symmetrically derived using a unified bank M pk all 
+
+and cross-modal pseudo-labels. The weight configuration α = [ αu, α m, α l] = [1 /6, 3/6, 2/6] balances the uneven distribution of identity cues across regions (e.g., the torso m exhibits superior texture stability over regions u and l under radical variations). Title Suppressed Due to Excessive Length 7
+
+Cross-modal Structural Alignment. To align localized geometric layouts across spectra, we define identical pseudo-label pairs as Ωp = {(i, j ) | yvi = yir j }.The cross-modal part alignment loss Lpa is formulated as: 
+
+Lpa = X
+
+> k∈K
+
+αk
+
+1 − 1
+
+|Ωp|
+
+X
+
+> (i,j )∈Ωp
+
+sim 
+
+
+
+f pk,i v , f pk,j ir 
+
+ , (6) where sim( ·, ·) denotes cosine similarity.Concurrently, to preserve body topology and prevent structural distortion, we introduce an adjacent-part consistency reg-ularization term Lpc over Fpm. Instead of full pairwise modeling, Lpc constrains local relations strictly between neighboring regions: 
+
+Lpc = 12
+
+X
+
+> i∈K
+
+X
+
+> j∈K
+
+βij 
+
+h 1 − sim( f pi v , f pj v ) +
+
+
+
+1 − sim( f pi ir , f pj ir )
+
+i 
+
+, (7) where i and j denote topologically adjacent body parts, and sim( ·, ·) is cosine similarity. The term βij represents a weight derived by averaging and normalizing the corresponding region scale priors, where βij is computed as the ratio of the adjacent pair’s joint prior ˜βij = αi+αj 
+
+> 2
+
+to the sum of joint priors across all adjacent pairs. This constraint ensures smooth structural transitions and suppresses spatial drift of part heads during optimization. 
+
+3.3 Closed-loop Semantic Calibration Cross-modal Feature Set Construction. At the beginning of each epoch t,we freeze the model parameters θt to extract holistic representations. To facilitate unified clustering, modality-specific features are aggregated into a cross-modal set Ft = Ftv ∪ F tir , where Ftm = {f g,t m,i }Nm 
+
+> i=1
+
+(m ∈ { v, ir }) and f g,t m,i ∈ RD denotes the holistic feature of the i-th sample. This establishes a co-shared embedding space for graph-based label synthesis. 
+
+Modal-invariant k-reciprocal Jaccard Distance. To suppress cross-spectral false positives, the structural similarity between samples i and j is evaluated via a k-reciprocal Jaccard distance. For an instance i ∈ F t, its stringent k-reciprocal neighbor set is defined as Rtk(i) = {j | j ∈ N tk (i) ∧ i ∈ N tk (j)}, where 
+
+N tk (i) denotes the k-nearest neighbors. By measuring neighborhood topology consistency rather than absolute distances, the modal-invariant Jaccard distance 
+
+DJ,t ij is formulated as: 
+
+DJ,t ij = 1 − |R tk(i) ∩ R tk(j)||R tk(i) ∪ R tk(j)| . (8) Density-Based Spatial Clustering of Applications with Noise (DBSCAN) is sub-sequently applied to DJ,t to generate the synchronized pseudo-label set Yt =
+
+{yti | i ∈ { 1, 2, . . . , N v + Nir }} = DBSCAN( DJ,t ), thereby providing reliable pseudo labels for subsequent training. 8 Authors Suppressed Due to Excessive Length 
+
+Shared Semantic Prototype Construction. To rectify pseudo-supervision noise, CSC constructs a centralized prototype bank Pt = {P tc }Ct 
+
+> c=1
+
+to serve as cross-modal semantic anchors. For each pseudo-class c, the visible centroid 
+
+μtc,v = 1 
+
+> |C vc|
+
+P 
+
+> i∈C vc
+
+f g,t v,i and the infrared centroid μtc,ir = 1 
+
+> |C ir c|
+
+P 
+
+> j∈C ir c
+
+f g,t ir,j are cal-culated on their respective sample index subsets Cvc and Cir c . To robustly handle asymmetric modality distributions and cluster explosion, the raw prototype ¯P tc
+
+is dynamically aggregated via a conditional topology constraint: ¯P tc =
+
+ 
+
+> 12
+
+(μtc,v + μtc,ir ), Cvc̸ = ∅ ∧ C ir c̸ = ∅,μtc,v , Cvc̸ = ∅ ∧ C ir c = ∅,μtc,ir , Cvc = ∅ ∧ C ir c̸ = ∅,
+
+(9) followed by L2-normalization such that P tc = ¯P tc    
+
+> || ¯Ptc|| 2
+
+. Distinct from conventional momentum or EMA updates, the prototype bank is completely reconstructed at the end of each epoch based on the newly generated pseudo-labels Yt. This epoch-wise full reconstruction eliminates historical pseudo-label bias and ensures strict alignment between the semantic bank and the current feature distribution. 
+
+Backward Semantic Calibration. To enforce reciprocity, CSC feeds Pt back into the backpropagation loop to rectify the feature distribution. For a feature 
+
+f g,t m,i , its posterior probability of aligning with prototype P tc is: 
+
+p(c | f g,t m,i ) = exp  (f g,t m,i )⊤P tc /τ PCt 
+
+> q=1
+
+exp  (f g,t m,i )⊤P tq /τ  , (10) where τ is the temperature. To minimize pseudo-supervision noise and tighten classes, the prototype classification loss Lsp is optimized over visible ( Bv ) and infrared ( Bir ) mini-batches: 
+
+Lsp = − X
+
+> i∈B v
+
+log p(yvi | f g,t v,i ) − X
+
+> j∈B ir
+
+log p(yir j | f g,t ir,j ). (11) Concurrently, to bound spectral variations, CSC imposes a cross-modal semantic consistency loss: 
+
+Lsc = 1 − 1
+
+|Ωs|
+
+X
+
+> (i,j )∈Ωs
+
+sim  f g,t v,i , f g,t ir,j 
+
+ , (12) where Ωs = {(i, j ) | yvi = yir j } defines intra-batch pairs sharing identical pseudo-labels. The joint objective for CSC is Lcsc = λsp Lsp + λsc Lsc . This calibration abstracts an epoch-wise reciprocal feedback state machine: θt → F t → DJ,t →Yt → P t → L tcsc → θt+1 , which progressively purifies supervisory targets, sup-presses noise, and structurally calibrates the cross-modal feature manifold. 
+
+3.4 Overall Optimization Global Memory Supervision. To anchor macro-identity semantics before localized matching, SSRL adopts a non-parametric global contrastive learning Title Suppressed Due to Excessive Length 9
+
+paradigm. Symmetrically to the part-level mechanism, the overall global mem-ory loss is defined as Lglobal = Lv + Lir + Lvall + Lir all , where Lv and Lir are NCE constraints over independent modality banks Mv and Mir , while Lvall and Lir all 
+
+are consensus penalties computed over a shared bank Mall to enforce seamless cross-modal feature alignment. 
+
+Final Objective. By unifying architecture-level structural decoupling and al-gorithmic closed-loop calibration, the joint objective Lttotal optimized at training epoch t is formulated as: 
+
+Lttotal = Lglobal + LF SD + Lcsc + λadv Ladv , (13) where LF SD = λpLpart + λpa Lpa + λpc Lpc and Lcsc = λsp Lsp + λsc Lsc are the joint losses derived in previous sections. The term Ladv is an auxiliary triple-modal adversarial alignment loss strictly following the baseline frame-work [9]. It introduces a three-class modality classifier and coordinates the channel-augmented (CA) distribution as an intermediate target bridge to align the holistic representations of visible, infrared, and CA domains, where λadv 
+
+is its balancing coefficient (set to 0.15).Driven by Lttotal , the model parameters are updated via backpropagation: θt+1 = θt − η∇θ Lttotal , where η denotes the learning rate and ∇θ denotes gradient operator. 
+
+## 4 Experiments 
+
+4.1 Experimental Setup Datasets and Evaluation Metrics. We evaluate SSRL on two benchmark datasets, SYSU-MM01 [2] and RegDB [31]. SYSU-MM01 contains 287,628 vis-ible and 15,792 infrared images of 491 identities captured by 4 visible and 2 infrared cameras, with 395 identities for training and 96 for testing under All-Search and Indoor-Search settings. RegDB includes 4,120 visible and 4,120 in-frared images from 412 identities, where 206 identities are used for training and the remaining 206 for testing under Visible-to-Infrared and Infrared-to-Visible protocols. Standard CMC (Rank-1/10), and mAP are adopted for evaluation. 
+
+Implementation Details. SSRL is implemented in PyTorch with an ImageNet-pretrained ResNet-50 backbone and two modality-specific shallow encoders. All images are resized to 288 ×144, and the feature map is processed by a Horizontal Adaptive Pooling layer ( AdaptiveAvgPool2d((3,1)) ) with three independent bottleneck heads. Training is conducted for 50 epochs with a batch size of 64 using the Adam optimizer ( lr = 3 .5 × 10 −4, weight decay 5 × 10 −4). A two-stage optimization strategy is adopted: Stage I learns global and structural represen-tations with λp = 0 .3, λpa = 0 .1, λpc = 0 .05, and λadv = 0 .15, while Stage II activates CSC with λsp = λsc = 0 .1 and τ = 0 .05. Pseudo-labels are updated at each epoch via DBSCAN clustering with k-reciprocal Jaccard distance, us-ing ( k1, k 2) = (30 , 6) for intra-modality and (40 , 32) for cross-modal clustering. The clustering threshold is set to ϵ = 0 .6 for SYSU-MM01 and ϵ = 0 .3 for RegDB cross-modal clustering. During inference, auxiliary branches and CSC 10 Authors Suppressed Due to Excessive Length 
+
+are discarded, and retrieval uses only the normalized 2048-dimensional global embedding. Table 1: Performance comparison on SYSU-MM01 and RegDB (%). The best and second-best results are in bold and bold-underlined, respectively.                                                                                                                                                                                              
+
+> Settings SYSU-MM01 RegDB All Search Indoor Search Visible →Infrared Infrared →Visible Type Method Venue Rank-1 mAP Rank-1 mAP Rank-1 mAP Rank-1 mAP
+> SVI-ReID CAJ +[16] TPAMI’23 71.48 68.15 78.36 81.98 85.69 79.70 84.88 78.55 DEEN [17] CVPR’23 74.70 71.80 80.30 83.30 91.10 85.10 89.50 83.40 PartMix [18] CVPR’23 77.78 74.62 81.52 84.38 84.93 82.52 85.66 82.27 PMWGCN [19] TIFS’24 66.80 64.80 72.60 76.10 90.60 84.50 87.50 82.27 HOS-Net [24] AAAI’24 75.60 74.20 84.20 86.70 94.70 90.40 93.30 89.20 CSDN [22] TMM’25 76.70 73.00 84.50 86.80 82.00 85.00 88.50 80.40 AGPI 2[23] TIFS’25 72.23 70.58 83.45 84.25 89.03 83.89 87.91 83.04 USVI-ReID H2H [4] TIP’21 30.15 29.40 ––23.81 18.87 ––DOTLA [27] MM’23 50.36 47.36 53.47 51.61 85.63 76.71 82.91 74.97 MBCCM [28] MM’23 53.14 48.16 55.21 49.83 80.79 77.87 82.82 76.93 CCLNet [25] MM’23 54.00 50.20 56.70 65.10 69.94 65.53 70.17 66.66 SCA-RCP [26] TKDE’24 51.41 48.52 56.77 64.19 85.59 79.12 82.41 75.73 IMSL [29] TCSVT’24 57.96 53.93 56.90 63.67 70.08 66.30 70.67 66.35 BCGM [10] MM’24 58.90 53.60 60.30 67.00 86.10 81.10 86.50 81.80
+> SCLNet [13] IVC’25 55.24 49.13 57.40 63.30 73.24 66.10 74.10 65.71 NLDC [30] ICASSP’25 57.09 51.02 58.24 65.05 84.03 78.34 80.05 75.32 PCAL +[9] TIFS’25 57.94 52.85 60.07 66.73 86.43 82.51 86.21 81.23 CARR [32] ASOC’26 55.37 53.89 62.70 68.73 75.19 69.83 75.83 68.68
+> SSRL (Ours) This work 59.47 55.35 63.83 70.07 92.47 89.42 91.06 88.19
+
+4.2 Comparison with State-of-the-Art Methods 
+
+We evaluate SSRL against state-of-the-art methods under two paradigms: fully supervised (SVI-ReID) and unsupervised visible-infrared ReID (USVI-ReID). Quantitative results are summarized in Table 1 (Here, the superscript + de-notes that PCAL + [9] is re-implemented under its original optimal batch size of 192). As reported, SSRL delivers competitive results within the USVI-ReID category on both benchmarks. On SYSU-MM01, it achieves 59 .47% Rank-1 / 55 .35% mAP under All Search, outperforming the advanced competitor PCAL +
+
+[9] by +1 .53% and +2 .50%, respectively, while consistently dominating recent architectures like BCGM [10], SCLNet [13], NLDC [30] and the recent 2026 baseline CARR [32] under Indoor Search (63 .83% Rank-1 / 70 .07% mAP). More remarkably, on RegDB, USSRL achieves 92.47% Rank-1 under the Visible →Infrared protocol and 91.06% Rank-1 under the Infrared →Visible pro-tocol, outperforming existing USVI-ReID methods by substantial margins. Un-der the same reported settings, USSRL also shows competitive performance com-pared with representative supervised VI-ReID methods. These results demon-strate the effectiveness of USSRL in learning robust modality-invariant repre-sentations without manual identity annotations. 
+
+4.3 Ablation Studies Effectiveness of Main Collaborative Modules. As shown in Table 2, we evaluate how FSD and CSC contribute. Adding FSD alone improves Rank-1 by Title Suppressed Due to Excessive Length 11 
+
++3 .07% on SYSU-MM01 (All Search) and +1 .67% on RegDB (Visible →Infrared), proving that part-level partitioning reduces cross-modal gaps. Conversely, us-ing CSC alone boosts RegDB Rank-1 to 91 .71%, but causes minor drops on SYSU-MM01. This is because global calibration requires localized structural constraints to avoid wrong matching under heavy noise. Finally, the full model (Base+FSD+CSC) achieves the best performance across all metrics, confirming that structural anchoring and semantic cleaning mutually reinforce each other. Table 2: Ablation studies on SYSU-MM01 and RegDB (%). 
+
+Components SYSU-MM01 RegDB 
+
+All Search Indoor Search Visible →Infrared Infrared →Visible Base FSD CSC Rank-1 mAP Rank-1 mAP Rank-1 mAP Rank-1 mAP 
+
+✓ 54.39 51.95 59.69 66.72 86.43 82.51 86.21 81.23 
+
+✓ ✓ 57.46 54.51 62.68 69.14 88.10 85.93 85.98 84.27 
+
+✓ ✓ 54.61 49.39 56.75 64.38 91.71 88.42 90.61 87.18 
+
+✓ ✓ ✓ 59.47 55.35 63.83 70.07 92.47 89.42 91.06 88.19 
+
+Internal Ablations of FSD and CSC. As shown in Table 3(a), using only 
+
+Lpart yields 55.55% Rank-1. Adding Lpa boosts accuracy to 58.75%, proving lo-calized cross-modal alignment narrows modality gaps. Introducing Lpc achieves the optimum, confirming that preserving body topologies prevents spatial rela-tion drift for stable anchoring. Concurrently, Table 3(b) shows that optimizing 
+
+Lsa or Lsp alone achieves 56.01% and 57.55% Rank-1, respectively. Jointly con-straining both ( Lsp + Lsa ) achieves peak performance, confirming that feature alignment and prototype cleaning mutually reinforce cross-modal associations. Table 3: Internal Ablation Experiments on SYSU-MM01(%).                          
+
+> Components All Search Lpart Lpa Lpc Rank-1 mAP
+> ✓55.55 51.76
+> ✓✓58.75 55.06
+> ✓✓✓59.47 55.35
+> (a) Internal ablation of FSD.
+> Components All Search Lsp Lsa Rank-1 mAP
+> ✓56.01 52.22
+> ✓57.55 53.78
+> ✓✓59.47 55.35
+> (b) Internal ablation of CSC.
+
+Analysis of Part-weight Ratios. To justify the assignment of structural importance, we evaluated different part-weight ratios for the upper, middle, and lower body regions. As reported in Table 4, the configuration of α =[1 /6, 3/6, 2/6] consistently achieves the optimal performance, generating 59.47% of Rank-1 in SYSU-MM01 and 92.47% of Rank-1 in RegDB. Compared with uniformly distributed weights (1:1:1) or other biased allocations, this design ef-fectively capitalizes on the higher structural stability and semantic consistency of torso-related cues under severe cross-modal appearance discrepancies. 12 Authors Suppressed Due to Excessive Length 
+
+Table 4: Ablation of part-weight ratios on SYSU-MM01 and RegDB (%). 
+
+SYSU-MM01 RegDB 
+
+αu : αm : αl Rank-1 Rank-10 mAP Rank-1 Rank-10 mAP 1:1:1 57.27 90.22 53.91 90.68 95.75 86.94 1:2:3 53.47 88.62 50.21 89.48 94.66 86.92 
+
+1:3:2 59.47 91.84 55.35 92.47 97.80 89.42 
+
+2:1:3 55.88 90.60 52.73 90.31 95.61 86.37 
+
+4.4 Parameter Sensitivity Analysis Impact of Part Partition Cardinality. As evaluated in Fig. 3(a), we analyze performance across different part partitions Np ∈ { 1, 2, 3, 4}. Holistic represen-tation ( Np = 1) yields 54.6% Rank-1 and 49.4% mAP. Performance peaks at 
+
+Np = 3 (59.5% Rank-1 / 55.4% mAP), confirming that a three-part decom-position optimally aligns with pedestrian anatomical structures. However, over-partitioning ( Np = 4) disrupts local semantic continuity, degrading results to 54.8% Rank-1 and 51.4% mAP. 1 2 3 4                     
+
+> (a) Hyperparameter Np
+> 48
+> 50
+> 52
+> 54
+> 56
+> 58
+> 60
+> Accuracy(%)
+> 54.6
+> 57.0
+> 59.5
+> 54.8
+> 49.4
+> 53.2
+> 55.4
+> 51.4
+> Rank-1
+> mAP
+> 0.1 0.2 0.3 0.4 0.5
+> (b) Hyperparameter p
+> 50.0
+> 52.5
+> 55.0
+> 57.5
+> 60.0
+> 52.7
+> 55.1
+> 59.5
+> 57.8
+> 56.2
+> 49.9
+> 51.8
+> 55.4
+> 53.9 53.4
+> Rank-1
+> mAP
+> 0.01 0.05 0.1 0.2 0.5
+> (c) Hyperparameter sp
+> 45
+> 50
+> 55
+> 60
+> Accuracy(%)  57.3 57.2
+> 59.5
+> 54.6
+> 49.6
+> 54.3 53.8
+> 55.4
+> 51.2
+> 46.1
+> Rank-1
+> mAP
+> 0.01 0.05 0.1 0.2 0.5
+> (d) Hyperparameter sa
+> 52
+> 54
+> 56
+> 58
+> 60
+> 56.8 56.9
+> 59.5
+> 56.7
+> 57.9
+> 53.3 53.3
+> 55.4
+> 53.3
+> 54.0
+> Rank-1
+> mAP
+
+Fig. 3: Parameter sensitivity analysis on SYSU-MM01(All Search). 
+
+Sensitivity of Regularization Weights. We further evaluate algorithmic ro-bustness by varying the loss hyperparameters λp, λsp , and λsa within [0 .01 , 0.5], as illustrated in Figs. 3(b)–(d). All three trajectories exhibit a consistent bell-shaped trend, achieving optimal performance symmetrically at λp = 0 .3, λsp =0.1, and λsa = 0 .1. Specifically, smaller coefficients weaken the constraints for local discrimination and noise suppression, whereas excessively large values over-regularize the embedding space, suppressing identity-specific feature represen-Title Suppressed Due to Excessive Length 13 
+
+tations. The stable performance margins across wide parameter ranges demon-strate the robust calibration capability of the closed-loop learning paradigm. 
+
+4.5 Qualitative Visualizations Feature Map Activation via Grad-CAM. As shown in Fig. 4(a), Grad-CAM visualization across four image pairs validates our model’s structural ro-bustness. For each triplet (original, baseline, FSD), the baseline exhibits severe modality-sensitive attention drift and background clutter. Conversely, FSD pro-duces symmetric, spectrum-invariant activation maps by consistently focusing on anatomically distinct regions, improving cross-modal consistency and mitigating modality-induced pseudo-label bias. 
+
+Feature Manifold Clustering via t-SNE. As illustrated in Fig. 4(b), we project 2048-dimensional features of 20 identities from RegDB and 17 identi-ties from SYSU-MM01 into 2D space for semantic analysis. The baseline model exhibits evident cross-modal fragmentation, where RGB and IR samples of the same identity form separated sub-clusters, whereas SSRL produces compact and well-aligned cross-modal clusters with clearer margins. This demonstrates that the proposed closed-loop semantic calibration effectively suppresses clustering noise and promotes modality-invariant feature learning.   
+
+> (a) Grad-CAM on SYSU-MM01. RegDB SYSU-MM01
+> Baseline Ours (b) The t-SNE cluster structures.
+
+Fig. 4: Qualitative visualizations of the SSRL. 
+
+## 5 Conclusion 
+
+In this paper, we break away from traditional unidirectional cross-modal align-ment by introducing Structural Semantic Reciprocal Learning (SSRL), a novel unsupervised framework for cross-modal person re-identification. Beyond merely reducing modality discrepancies, SSRL drives a paradigm shift toward structural-semantic reciprocal co-evolution. By synergizing spectrum-invariant fine-grained structural decoupling with closed-loop semantic calibration, our approach un-covers a vital insight for cross-modal retrieval: stable, modality-agnostic spatial 14 Authors Suppressed Due to Excessive Length 
+
+topologies can act as an anchor to bootstrap noisy semantic learning, which in turn structurally refines the global feature manifold. Extensive evaluations on SYSU-MM01 and RegDB confirm that this reciprocal closed-loop mechanism not only mitigates pseudo-label noise but also enables unsupervised representations to yield competitive or even superior performance against heavily supervised counterparts. 
+
+## References 
+
+1. Ye, M., Shen, J., Lin, G., Xiang, T., Shao, L., Hoi, S.C.: Deep learning for person re-identification: A survey and outlook. IEEE TPAMI 44 (6), 2872–2893 (2022) 2. Wu, A., Zheng, W.-S., Yu, H.-X., Gong, S., Lai, J.: RGB-infrared cross-modality person re-identification. In: ICCV, pp. 5380–5389 (2017) 3. Wu, D., Ye, S.: CycleTrans: Learning neutral yet discriminative representation for visible-infrared person re-identification. In: AAAI, pp. 2643–2651 (2023) 4. Liang, W., Wang, G., Lai, J., Xie, X.: Homogeneous-to-heterogeneous: Unsuper-vised learning for RGB-infrared person re-identification. IEEE TIP 30 , 6392–6407 (2021) 5. Dai, Z., Wang, G., Yuan, W., Zhu, S., Tan, P.: Cluster contrast for unsupervised person re-identification. In: ACCV, pp. 1142–1160 (2022) 6. Wu, Z., Ye, M.: Unsupervised visible-infrared person re-identification via progres-sive graph matching and alternate learning. In: CVPR, pp. 9548–9558 (2023) 7. Yang, B., Chen, J., Chen, C., Ye, M.: Towards grand unified representation learning for unsupervised visible-infrared person re-identification. In: ICCV, pp. 11069– 11079 (2023) 8. Shi, J., Yin, X., Zhang, Y., Zhang, Z., Xie, Y., Qu, Y.: Learning commonality, divergence and variety for unsupervised visible-infrared person re-identification. In: NeurIPS, vol. 37, pp. 99715–99734 (2024) 9. Yang, Y., Hu, W., Hu, H.: Progressive cross-modal association learning for unsu-pervised visible-infrared person re-identification. IEEE TIFS 20 , 1290–1304 (2025) 10. Xiao, T., Shen, X., Xu, K., Lan, L.: Enhancing unsupervised visible-infrared person re-identification with bidirectional-consistency gradual matching. In: ACM MM, pp. 9856–9865 (2024) 11. Wang, J., Zhang, Z., Chen, M., Zhang, Y., Wang, C., Sheng, B., Qu, Y., Xie, Y.: Optimal transport for label-efficient visible-infrared person re-identification. In: ECCV, pp. 93–109 (2022) 12. Yin, X., Shi, J., Zhang, Z., Xie, Y., Qu, Y.: Adaptive pseudo-label purification and debiasing for unsupervised visible-infrared person re-identification. IEEE TCSVT 
+
+35 (10), 10571–10585 (2025) 13. Zhang, Y., Teng, Z., Zhang, B.: Semantic consistency learning for unsupervised multi-modal person re-identification. IVC. 155 , 105434 (2025) 14. Cho, Y., Kim, W.J., Hong, S., Yoon, S.E.: Part-based pseudo label refinement for unsupervised person re-identification. In: CVPR, pp. 7308–7318 (2022) 15. He, Q., Yang, Y., Wang, Z., Hu, H.: Part-based bi-directional enhancement learning for unsupervised visible-infrared person re-identification. IEEE TIFS 20 , 12051– 12065 (2025) 16. Ye, M., Wu, Z., Chen, C., Du, B.: Channel augmentation for visible infrared re-identification. IEEE TPAMI 46 (4), 2299–2315 (2024) Title Suppressed Due to Excessive Length 15 17. Zhang, Y., Wang, H.: Diverse embedding expansion network and low-light cross-modality benchmark for visible-infrared person re-identification. In: CVPR, pp. 2153–2162 (2023) 18. Kim, M., Kim, S., Park, J., Park, S., Sohn, K.: PartMix: Regularization strategy to learn part discovery for visible-infrared person re-identification. In: CVPR, pp. 18621–18632 (2023) 19. Sun, R., Chen, L., Zhang, L., Xie, R., Gao, J.: Robust visible-infrared person re-identification based on polymorphic mask and wavelet graph convolutional net-work. IEEE TIFS 19 , 2800–2813 (2024) 20. Chai, Z., Ling, Y., Luo, Z., Lin, D., Jiang, M., Li, S.: Dual-stream transformer with distribution alignment for visible-infrared person re-identification. IEEE TCSVT 
+
+33 (11), 6764–6776 (2023) 21. Li, Y., Zhao, S., Shen, J.: A simple but effective vision transformer framework for visible-infrared person re-identification. CVIU 249 , 104192 (2024) 22. Yu, X., Dong, N., Zhu, L., Peng, H., Tao, D.: CLIP-driven semantic discovery network for visible-infrared person re-identification. IEEE TMM 27 , 4137–4150 (2025) 23. Alehdaghi, M., Josi, A., Cruz, R.M.O., Shamsolmoali, P., Granger, E.: Adaptive generation of privileged intermediate information for visible-infrared person re-identification. IEEE TIFS 20 , 3400–3413 (2025) 24. Qiu, L., Chen, S., Yan, Y., Xue, J.H., Wang, D.H., Zhu, S.: High-order struc-ture based middle-feature learning for visible-infrared person re-identification. In: AAAI, pp. 4596–4604 (2024) 25. Chen, Z., Zhang, Z., Tan, X., Qu, Y., Xie, Y.: Cross-modality collaborative learning for visible-infrared person re-identification. In: ACM MM, pp. 3667–3675 (2023) 26. Li, Z., Liu, H., Peng, X., Jiang, W.: Inter-intra modality knowledge learn-ing and clustering noise alleviation for unsupervised visible-infrared person re-identification. IEEE TKDE 36 (8), 3934–3947 (2024) 27. Cheng, D., Huang, X., Wang, N., He, L., Li, Z., Gao,X.: Unsupervised visible-infrared person re-identification by collaborative learning with neighbor-guided label refinement. In: ACM MM, pp. 7085–7093 (2023) 28. Cheng, D., He, L., Wang, N., Zhang, S., Wang, Z., Gao, X.: Efficient bilat-eral cross-modality cluster matching for unsupervised visible-infrared person re-identification. In: ACM MM, pp. 1325–1333 (2023) 29. Pang, Z., Zhao, L., Liu, Y., Sharma, G., Wang, C.: Unsupervised multi-modality contrastive learning for visible-infrared person re-identification. IEEE TCSVT 
+
+34 (10), 10411–10423 (2024) 30. Xu, J., Xu, X., Cai, W.: Negative learning and dual contrastive for unsupervised visible-infrared person re-identification. In: IEEE ICASSP, pp. 1–5 (2025) 31. Nguyen, D.T., Hong, H.G., Kim, K.W., Park, K.R.: Person recognition system based on a combination of body images from visible light and thermal cameras. Sensors 17 (3), 605 (2017) 32. Wang, J., Fu, H., Dou, L.: CARR: Camera-aware reciprocal refinement for unsu-pervised visible-infrared person re-identification. ASOC 188 , 114445 (2026) 16 Authors Suppressed Due to Excessive Length 
+
+## 6 Supplementary Materials 
+
+6.1 Extended Implementation Details 
+
+Implemented in PyTorch, our framework adopts an ImageNet-pretrained ResNet-50 backbone with two modality-specific shallow encoders, feeding 2048-D global embeddings into shared blocks. For FSD, a horizontal adaptive pooling layer, instantiated via standard AdaptiveAvgPool2d((3,1)) , processes the global fea-ture map to extract K = 3 part representations. These representations are tightly aligned with pedestrian anatomical structures, namely the upper body, torso, and lower body. Each region then utilizes an independent bottleneck head to generate part embeddings, optimized under three joint objective weights (λp = 0 .3, λpa = 0 .1, and λpc = 0 .05) alongside an adversarial alignment loss (λadv = 0 .15). Optimization operates in two sequential stages: Stage I trains the joint holistic and part-aware embeddings under memory-based supervision, while Stage II initializes from the optimal Stage I checkpoint and activates the CSC semantic prototype and cross-modal consistency constraints ( λsp = λsc = 0 .1, 
+
+τ = 0 .05). All images are resized to 288 ×144. Visible images are augmented with random 10-pixel padding, cropping, horizontal flipping, ImageNet normalization, random erasing ( p = 0 .5), and dual-branch appearance channel exchange. In-frared images undergo identical padding, cropping, flipping, normalization, and erasing operators, supplemented by channel-adaptive grayscale transformations (p = 0 .5). Training lasts 50 epochs with a total batch size of 64 (16 instances per identity), utilizing the Adam optimizer ( lr = 3 .5 × 10 −4, weight decay 5 × 10 −4)with a StepLR decay factor of 0.1 every 20 epochs. The modality classifier is opti-mized via SGD ( lr = 0 .01, momentum 0.9, Nesterov). Total iterations per epoch are fixed to 200 for SYSU-MM01 and 100 for RegDB. Unsupervised clustering is performed at each epoch using DBSCAN ( min samples = 4) on the extracted feature pool. Modality-specific clustering utilizes k-reciprocal Jaccard parame-ters k1 = 30 and k2 = 6. For cross-modal neighbor discovery, the parameter tuple is adjusted to k1 = 40 and k2 = 32. The dataset-specific clustering radius ϵ is specified as 0.6 for SYSU-MM01 across all single- and cross-modal branches. For RegDB, the clustering radius ϵ is set to 0.6 during the intra-modality clustering stage and adjusted to 0.3 for the cross-modal mutual neighbor discovery phase. The hybrid memory momentum and contrastive temperature are fixed to 0.1 and 0.05, respectively. Evaluation follows the standard all-search and indoor-search protocols for SYSU-MM01 and the visible-to-thermal protocol for RegDB, av-eraging final metrics over 10 randomized trials. Crucially, during inference, all auxiliary part-aware branches and CSC modules are completely discarded to en-sure zero extra computational overhead, executing retrieval matching solely via the L2-normalized 2048-dimensional holistic embedding evaluated by standard Rank-k and mAP. 
+
+6.2 Rationale of Horizontal Adaptive Pooling. 
+
+The proposed Horizontal Adaptive Pooling (HAP) partitions the feature map into three coarse anatomical regions, corresponding to the upper body, torso, and Title Suppressed Due to Excessive Length 17 
+
+lower body. Although this partition is not explicitly pose-adaptive, it is designed according to the characteristics of surveillance-oriented VI-ReID benchmarks (e.g., SYSU-MM01 and RegDB), where pedestrians are predominantly captured in upright walking or standing poses. Under these conditions, coarse horizontal partitioning provides sufficiently stable anatomical priors while avoiding the ad-ditional complexity and potential errors introduced by pose estimation or human parsing under severe cross-modal discrepancies. Unlike conventional part-based methods that mainly enhance local represen-tation diversity, FSD further projects the three body regions into independent structural subspaces through non-sharing bottleneck heads. This decoupled de-sign prevents localized modality-specific disturbances from propagating across different body regions, enabling each structural primitive to preserve complemen-tary identity cues independently. Consequently, the learned structural primitives serve as reliable spatial anchors that facilitate more robust cross-modal pseudo-label learning and identity association, while remaining resilient to moderate pose variations commonly encountered in surveillance scenarios. 
+
+6.3 Efficiency and Complexity Analysis 
+
+To verify the feasibility of the proposed closed-loop semantic calibration, we compare SSRL with the baseline in terms of model parameters, FLOPs, peak GPU memory, training time, and inference speed. All measurements are con-ducted on the SYSU-MM01 dataset with input size 288 × 144, batch size 64, and a single NVIDIA GeForce RTX 4090 GPU. Table 5: Efficiency comparison between the baseline and SSRL.            
+
+> Method Computational Cost
+> Params (M) FLOPs (G) Memory (GB) Train (ms/iter) Infer. (ms/img) Baseline 72.58 662.00 10.51 214.52 3.15 SSRL 70.54 662.05 10.87 217.03 3.24
+
+As reported in Table 5, SSRL introduces only negligible computational over-head compared with the baseline despite incorporating both Fine-grained Struc-tural Decoupling (FSD) and Closed-loop Semantic Calibration (CSC). Specif-ically, the number of parameters is slightly reduced from 72.58M to 70.54M, while the FLOPs remain nearly unchanged (662.00G vs. 662.05G). The peak GPU memory increases marginally from 10.51 GB to 10.87 GB, and the train-ing time rises by only 2.51 ms per iteration (214.52 ms vs. 217.03 ms). The limited overhead mainly stems from the design of CSC, where the shared semantic prototype bank is reconstructed only once at the end of each epoch based on the updated pseudo-labels, rather than being updated during every mini-batch optimization step. Consequently, the additional computation intro-duced by prototype aggregation is negligible compared with backbone feature extraction and clustering operations. Moreover, CSC is only involved during training. During inference, neither DBSCAN clustering nor prototype reconstruction is required, resulting in almost 18 Authors Suppressed Due to Excessive Length 
+
+identical deployment efficiency to the baseline. As shown in Table 5, the inference latency increases only slightly from 3.15 ms/img to 3.24 ms/img. These results demonstrate that SSRL achieves substantial retrieval performance gains while maintaining favorable computational efficiency and scalability. 
+
+6.4 Additional Ablation and Qualitative Analysis Additional Qualitative Retrieval Analysis. As illustrated in Fig. 5 and Fig. 6, SSRL consistently improves retrieval quality by substantially reducing early-ranking identity confusion. V->I           
+
+> Baseline
+> Query R-1 R-2 R-3 R-4 R-5 R-6 R-7 R-8 R-9 R-10
+> V->I
+> Ours
+> I->V
+> Baseline
+> I->V
+> Ours
+
+Fig. 5: Qualitative retrieval comparison on RegDB . On RegDB, the baseline suffers from severe cross-modal mismatching. In the V → I setting, false positives appear at Rank-1, Rank-3–5, and Rank-7–10, indicating that the learned representations are highly sensitive to modality dis-crepancy. In the I → V setting, the baseline produces consecutive errors from Rank-1 to Rank-7 and again at Rank-10, where pedestrians with similar silhou-ettes and clothing layouts are incorrectly retrieved. By contrast, SSRL achieves a completely correct top-10 ranking in the V → I example and reduces the re-maining errors in the I → V example to only Rank-4, Rank-6, Rank-9, and Rank-10. On SYSU-MM01, the baseline remains vulnerable to viewpoint and back-ground variations. Specifically, false positives occur at Rank-1, Rank-2, Rank-5– 7, and Rank-9 in the V → I sequence, where visually similar shoulder bags and upper-body appearances lead to identity confusion. In the I → V sequence, in-correct matches appear at Rank-1, Rank-5, and Rank-7, mainly involving pedes-trians with similar backpacks, shorts, and body configurations. In comparison, SSRL retains only one failure at Rank-10 in the V → I example and one failure at Rank-6 in the I → V example, while maintaining correct retrievals at all other positions. The remaining failures typically occur when different identities share highly similar clothing patterns, accessories, and body structures under sub-stantial viewpoint changes. Nevertheless, most baseline errors are shifted from Title Suppressed Due to Excessive Length 19 V->I           
+
+> Baseline
+> Query R-1 R-2 R-3 R-4 R-5 R-6 R-7 R-8 R-9 R-10
+> V->I
+> Ours
+> I->V
+> Baseline
+> I->V
+> Ours
+
+Fig. 6: Qualitative retrieval comparison on SYSU-MM01 . the top ranks to the tail of the retrieval list, demonstrating the effectiveness of the proposed structural-semantic reciprocal learning strategy in suppressing cross-modal identity confusion. 
+
+Sensitivity of k-Reciprocal Neighborhood Size. We further investigate the influence of the neighborhood size used in the two-stage clustering pipeline by jointly varying the Stage-I and Stage-II k1 values while keeping all other hyperparameters unchanged. Table 6: Sensitivity analysis of the neighborhood size on SYSU-MM01 (%). 
+
+(kI1, k II 1 ) All Search Indoor Search 
+
+Rank-1 Rank-10 mAP Rank-1 Rank-10 mAP (20,30) 57.06 90.89 53.39 62.95 93.95 68.65 
+
+(30,40) 59.47 91.84 55.35 63.83 94.57 70.07 
+
+(40,50) 55.73 88.83 52.27 59.21 92.62 66.27 
+
+As reported in Table 6, the neighborhood configuration has a noticeable im-pact on pseudo-label quality and the final retrieval performance. The default setting of ( kI1, k II 1 ) = (30 , 40) achieves the best overall results, obtaining 59.47% 
+
+Rank-1 / 55.35% mAP under the All Search protocol and 63.83% Rank-1 / 
+
+70.07% mAP under the Indoor Search protocol. This indicates that a moder-ate neighborhood size provides a better balance between reliable local neighbor estimation and effective cross-modal association. When smaller neighborhoods are adopted, i.e., (20 , 30), the retrieval perfor-mance decreases due to insufficient neighborhood information for constructing reliable reciprocal relationships, which may introduce noisy cluster assignments. Conversely, excessively large neighborhoods, such as (40 , 50), also lead to per-formance degradation, since expanded neighborhoods may incorporate less rele-vant samples and weaken cluster discriminability. These results demonstrate that SSRL is relatively robust to the neighborhood-size selection, while the adopted configuration provides a favorable trade-off for stable pseudo-label generation. 20 Authors Suppressed Due to Excessive Length 
+
+Sensitivity Analysis of Semantic Temperature. We further investigate the influence of the semantic temperature parameter τ in the closed-loop semantic calibration module on both SYSU-MM01 and RegDB. As reported in Table 7, retrieval performance is closely related to the sharpness of prototype-based sim-ilarity distributions during semantic calibration. Overall, τ = 0 .05 provides the best trade-off between retrieval accuracy and optimization stability across different benchmarks and evaluation proto-cols, achieving 59.47% Rank-1 / 55.35% mAP on SYSU-MM01 All Search and 89.42% mAP under the RegDB Visible →Infrared setting. These results indicate that a moderate temperature maintains an appropriate entropy level for prototype assignment while preserving discriminative cross-modal feature alignment. When τ is excessively small (e.g., 0 .01), the similarity distribution Table 7: Sensitivity analysis of the semantic temperature τ on SYSU-MM01 and RegDB (%).                                             
+
+> Temperature τ
+> SYSU-MM01 RegDB
+> All Search Indoor Search Visible →Infrared Infrared →Visible Rank-1 mAP Rank-1 mAP Rank-1 mAP Rank-1 mAP 0.01 48.85 44.66 50.10 57.38 91.29 85.87 91.22 84.88 0.03 54.46 51.56 58.68 65.75 91.85 88.06 90.24 86.61
+> 0.05 59.47 55.35 64.83 70.07 92.47 89.42 91.06 88.19
+> 0.07 56.12 53.31 62.20 68.69 92.56 89.35 90.08 87.61 0.10 58.29 54.80 61.59 68.47 90.87 87.74 88.05 85.88
+
+becomes overly concentrated, which may lead to unstable optimization and over-confident prototype matching. Conversely, larger temperatures (e.g., 0 .10) exces-sively smooth semantic responses and weaken feature discrimination, resulting in noticeable performance degradation on both datasets. Although slightly higher Rank-1 scores are observed under certain individual settings (e.g., τ = 0 .07 for RegDB Visible →Infrared and τ = 0 .01 for Infrared →Visible), their overall mAP performance and cross-setting consistency remain inferior to those achieved with 
+
+τ = 0 .05. Overall, the proposed SSRL framework maintains relatively stable perfor-mance within a moderate temperature range, demonstrating the robustness and generalization capability of the proposed closed-loop semantic calibration mech-anism under different cross-modal retrieval scenarios. 
+
+6.5 Detailed Training Pipeline of SSRL 
+
+To facilitate reproducibility, Algorithm 1 outlines the complete training proce-dure of SSRL. The pipeline consists of two sequential stages, each executed for 50 epochs: Stage I focusing on Feature Structural Decomposition (FSD) opti-mization, and Stage II dedicated to Cross-modal Semantic Consistency (CSC) learning. This explicit overview clarifies the alternate clustering and mini-batch gradient propagation flow. Title Suppressed Due to Excessive Length 21 
+
+Algorithm 1 Two-stage Optimization of SSRL 
+
+Require: Unlabeled visible set Xv = {xiv }Nv
+
+> i=1
+
+, unlabeled infrared set Xir = {xjir }Nir 
+
+> j=1
+
+,Stage-I epochs T1, Stage-II epochs T2
+
+Ensure: Optimized parameters θ
+
+1: Initialize network parameters θ, global memory banks Mv , Mir , Mall , and part memory banks {M pk v , Mpk ir , Mpk all }k∈K 
+
+2: Set the region prior α = [1 /6, 3/6, 2/6] 3: Stage I: Fine-grained Structural Decoupling 
+
+4: for t = 1 to T1 do 
+
+5: Extract shared feature maps and structural primitives 6: Generate modality-specific pseudo-labels for visible and infrared samples by DB-SCAN 7: Update modality-specific and shared memory banks 8: for each mini-batch ( Bv , B ir ) do 
+
+9: Compute holistic and part features by Eq. (2)–(4) 10: Compute Lglobal , Luni part , and Lall part by Eq. (5) 11: Compute Lpa and Lpc by Eq. (6)–(7) 12: Form LF SD = λpLpart + λpa Lpa + λpc Lpc 
+
+13: Compute adversarial alignment loss Ladv 
+
+14: Update θ by minimizing 
+
+Lstage 1 = Lglobal + LF SD + λadv Ladv 
+
+15: end for 
+
+16: end for 
+
+17: Load the best checkpoint from Stage I 18: Stage II: Closed-loop Semantic Calibration 
+
+19: for t = 1 to T2 do 
+
+20: Extract holistic features and construct the cross-modal feature set Ft = Ftv ∪F tir 
+
+21: Compute the modality-invariant k-reciprocal Jaccard distance DJ,t by Eq. (8) 22: Generate synchronized pseudo-labels Yt = DBSCAN( DJ,t )23: Update global memory banks and part memory banks using Yt
+
+24: Construct the shared prototype bank Pt by Eq. (9) 25: for each mini-batch ( Bv , B ir ) do 
+
+26: Compute Lglobal and LF SD as in Stage I 27: Compute posterior prototype probabilities by Eq. (10) 28: Compute Lsp and Lsc by Eq. (11)–(12) 29: Form Lcsc = λsp Lsp + λsc Lsc 
+
+30: Compute adversarial alignment loss Ladv 
+
+31: Update θ by minimizing the overall objective in Eq. (13): 
+
+Lttotal = Lglobal + LF SD + Lcsc + λadv Ladv 
+
+32: end for 
+
+33: end for 
+
+34: return θ
