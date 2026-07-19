@@ -6,38 +6,47 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-18
-- 运行时间：2026-07-18 21:28:57 UTC
+- 最新运行日期：2026-07-19
+- 运行时间：2026-07-19 19:49:30 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：2
-- 速读区：4
+- 本次总论文数：9
+- 精读区：3
+- 速读区：6
 
 ### 今日简报（AI）
-今日共读6篇论文，精读聚焦无监督建筑分割与可见-红外行人重识别，速读涉及自监督抠图、MRI表示学习及低光增强。最值得关注的是《Align and Segment》利用错位标签实现无监督建筑分割，以及《Structural-Semantic Reciprocal Learning》通过互学习提升跨模态识别精度。建议重点关注无监督/自监督方法在视觉任务中的创新应用，尤其是利用数据自身结构（如错位标签、跨模态关联）来降低标注依赖。
-- 详情：[/202607/18/README](/202607/18/README)
+今天聚焦图像分割前沿，精读了两篇高分论文，分别关于零设置多阶段X射线分割和视觉提示医学分割，速读覆盖量子增强火灾分割与工业缺陷检测。最值得关注的是零设置多阶段X射线分割方法（9.0分）及视觉提示医学分割（9.0分），均展现无需大量标注即可高精度分割的潜力。建议先精读这两篇理解核心机制，再扩展到速读中的量子增强U-Net和领域自适应方法，以掌握当前分割领域的多样化思路。
+- 详情：[/202607/19/README](/202607/19/README)
 
 ### 精读区论文标签
-1. [Align and Segment: Unsupervised Learning for Building Segmentation From Misaligned Labels](/202607/18/2607.10841v1-align-and-segment-unsupervised-learning-for-building-segmentation-from-misaligned-labels)  
+1. [From Reconstruction to Interpretation: Zero-Setup Multi-Phase Segmentation of X-ray Tomography Data](/202607/19/2607.12175v2-from-reconstruction-to-interpretation-zero-setup-multi-phase-segmentation-of-x-ray-tomography-data)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：零设置多阶段分割方法，利用预训练语义分割网络处理X射线断层扫描数据
+2. [ViPSAM: Visual Prompting Medical Image Segmentation Using Segment Anything Model](/202607/19/2607.14328v1-vipsam-visual-prompting-medical-image-segmentation-using-segment-anything-model)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：使用SAM进行视觉提示医学图像分割
+3. [From Reconstruction to Interpretation: Zero-Setup Multi-Phase Segmentation of X-ray Tomography Data](/202607/19/2607.12175v1-from-reconstruction-to-interpretation-zero-setup-multi-phase-segmentation-of-x-ray-tomography-data)  
    标签：评分：8.0/10、query:image-seg
-   evidence：用于语义分割的深度学习与对齐方法
-2. [Structural-Semantic Reciprocal Learning for Unsupervised Visible-Infrared Person Re-Identification](/202607/18/2607.15220v1-structural-semantic-reciprocal-learning-for-unsupervised-visible-infrared-person-re-identification)  
-   标签：评分：8.0/10、query:image-fusion
-   evidence：可见光-红外跨模态行人重识别，采用细粒度结构解耦和互学习
+   evidence：使用深度学习的X射线断层扫描数据零设置多相分割
 
 ### 速读区论文标签
-1. [Self-supervised Automatic Matting](/202607/18/2607.10395v1-self-supervised-automatic-matting)  
+1. [QFireNet: A Quantum-Enhanced U-Net for Wildfire Segmentation from Sentinel-2 Imagery](/202607/19/2607.14160v1-qfirenet-a-quantum-enhanced-u-net-for-wildfire-segmentation-from-sentinel-2-imagery)  
    标签：评分：7.0/10、query:image-seg
-   evidence：自监督自动抠图无需标注
-2. [Contrastive Joint-Embedding Prediction for Representation Learning in Structural MRI](/202607/18/2607.11962v1-contrastive-joint-embedding-prediction-for-representation-learning-in-structural-mri)  
+   evidence：使用量子增强U-Net在卫星图像中进行野火语义分割。
+2. [XCT-SAM: Sequential Parameter-Efficient Domain Adaptation of SAM for Industrial XCT Defect Segmentation](/202607/19/2607.14287v1-xct-sam-sequential-parameter-efficient-domain-adaptation-of-sam-for-industrial-xct-defect-segmentation)  
    标签：评分：7.0/10、query:image-seg
-   evidence：自监督学习用于医学图像分割
-3. [Thresholded Cross-Attention for Reliable Intensity-Chromaticity Fusion in Low-Light Image Enhancement](/202607/18/2607.13925v1-thresholded-cross-attention-for-reliable-intensity-chromaticity-fusion-in-low-light-image-enhancement)  
-   标签：评分：7.0/10、query:image-fusion
-   evidence：强度-色度融合方法，使用阈值交叉注意力
-4. [Segregate, Refine, Integrate: Decomposing Multimodal Fusion for Sentiment Analysis](/202607/18/2607.12686v1-segregate-refine-integrate-decomposing-multimodal-fusion-for-sentiment-analysis)  
+   evidence：工业XCT缺陷分割结合SAM适配
+3. [TC-MAF: Train-Calibrated Bounded Multi-Evidence Fusion for Multimodal Industrial Anomaly Detection](/202607/19/2607.11170v1-tc-maf-train-calibrated-bounded-multi-evidence-fusion-for-multimodal-industrial-anomaly-detection)  
    标签：评分：6.0/10、query:image-fusion
-   evidence：多模态融合中隔离特征路径的方法
+   evidence：RGB与3D多模态融合用于异常检测
+4. [A Novel Method to Evaluate Models on Unreliable, Noisy and Inconsistent Labels: Adaptive Resolution Label Aggregation (ARLA)](/202607/19/2607.11214v1-a-novel-method-to-evaluate-models-on-unreliable-noisy-and-inconsistent-labels-adaptive-resolution-label-aggregation-arla)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：一种在不可靠标签上评估分割模型的方法
+5. [Let RGB Be the Language of Vision](/202607/19/2607.12450v1-let-rgb-be-the-language-of-vision)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：统一的视觉框架，可处理图像分割任务
+6. [$K$-NeAS: Scalable Multi-Material CT Reconstruction Using Neural SDFs](/202607/19/2607.14415v1-k-neas-scalable-multi-material-ct-reconstruction-using-neural-sdfs)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：通过神经SDF实现多材料CT重建并隐含组织分割
 
 
 <div class="dpr-home-promo-card">
