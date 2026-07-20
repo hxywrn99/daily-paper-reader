@@ -1,0 +1,245 @@
+Title: Benchmarking MRI Representations for Deep Learning-Based Focal Cortical Dysplasia Segmentation
+
+URL Source: https://arxiv.org/pdf/2607.15605v1
+
+Published Time: Mon, 20 Jul 2026 00:26:24 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# Benchmarking MRI Representations for Deep Learning-Based Focal Cortical Dysplasia Segmentation 
+
+Soumen Ghosh 1,2∗, John Phamnguyen 1,6,7, Amit Soni Arya 3, Subhojit Mandal 4, Tilottama Goswami 5, and Rajat Vashistha 1 
+
+> 1
+
+The University of Queensland, Brisbane, Australia  
+
+> 2
+
+I-MED Radiology, Brisbane, Australia  
+
+> 3
+
+Bennett University, Greater Noida, India  
+
+> 4
+
+Indian Institute of Technology Madras, India  
+
+> 5
+
+University College of Engineering, Osmania University, Hyderabad, India  
+
+> 6
+
+Mater Hospital, Brisbane, Australia  
+
+> 7
+
+Royal Brisbane and Women’s Hospital, Brisbane, Australia 
+
+*Corresponding author: soumen.ghosh@uq.edu.au 
+
+Abstract. Focal cortical dysplasia (FCD) is one of the leading struc-tural causes of drug-resistant focal epilepsy, yet its subtle and hetero-geneous imaging characteristics make accurate identification and delin-eation challenging on conventional magnetic resonance imaging (MRI). Although T1-weighted (T1w) and fluid-attenuated inversion recovery (FLAIR) images are routinely acquired for presurgical evaluation, the contribution of different MRI representations to deep learning-based FCD segmentation remains poorly understood. In this study, we present a sys-tematic benchmark of MRI representations for automated FCD segmen-tation using the nnU-Net framework. A publicly available presurgical MRI dataset comprising 85 FCD subjects and 25 healthy controls was used to evaluate eight input configurations, including conventional MRI contrasts (T1w and FLAIR), ratio-derived representations (T1w/FLAIR and FLAIR/T1w), and their multimodal combinations. To isolate the effect of MRI representation, all experiments employed identical prepro-cessing, network architecture, optimization strategy, and five-fold cross-validation. Among the evaluated single-modality representations, FLAIR achieved the strongest overall performance, whereas ratio-derived repre-sentations alone were insufficient for reliable identification of subtle FCD. Incorporating ratio-derived representations with conventional T1w and FLAIR images consistently improved lesion delineation, with the four-channel multimodal configuration achieving the highest overall Dice score (0.376), representing a 5.0% relative improvement over the conventional T1w+FLAIR representation. These findings demonstrate that MRI rep-resentation design is an important yet underexplored component of deep learning-based FCD segmentation and should be optimized alongside network architecture. The proposed benchmark provides practical guid-ance for designing multimodal MRI inputs for future FCD segmentation methods. arXiv:2607.15605v1 [cs.CV] 17 Jul 2026 2 S. Ghosh et al.  
+
+> Keywords: Focal cortical dysplasia, Deep learning, Medical image seg-mentation, Multimodal MRI, MRI representation, nnU-Net.
+
+# 1 Introduction 
+
+Epilepsy affects more than 65 million people worldwide, with focal cortical dys-plasia (FCD) representing one of the leading structural causes of drug-resistant focal epilepsy [1,2,3]. For patients with medically refractory epilepsy, surgical resection of the epileptogenic lesion offers the best opportunity for seizure free-dom when the epileptogenic zone can be accurately localized [4]. Consequently, accurate identification and delineation of FCD in the brain imaging are essential in presurgical planning [5,6]. Magnetic resonance imaging (MRI) is the primary imaging modality for detecting FCD [7,8]. T1-weighted (T1w) and fluid-attenuated inversion recov-ery (FLAIR) images provide complementary information regarding lesion mor-phology and tissue abnormalities [9]. T1w images highlight cortical thickening, abnormal gyration, and blurring of the gray-white matter junction, whereas FLAIR is more sensitive to lesion-associated signal abnormalities, including cortical-subcortical hyperintensity and the transmantle sign commonly observed in FCD Type II lesions [10]. Despite advances in MRI acquisition and epilepsy-specific imaging protocols, subtle FCD remain challenging to detect, with ap-proximately 30% being overlooked on conventional MRI interpretation and many patients initially classified as MRI-negative, contributing to substantial inter-rater variability and delayed diagnosis [11]. These challenges have motivated the development of automated image analysis techniques for FCD detection and segmentation[12,13]. Recent advances in deep learning have substantially improved automated medical image segmentation [14,15]. In epilepsy imaging, convolutional neural networks and U-Net-based architectures have demonstrated promising perfor-mance for FCD detection and segmentation using structural MRI [16,17,18,19]. More recently, nnU-Net has emerged as a strong benchmark framework owing to its robust performance and automatic adaptation to diverse medical imaging datasets [15]. However, most previous studies have focused on developing in-creasingly sophisticated network architectures and optimization strategies, while largely treating MRI representation design as a fixed preprocessing step. Conse-quently, the influence of MRI representation itself on deep learning-based FCD segmentation remains poorly understood. Beyond conventional structural MRI, ratio-derived representations such as T1w/FLAIR have been proposed to enhance tissue contrast, cortical myelina-tion patterns, and gray-white matter differentiation [20,21]. Previous studies have demonstrated their utility for visualizing subtle structural abnormalities in epilepsy, suggesting that they may provide complementary information beyond conventional MRI sequences. However, their contribution to deep learning-based FCD segmentation has not been systematically investigated. In particular, it re-mains unclear whether ratio-derived representations are effective as standalone Benchmarking MRI Representations for DL-Based FCD Segmentation 3 
+
+> Fig. 1. Conceptual overview of the proposed study.
+
+inputs or whether they provide additional benefit when integrated with conven-tional T1w and FLAIR images. From a machine learning perspective, multimodal FCD segmentation de-pends not only on network architecture but also on how complementary MRI information is represented at the network input. Rather than proposing another segmentation architecture, this study investigates whether optimizing MRI rep-resentation alone can improve FCD segmentation performance. By systemati-cally evaluating conventional and ratio-derived MRI representations under an identical nnU-Net framework, we isolate the contribution of MRI representation design independently of architectural variation. The main contributions of this work are as follows: 1. We present the first systematic benchmark of conventional and ratio-derived MRI representations for deep learning-based FCD segmentation under a con-trolled experimental framework. 2. We investigate the complementary role of asymmetric ratio-derived MRI rep-resentations and demonstrate their contribution beyond conventional T1w and FLAIR imaging. 3. We demonstrate that MRI representation design is a complementary direc-tion to network architecture development for improving automated FCD segmentation. Figure 1 conceptually illustrates the motivation of this work. Unlike previous FCD segmentation studies, which primarily focus on developing increasingly so-phisticated network architectures while treating MRI representation as a fixed preprocessing step, this study systematically investigates MRI representation de-sign under an identical segmentation framework. A controlled experimental de-sign was adopted in which the nnU-Net architecture, preprocessing, optimization strategy, and cross-validation protocol were kept identical across all experiments, allowing the contribution of MRI representations to be evaluated independently. 4 S. Ghosh et al. 
+
+# 2 Methodology 
+
+2.1 Dataset 
+
+This study used the publicly available FCD dataset introduced by Schuch et al. [22], which contains MRI scans from 85 subjects with focal cortical dysplasia (FCD) and 85 neurologically normal healthy controls (HC). The FCD cohort comprised 35 females and 50 males with a mean age of 28 .9 ± 12 .4 years, while the healthy controls had a mean age of 33 .3 ± 11 .9 years. Since lesion segmenta-tion is performed only for subjects with FCD, all 85 FCD subjects were included in this study. To expose the model to normal anatomical variability and evaluate false-positive predictions, a randomly selected subset of 25 healthy controls was additionally included during training and evaluation. Expert-manually delin-eated lesion masks were available for all FCD subjects, whereas healthy controls were assigned empty lesion masks. For each subject, structural T1w and FLAIR MRI scans were used. 
+
+2.2 Image Preprocessing 
+
+All MRI volumes underwent a standardized preprocessing pipeline prior to model training (Figure 2). First, T1-weighted (T1w) and FLAIR images were spatially aligned using affine registration implemented in the Advanced Normalization Tools (ANTs) framework to ensure voxel-wise correspondence between modali-ties. Following registration, skull stripping was performed on the T1w image to remove non-brain tissues. The resulting brain mask was subsequently applied to both T1w and FLAIR images to maintain consistent brain extraction across modalities. To reduce intensity inhomogeneity arising from magnetic field non-uniformities, N4 bias field correction was applied independently to the skull-stripped T1w and FLAIR images. The corrected images were then resampled to an isotropic voxel resolution of 1 × 1 × 1mm 3 to ensure consistent spatial resolution across all sub-jects. Intensity normalization was subsequently performed on each modality to reduce inter-subject intensity variability and facilitate stable network training. In addition to the conventional MRI contrasts, two ratio-derived represen-tations were generated to investigate their contribution to FCD segmentation. Specifically, the T1w/FLAIR ratio image and the inverse FLAIR/T1w ratio im-age were computed on a voxel-wise basis using the normalized MRI volumes. These ratio representations were used either individually or in combination with the original MRI modalities according to the experimental configuration. The fi-nal preprocessed dataset therefore consisted of four image representations: T1w, FLAIR, T1w/FLAIR, and FLAIR/T1w, which were subsequently used as input channels for the nnU-Net models. 
+
+2.3 Problem Formulation 
+
+Given paired T1-weighted (T1w) and FLAIR MRI volumes, the objective is to predict a voxel-wise FCD mask. Benchmarking MRI Representations for DL-Based FCD Segmentation 5 
+
+> Fig. 2. Overview of the proposed MRI preprocessing pipeline.
+
+Let 
+
+XT ∈ RH×W ×D (1) denote the T1w MRI volume and 
+
+XF ∈ RH×W ×D (2) denote the FLAIR MRI volume, where (H), (W), and (D) represent the spatial dimensions of the MRI volume. To investigate the contribution of MRI representations, two ratio-derived images (T1w/FLAIR and FLAIR/T1w) are additionally constructed and eval-uated individually or in combination with the original MRI modalities. The T1w/FLAIR ratio image is defined as 
+
+RT F = XT
+
+XF + ϵ (3) and the inverse ratio image is 
+
+RF T = XF
+
+XT + ϵ (4) where ϵ is a small constant introduced to avoid numerical instability. Depending on the experimental configuration, the network input is repre-sented as a multi-channel tensor 
+
+X = [ X1, X 2, . . . , X C ], (5) where (C) denotes the number of input channels and (Xi) corresponds to one of the MRI representations (XT , X F , R T F , R F T ).6 S. Ghosh et al. 
+
+Let 
+
+Y ∈ 0, 1H×W ×D (6) denote the ground-truth lesion mask, where (Y (v) = 1) indicates lesion voxels and (Y (v) = 0) indicates background voxels. The objective is to learn a segmen-tation function 
+
+fθ : X → ˆY , (7) parameterized by (θ), that maps the input MRI representation (X) to a predicted lesion probability map ˆY = fθ (X). (8) The optimal model parameters are obtained by minimizing a supervised seg-mentation loss over the training dataset 
+
+arg min 
+
+> θ
+
+1
+
+N
+
+> N
+
+X
+
+> n=1
+
+L (fθ (Xn), Y n) , (9) where (N ) denotes the number of training subjects and (L) represents the seg-mentation loss function. In this study, the nnU-Net framework is employed to learn the mapping between MRI representations and FCD masks, while main-taining identical network architecture and optimization settings across all exper-iments. 
+
+2.4 nnU-Net Framework 
+
+To ensure a fair and standardized evaluation of MRI representations, all exper-iments were performed using the official nnU-Net v2 [15] framework with the 3D full-resolution configuration. nnU-Net is a widely adopted self-configuring medical image segmentation framework that automatically adapts the network architecture, preprocessing, data augmentation, and training parameters to the characteristics of a given dataset. It was selected as a strong baseline to en-able a controlled comparison of MRI representation strategies while eliminating architectural confounding. To ensure a fair comparison between MRI representations, all experiments employed identical network architecture, training schedules, and optimization settings. Models were trained for 1000 epochs using the five-fold cross-validation. The best-performing checkpoint based on validation performance was retained for subsequent evaluation. Model optimization was performed using a compound objective function consisting of Dice loss and cross-entropy loss: 
+
+L = LDice + λL CE , (10) where 
+
+LDice = 1 − 2 PVi=1 pigi + δ
+
+PVi=1 pi + PVi=1 gi + δ , (11) Benchmarking MRI Representations for DL-Based FCD Segmentation 7       
+
+> Table 1. MRI representation configurations and experimental objectives. ID Input Objective E1 T1w Anatomical representation baseline. E2 FLAIR Lesion-sensitive representation baseline. E3 T1w/FLAIR Evaluate cortical contrast enhancement. E4 FLAIR/T1w Evaluate lesion-signal enhancement. E5 T1w + FLAIR Conventional multimodal baseline. E6 E5 + T1w/FLAIR Assess complementary cortical contrast information. E7 E5 + FLAIR/T1w Assess complementary lesion-signal information. E8 E6 + FLAIR/T1w Evaluate combined ratio representations.
+
+and 
+
+LCE = −
+
+> V
+
+X
+
+> i=1
+
+gi log( pi). (12) Here, pi and gi denote the predicted probability and ground-truth label for voxel i, respectively, V is the total number of voxels, and δ is a smoothing constant. The combined objective simultaneously optimizes lesion overlap and voxel-wise classification accuracy, which is advantageous for segmenting small FCD in the presence of substantial class imbalance between lesion and back-ground voxels. 
+
+# 3 Experimental Design 
+
+3.1 MRI Representation Experiments 
+
+The primary objective of this study was to systematically investigate the con-tribution of conventional MRI contrasts and ratio-derived representations to automated FCD segmentation. To achieve this, eight MRI representation con-figurations (Table-1) were evaluated while maintaining identical preprocessing, network architecture, training strategy, and evaluation protocols across all exper-iments. The investigated configurations included single-modality inputs, ratio-derived representations, conventional multimodal inputs, and multimodal inputs augmented with ratio information. The first four experiments evaluated the discriminative capability of indi-vidual MRI representations. Specifically, E1 and E2 assessed the performance of conventional T1w and FLAIR images, respectively, while E3 and E4 investi-gated the utility of ratio-derived representations obtained from T1w/FLAIR and FLAIR/T1w transformations. The remaining experiments explored multimodal fusion strategies. E5 served as the conventional multimodal baseline using T1w and FLAIR images, whereas E6 and E7 evaluated the incremental contribution of a single ratio-derived representation. Finally, E8 incorporated both ratio im-ages in addition to the original MRI modalities, enabling assessment of whether 8 S. Ghosh et al. 
+
+complementary information from asymmetric ratio representations could further improve segmentation performance. This experimental design enables analysis of three key research questions: (i) which individual MRI representation provides the strongest segmentation perfor-mance, (ii) whether ratio-derived representations offer complementary informa-tion beyond conventional MRI contrasts, and (iii) whether combining multiple ratio representations leads to further performance improvements over standard multimodal MRI inputs. Importantly, all experiments differ only in MRI rep-resentation, enabling the contribution of representation design to be evaluated independently of network architecture. 
+
+3.2 Cross-Validation 
+
+A five-fold stratified cross-validation strategy was employed, preserving the rel-ative distribution of FCD and control subjects across folds. Each validation fold contained approximately 17 FCD subjects and 5 control subjects, with the re-maining subjects used for training. To ensure a fair comparison, identical cross-validation splits were reused across all experiments (E1–E8), such that perfor-mance differences reflected only the MRI representation being evaluated. Model performance was averaged across the five folds and reported as mean ± standard deviation. Control subjects were assigned empty lesion masks and included in both training and validation folds to assess model specificity and false-positive behaviour. 
+
+3.3 Evaluation Metrics 
+
+Segmentation performance was evaluated using the Dice Similarity Coefficient (Dice), sensitivity, and precision. Dice quantified the spatial overlap between the predicted and reference lesion masks, while sensitivity and precision measured lesion recovery and false-positive behaviour at the voxel level, respectively. To provide a comprehensive assessment of model performance, two comple-mentary analyses were performed. First, overall segmentation performance was evaluated across all FCD subjects, with undetected lesions assigned a Dice score of zero to reflect real-world detection performance. Second, segmentation accu-racy was assessed only for successfully detected lesions to evaluate delineation performance independently of lesion detection. In addition, the numbers of com-pletely missed FCD lesions (Dice = 0) and healthy control subjects with false-positive predictions were reported to quantify lesion detection failure and model specificity. 
+
+3.4 Statistical Analysis 
+
+Statistical analyses were performed to compare segmentation performance across the eight MRI representation configurations. Overall differences between exper-iments were assessed using the Friedman test, followed by pairwise Wilcoxon Benchmarking MRI Representations for DL-Based FCD Segmentation 9                                                               
+
+> Table 2. Overall segmentation performance across all subjects. Exp Input Ch. Dice Sens. Prec. FCD Misses (Dice = 0 )Control FP E1 T1w 10.246 ±0.290 0.235 ±0.302 0.365 ±0.397 0.51 0.40 E2 FLAIR 10.369 ±0.303 0.352 ±0.316 0.535 ±0.396 0.28 0.20 E3 T1w/FLAIR 10.128 ±0.245 0.124 ±0.250 0.184 ±0.336 0.73 0.08 E4 FLAIR/T1w 10.333 ±0.319 0.323 ±0.334 0.438 ±0.403 0.40 0.20 E5 T1w+FLAIR 20.358 ±0.314 0.341 ±0.324 0.512 ±0.406 0.33 0.12 E6 E5+T1w/FLAIR 30.367 ±0.315 0.345 ±0.315 0.490 ±0.408 0.35 0.20 E7 E5+FLAIR/T1w 30.361 ±0.308 0.346 ±0.326 0.492 ±0.403 0.33 0.16 E8 E5+T1w/FLAIR+FLAIR/T1w 40.376 ±0.323 0.356 ±0.322 0.496 ±0.406 0.34 0.20
+
+signed-rank tests with false discovery rate (FDR) correction for multiple com-parisons. In addition to statistical significance, effect sizes were quantified using Cohen’s d to assess the magnitude of performance differences between MRI rep-resentations. Statistical significance was defined as p < 0.05 .
+
+# 4 Results 
+
+4.1 Overall Segmentation Performance 
+
+Table 2 summarizes the segmentation performance of all MRI representation strategies across the complete evaluation cohort, including subjects for which no lesion was detected (Dice = 0). Among the single-modality inputs, FLAIR achieved the highest Dice score (0.369 ±0.303), substantially outperforming T1w (0.246 ±0.290) and the T1w/FLAIR ratio representation (0.128 ±0.245). FLAIR also produced the lowest lesion miss rate (28%), whereas T1w and T1w/FLAIR failed to detect 51% and 73% of lesions, respectively. These findings indicate that lesion-related signal abnormalities captured by FLAIR are considerably more informative for lesion localization than anatomical information alone. Among the multimodal representations, all configurations achieved compa-rable overall performance, with Dice scores ranging from 0.358 to 0.376. The full multimodal representation (E8) achieved the highest overall Dice score (0.376 ±0.323), suggesting that ratio-derived representations provide complementary informa-tion when combined with conventional MRI sequences. The conventional multi-modal baseline (E5) yielded the lowest false-positive rate among controls (12%), while E8 demonstrated the highest lesion sensitivity (0.356 ±0.322). 
+
+4.2 Segmentation Performance for Detected Lesions 
+
+To evaluate lesion delineation independently of lesion detection, segmentation accuracy was further assessed using only successfully detected lesions. As shown in Table 3, segmentation performance increased substantially for all MRI repre-sentations after excluding missed lesions. FLAIR/T1w achieved the highest Dice 10 S. Ghosh et al.                                                 
+
+> Table 3. Performance comparison for detected FCD cases only (Dice >0). Exp Input Ch. Dice Sens. Prec. E1 T1w 10.497 ±0.214 0.475 ±0.266 0.734 ±0.216 E2 FLAIR 10.514 ±0.230 0.491 ±0.267 0.746 ±0.248 E3 T1w/FLAIR 10.473 ±0.241 0.457 ±0.280 0.682 ±0.281 E4 FLAIR/T1w 10.554 ±0.216 0.538 ±0.266 0.730 ±0.240 E5 T1w+FLAIR 20.534 ±0.232 0.508 ±0.268 0.764 ±0.232 E6 E5+T1w/FLAIR 30.567 ±0.199 0.534 ±0.229 0.757 ±0.234 E7 E5+FLAIR/T1w 30.538 ±0.215 0.515 ±0.266 0.734 ±0.255 E8 E5+T1w/FLAIR+FLAIR/T1w 40.571 ±0.218 0.541 ±0.230 0.754 ±0.238
+
+score among single-modality inputs (0.554 ±0.216), outperforming both T1w and FLAIR. Among multimodal representations, E8 achieved the highest Dice score (0.571 ±0.218), closely followed by E6 (0.567 ±0.199). Compared with the conventional multimodal baseline (E5), incorporating ratio-derived representations consistently improved Dice and sensitivity, indicat-ing that ratio images primarily contribute to more accurate lesion delineation once lesions have been successfully localized. 
+
+4.3 Impact of MRI Representation Design 
+
+Several important observations emerge from the experimental comparison. First, FLAIR consistently outperformed T1w across all evaluation metrics, demon-strating that lesion-related signal abnormalities are more informative than anatom-ical features for automated FCD segmentation. Second, the T1w/FLAIR ratio alone produced the lowest overall segmentation performance despite exhibit-ing the lowest false-positive rate among healthy controls. This suggests that ratio-derived representations should not replace conventional MRI sequences but rather complement them. Third, integrating ratio-derived representations with conventional multimodal MRI consistently improved lesion delineation perfor-mance. In particular, E6 and E8 achieved the highest Dice scores among suc-cessfully detected lesions, indicating that ratio images provide complementary contrast information beyond standard T1w and FLAIR inputs. These findings indicate that MRI representation design has a measurable influence on segmen-tation performance even when the underlying deep learning architecture remains unchanged. 
+
+4.4 Representation Contribution Analysis 
+
+To investigate the contribution of ratio-derived MRI representations, the multi-modal experiments (E6–E8) were compared with the conventional T1w+FLAIR baseline (E5). This analysis isolates the effect of image representation while keep-ing the segmentation architecture, preprocessing pipeline, training strategy, and cross-validation protocol unchanged. Benchmarking MRI Representations for DL-Based FCD Segmentation 11 
+
+Adding the T1w/FLAIR ratio (E6) increased the overall Dice score from 0.358 to 0.367, while incorporating the FLAIR/T1w ratio (E7) produced a com-parable Dice score of 0.361. Combining both ratio-derived representations (E8) achieved the highest overall Dice score (0.376), representing an absolute im-provement of 0.018 over the conventional multimodal baseline. Similar trends were observed for sensitivity, which increased from 0.341 (E5) to 0.356 (E8), whereas precision remained comparable across all multimodal configurations. A more pronounced improvement was observed when considering only suc-cessfully detected lesions. Compared with E5 (Dice = 0.534), E6 and E8 achieved Dice scores of 0.567 and 0.571, respectively, indicating that ratio-derived repre-sentations primarily enhance lesion delineation once lesions have been success-fully localized. In contrast, lesion miss rates remained similar across the mul-timodal experiments (33–35%), suggesting that the principal benefit of ratio-derived representations lies in improving segmentation quality rather than in-creasing lesion detection sensitivity. 
+
+4.5 Qualitative Results 
+
+Figure 3 presents representative qualitative segmentation results for five FCD subjects exhibiting varying lesion characteristics and segmentation difficulty. The selected examples include subtle lesions, challenging cases, and well-defined le-sions, providing visual evidence of the influence of MRI representation on seg-mentation performance. Consistent with the quantitative analysis, FLAIR (E2) generally achieved more accurate lesion localization than T1w alone, while the conventional multi-modal representation (E5) further improved segmentation in several cases. Incor-porating ratio-derived representations (E6 and E8) frequently resulted in more accurate lesion delineation and improved boundary agreement, particularly for subtle lesions. For example, the fourth case demonstrates a substantial improve-ment obtained by E6 over the conventional multimodal baseline, whereas the final case illustrates consistently high segmentation performance across all mul-timodal representations. Conversely, the first case remains challenging for all methods, highlighting the difficulty of detecting subtle FCD lesions and the in-herent complexity of automated FCD segmentation. 
+
+4.6 Representative Case Analysis 
+
+Table 4 summarizes the Dice scores of five representative FCD subjects selected to illustrate different segmentation behaviours observed across the evaluated MRI representations. These cases include subtle lesions, challenging lesions, mul-timodal improvements, and well-segmented lesions, providing a subject-level per-spective that complements the cohort-level analysis. Substantial variability in segmentation performance was observed across MRI representations. For example, FCD_072 demonstrates one of the largest im-provements obtained from ratio-derived representations, where the conventional multimodal baseline (E5) achieved a Dice score of only 0.002, whereas E6 and E8 12 S. Ghosh et al.  
+
+> Fig. 3. Representative qualitative segmentation results for five FCD subjects. For each subject (rows), the columns show the T1w image, FLAIR image, expert-annotated ground-truth (GT) lesion mask, and the predicted segmentations from E2 (FLAIR), E5 (T1w+FLAIR), E6 (E5+T1w/FLAIR), and E8 (E5+T1w/FLAIR+FLAIR/T1w). Dice scores are reported below each prediction.
+
+achieved Dice scores of 0.814 and 0.744, respectively. Similarly, FCD_011 shows consistent improvement with multimodal representations, with E8 achieving the highest Dice score (0.779). Conversely, FCD_004 remained challenging for all representations, high-lighting the difficulty of segmenting subtle FCD lesions. FCD_006 illustrates that different MRI representations emphasize distinct lesion characteristics, with FLAIR/T1w (E4) substantially outperforming the remaining configurations. Fi-nally, FCD_085 represents a relatively straightforward case in which all multi-modal representations achieved high segmentation accuracy, with E8 producing the highest Dice score (0.843). Benchmarking MRI Representations for DL-Based FCD Segmentation 13                                                  
+
+> Table 4. Representative FCD cases demonstrating substantial performance differences across input configurations. The highest Dice score for each case is shown in bold. Case E1 E2 E3 E4 E5 E6 E7 E8 FCD_004 0.000 0.025 0.001 0.000 0.000 0.001 0.000 0.021
+> FCD_006 0.396 0.376 0.000 0.822 0.134 0.000 0.000 0.558 FCD_011 0.068 0.736 0.000 0.000 0.652 0.611 0.720 0.779
+> FCD_072 0.000 0.520 0.000 0.000 0.002 0.814 0.000 0.744 FCD_085 0.756 0.811 0.604 0.698 0.812 0.837 0.819 0.843
+
+4.7 Statistical Analysis 
+
+A Friedman test revealed a significant overall effect of MRI representation on segmentation performance ( χ2 = 74.16, p < 0.001). Post-hoc Wilcoxon signed-rank tests with FDR correction demonstrated that FLAIR significantly out-performed T1w (adjusted p = 0.0013), while FLAIR/T1w significantly outper-formed T1w/FLAIR (adjusted p < 0.001). In contrast, although the multimodal ratio-enhanced representations (E6–E8) consistently achieved higher mean Dice scores than the conventional T1w+FLAIR baseline (E5), these improvements were not statistically significant after multiple-comparison correction (adjusted p > 0.05). 
+
+# 5 Discussion 
+
+This study systematically investigated the influence of MRI representations on deep learning-based FCD segmentation using a standardized nnU-Net frame-work. By maintaining identical preprocessing, network architecture, optimiza-tion strategy, and cross-validation protocol across all experiments, the observed performance differences can be attributed directly to the input MRI represen-tations rather than architectural variations. A key finding of this study is that MRI representation design should be regarded as an integral component of deep learning model development rather than merely a preprocessing step. By fixing the network architecture throughout all experiments, we demonstrate that mean-ingful performance improvements can be achieved solely through representation design. This finding challenges the common assumption that improvements in FCD segmentation must primarily arise from architectural innovation. 
+
+5.1 Impact of MRI Representations on FCD Segmentation 
+
+Among the individual MRI representations, FLAIR consistently outperformed T1w and T1w/FLAIR, achieving the highest overall segmentation performance and the lowest lesion miss rate. This observation is consistent with the imaging characteristics of FCD, where cortical and subcortical signal abnormalities are often more conspicuous on FLAIR than on anatomical T1w images. In contrast, T1w primarily depicts cortical morphology and gray-white matter architecture, 14 S. Ghosh et al. 
+
+making subtle dysplastic lesions more difficult to distinguish from surrounding normal tissue. Although the FLAIR/T1w ratio improved lesion delineation for successfully detected lesions, neither ratio-derived representation alone surpassed conventional FLAIR, indicating that ratio images alone do not contain sufficient information for robust lesion localization. The superior performance of FLAIR/T1w compared with T1w/FLAIR sug-gests that the ordering of the ratio operation influences the information pre-sented to the segmentation network. FCD lesions are predominantly charac-terized by FLAIR hyperintensity, whereas T1w primarily provides anatomical context through cortical thickening and blurring of the gray-white matter junc-tion. Using FLAIR as the numerator preserves lesion-related signal abnormali-ties while normalizing anatomical intensity variations, thereby enhancing lesion conspicuity. In contrast, placing FLAIR in the denominator attenuates lesion-related hyperintensity and produces a representation that emphasizes relative tissue contrast rather than pathological signal. This interpretation is supported by our results, in which FLAIR/T1w significantly outperformed T1w/FLAIR in both overall segmentation performance and lesion detection. 
+
+5.2 Complementary Role of Ratio-Derived Representations 
+
+Our experiments indicate that ratio-derived representations are most effective when used as complementary information rather than replacement modalities. This observation suggests that representation design should focus on enriching conventional MRI rather than substituting it. The multimodal configurations consistently achieved higher Dice scores than the conventional T1w+FLAIR baseline, with the four-channel representation (E8) producing the best over-all performance. The improvements were more evident when only successfully detected lesions were considered, suggesting that ratio-derived representations primarily refine lesion boundaries after localization rather than substantially improving lesion detection. This complementary behaviour indicates that ratio images enhance tissue contrast while conventional T1w and FLAIR preserve the anatomical and pathological information required for reliable lesion localization. 
+
+5.3 Clinical Implications 
+
+Accurate delineation of FCD lesions is essential for presurgical evaluation, where reliable estimation of lesion extent can support surgical planning and improve confidence in lesion localization. Although incorporating ratio-derived MRI rep-resentations produced modest average improvements that did not reach statisti-cal significance after multiple-comparison correction, these gains were achieved without modifying the segmentation architecture or training strategy, highlight-ing MRI representation optimization as a simple and computationally efficient approach for improving automated FCD segmentation. Importantly, the subject-level analysis demonstrated that ratio-derived representations can provide sub-stantial benefits for selected challenging cases. For example, the Dice score for Benchmarking MRI Representations for DL-Based FCD Segmentation 15 
+
+FCD_072 increased from 0.002 using the conventional multimodal representa-tion (E5) to 0.814 with E6, indicating that representation design can markedly improve delineation for certain subtle lesions. These findings suggest that while ratio-derived representations do not uniformly improve every case, they have the potential to enhance segmentation of difficult FCD lesions encountered in clinical practice. 
+
+5.4 Limitations and Future Work 
+
+This study has certain limitations. The experiments were conducted using a sin-gle publicly available FCD dataset, and a standardized five-fold cross-validation protocol was employed. Nevertheless, validation on larger and more diverse multi-centre datasets is required to assess the generalizability of the findings across different scanners, acquisition protocols, and patient populations. Fur-thermore, this work intentionally focused on MRI representation analysis while using a fixed segmentation framework. Future studies should investigate learn-ing MRI representations directly from multimodal data rather than relying on manually designed ratio-derived images. 
+
+# 6 Conclusion 
+
+This study demonstrates that MRI representation design is an important but largely overlooked component of deep learning-based FCD segmentation. Through a controlled benchmark using identical nnU-Net architectures, preprocessing, op-timization strategy, and cross-validation protocols, we show that optimizing MRI representations is also a promising strategies for improving lesion delineation without increasing model complexity or altering the underlying segmentation framework. These findings suggest that future research should jointly optimize MRI representation design and network architecture rather than focusing exclu-sively on architectural innovation. Such a complementary approach may lead to more robust and clinically applicable segmentation systems while maintaining the simplicity and computational efficiency of established deep learning frame-works. 
+
+# Code Availability 
+
+The source code, preprocessing scripts, and experimental configurations used in this study are publicly available at: https://github.com/soumenca/FCD_ Contrast_Analysis 
+
+# References 
+
+> 1. A. K. Ngugi, C. Bottomley, I. Kleinschmidt, J. W. Sander, and C. R. Newton, “Es-timation of the burden of active and life-time epilepsy: a meta-analytic approach,”
+> Epilepsia , vol. 51, no. 5, pp. 883–890, 2010.
+
+16 S. Ghosh et al. 2. D. Taylor, M. Falconer, C. Bruton, and J. Corsellis, “Focal dysplasia of the cerebral cortex in epilepsy,” Journal of Neurology, Neurosurgery & Psychiatry , vol. 34, no. 4, pp. 369–387, 1971. 3. L. S. Hsieh, J. H. Wen, K. Claycomb, Y. Huang, F. A. Harrsch, J. R. Naegele, F. Hyder, G. F. Buchanan, and A. Bordey, “Convulsive seizures from experimental focal cortical dysplasia occur independently of cell misplacement,” Nature commu-nications , vol. 7, no. 1, p. 11753, 2016. 4. P. Ryvlin, J. H. Cross, and S. Rheims, “Epilepsy surgery in children and adults,” 
+
+The Lancet Neurology , vol. 13, no. 11, pp. 1114–1126, 2014. 5. Y. H. Kim, H.-C. Kang, D.-S. Kim, S. H. Kim, K.-W. Shim, H. D. Kim, and J. S. Lee, “Neuroimaging in identifying focal cortical dysplasia and prognostic factors in pediatric and adolescent epilepsy surgery,” Epilepsia , vol. 52, no. 4, pp. 722–727, 2011. 6. A. S. Harvey, S. A. Mandelstam, W. J. Maixner, R. J. Leventer, M. Semmelroch, D. MacGregor, R. M. Kalnins, Y. Perchyonok, G. J. Fitt, S. Barton et al. , “The surgically remediable syndrome of epilepsy associated with bottom-of-sulcus dys-plasia,” Neurology , vol. 84, no. 20, pp. 2021–2028, 2015. 7. A. Bernasconi, S. B. Antel, D. L. Collins, N. Bernasconi, A. Olivier, F. Dubeau, G. B. Pike, F. Andermann, and D. L. Arnold, “Texture analysis and morphological processing of magnetic resonance imaging assist detection of focal cortical dysplasia in extra-temporal partial epilepsy,” Annals of Neurology: Official Journal of the American Neurological Association and the Child Neurology Society , vol. 49, no. 6, pp. 770–775, 2001. 8. H. Spitzer, M. Ripart, K. Whitaker, F. D’Arco, K. Mankad, A. A. Chen, A. Napoli-tano, L. De Palma, A. De Benedictis, S. Foldes et al. , “Interpretable surface-based detection of focal cortical dysplasias: a multi-centre epilepsy lesion detection study,” 
+
+Brain , vol. 145, no. 11, pp. 3859–3871, 2022. 9. R. S. Gill, S.-J. Hong, F. Fadaie, B. Caldairou, B. Bernhardt, N. Bernasconi, and A. Bernasconi, “Automated detection of epileptogenic cortical malformations using multimodal mri,” in International Workshop on Deep Learning in Medical Image Analysis . Springer, 2017, pp. 349–356. 10. S. M. Sisodiya, S. Fauser, J. H. Cross, and M. Thom, “Focal cortical dysplasia type ii: biological features and clinical perspectives,” The Lancet Neurology , vol. 8, no. 9, pp. 830–843, 2009. 11. H. Urbach, E. Kellner, N. Kremers, I. Blümcke, and T. Demerath, “Mri of focal cortical dysplasia,” Neuroradiology , vol. 64, no. 3, pp. 443–452, 2022. 12. S.-J. Hong, H. Kim, D. Schrader, N. Bernasconi, B. C. Bernhardt, and A. Bernasconi, “Automated detection of cortical dysplasia type ii in mri-negative epilepsy,” Neurology , vol. 83, no. 1, pp. 48–55, 2014. 13. A. Snell, J. Du, V. Vegh, and D. Reutens, “Mri techniques for detecting focal cortical dysplasia: A systematic review,” Seizure: European Journal of Epilepsy ,2026. 14. O. Ronneberger, P. Fischer, and T. Brox, “U-net: Convolutional networks for biomedical image segmentation,” in International Conference on Medical image computing and computer-assisted intervention . Springer, 2015, pp. 234–241. 15. F. Isensee, P. F. Jaeger, S. A. Kohl, J. Petersen, and K. H. Maier-Hein, “nnu-net: a self-configuring method for deep learning-based biomedical image segmentation,” 
+
+Nature methods , vol. 18, no. 2, pp. 203–211, 2021. 16. R. S. Gill, H.-M. Lee, B. Caldairou, S.-J. Hong, C. Barba, F. Deleo, L. d’Incerti, V. C. Mendes Coelho, M. Lenge, M. Semmelroch et al. , “Multicenter validation of Benchmarking MRI Representations for DL-Based FCD Segmentation 17 a deep learning detection algorithm for focal cortical dysplasia,” Neurology , vol. 97, no. 16, pp. e1571–e1582, 2021. 17. S. Joshi, M. Pant, A. Malhotra, K. Deep, and V. Snasel, “A nnu-net-based au-tomatic segmentation of fcd type ii lesions in 3d flair mri images,” Frontiers in Artificial Intelligence , vol. 8, p. 1601815, 2025. 18. Z. Ding, S. Morris, S. Hu, T.-Y. Su, J. Y. Choi, I. Blümcke, X. Wang, K. Sakaie, H. Murakami, A. V. Alexopoulos et al. , “Automated whole-brain focal cortical dysplasia detection using mr fingerprinting with deep learning,” Neurology , vol. 104, no. 11, p. e213691, 2025. 19. E. Thomas, S. Pawan, S. Kumar, A. Horo, S. Niyas, S. Vinayagamani, C. Ke-savadas, and J. Rajan, “Multi-res-attention unet: a cnn model for the segmentation of focal cortical dysplasia lesions from magnetic resonance images,” IEEE journal of biomedical and health informatics , vol. 25, no. 5, pp. 1724–1734, 2020. 20. S. Cappelle, D. Pareto, S. Sunaert, I. Smets, A. Laenen, B. Dubois, and P. De-maerel, “T1w/flair ratio standardization as a myelin marker in ms patients,” Neu-roImage: Clinical , vol. 36, p. 103248, 2022. 21. R. Colaes, A. Radwan, T. Billiet, S. Cappelle, R. Peeters, D. Christiaens, S. Deprez, and S. Sunaert, “Evaluating the t1w/flair ratio as a proxy for myelin: Associations with myelin water imaging, diffusion metrics, and cognition,” Neuroradiology , pp. 1–12, 2026. 22. F. Schuch, L. Walger, M. Schmitz, B. David, T. Bauer, A. Harms, L. Fischbach, F. Schulte, M. Schidlowski, J. Reiter et al. , “An open presurgery mri dataset of people with epilepsy and focal cortical dysplasia type ii,” Scientific Data , vol. 10, no. 1, p. 475, 2023.

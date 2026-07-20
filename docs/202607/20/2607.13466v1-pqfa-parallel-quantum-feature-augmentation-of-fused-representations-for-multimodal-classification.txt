@@ -1,0 +1,1163 @@
+Title: PQFA: Parallel Quantum Feature Augmentation of Fused Representations for Multimodal Classification
+
+URL Source: https://arxiv.org/pdf/2607.13466v1
+
+Published Time: Thu, 16 Jul 2026 00:35:35 GMT
+
+Number of Pages: 28
+
+Markdown Content:
+# PQFA: Parallel Quantum Feature Augmentation of Fused Representations for Multimodal Classification 
+
+Mingzhu Wang a,b , Yun Shang a,c, ∗
+
+> aAcademy of Mathematics and Systems Science, Chinese Academy of Sciences, Beijing, 100190, China
+> bSchool of Mathematical Sciences, University of Chinese Academy of Sciences, Beijing, 100049, China
+> cState Key Laboratory of Mathematical Sciences, Academy of Mathematics and Systems Science, Chinese Academy of Sciences, Beijing, 100190, China
+
+Abstract 
+
+Most multimodal learning methods improve how heterogeneous representations are aligned and fused, while post-fusion enhancement remains less explored. We propose Parallel Quantum Feature Augmentation (PQFA), a hybrid quantum–classical framework that applies multiple shallow variational quantum circuits to fused multimodal features. Text and image representations extracted by frozen RoBERTa and ViT encoders are processed through bidirectional cross-attention, attentive pooling, and adaptive gated fusion. The fused feature is then amplitude-encoded into paral-lel quantum circuits, whose measurement readouts are concatenated with the classical representation for prediction. We evaluate PQFA on MM-IMDb and N24News through controlled comparisons using the same encoders, fusion backbone, data splits, projection dimension, and augmentation output width. PQFA consistently outperforms both the fusion backbone without quantum augmentation and a width-matched MLP augmentation baseline, while using ap-proximately 2.2K augmentation parameters compared with 24.0K for the MLP branch. Missing-modality experiments further show improved robustness when textual or visual inputs are incomplete, with particularly clear gains when the more informative textual modality is severely degraded. Controlled ablations and feature-space analyses indicate that the improvement cannot be reproduced by random feature mappings, increased classical width, or untrained quantum transformations. Quantum-state diagnostics additionally show stable predictive performance across the tested simu-lated noise levels and distinct branch-specific transformations of the encoded states. These results establish PQFA as an e ff ective and parameter-e ffi cient strategy for post-fusion augmentation in hybrid quantum–classical multimodal learning. 
+
+Keywords: Multimodal fusion, Quantum machine learning, Parameterized quantum circuits, Feature augmentation, Missing modalities 
+
+1. Introduction 
+
+Multimodal classification requires a model to integrate heterogeneous information from di ff erent sources, such as text and images. Modern multimodal models usually rely on pretrained encoders and intermediate fusion modules to align modality-specific representations before prediction [1, 2]. Although these classical fusion architectures are eff ective, the fused representation may still benefit from lightweight post-fusion transformations that enrich features useful for prediction without substantially increasing the depth or size of the whole model. Compared with the extensive literature on improving the fusion stage itself, post-fusion augmentation modules that operate on an already fused representation remain relatively underexplored. Moreover, the contribution of such a module must be carefully separated from that of the underlying fusion backbone. Parameterized quantum circuits provide a possible mechanism for such post-fusion feature transformation. Avariational quantum circuit can encode a classical vector into a quantum state, apply a trainable unitary transformation,   
+
+> ∗Corresponding author
+> Email address: shangyun@amss.ac.cn (Yun Shang) arXiv:2607.13466v1 [cs.LG] 15 Jul 2026
+
+and return measurement expectations as nonlinear readout features [3, 4, 5]. However, current noisy intermediate-scale (NISQ) quantum settings impose practical constraints on qubit number, circuit depth, finite-shot noise, and trainability [6, 7, 8]. These constraints make it impractical to replace mature deep multimodal architectures with large quantum models. For near-term settings, a more appropriate use of quantum circuits is to treat them as shallow auxiliary modules within an otherwise classical pipeline. Existing quantum or quantum-inspired multimodal studies have explored quantum fusion modules, quantum-enhanced sentiment analysis, and hybrid neural architectures for multimodal tasks [9, 10, 11, 12]. Nevertheless, existing studies do not always clearly isolate the architectural role and contribution of the quantum component. Many designs process unimodal features separately or insert quantum modules as sequential blocks, making it unclear whether the quantum component improves an already integrated cross-modal representation. Moreover, reported gains are often entangled with increased feature dimensionality, additional trainable parameters, or changes in the classical fusion backbone. This distinction is important because a performance gain in a hybrid quantum–classical multimodal model can have several di ff erent causes. It may result from a better fusion strategy, a stronger pretrained encoder, a larger final representation, or simply a larger number of trainable parameters. Without a backbone that removes the quantum circuits and a width-matched classical augmentation baseline, it is di ffi cult to attribute the improvement specifically to the quantum readout branch. Therefore, a meaningful evaluation of quantum-enhanced multimodal fusion should control the classical fusion pathway and compare the quantum module with a classical module of the same output width. Beyond aggregate performance, it is also useful to inspect the geometry of the generated augmentation features. Comparing PCA spectra, e ff ective dimensions, and structurally modified augmentation branches can help distinguish a task-aligned feature transformation from generic width expansion or random nonlinear feature generation. To address this issue, we propose Parallel Quantum Feature Augmentation (PQFA). The central idea is not to replace the classical multimodal fusion module, but to augment the fused representation after cross-modal interaction has already been performed. Multimodal inputs are first encoded by frozen pretrained encoders, refined by bidirec-tional cross-attention, summarized by attentive pooling, and integrated through adaptive gated fusion. The resulting fused feature is then amplitude-encoded into several shallow variational quantum circuits in parallel. Their measure-ment readouts are concatenated with the classical fused feature for final prediction. The main contributions of this work are summarized as follows: 
+
+• We introduce PQFA, a post-fusion quantum augmentation framework that applies shallow parallel variational quantum circuits to an integrated multimodal representation rather than to raw or independently processed unimodal features. 
+
+• We develop a controlled hybrid architecture in which the pretrained encoders and classical fusion pathway are preserved across PQFA, the no-quantum backbone, and the classical augmentation baselines. This design strengthens the attribution of performance di ff erences to the augmentation module. 
+
+• We demonstrate on MM-IMDb and N24News that PQFA improves multi-label and single-label classification while using substantially fewer augmentation parameters than a width-matched MLP branch. Additional con-trols distinguish the learned quantum transformation from generic feature expansion, increased classical capac-ity, and random quantum mappings. 
+
+• We evaluate PQFA beyond aggregate predictive metrics through missing-modality experiments, paired error-transition analysis, feature-space diagnostics, simulated-noise evaluation, entanglement analysis, and gate-weight inspection. These analyses characterize its robustness, decision-level behavior, and representation prop-erties. The remainder of this paper is organized as follows. Section 2 reviews classical multimodal fusion, hybrid quantum–classical learning, and quantum-enhanced multimodal models. Section 3 presents the PQFA architecture. Section 4 describes the experimental settings and reports the main results and diagnostic analyses. Section 5 discusses the implications and future research directions. Section 6 concludes the paper. 22. Related Work 
+
+This section reviews three lines of research most relevant to the present study: classical multimodal fusion, quan-tum machine learning and hybrid quantum–classical models, and quantum or quantum-inspired multimodal fusion. 
+
+2.1. Classical Multimodal Fusion 
+
+Multimodal fusion aims to integrate heterogeneous information sources into a unified representation for prediction and decision making. Existing strategies are commonly categorized as early, intermediate, and late fusion according to whether modalities are combined at the input, representation, or decision level [13, 14]. Early fusion is simple but can be sensitive to feature-scale mismatch and modality heterogeneity, whereas late fusion preserves modality-specific pathways but may underuse fine-grained cross-modal interactions [13, 14]. Intermediate fusion has therefore become a widely adopted paradigm in deep multimodal learning because it permits explicit alignment and interaction between modality-specific representations [14, 2]. A major line of work focuses on increasing the expressiveness of cross-modal interactions while controlling com-putational cost. Low-rank and factorized methods approximate high-order fusion tensors through modality-specific factors [15]. In vision–language learning, Multimodal Factorized Bilinear Pooling and Multimodal Tucker Fusion fur-ther model multiplicative image–text interactions using compact bilinear or tensor decompositions [16, 17]. Other ap-proaches learn shared and modality-specific factors, maximize cross-modal correlations, or iteratively refine unimodal representations before prediction [18, 19]. Transformer-based models instead use self-attention, cross-attention, and attention bottlenecks to exchange information among tokens, image patches, and modality-specific latent fea-tures [20, 21, 2]. Dynamic gating and coupled state-space models further adapt the contribution or interaction pattern of each modality according to the input [22, 23]. These developments are directly relevant to image–text classification, where cross-attention can establish semantic correspondences and adaptive gating can regulate the relative contribution of textual and visual representations [2, 22]. Robustness studies also show that multimodal Transformers can be sensitive to missing inputs and that the eff ect of a fusion strategy may depend on the dataset and missing-modality pattern [24]. Most of this literature, however, improves the encoders, interaction mechanism, or fusion operator itself. Comparatively less attention has been paid to preserving a fixed, strong fusion backbone and asking whether an additional lightweight transformation can improve the already fused representation. This distinction motivates the post-fusion setting considered in this work and supports comparisons against both the unaugmented fusion backbone and a width-matched classical augmentation module. 
+
+2.2. Quantum Machine Learning and Hybrid Quantum–Classical Models 
+
+Quantum machine learning studies how quantum states, measurements, and trainable quantum operations can be used for representation, learning, and prediction [3, 4]. For near-term applications, parameterized quantum circuits (PQCs), also called variational quantum circuits, are commonly embedded in hybrid quantum–classical optimization loops [25, 7]. A typical PQC-based learning model encodes classical data into a quantum state, applies a trainable unitary transformation, and converts measurement expectations into features or prediction outputs [4, 5]. This frame-work has motivated quantum kernels, variational classifiers, quantum neural networks, and other hybrid models for supervised learning and representation learning [5, 26, 27]. The appeal of PQCs lies in their ability to implement structured nonlinear feature maps through data encoding, entangling operations, and observable measurements [4, 5]. Their practical use is nevertheless constrained by the cost of loading classical data, limited qubit counts and connectivity, finite circuit depth, sampling noise, and hardware errors [6, 7]. Optimization can also deteriorate when circuits are too deep, poorly initialized, or a ff ected by noise, as reflected in barren-plateau and noise-induced trainability analyses [8, 28, 29]. These limitations make the wholesale replacement of mature deep neural networks by large quantum models unrealistic in current settings. Recent work therefore increasingly studies quantum components as modules within larger classical systems rather than as stand-alone replacements. Such components have been used as compact feature transformations, classifier heads, local quantum filters, or adaptively structured circuit blocks [30, 31, 27]. At the same time, controlled bench-marking has emphasized the need to compare quantum models with suitably tuned classical baselines and to separate architectural changes from the e ff ect of the quantum component itself [32, 27]. This modular and controlled perspec-tive is central to the present study. PQFA retains pretrained classical encoders and a fixed cross-modal fusion pathway, 3… 
+
+> …
+> …
+> …
+> Text
+> Image
+> Encoder
+> Text
+> Encoder
+> Cross Attention Layers
+> Image
+> Attention
+> Pooling
+> Text
+> Attention
+> Pooling
+> Gating Module
+> Amplitude
+> Embedding
+> PQC 1
+> PQC 2
+> PQC K
+> …
+> …
+> …
+> …
+> …
+> …
+> …
+> Linear
+> Classifier Output Figure 1: Overall architecture of the proposed Parallel Quantum Feature Augmentation (PQFA) framework. Text and image inputs are first encoded by frozen pretrained Transformer encoders. The extracted unimodal token features are projected into a shared latent space, refined by bidirectional cross-attention, summarized by attentive pooling, and fused through an adaptive gating module. The fused classical representation is then processed by two paths: a direct classical path and a parallel quantum augmentation path based on amplitude encoding and multiple shallow parameterized quantum circuits. The resulting quantum readouts are concatenated with the classical fused feature for final classification.
+
+while shallow parallel PQCs are evaluated specifically as post-fusion readout transformations. The corresponding no-quantum and width-matched classical baselines are designed to distinguish quantum feature augmentation from generic increases in representation width or parameter count. 
+
+2.3. Quantum and Quantum-Inspired Multimodal Fusion 
+
+Quantum-enhanced multimodal learning lies at the intersection of multimodal representation learning and hybrid QML and remains substantially less developed than either area separately. Existing studies have explored several placements and physical interpretations of quantum components. QMFND combines textual and visual information for fake-news detection using a quantum multimodal fusion architecture [9], while QNMF studies quantum-neural multimodal fusion for intelligent diagnosis [10]. Quantum circuit models have also been proposed for multimodal sentiment classification, and recent work has investigated explicit quantum fusion layers intended to represent higher-order interactions across modalities [11, 12, 33]. Related quantum-inspired approaches use density-matrix, open-system, or Lindblad-style dynamics to formulate multimodal interactions without necessarily implementing the com-plete model as an executable quantum circuit [34]. Together, these studies indicate growing interest in using quantum or quantum-inspired structures to transform heterogeneous representations. Despite this progress, the architectural role of the quantum component is not yet evaluated consistently. Across existing models, quantum circuits may process unimodal features, participate directly in fusion, or appear as sequen-tial blocks after classical feature extraction [10, 9, 11, 12]. These di ff erent placements make it di ffi cult to determine whether a reported improvement originates from the quantum transformation, the fusion mechanism, the pretrained encoders, or an accompanying increase in feature dimension and trainable parameters. The distinction between ex-ecutable PQC-based models and quantum-inspired neural formulations also needs to be maintained because their computational assumptions and hardware implications di ff er [33, 34]. A further limitation is the scarcity of attribution-oriented evaluation. Among the above studies, systematic com-parisons using both an unchanged no-quantum fusion backbone and a classical augmentation module matched in output width remain uncommon. Likewise, missing-modality robustness, feature-space behavior, circuit ablations, noise sensitivity, and sample-level decision changes are rarely examined together in quantum multimodal classifica-tion, despite their relevance to multimodal robustness and near-term QML [24, 28, 29]. The present work addresses this gap by applying multiple shallow PQCs only after classical cross-modal fusion and by evaluating them against controlled no-quantum and width-matched classical alternatives. This design also motivates the subsequent ablation, missing-modality, paired-transition, feature-space, and quantum-state analyses. 43. Method 
+
+3.1. Problem Formulation 
+
+We formulate PQFA for paired multimodal classification. Fig. 1 illustrates how PQFA constructs fused multimodal representations and augments them with parallel quantum readout branches. Let 
+
+D = {(X(1)  
+
+> n
+
+, X(2)  
+
+> n
+
+, yn)}Nn=1 (1) denote a multimodal dataset, where X(1)  
+
+> n
+
+and X(2)  
+
+> n
+
+are paired inputs and yn is the target. The target can take either a multi-label or a single-label form. For multi-label classification, yn ∈ { 0, 1}C is a binary label vector over C classes. For single-label classification, yn ∈ { 1, . . . , C} is a categorical class index. The model first constructs a fused multimodal representation 
+
+zC,n = Ffuse 
+
+X(1)  
+
+> n
+
+, X(2)  
+
+> n
+
+; Θfuse 
+
+ , (2) and then augments it with parallel quantum readout features: 
+
+qn = Fq
+
+zC,n; Θq
+
+ . (3) The final representation is 
+
+hn = [zC,n; qn], (4) which is passed to a task-specific prediction head. Thus, the quantum circuits are applied to fused representations rather than to raw or weakly aligned unimodal features. 
+
+3.2. Frozen Unimodal Encoding and Feature Alignment 
+
+In this work, X(1) corresponds to text and X(2) corresponds to image. Given a tokenized text input T , a pretrained language encoder ET produces contextual token features: 
+
+XT = ET (T ) ∈ RLT ×dT , (5) where LT is the number of text tokens and dT is the hidden dimension of the text encoder. For the image input I, a pretrained vision encoder EI extracts patch-level visual features: 
+
+XI = EI (I) ∈ RLI ×dI , (6) where LI denotes the number of visual tokens or patches and dI is the hidden dimension of the vision encoder. To align the two modalities into a common latent space, we apply learnable linear projections followed by layer normalization: 
+
+H(0)  
+
+> T
+
+= LN XT WT + 1b ⊤
+
+> T
+
+ , WT ∈ RdT ×d, (7) 
+
+H(0)  
+
+> I
+
+= LN XI WI + 1b ⊤
+
+> I
+
+ , WI ∈ RdI ×d. (8) Here, d is the shared embedding dimension, LN( ·) denotes layer normalization, and 1 is a vector of ones used to broadcast the bias terms across tokens. 
+
+3.3. Bidirectional Cross-Modal Refinement 
+
+The aligned unimodal sequences are refined by stacked bidirectional cross-attention layers. This module follows the standard Transformer attention formulation [20], but uses it in a cross-modal manner: the query comes from one modality, while the keys and values come from the other modality. At layer ℓ, the text stream queries the visual stream: 
+
+eH(ℓ) 
+
+> T
+
+= LN H(ℓ) 
+
+> T
+
++ MHA (ℓ)
+
+> T
+
+H(ℓ) 
+
+> T
+
+, H(ℓ) 
+
+> I
+
+, H(ℓ)
+
+> I
+
+ , (9) 
+
+H(ℓ+1)  
+
+> T
+
+= LN eH(ℓ) 
+
+> T
+
++ FFN (ℓ)
+
+> T
+
+eH(ℓ)
+
+> T
+
+ . (10) 5The visual stream is updated by attending to the refined text stream: 
+
+eH(ℓ) 
+
+> I
+
+= LN H(ℓ) 
+
+> I
+
++ MHA (ℓ)
+
+> I
+
+H(ℓ) 
+
+> I
+
+, H(ℓ+1)  
+
+> T
+
+, H(ℓ+1) 
+
+> T
+
+ , (11) 
+
+H(ℓ+1)  
+
+> I
+
+= LN eH(ℓ) 
+
+> I
+
++ FFN (ℓ)
+
+> I
+
+eH(ℓ)
+
+> I
+
+ . (12) For an input sequence X ∈ RL×d, the position-wise feed-forward network is defined as FFN( X) = ϕ(XW 1 + b1)W2 + b2, (13) where ϕ(·) is a nonlinear activation function. Unlike attention, which mixes information across tokens or modalities, the FFN refines each token representation along the feature dimension. For a query sequence Q, key sequence K, and value sequence V, the r-th attention head is computed as head r = softmax 
+
+ (QW Qr )( KW Kr )⊤
+
+√dh
+
+ VW Vr , (14) and the multi-head attention output is MHA( Q, K, V) = Concat (head 1, . . . , head H ) WO, (15) where H is the number of attention heads and dh = d/H is the dimension of each head. Through this bidirectional refinement process, token-level textual semantics and patch-level visual cues are repeatedly aligned before global fusion. 
+
+3.4. Attentive Global Pooling 
+
+After S cross-modal refinement layers, we obtain the final token sequences: 
+
+HT = H(S ) 
+
+> T
+
+, HI = H(S ) 
+
+> I
+
+. (16) Since downstream classification requires fixed-length representations, each modality is summarized by attentive pool-ing. For modality M ∈ { T, I} with token matrix HM ∈ RLM ×d, the pooling weights are computed as 
+
+αM = softmax HM uM
+
+√d
+
+!
+
+, uM ∈ Rd, (17) and the pooled representation is 
+
+zM =
+
+> LM
+
+X
+
+> m=1
+
+αM,mHM,m. (18) The learnable query vector uM enables the model to assign di ff erent importance weights to di ff erent tokens or image patches instead of treating all positions uniformly. 
+
+3.5. Adaptive Gated Fusion 
+
+The pooled text and image vectors are fused through a dimension-wise gating mechanism. The gate is computed from the concatenated modality representations: 
+
+sg = Wg,1[zT ; zI ] + bg,1,
+
+g = σ Wg,2ϕ(sg) + bg,2
+
+ , g ∈ (0 , 1) d. (19) where ϕ(·) is a nonlinear activation function, σ(·) is the sigmoid function, and [ ·; ·] denotes vector concatenation. The fused classical representation is then obtained as 
+
+zC = g ⊙ zT + (1 − g) ⊙ zI , (20) where ⊙ denotes element-wise multiplication. This formulation gives each latent dimension an adaptive modality preference. When g j is close to one, the j-th fused feature relies more on the text representation; when g j is close to zero, it relies more on the image representation. 6𝐀 𝐀 𝐀 1                                                                             
+
+> 𝐀 𝐀 𝐀 2𝐀
+> 𝐀 𝐀 𝐀 𝐀 1
+> 𝐀 𝐀 𝐀 2
+> 𝐀 𝐀 𝐀 1
+> 𝐀 𝐀 𝐀 2
+> 𝐀 𝐀 𝐀 3
+> 𝐀 𝐀 𝐀 4
+> 𝐀 𝐀 𝐀 1
+> 𝐀 𝐀 𝐀 2
+> 𝐀 𝐀 𝐀 3𝐀 𝐀 𝐀 4
+> 𝐀 𝐀 𝐀 5𝐀 𝐀 𝐀 6
+> 𝐀 𝐀 𝐀 1
+> 𝐀 𝐀 𝐀 2
+> 𝐀 𝐀 𝐀 3𝐀 𝐀 𝐀 4
+> 𝐀 𝐀 𝐀 5𝐀 𝐀 𝐀 6
+> 𝐀 𝐀 𝐀 1
+> 𝐀 𝐀 𝐀 2
+> 𝐀 𝐀 𝐀 3
+> 𝐀 𝐀 𝐀 4
+> 𝐀 𝐀 𝐀 5
+> 𝐀 𝐀 𝐀 6
+> 𝐀 𝐀 𝐀 1
+> 𝐀 𝐀 𝐀 2
+> 𝐀 𝐀 𝐀 3
+> 𝐀 𝐀 𝐀 4
+> 𝐀 𝐀 𝐀 5
+> 𝐀 𝐀 𝐀 6
+> 𝐀 𝐀 𝐀 7
+> 𝐀 𝐀 𝐀 8
+> 𝐀 𝐀 𝐀 9
+> 𝐀 𝐀 𝐀 10
+> 𝐀 𝐀 𝐀 1
+> 𝐀 𝐀 𝐀 2
+> 𝐀 𝐀 𝐀 3
+> 𝐀 𝐀 𝐀 4
+> 𝐀 𝐀 𝐀 5
+> 𝐀 𝐀 𝐀 6
+> 𝐀 𝐀 𝐀 7
+> 𝐀 𝐀 𝐀 8
+> 𝐀 𝐀 𝐀 9
+> 𝐀 𝐀 𝐀 10
+> 𝐀 3𝐀 1,𝐀 2,𝐀 3
+> 𝐀 3𝐀 4,𝐀 5,𝐀 6
+> 𝐀 𝐀 𝐀 7
+> 𝐀 𝐀 𝐀 8
+> 𝐀 𝐀 𝐀 9𝐀 3𝐀 10,𝐀 11,𝐀 12
+> 𝐀 3𝐀 13,𝐀 14,𝐀 15
+> Brick layer 1 Brick layer 2 Brick layer 3 Brick layer 4 Brick layer 5 Brick layer 6
+> Brick layer 7 Brick layer 8Brick layer 9
+> 𝐀 𝐀 ×
+
+(a) PQC ansatz (b) Brick pool of PQC Figure 2: Schematic illustration of the Parallel Quantum Feature Augmentation module. (a) A shallow brickwall parameterized quantum circuit used in each quantum branch. (b) The predefined brick pool consisting of multiple local two-qubit parameterized blocks, which introduces structural diversity across parallel quantum branches. 
+
+3.6. Parallel Quantum Feature Augmentation 
+
+The fused classical vector zC is passed to a set of K parallel parameterized quantum circuits. Each circuit acts as a trainable quantum feature map that transforms the same fused representation into measurement readout features. Let n denote the number of qubits and let D = 2n be the Hilbert space input dimension. In our implementation, 
+
+D = d, so the fused vector can be directly amplitude-encoded after normalization. We compute 
+
+ezC = zC
+
+∥zC ∥2 + ϵ , (21) where ϵ is a small constant for numerical stability. Amplitude encoding prepares the initial quantum state as 
+
+|ψ0(ezC )⟩ = A(ezC )|0⟩⊗n =
+
+D−1X
+
+j=0
+
+ezC, j| j⟩. (22) Here, A(·) denotes the state-preparation operation and {| j⟩} D−1
+
+j=0 is the computational basis. As illustrated in Fig. 2, each parallel quantum branch applies a shallow trainable brickwall circuit to the encoded state: 
+
+|ψk(ezC ; θk)⟩ = Uk(θk)|ψ0(ezC )⟩, k = 1, . . . , K. (23) The unitary transformation Uk(θk) is composed of local parameterized blocks arranged in a brickwall pattern: 
+
+Uk(θk) =
+
+LQY
+
+ℓ=1
+
+Y
+
+(a,b)∈E ℓ
+
+B(a,b)
+
+bk
+
+ θk,ℓ, a,b
+
+ , (24) where LQ is the number of quantum layers, Eℓ denotes the set of qubit pairs activated at layer ℓ, and B(a,b)
+
+bk (·) is a two-qubit parameterized block selected from a predefined brick pool. The brick pool is denoted by 
+
+B = {B(1) , B(2) , . . . , B(T )}, (25) where each B(t) represents a parameterized two-qubit block with a specific arrangement of local rotations and en-tangling operations. For the k-th quantum branch, a brick type bk ∈ { 1, . . . , T } is assigned from the brick pool and kept fixed during training, while its continuous parameters θk are optimized by backpropagation. Di ff erent branches may therefore implement di ff erent local circuit structures even though they receive the same fused input represen-tation. This design introduces structural diversity across the parallel quantum feature maps without increasing the depth of any single branch. The purpose is to let the parallel readout branches produce complementary nonlinear transformations of the fused multimodal representation. For each branch, we measure a set of observables: 
+
+O = {O1, . . . , Om}. (26) 7The quantum feature vector of the k-th branch is 
+
+qk = [⟨O1⟩k, . . . , ⟨Om⟩k] , (27) where each expectation value is computed as 
+
+⟨Or⟩k = ψk(ezC ; θk) Or ψk(ezC ; θk) . (28) In this framework, a simple and hardware-compatible choice is to measure single-qubit Pauli-Z observables, 
+
+Or = I⊗(r−1) ⊗ Z ⊗ I⊗(n−r), r = 1, . . . , n. (29) These measurements provide real-valued expectation readouts in [ −1, 1]. Since one Pauli-Z expectation value is measured from each qubit, each branch first yields a fixed-size readout vector qk ∈ [−1, 1] n, where m = n. In the implementation, this readout vector is passed through a lightweight branch-wise refinement layer before concatena-tion. For notational simplicity, qk denotes the resulting branch output in the following equations. The outputs of all quantum branches are concatenated: 
+
+q = [q1; q2; . . . ; qK ] ∈ RKm . (30) 
+
+3.7. Hybrid Representation and Prediction 
+
+The final hybrid representation concatenates the classical fused feature and the quantum-augmented feature: 
+
+h = [zC ; q] ∈ Rd+Km . (31) The classifier maps h to logits: 
+
+o = MLP ω(h) ∈ RC . (32) For multi-label classification, the logits are converted into independent class probabilities: 
+
+p = σ(o), (33) and the predicted label vector is obtained using validation-selected thresholds: 
+
+byc = I(pc ≥ τc), c = 1, . . . , C. (34) The thresholds {τc}Cc=1 are selected on the validation set and fixed before test evaluation to avoid test-set leakage. For single-label classification, the logits are converted into a categorical distribution: 
+
+pc = exp( oc)
+
+PCj=1 exp( o j) , (35) and the predicted class is obtained by 
+
+by = arg max  
+
+> c
+
+pc. (36) 
+
+3.8. Training Objective 
+
+The model is trained end-to-end with frozen unimodal encoders. The optimized parameters include the projection layers, cross-attention layers, pooling queries, gating module, quantum circuit parameters, and prediction head. For multi-label classification, we use a class-wise sigmoid objective. The binary cross-entropy loss is written as 
+
+LBCE = − 1
+
+C
+
+> C
+
+X
+
+> c=1
+
+hyc log( pc + ϵ) + (1 − yc) log(1 − pc + ϵ)i. (37) When class imbalance is considered, this objective can be replaced by an asymmetric focal variant: 
+
+LASL = − 1
+
+C
+
+> C
+
+X
+
+> c=1
+
+hyc(1 − pc)γ+ log( pc + ϵ) + (1 − yc)pγ− 
+
+> c
+
+log(1 − pc + ϵ)i. (38) where γ+ and γ− control the focusing strength for positive and negative labels, respectively. For single-label classification, we use the categorical cross-entropy loss: 
+
+LCE = − log exp( oy)
+
+PCc=1 exp( oc) . (39) 83.9. Backpropagation and Hybrid Optimization 
+
+Algorithm 1 summarizes the training and validation procedure of PQFA. We now describe how the trainable classical modules and the quantum readout branch are optimized under the same supervised objective. The pretrained RoBERTa and ViT encoders remain frozen. The optimized parameter set is 
+
+Θ = {Θp, Θa, Θpool , Θg, Θq, ω}, (40) where Θp, Θa, Θpool , and Θg denote the parameters of the projection, cross-attention, attentive pooling, and gated fusion modules, respectively. The quantum circuit parameters are denoted by Θq = {θ1, . . . , θK }, and ω denotes the classifier parameters. For a mini-batch B = {(Ti, Ii, yi)}Bi=1, the empirical objective is 
+
+J(Θ) = 1
+
+B
+
+> B
+
+X
+
+> i=1
+
+L(oi, yi), (41) where L is the task loss. For each sample, the logits are computed from the hybrid representation: 
+
+hi = [zC,i; qi],
+
+oi = MLP ω(hi). (42) The classifier gradient follows the usual chain rule: 
+
+∂J
+
+∂ω = 1
+
+B
+
+> B
+
+X
+
+> i=1
+
+∂Li
+
+∂oi
+
+∂oi
+
+∂ω . (43) More importantly, the fused representation receives gradients from two paths. Let 
+
+δh,i = ∇hi Li = [δC,i; δq,i], (44) where δC,i ∈ Rd is the gradient associated with the direct classical part of hi, and δq,i ∈ RKm is the gradient associated with the quantum readout part. Define 
+
+Jnorm ,i = ∂ezC,i
+
+∂zC,i
+
+,
+
+Jq,i = ∂qi
+
+∂ezC,i
+
+.
+
+(45) Then the total gradient received by the fused representation is 
+
+∇zC,i Li = δC,i + J⊤
+
+> norm ,i
+
+J⊤
+
+> q,i
+
+δq,i. (46) The first term comes from the direct classical path, while the second term comes from the quantum augmentation path. The normalization before amplitude encoding is di ff erentiable. For 
+
+ezC = zC
+
+∥zC ∥2 + ϵ , (47) with ρ = ∥zC ∥2, the Jacobian is 
+
+Jnorm = 1
+
+ρ + ϵ I − zC z⊤
+
+> C
+
+ρ(ρ + ϵ)2 . (48) This Jacobian allows gradients from the quantum readout path to propagate from ezC back to the fused representation 
+
+zC . Therefore, the quantum branch contributes not only to the optimization of its own circuit parameters θk, but also to the end-to-end training of the preceding fusion modules. 9For the k-th quantum branch, the r-th readout is 
+
+qk,r = ψk(ezC ; θk) Or ψk(ezC ; θk) . (49) The gradient with respect to a quantum parameter θk,s is 
+
+∂J
+
+∂θ k,s
+
+= 1
+
+B
+
+> B
+
+X
+
+> i=1
+> m
+
+X
+
+> r=1
+
+∂Li
+
+∂qi,k,r
+
+∂qi,k,r
+
+∂θ k,s
+
+. (50) Since Or is Hermitian and independent of θk,s, the derivative of an expectation value can be written as 
+
+∂qk,r
+
+∂θ k,s
+
+= 2 Re  ∂θk,s ψk Or ψk
+
+. (51) In our implementation, the quantum circuits are built with PennyLane and connected to the PyTorch computation graph through the Torch interface. The experiments use the di ff erentiable default.qubit state vector simulator. Under this simulator-based automatic di ff erentiation setting, gradients are obtained for both the quantum circuit pa-rameters and the amplitude encoding inputs, rather than through a finite-shot parameter shift procedure. Therefore, the quantum branch can a ff ect the preceding fused representation as well as its own circuit parameters. The parameters are updated by Adam. For a parameter group Θu ⊆ Θ, the update is written as 
+
+Θ(t+1)  
+
+> u
+
+= Adam Θ(t) 
+
+> u
+
+, ∇Θu J(t), η u
+
+ , (52) where t is the optimization step and ηu is the learning rate of the corresponding parameter group. We use separate learning rates for the classical and quantum parameter groups. This optimization scheme trains the fusion modules, quantum readout branch, and classifier under a unified objective while keeping the pretrained encoders fixed. 
+
+4. Experiments 
+
+4.1. Experimental Setup 4.1.1. Datasets 
+
+We evaluate PQFA on two image–text classification benchmarks with di ff erent prediction formats. This design allows us to examine whether the proposed post-fusion quantum augmentation strategy is e ff ective in both multi-label and single-label multimodal classification settings. 
+
+MM-IMDb. MM-IMDb is a multimodal movie genre classification benchmark [35]. Each sample contains a movie poster, a plot summary, and one or more genre labels. Since a movie can be associated with multiple genres, MM-IMDb is formulated as a multi-label classification task with 23 categories. After preprocessing and filtering samples with valid image–text pairs, the controlled test split used in our experiments contains 3,894 samples. 
+
+N24News. N24News is a multimodal news classification benchmark constructed from New York Times articles and associated images [36]. Each sample contains a news image, a textual article field, and a single topic label from 24 categories. In this work, we use the abstract field as the textual input and the corresponding news image as the visual input. Since each sample is assigned to exactly one category, N24News is treated as a single-label classification task. 
+
+4.1.2. Backbone Encoders and Training Protocol 
+
+We use frozen pretrained Transformer encoders for both modalities. The text stream follows RoBERTa [37], a robustly optimized BERT variant for contextual language representation, and the image stream follows the Vi-sion Transformer [38], which represents an image as a sequence of patch tokens. The encoder parameters are fixed throughout training, and only the projection layers, cross-attention modules, attentive pooling, gated fusion module, augmentation branch, and classifier are optimized. This protocol keeps all compared models under the same encoder and fusion backbone, so that the comparison focuses on the e ff ect of feature augmentation. 10 Algorithm 1 Training and validation procedure of PQFA 
+
+Require: Training set Dtrain , validation set Dval , frozen encoders ET , EI , number of quantum branches K, learning rates ηcls , η q, task type 
+
+Ensure: Best trainable parameters Θ∗ and validation-selected thresholds τ∗ for multi-label classification  
+
+> 1:
+
+Initialize classical trainable parameters Θcls in projection layers, cross-attention, pooling, gated fusion, and clas-sifier  
+
+> 2:
+
+Initialize quantum circuit parameters Θq = {θ1, . . . , θK } 
+
+> 3:
+
+Freeze the pretrained text encoder ET and image encoder EI 
+
+> 4:
+
+Initialize the best validation score s∗ 
+
+> 5:
+
+for each training epoch do  
+
+> 6:
+
+for each mini-batch ( T, I, y) ⊂ D train do  
+
+> 7:
+
+Extract frozen features: XT ← ET (T ) and XI ← EI (I) 
+
+> 8:
+
+Construct fused representation: zC ← Ffuse (XT , XI ; Θcls ) 
+
+> 9:
+
+Generate quantum readout: q ← Fq(zC ; Θq) 
+
+> 10:
+
+Form hybrid representation: h ← [zC ; q] 
+
+> 11:
+
+Compute logits and loss: o ← MLP ω(h), L ← L (o, y) 
+
+> 12:
+
+Update Θcls and Θq by Adam using separate learning rates ηcls and ηq 
+
+> 13:
+
+end for  
+
+> 14:
+
+Evaluate the current model on Dval  
+
+> 15:
+
+if the task is multi-label classification then  
+
+> 16:
+
+Select class-wise thresholds τ on Dval  
+
+> 17:
+
+Compute the validation score using τ 
+
+> 18:
+
+else  
+
+> 19:
+
+Compute the validation score using the softmax prediction rule  
+
+> 20:
+
+end if  
+
+> 21:
+
+if the validation score improves over s∗ then  
+
+> 22:
+
+Save Θ∗ ← { Θcls , Θq} 
+
+> 23:
+
+Save τ∗ ← τ for multi-label classification  
+
+> 24:
+
+Update s∗ 
+
+> 25:
+
+end if  
+
+> 26:
+
+end for 
+
+Images are resized to 224 × 224, and text sequences are truncated to 256 tokens. Both modalities are projected into a 128-dimensional latent space. For the quantum branch, the fused representation is normalized and amplitude-encoded into a quantum state with n = 7 qubits, satisfying 2 n = 128. Each quantum branch produces m = n Pauli-Z
+
+expectation readouts. The number of parallel quantum branches K is selected according to validation performance and then fixed within each controlled comparison. Since each branch produces m readouts, the quantum augmentation vector has dimension Km . The width-matched MLP-Aug baseline is constructed with the same augmentation output dimension Km , ensuring that the comparison between classical and quantum augmentation is not confounded by feature dimensionality. The hybrid models are implemented with PennyLane and PyTorch. Quantum circuits are simulated on the di ff er-entiable backend and connected to the PyTorch computation graph through the Torch interface. Classical and quantum parameter groups are optimized by Adam with learning rates 1 × 10 −4 and 1 × 10 −5, respectively, and the batch size is 16. Model selection is performed on the validation set. For multi-label classification, class-wise thresholds are selected on the validation split and fixed before test evaluation to avoid test set leakage. Unless otherwise specified, all controlled experiments are repeated with five independent random seeds, and the reported results are averaged across runs. 
+
+4.2. Evaluation Metrics and Statistical Diagnostics 
+
+We use di ff erent evaluation metrics for the multi-label and single-label classification settings. For MM-IMDb, each sample may be associated with multiple genre labels, and we therefore report Micro-F1 and Macro-F1 as the 11 primary metrics [39]. For N24News, each sample belongs to exactly one category, and we report Accuracy as the main metric. For multi-label classification, let T P c, FP c, and FN c denote the number of true positives, false positives, and false negatives for class c, respectively. The class-wise precision and recall are defined as 
+
+Pc = T P c
+
+T P c + FP c
+
+, Rc = T P c
+
+T P c + FN c
+
+. (53) The class-wise F1 score is then computed as 
+
+F1c = 2PcRc
+
+Pc + Rc
+
+= 2T P c
+
+2T P c + FP c + FN c
+
+. (54) Macro-F1 gives equal weight to each class and is defined as Macro-F1 = 1
+
+C
+
+> C
+
+X
+
+> c=1
+
+F1c. (55) This metric is sensitive to minority categories because it averages the F1 scores over classes rather than over individual label decisions. Micro-F1 first aggregates the true positives, false positives, and false negatives over all classes, and then computes the F1 score: Micro-F1 = 2 PCc=1 T P c
+
+2 PCc=1 T P c + PCc=1 FP c + PCc=1 FN c
+
+. (56) Compared with Macro-F1, Micro-F1 reflects the overall decision quality across all instance-label pairs and is more influenced by frequent classes. For single-label classification, we report Accuracy: Accuracy = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+I(ˆ yi = yi), (57) where ˆ yi and yi denote the predicted and ground-truth class labels of the i-th sample, respectively, and I(·) is the indicator function. 
+
+4.3. Reference Benchmarking 
+
+Reference benchmarking compares PQFA with representative results reported in previous studies. 
+
+4.3.1. Results on MM-IMDb 
+
+Table 1 compares PQFA with representative multimodal fusion methods on MM-IMDb. The compared methods cover several major technical routes, including factorized or multiplicative fusion, robust multimodal representation learning, cross-modal alignment, dynamic fusion, sequence modeling, information masking, and Transformer-based multimodal fusion. Specifically, LRMF and MI-Matrix model high-order multimodal interactions through factor-ized or multiplicative representations [15, 41]; MFM and RMFE focus on robust multimodal representation learning [40, 42]; CCA and RefNet improve cross-modal alignment and refinement [18, 43]; DynMM and ModiFedCat intro-duce dynamic or adaptive fusion mechanisms [22, 44]; Coupled Mamba and InfMasking represent recent sequence-modeling and information-masking based approaches [23, 45]; and MBT provides a strong Transformer-based multi-modal fusion reference [21]. PQFA achieves 68.28 Micro-F1 and 61.85 Macro-F1, which are higher than the listed reference results under this reporting setup. The Macro-F1 result is particularly relevant because MM-IMDb is label-imbalanced, and Macro-F1 better reflects category-balanced recognition. However, because Table 1 includes methods with di ff erent encoder choices and training settings, it should be interpreted as a reference comparison rather than as direct evidence that the quantum augmentation branch alone causes the improvement. The controlled ablation study in Section 4.4 provides the primary evidence for isolating the contribution of the proposed quantum augmentation branch. 12 Table 1: Reference comparison on MM-IMDb. 
+
+Model Image Encoder Text Encoder Micro-F1 Macro-F1 LRMF [15] ResNet GloVe 58.95 50.73 MFM [40] ResNet BERT 56.44 48.53 MI-Matrix [41] ResNet BERT 55.87 46.77 RMFE [42] ResNet BERT 58.67 49.82 CCA [18] ResNet BERT 60.31 50.45 RefNet [43] ResNet BERT 59.45 51.51 DynMM [22] ResNet BERT 60.35 51.60 ModiFedCat [44] ResNet BERT 61.14 –Coupled Mamba [23] ResNet BERT 62.41 52.58 InfMasking [45] ResNet BERT – 55.93 MBT [21] ViT BERT 64.81 59.60 
+
+PQFA (Ours) ViT RoBERTa 68.28 61.85                   
+
+> Table 2: Reference comparison on N24News.
+> Model Image Encoder Text Encoder Acc.(%) N24News [36] ViT RoBERTa 83.33 UniS-MMC [46] ViT BERT 84.20 SDDA [47] ViT RoBERTa 84.43 M3CoL [48] ViT RoBERTa 84.70
+> PQFA (Ours) ViT RoBERTa 85.35
+
+4.3.2. Results on N24News 
+
+Table 2 reports the reference comparison on N24News. The compared methods include the o ffi cial N24News multimodal baseline and recent image–text classification approaches based on contrastive learning, self-distillation, and multimodal mixup. The o ffi cial N24News baseline evaluates multimodal news classification with pretrained visual and textual encoders, showing that news images provide complementary information beyond text-only classification [36]. UniS-MMC introduces unimodality-supervised multimodal contrastive learning, where unimodal predictions are used to guide cross-modal representation alignment [46]. SDDA employs progressive self-distillation with decoupled alignment to alleviate modality heterogeneity and improve image–text representation learning [47]. M3CoL explores multimodal mixup contrastive learning, aiming to capture shared relations across modalities through mixup-based contrastive supervision and auxiliary unimodal prediction modules [48]. PQFA achieves 85.35% accuracy on N24News, which is higher than the listed reference results. As with MM-IMDb, this table is mainly used to position PQFA relative to existing image–text classification methods, while the controlled ablation in Section 4.4 is used for attribution. The result indicates that the proposed post-fusion quantum augmentation framework is not restricted to multi-label movie-genre classification, but can also be instantiated for single-label multimodal news classification by changing the prediction head and task loss. 
+
+4.4. Controlled Ablation and Parameter E ffi ciency 
+
+The reference comparisons position PQFA against existing multimodal methods, but they do not by themselves identify which component is responsible for the gain. We therefore conduct controlled ablations in which the frozen encoders, data splits, projection dimension, and training protocol for the shared classical components are kept fixed. Under this protocol, the comparisons focus on the fusion strategy and on the post-fusion augmentation branch. The ablation is organized around three questions. First, text-only and image-only variants test whether the two modalities provide complementary information. Second, average fusion, concatenation fusion, and gated fusion com-pare fixed fusion rules with adaptive feature-level routing. Third, NoQ and MLP-Aug isolate the contribution of the quantum branch. NoQ denotes the gated-fusion backbone without an augmentation branch. MLP-Aug replaces 13 Table 3: Controlled ablation results on MM-IMDb and N24News. All variants use the same frozen encoders, data split, projection dimension, and training protocol for the shared classical components.                              
+
+> Method MM-IMDb N24News Micro-F1 Macro-F1 Acc.(%) Text only 63.88 53.12 80.64 Image only 32.63 14.36 55.28 Average fusion 66.87 59.77 83.47 Concat fusion 67.09 60.18 83.72 NoQ 67.57 60.98 84.70 MLP-Aug 67.62 61.22 84.23
+> PQFA 68.28 61.85 85.35
+> Table 4: Trainable parameter counts of the full PQFA model and the augmentation branches. Frozen RoBERTa and ViT encoder parameters are excluded.
+> Component Trainable parameters Full PQFA model 782.9K PQFA augmentation branch 2.2K MLP-Aug branch 24.0K
+
+the quantum readout with a classical feed-forward branch of the same augmentation output dimension, so that the comparison with PQFA is controlled for the final augmentation width. Table 3 gives the main ablation results. The two single-modality variants confirm that both modalities contribute useful information, although the text stream is substantially stronger than the image stream on MM-IMDb. Among the fusion baselines, the gated NoQ backbone improves over average and concatenation fusion, indicating that adaptive feature-wise routing is more e ff ective than fixed combination rules. PQFA achieves the best performance on both benchmarks. The comparison with MLP-Aug is the most direct controlled test of the quantum augmentation branch. On MM-IMDb, MLP-Aug only slightly improves over NoQ, increasing Micro-F1 from 67.57 to 67.62 and Macro-F1 from 60.98 to 61.22. PQFA further improves the scores to 68.28 Micro-F1 and 61.85 Macro-F1. On N24News, MLP-Aug does not improve over NoQ, whereas PQFA increases accuracy from 84.70% to 85.35%. These results indicate that a width-matched classical augmentation branch is not su ffi cient to reproduce the gain obtained by the proposed quantum readout branch. Table 4 contextualizes the same comparison from the perspective of trainable parameter count. The full PQFA model contains 782.9K trainable parameters, excluding the frozen RoBERTa and ViT encoders. The PQFA augmen-tation branch accounts for only 2.2K parameters, including 1,596 quantum circuit parameters and the lightweight readout refinement layers following quantum measurement. This is approximately 0.28% of the trainable parame-ters of the full PQFA model. By contrast, the width-matched MLP-Aug branch contains 24.0K trainable parameters. Hence, the improvement of PQFA is not attributable to using a larger augmentation branch. Rather, the results suggest that a small trainable quantum-enhanced branch can provide an additional post-fusion transformation on top of a much larger classical fusion backbone. We therefore frame the ablation result as evidence for parameter-e ffi cient post-fusion augmentation rather than as a hardware-level quantum advantage claim. Under the same encoder, fusion, and feature-width constraints, the proposed parallel quantum readout provides an e ff ective augmentation module with substantially fewer branch parameters than the width-matched classical alternative. 
+
+4.5. Robustness under Missing Modalities 
+
+The controlled ablation above evaluates complete-input performance. In practical multimodal systems, however, textual fields or images may be unavailable at inference time. We therefore evaluate whether the advantage of PQFA persists under controlled missing-modality perturbations on MM-IMDb. Given a missing rate p, a proportion p of the 14 Table 5: Performance comparison under di ff erent missing-modality settings and missing rates. Reported values are averaged over five random seeds. 
+
+Missing Modality Rate NoQ MLP-Aug PQFA Micro-F1 Macro-F1 Micro-F1 Macro-F1 Micro-F1 Macro-F1 
+
+Clean 0.0 67.57 60.98 67.62 61.22 68.28 61.85 
+
+Image Missing 0.1 67.15 60.23 67.20 60.44 67.75 60.80 
+
+0.3 66.20 59.56 66.22 59.20 66.76 59.60 
+
+0.5 65.25 58.09 65.92 57.66 66.09 58.23 
+
+0.7 64.28 55.93 64.80 55.94 65.12 56.70 
+
+0.9 63.35 55.02 64.17 53.76 64.19 55.07 
+
+Text Missing 0.1 64.20 57.23 64.52 57.45 65.57 58.44 
+
+0.3 57.66 51.16 58.02 50.61 59.25 51.28 
+
+0.5 50.72 40.74 51.02 41.57 52.42 41.60 
+
+0.7 39.52 31.76 43.25 32.48 45.31 32.49 
+
+0.9 27.78 16.12 34.51 18.54 36.96 19.62 
+
+test samples is randomly selected, and one modality is replaced by a null input while the total test set size remains unchanged. For the image-missing condition, the image tensor is replaced by a zero tensor after preprocessing. For the text-missing condition, the textual input is replaced by an empty string and processed by the same tokenizer. NoQ, MLP-Aug, and PQFA are evaluated under identical missing masks. Table 5 reports the robustness results. PQFA achieves the best Micro-F1 and Macro-F1 in every reported missing-modality setting. The advantage is especially pronounced when the text modality is removed. When the text-missing rate increases to p = 0.9, NoQ drops to 27.78 Micro-F1, MLP-Aug reaches 34.51, and PQFA further improves to 36.96. This result indicates that the quantum augmentation branch provides useful post-fusion features when the dominant textual signal is unavailable and the model must rely more heavily on the remaining visual information. The image-missing setting shows a milder performance decline, indicating that MM-IMDb relies more heavily on text than on poster images. This is also consistent with the single-modality results in Table 3, where the text-only model substantially outperforms the image-only model. Even in this relatively less challenging setting, PQFA maintains the leading performance across all image-missing rates. For example, when p = 0.9, PQFA obtains 64.19 Micro-F1, which is slightly higher than MLP-Aug and clearly higher than NoQ. The text-missing setting provides a more stringent robustness test because it removes the stronger modality. Under this condition, the benefit of PQFA becomes larger. At p = 0.7, PQFA improves Micro-F1 from 39.52 with NoQ and 43.25 with MLP-Aug to 45.31. At p = 0.9, PQFA improves over MLP-Aug by 2.45 Micro-F1 and over NoQ by 9.18 Micro-F1. These results show that the proposed quantum readout branch is particularly e ff ective when the fused representation is strongly perturbed by the loss of the dominant modality. Overall, the missing-modality experiment provides one of the strongest pieces of evidence for PQFA. The model not only improves complete-input performance, but also consistently preserves stronger predictive performance under controlled image-missing and text-missing perturbations. This supports the use of parallel quantum readouts as a robust post-fusion augmentation mechanism for incomplete multimodal inputs. 
+
+4.6. Paired Error Transition and Label-level Analysis 
+
+The missing-modality experiment evaluates robustness at the aggregate level. We next inspect clean-test pre-dictions at a finer resolution. Aggregate metrics indicate whether a model improves overall performance, but they do not reveal how individual predictions change. To examine whether PQFA produces systematic corrections rather than merely shifting aggregate scores, we conduct a paired error transition analysis on the MM-IMDb test set. Since MM-IMDb is a multi-label task, each sample-label pair is treated as an individual binary decision. We first use the sample-wise Jaccard score to measure the overlap between the predicted and ground-truth label 15 sets. Let ˆ Yi and Yi denote the predicted and ground-truth label sets of the i-th sample. The Jaccard score is defined as 
+
+Ji = | ˆYi ∩ Yi|| ˆYi ∪ Yi| . (58) When comparing a baseline model A with PQFA, denoted as model B, we report the mean sample-wise Jaccard change: 
+
+∆ ¯J = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+JBi − JAi
+
+ . (59) A positive ∆ ¯J indicates that PQFA improves the average overlap between predicted and ground-truth label sets. We further define two paired decision transition sets. A corrected decision is a sample-label pair that is incorrectly predicted by the baseline but correctly predicted by PQFA: 
+
+Scorr = {(i, c) | ˆyAic , yic , ˆyBic = yic }. (60) A corrupted decision is a sample-label pair that is correctly predicted by the baseline but incorrectly predicted by PQFA: 
+
+Scorrup = {(i, c) | ˆyAic = yic , ˆyBic , yic }. (61) The net corrected decisions are computed as 
+
+∆N = |S corr | − |S corrup |. (62) We also define the Net Correction Ratio as an auxiliary paired diagnostic statistic: NCR = |S corr | − |S corrup ||S corr | + |S corrup | . (63) A positive NCR indicates that PQFA corrects more decisions than it corrupts relative to the compared baseline. For paired significance diagnostics, we use McNemar’s test on discordant decisions [49]. Let 
+
+n01 = |S corr |, n10 = |S corrup |. (64) The continuity-corrected McNemar statistic is 
+
+χ2McN = (|n01 − n10 | − 1) 2
+
+n01 + n10 
+
+, (65) which approximately follows a chi-square distribution with one degree of freedom under the null hypothesis that the two models have the same error rate on paired decisions. In addition, we estimate the uncertainty of ∆ ¯J using sample-level bootstrap confidence intervals [50]. Specifically, we resample the test samples with replacement, recompute ∆ ¯J
+
+for each bootstrap replicate, and report the percentile-based 95% confidence interval. Table 6 summarizes the decision-level transitions. Compared with MLP-Aug, PQFA corrects 1,518 erroneous decisions while introducing 1,337 new errors, resulting in a positive net correction of 181 decisions. The McNe-mar diagnostic gives p < 0.001, and the bootstrap 95% confidence interval of the mean sample-wise Jaccard gain, [0 .0057 , 0.0177], excludes zero. This indicates that the improvement over the classical augmentation baseline with the same output width is not only visible in aggregate F1 scores, but is also reflected in paired decision changes. Compared with NoQ, PQFA also produces a positive but more moderate paired transition. It corrects 1,517 decisions and corrupts 1,444 decisions, yielding a net correction of 73 decisions and a positive NCR of 0.0247. The McNemar diagnostic is not significant at the conventional 0.05 level, suggesting that PQFA does not radically alter the individual binary decisions of the already strong gated-fusion backbone. However, the mean sample-wise Jaccard gain is positive, ∆ ¯J = 0.0075, and its bootstrap 95% confidence interval, [0 .0015 , 0.0137], excludes zero. This indicates that although the decision-slot correction imbalance over NoQ is modest, the sample-level label-set overlap still improves consistently. 16 Table 6: Paired decision-level transition between baseline models and PQFA on MM-IMDb. 
+
+Statistic PQFA vs NoQ PQFA vs MLP-Aug Corrected decisions 1,517 1,518 Corrupted decisions 1,444 1,337 Net corrected decisions +73 +181 Net correction ratio 0.0247 0.0634 Mean ∆Ji +0.0075 +0.0116 Bootstrap 95% CI [0.0015, 0.0137] [0.0057, 0.0177] McNemar diagnostic p 0.1858 < 0.001 (a) Per-label F1 difference: PQFA over MLP-Aug (b) Jaccard gain by uncertainty group 
+
+> Figure 3: Fine-grained comparison between PQFA and MLP-Aug on MM-IMDb. (a) Per-label F1 di ff erence across genres sorted by support. (b) Mean sample-wise Jaccard gain grouped by MLP-Aug prediction uncertainty. Positive values indicate that PQFA outperforms the width-matched classical augmentation baseline.
+
+Overall, these paired diagnostics provide a more fine-grained view of the controlled ablation results. The compari-son with NoQ shows that the quantum branch improves the fused backbone without causing large disruptive prediction changes. The comparison with MLP-Aug shows that the same output-width classical augmentation does not reproduce the paired correction pattern of PQFA. Together, these results support the interpretation that the proposed quantum readout branch acts as a controlled post-fusion augmentation module rather than a generic feature-width expansion mechanism. Fig. 3 and Table 7 further localize the transition behavior. PQFA improves the F1 scores of 14 out of 23 genres compared with MLP-Aug. The largest gains occur in Film-Noir, Animation, and Western, while several categories show smaller or negative changes. This label-level variation indicates that PQFA does not simply apply a uniform score shift across all classes. Instead, the quantum readout branch produces category-sensitive post-fusion transfor-mations, with stronger benefits in semantic regions where the MLP augmentation baseline leaves more correctable errors. The sample-level uncertainty analysis in Fig. 3(b) shows positive mean Jaccard gains across easy, medium, and hard sample groups. This suggests that the corrective e ff ect of PQFA is not confined to a single di ffi culty group, but appears across di ff erent levels of prediction uncertainty. Together with the label-level results, this pattern is more consistent with a structured post-fusion transformation than with a random or purely dimensional expansion of the feature space. 
+
+4.7. Sensitivity to the Number of Quantum Branches 
+
+The preceding sections establish the main predictive and robustness e ff ects of PQFA under the default branch configuration. We next examine how sensitive the method is to the number of parallel quantum branches on MM-IMDb. The branch number K controls the dimensionality of the quantum augmentation vector because each seven-qubit branch produces seven Pauli-Z expectation readouts. Increasing K can therefore provide a richer set of quantum feature transformations, but it can also introduce redundant or noisy readout dimensions. 17 Table 7: Representative improved and degraded genres under PQFA compared with MLP-Aug. 
+
+Type Genre Support MLP-Aug F1 PQFA F1 ∆F1 Improved Film-Noir 52 28.95 35.90 +6.95 Improved Animation 149 66.67 71.67 +5.01 Improved Western 114 74.14 76.56 +2.42 Degraded Adventure 395 59.42 56.98 -2.43 Degraded Musical 131 38.77 36.45 -2.32 Degraded Sport 103 72.56 71.03 -1.53 
+
+> Table 8: Sensitivity analysis of the number of parallel quantum branches on MM-IMDb.
+
+Number of branches Micro-F1 Macro-F1 1 68.04 62.08 
+
+2 67.98 62.02 3 68.08 61.31 4 68.03 61.74 5 67.29 60.83 6 68.21 61.90 7 67.56 61.01 8 68.28 61.85 9 67.47 60.85 Table 8 shows that performance is not monotonic in K. A small number of branches already yields competitive results, indicating that useful post-fusion transformations can be obtained without a large parallel readout bank. The best Micro-F1 is obtained at K = 8, while the corresponding Macro-F1 remains close to the best observed value. Increasing the number of branches to K = 9 decreases both metrics, suggesting that additional branches do not automatically improve generalization. We therefore use K = 8 as the main MM-IMDb setting and regard it as an empirical trade-o ff between augmentation capacity and generalization rather than as evidence of monotonic scaling. 
+
+4.8. Feature-space Diagnostics of Augmentation Variants 
+
+The preceding experiments evaluate prediction accuracy, robustness, and branch-number sensitivity. We now examine whether the gain of PQFA is merely a consequence of feature-width expansion or whether the augmentation branch forms a more structured feature space. To this end, we analyze the intrinsic geometry of the augmentation features on MM-IMDb. This diagnostic focuses on the output features generated by di ff erent augmentation branches and is complementary to the aggregate performance comparison in Table 3. For each trained model and each random seed, let Q(s) ∈ RN×da denote the augmentation feature matrix extracted from the test set, where N is the number of test samples and da is the augmentation-feature dimension. We first center 
+
+Q(s) and compute its covariance matrix: 
+
+Σ(s) 
+
+> Q
+
+= 1
+
+N − 1 ¯Q(s)⊤ ¯Q(s). (66) Let λ(s)1 ≥ λ(s)2 ≥ · · · ≥ λ(s) 
+
+> da
+
+denote the eigenvalues of Σ(s) 
+
+> Q
+
+. The cumulative explained variance ratio of the first k
+
+principal components is defined as 
+
+R(s)(k) =
+
+Pkj=1 λ(s)
+
+> j
+
+Pda 
+
+> j=1
+
+λ(s)
+
+> j
+
+. (67) We also compute the PCA-based e ff ective dimension: 
+
+d(s)eff =
+
+P da 
+
+> j=1
+
+λ(s)
+
+> j
+
+2
+
+Pda
+
+> j=1
+
+λ(s)
+
+> j
+
+2 . (68) 18 0 20 40 60 80 100       
+
+> Number of principal components
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Cumulative explained variance
+> PQFA
+> RFF-Aug
+> MLP-Aug-2x
+> PQFA-NoEnt
+> PQFA-FrozenQ Figure 4: PCA cumulative explained variance of augmentation features on MM-IMDb. Faster saturation indicates stronger variance concentration in fewer principal directions, whereas slower saturation indicates a more dispersed augmentation feature space. Table 9: PCA-based feature-space diagnostics of augmentation variants on MM-IMDb. Values are averaged across random seeds. deff denotes the PCA-based e ff ective dimension, and k90 and k95 denote the numbers of principal components needed to explain 90% and 95% of the augmentation-feature variance, respectively.
+
+Variant deff k90 k95 Micro-F1 Macro-F1 PQFA 15.44 26 34 68.28 61.85 RFF-Aug 33.29 39 46 67.78 60.47 MLP-Aug-2x 12.56 37 58 67.98 60.95 PQFA-NoEnt 6.97 13 21 67.50 61.35 PQFA-FrozenQ 19.50 28 36 67.70 60.23 
+
+In addition, k90 and k95 denote the minimum numbers of principal components required to explain 90% and 95% of the augmentation-feature variance, respectively. These quantities are computed separately for each seed and then averaged across random seeds. Fig. 4 and Table 9 show that PQFA produces a moderately compact augmentation feature space. It does not have the largest e ff ective dimension. RFF-Aug yields a substantially more dispersed feature space, with deff = 33 .29, but its test performance is lower than PQFA. This suggests that a larger feature-space spread alone is insu ffi cient to explain the improvement of PQFA. The no-entanglement quantum variant shows the strongest variance concentration, with deff = 6.97 and k95 = 21. This indicates that removing entangling operations restricts the diversity of the generated quantum readouts, and this restricted augmentation space coincides with weaker test performance. By contrast, PQFA-FrozenQ has a compa-rable or even larger feature-space spread than PQFA, but its classification performance is lower. This suggests that random quantum transformations alone are insu ffi cient; task-driven optimization of the quantum branch is important for aligning the readout features with the downstream objective. The wider classical augmentation variant, MLP-Aug-2x, also provides a useful diagnostic. Although it increases the classical augmentation output dimension to 112 and contains 31,216 augmentation-branch parameters, it does not outperform PQFA. This observation further indicates that the improvement of PQFA is not simply a consequence of adding more augmentation dimensions or increasing the feature width. Overall, these feature-space diagnostics support the interpretation that PQFA acts as a structured post-fusion fea-ture transformation rather than a generic width-expansion module. The quantum branch produces an augmentation space that is neither excessively concentrated, as in PQFA-NoEnt, nor merely dispersed, as in RFF-Aug. Instead, it 19 forms a moderately compact and task-e ff ective nonlinear representation of the fused multimodal feature. 
+
+4.9. Quantum-state Diagnostics 
+
+The preceding analyses evaluate whether the quantum augmentation branch improves prediction and whether its output features di ff er from generic width expansion. We further examine the trained quantum branch from a quantum-state perspective. Unlike the ablation experiments, the following diagnostics do not change the model architecture and do not involve additional training. We fix the trained PQFA model and conduct post-training noisy inference and noiseless entanglement entropy analysis. The purpose is to examine whether the learned quantum readout branch remains stable under simulated quantum perturbations and whether the parallel brickwall circuits induce nontrivial state-structure modulation of the amplitude-encoded fused representation. 
+
+4.9.1. Post-training Noisy Inference 
+
+We first evaluate the robustness of the trained quantum readout branch under simulated inference-time noise. All learned parameters are fixed. For each test sample, the fused representation is computed by the classical multimodal backbone and then passed through the trained quantum branches. During noisy inference, a single-qubit noise channel is inserted into the quantum branch after the local brickwall operations. This setting evaluates the sensitivity of the learned quantum readouts without performing noise-aware retraining. Let ρ denote a single-qubit density matrix. We consider five noise channels: depolarizing noise, amplitude damp-ing, phase damping, bit-flip noise, and phase-flip noise. The Pauli operators are written as 
+
+X = |0⟩⟨ 1| + |1⟩⟨ 0|,
+
+Y = −i|0⟩⟨ 1| + i|1⟩⟨ 0|,
+
+Z = |0⟩⟨ 0| − | 1⟩⟨ 1|.
+
+(69) The bit-flip channel applies a Pauli-X error with probability p:
+
+Ebf ,p(ρ) = (1 − p)ρ + pX ρX. (70) The phase-flip channel applies a Pauli-Z error with probability p:
+
+Epf ,p(ρ) = (1 − p)ρ + pZ ρZ. (71) The depolarizing channel replaces the clean state with Pauli-error states with total probability p:
+
+Edep ,p(ρ) = (1 − p)ρ + p
+
+3 (XρX + YρY + ZρZ) . (72) Amplitude damping models relaxation from |1⟩ to |0⟩. Its Kraus operators are 
+
+A0 = |0⟩⟨ 0| + p1 − p|1⟩⟨ 1|, A1 = √p|0⟩⟨ 1|. (73) The corresponding channel is 
+
+Ead ,p(ρ) = A0ρA† 
+
+> 0
+
++ A1ρA†
+
+> 1
+
+. (74) Phase damping suppresses coherence while preserving computational-basis populations. Its Kraus operators are 
+
+P0 = |0⟩⟨ 0| + p1 − p|1⟩⟨ 1|, P1 = √p|1⟩⟨ 1|. (75) The corresponding channel is 
+
+Epd ,p(ρ) = P0ρP† 
+
+> 0
+
++ P1ρP†
+
+> 1
+
+. (76) For an n-qubit circuit, these channels are applied as local quantum operations. If Eν, p is applied to the r-th qubit, the corresponding full operation is 
+
+E(r) 
+
+> ν, p
+
+= I⊗(r−1) ⊗ E ν, p ⊗ I ⊗(n−r), (77) 20 Table 10: Post-training noisy inference results on MM-IMDb at p = 0.05. All model parameters are fixed. ∆Micro-F1 and ∆Macro-F1 are measured relative to clean analytic inference and reported in percentage points. 
+
+Noise channel Micro-F1 Macro-F1 ∆Micro-F1 ∆Macro-F1 Dq Flip rate Amplitude damping 68.09 61.51 -0.19 -0.34 0.602 0.894% Bit flip 68.16 61.75 -0.12 -0.10 0.591 0.605% Depolarizing 68.11 61.69 -0.17 -0.16 0.595 0.528% Phase damping 68.25 61.86 -0.03 +0.02 0.235 0.168% Phase flip 68.15 61.66 -0.14 -0.18 0.571 0.591% 0 0.001 0.005 0.01 0.02 0.05        
+
+> Noise probability p
+> 68.05
+> 68.10
+> 68.15
+> 68.20
+> 68.25
+> 68.30
+> Micro-F1 (%)
+> (a) Noisy inference performance
+> 00.001 0.005 0.01 0.02 0.05
+> Noise probability p
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> Readout drift  Dq
+> (b) Quantum readout drift
+> Amplitude damping
+> Bit flip
+> Depolarizing
+> Phase damping
+> Phase flip
+
+Figure 5: Post-training noisy inference analysis on MM-IMDb. Panel (a) reports Micro-F1 under di ff erent noise probabilities, and panel (b) reports the quantum readout drift Dq. All model parameters are fixed during this analysis. 
+
+where ν ∈ { dep , ad , pd , bf , pf }. In our experiments, the selected channel is inserted into each trained quantum branch after the local brickwall operations. Since the noisy circuit generally produces a mixed state, the Pauli-Z readout is computed as 
+
+q(ν, p) 
+
+> k,r
+
+= Tr ρ(ν, p) 
+
+> k
+
+Or
+
+ , (78) where ρ(ν, p) 
+
+> k
+
+is the noisy output state of the k-th quantum branch under noise channel ν and probability p, and Or is the single-qubit Pauli-Z observable defined in Eq. (29). The noise probability is selected from 
+
+p ∈ { 0.001 , 0.005 , 0.01 , 0.02 , 0.05 }. (79) The clean analytic inference result is used as the reference. Let q(0)  
+
+> i
+
+denote the clean Pauli-Z readout vector of the i-th test sample, and let q(ν, p) 
+
+> i
+
+denote the corresponding readout under noise channel ν with probability p. We quantify the perturbation of the quantum branch by the average quantum readout drift: 
+
+Dq(ν, p) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+q(ν, p) 
+
+> i
+
+− q(0)   
+
+> i2
+
+. (80) We also report the probability drift and the label flip rate relative to clean analytic inference. The label flip rate measures the fraction of binary label decisions that change after injecting noise. Table 10 reports the noisy inference results at p = 0.05, and Fig. 5 shows the full curves over di ff erent noise proba-bilities. The clean PQFA model obtains 68.28 Micro-F1 and 61.85 Macro-F1 on MM-IMDb. Under all five simulated noise channels, the final classification performance remains stable. Even at p = 0.05, the Micro-F1 degradation is below 0.20 percentage points for all channel types. The full curves also show that the performance varies only within a narrow range around the clean result. Therefore, moderate inference-time perturbations of the quantum branch do not lead to a substantial collapse of the final multimodal classifier. 21 Embed L1 L2 L3 L4        
+
+> Circuit stage
+> 2.58
+> 2.59
+> 2.60
+> 2.61
+> 2.62
+> 2.63
+> 2.64
+> 2.65
+> 2.66
+> Main-cut entropy  S(A)
+> (a) Layer-wise main-cut entropy
+> 01234567
+> Quantum branch
+> 2.58
+> 2.59
+> 2.60
+> 2.61
+> 2.62
+> 2.63
+> 2.64
+> 2.65
+> 2.66
+> Final-layer entropy  S(A)
+> (b) Branch-wise final entropy Figure 6: Entanglement entropy diagnostics of the trained PQFA quantum branches. Panel (a) shows layer-wise main-cut entropy averaged across branches, and panel (b) shows final-layer main-cut entropy for each branch.
+
+At the same time, the quantum readout drift Dq increases clearly as the noise probability becomes larger. This trend is visible for all five noise channels, indicating that the injected noise channels produce nontrivial perturbations to the Pauli-Z measurement features. The important point is that this readout perturbation does not translate into a comparable degradation of Micro-F1. This separation between readout-level perturbation and prediction-level stability indicates that the downstream classifier is tolerant to moderate quantum-readout fluctuations under the tested simulated noise channels. The five channels exhibit di ff erent perturbation patterns. Phase damping has the weakest e ff ect on the final pre-diction and also produces the smallest quantum readout drift. In contrast, amplitude damping, depolarizing noise, bit-flip noise, and phase-flip noise produce larger readout drift at high noise probabilities. Amplitude damping yields the largest Macro-F1 drop and the highest label flip rate at p = 0.05, which is consistent with its direct e ff ect on the population structure of the measured quantum state. Taken together, the noisy inference results show measurable quantum-readout sensitivity without a comparable collapse in prediction performance. 
+
+4.9.2. Entanglement Entropy Analysis 
+
+We further analyze the noiseless pure-state circuits using bipartite von Neumann entanglement entropy. For a quantum state |ψ⟩ and a subsystem A, the reduced density matrix is 
+
+ρA = Tr ¯A (|ψ⟩⟨ ψ|) , (81) and the entanglement entropy is defined as 
+
+S (A) = −Tr  ρA log 2 ρA
+
+ . (82) We use the main cut A = {0, 1, 2} and ¯A = {3, 4, 5, 6}. Entropy is computed after amplitude embedding and after each brickwall layer. Since this diagnostic aims to characterize the state structure induced by the learned quantum branches, it is performed on noiseless pure-state simulations rather than on mixed states under noise. Fig. 6 shows the layer-wise and branch-wise entropy results. Amplitude embedding already induces a highly entangled state, with an average main-cut entropy of 2.62. The trained brickwall layers further modulate this entropy moderately: the average main-cut entropy increases from 2.617 after amplitude embedding to 2.629 after the final layer. The single-qubit average entropy also increases from 0.975 to 0.981. Thus, the trained quantum layers should be interpreted as modulating an already entangled amplitude-encoded representation, rather than as the sole source of entanglement in the model. The layer-wise curve shows a mild increase from the embedding stage to the intermediate brickwall layers, fol-lowed by a small decrease at the final layer. This indicates that the trained shallow circuits adjust the entanglement profile rather than monotonically maximizing it. The branch-wise result further shows that di ff erent parallel branches 22 (a) Element -level (b) Dimension-level  
+
+> (c) Sample-level (d) Label-level Figure 7: Gate weight distributions on MM-IMDb. (a) Element-level distribution over all samples and dimensions. (b) Dimension-level mean gate weights. (c) Sample-level mean gate weights. (d) Label-level mean gate weights across genre categories.
+
+induce di ff erent final entanglement levels. Branches 0 and 1 yield relatively high final main-cut entropy, whereas branch 5 produces a lower final entropy than the other branches. This branch-dependent behavior indicates that the parallel brickwall circuits do not act as identical repeated modules. Rather, they provide structurally diverse quantum-state transformations of the same fused multimodal representation. Together with the feature-space diagnostics in Section 4.8, these results support the interpretation that PQFA acts as a structured post-fusion quantum augmentation module rather than a generic feature-width expansion. The noisy inference analysis shows stability of the learned readout under simulated perturbations, while the entanglement analysis shows moderate and heterogeneous state-structure modulation across the parallel quantum branches. 
+
+4.10. Gate Weight Analysis 
+
+To further understand the behavior of the adaptive gated fusion module, we analyze the learned gate weights on the test set. Recall that the fused representation is computed as 
+
+zC = g ⊙ zT + (1 − g) ⊙ zI , (83) where g denotes the learned gate vector. A larger gate value indicates a stronger contribution from the text-side representation zT , while a smaller gate value indicates a stronger contribution from the image-side representation 
+
+zI . It should be emphasized that zT and zI are not raw unimodal features, but cross-modal representations obtained after bidirectional attention. Therefore, the gate values should be interpreted as the routing weights between two cross-modal representation streams rather than as direct causal attributions of raw text and image importance. Fig. 7 presents the gate behavior at four di ff erent granularities. At the element level, Fig. 7(a) shows that the gate values span a broad range rather than concentrating around a single constant value. This indicates that the fusion module does not degenerate into a fixed averaging strategy or a hard selection of one modality. Meanwhile, the distribution is centered below 0 .5, suggesting that the fused representation tends to assign relatively larger weights to the image-side representation under complete multimodal inputs. 23 The dimension-level analysis in Fig. 7(b) further reveals heterogeneous modality preferences across latent dimen-sions. Although many dimensions show an image-side preference, a non-negligible subset of dimensions has mean gate values above 0 .5, indicating stronger reliance on the text-side representation. This suggests that the adaptive gate performs feature-wise routing: di ff erent latent dimensions specialize in di ff erent modality streams instead of applying a uniform global modality weight. At the sample level, Fig. 7(c) shows that the mean gate values are more concentrated and remain mostly below 0.5. This implies that, for most test samples, the overall fused representation is mildly biased toward the image-side stream. However, compared with the element-level and dimension-level distributions, the sample-level distribution is much narrower, suggesting that the main variation of the gate occurs at the feature-dimension level rather than as large sample-wise shifts between text-dominant and image-dominant fusion. The label-level results in Fig. 7(d) show a similar overall tendency. Across genres, the mean gate values are generally below 0 .5, indicating a consistent image-side preference in the fused representation. Nevertheless, di ff erent genres exhibit small but observable variations. Genres with relatively larger gate values rely more on the text-side stream, whereas genres with smaller gate values rely more on the image-side stream. This suggests that the learned fusion behavior is not completely category-agnostic, but reflects certain category-dependent di ff erences in modality usage. This gate analysis is complementary to the missing-modality experiments. The missing-modality results evaluate the functional dependence of the whole model under input-level perturbations, whereas the gate analysis describes how the fusion module routes information between two cross-modal representation streams when both modalities are available. Therefore, a stronger performance degradation caused by removing text does not necessarily imply that the gate weights should be globally larger than 0 .5. Textual information can still be crucial for prediction because it contributes to the cross-modal representations before gated fusion and because several latent dimensions remain text-oriented. At the same time, the gate statistics show that, once both modalities have been encoded and interacted through cross-attention, the fusion module tends to assign larger weights to the image-side representation. This indicates that the model does not simply rely on a single dominant modality, but combines textual semantics and visual evidence through structured feature-wise routing. These observations provide a diagnostic view of the classical fusion behavior before quantum feature augmen-tation. They indicate that the input to the quantum branch is not a raw unimodal representation, but a fused feature shaped by cross-modal interaction and adaptive feature-wise routing. 
+
+5. Discussion and Future Work 
+
+The main finding of this study is that shallow parallel quantum circuits can serve as parameter-e ffi cient post-fusion augmentation modules for multimodal classification. The primary evidence comes from the controlled compar-isons with NoQ and MLP-Aug, in which the pretrained encoders, data splits, projection dimension, fusion backbone, and training protocol for the shared classical components are held fixed. Under these conditions, the improvement achieved by PQFA cannot be explained by stronger encoders, a di ff erent fusion mechanism, a simple increase in the final representation width, or a larger parameter budget in the augmentation branch. Instead, the results indicate that the measurement readouts generated by the parallel quantum branches provide a useful nonlinear transformation of the fused multimodal representation. From the perspective of multimodal fusion, PQFA addresses a stage of the standard pipeline that has received comparatively limited attention. Even after cross-modal attention and adaptive gating have produced an informative fused representation, a compact post-fusion transformation can extract additional discriminative features that are not fully captured by applying the final classifier directly to the fused feature. The controlled comparisons on N24News provide further support for this interpretation. The width-matched MLP-Aug baseline slightly underperforms the NoQ backbone, achieving 84.23% accuracy compared with 84.70%. This result shows that simply concatenating additional learned nonlinear features with the fused representation does not necessarily improve prediction and may introduce features that are not well aligned with the task. By contrast, PQFA reaches 85.35% accuracy and improves upon the same NoQ backbone. This di ff erence indicates that the benefit of PQFA does not arise from feature expansion alone, but from the learned transformation provided by the quantum readout branches. In addition to its predictive advantage, the PQFA augmentation module requires approximately 24 2.2K trainable parameters, compared with 24.0K for MLP-Aug, demonstrating that the improvement is achieved with a substantially smaller augmentation-branch parameter budget. The missing-modality results extend this finding from clean-input performance to robustness under incomplete observations. Although PQFA already improves performance when both modalities are available, its advantage be-comes particularly clear when the more informative textual modality is severely degraded. This indicates that the quantum augmentation branch contributes not only to complete-input prediction, but also to maintaining useful de-cision features when part of the multimodal evidence is unavailable. The paired error-transition analysis provides a complementary decision-level perspective. Relative to MLP-Aug, PQFA produces a stronger positive correction pattern, while its changes relative to the already competitive NoQ backbone remain predominantly beneficial. These findings position PQFA as a complementary post-fusion feature transformation that strengthens, rather than replaces, the classical fusion backbone. The feature-space diagnostics further clarify the nature of the augmentation e ff ect. PQFA does not generate the most widely dispersed feature space: RFF-Aug exhibits a larger e ff ective dimension, yet achieves lower test perfor-mance. A larger feature-space spread is therefore not su ffi cient to explain the gains of PQFA. In contrast, PQFA-NoEnt produces a strongly concentrated augmentation space together with weaker predictive performance, suggest-ing that removing the trainable entangling operations restricts the diversity and utility of the measurement features. PQFA-FrozenQ produces a feature-space spread comparable to that of the trained model but performs less e ff ectively, showing that random quantum transformations alone cannot reproduce the benefit of task-driven optimization. Taken together, these results indicate that PQFA is not simply a mechanism for increasing dimensionality. Rather, it produces a compact, structured, and task-aligned nonlinear transformation of the fused representation. The missing-modality and gate-weight analyses capture two distinct aspects of modality use. The missing-modality experiments measure functional dependence by perturbing one input modality during inference, whereas the gate-weight analysis examines how the fusion module routes information between the two cross-modal represen-tation streams when both modalities are present. Consequently, the larger performance decline caused by removing text does not require the learned gate values to be globally dominated by the textual stream. Textual information can influence both representation streams through bidirectional cross-attention before gated fusion, and individual la-tent dimensions may retain di ff erent degrees of text- or image-related information. The complete-input gate statistics may therefore assign relatively larger weights to the image-side stream even when the final prediction remains more sensitive to the removal of text. Together, these analyses show that the quantum branches operate on an integrated representation shaped by both cross-modal interaction and feature-wise routing, rather than on a raw unimodal feature. The current study also identifies several directions for further investigation. The post-training noise experiments evaluate the sensitivity of the learned quantum readouts to simulated channel perturbations, but all results are ob-tained through classical simulation rather than execution on physical quantum hardware. Such simulations do not fully capture device-specific connectivity, calibration drift, readout errors, compilation overhead, finite-shot mea-surement variability, or the practical cost of amplitude state preparation. Future work can therefore extend PQFA to hardware-aware settings that incorporate realistic circuit compilation, finite-shot measurements, device-calibrated noise models, and readout-error mitigation. Comparisons with classical dropout and noise-injection baselines would also help distinguish hardware-induced robustness from robustness arising from the structure of the augmentation module itself. These extensions would provide a more complete assessment of the practical behavior of post-fusion quantum augmentation on near-term quantum platforms. 
+
+6. Conclusion 
+
+This paper introduced Parallel Quantum Feature Augmentation (PQFA), a post-fusion framework that uses shal-low parallel variational quantum circuits to augment fused multimodal representations. PQFA preserves the classical encoding and fusion backbone while incorporating quantum measurement readouts as additional features for predic-tion. Experiments on MM-IMDb and N24News show that PQFA improves both multi-label and single-label classi-fication over the no-quantum backbone and a width-matched MLP augmentation baseline. These gains are achieved with approximately 2.2K augmentation parameters, compared with 24.0K for MLP-Aug. Controlled ablations and feature-space analyses indicate that the improvements cannot be explained by feature expansion, random transforma-tions, or additional classical capacity alone. Missing-modality and paired-transition results further show that PQFA improves robustness under incomplete inputs and produces beneficial decision-level corrections. Simulated-noise 25 and gate-weight analyses provide additional evidence on the stability of the quantum readouts and the multimodal structure of their inputs. Overall, the results demonstrate that shallow quantum circuits can serve as e ff ective and parameter-e ffi cient post-fusion augmentation modules without replacing strong classical fusion components. Future work will investigate hardware-aware implementations, finite-shot evaluation, circuit and branch scaling, and broader multimodal tasks. 
+
+Funding 
+
+This work was supported by the National Natural Science Foundation of China (Grant Nos. 12341103, 62372444) and the National Key R&D Program of China (Grant No. 2023YFA1009403). 
+
+References 
+
+[1] T. Baltrušaitis, C. Ahuja, L.-P. Morency, Multimodal machine learning: A survey and taxonomy, IEEE transac-tions on pattern analysis and machine intelligence 41 (2) (2018) 423–443. [2] P. Xu, X. Zhu, D. A. Clifton, Multimodal learning with transformers: A survey, IEEE Transactions on Pattern Analysis and Machine Intelligence 45 (10) (2023) 12113–12132. [3] J. Biamonte, P. Wittek, N. Pancotti, P. Rebentrost, N. Wiebe, S. Lloyd, Quantum machine learning, Nature 549 (7671) (2017) 195–202. [4] M. Schuld, N. Killoran, Quantum machine learning in feature hilbert spaces, Physical review letters 122 (4) (2019) 040504. [5] V. Havlíˇ cek, A. D. Córcoles, K. Temme, A. W. Harrow, A. Kandala, J. M. Chow, J. M. Gambetta, Supervised learning with quantum-enhanced feature spaces, Nature 567 (7747) (2019) 209–212. [6] J. Preskill, Quantum computing in the nisq era and beyond, Quantum 2 (2018) 79. [7] K. Bharti, A. Cervera-Lierta, T. H. Kyaw, T. Haug, S. Alperin-Lea, A. Anand, M. Degroote, H. Heimonen, J. S. Kottmann, T. Menke, et al., Noisy intermediate-scale quantum algorithms, Reviews of Modern Physics 94 (1) (2022) 015004. [8] J. R. McClean, S. Boixo, V. N. Smelyanskiy, R. Babbush, H. Neven, Barren plateaus in quantum neural network training landscapes, Nature communications 9 (1) (2018) 4812. [9] Z. Qu, Y. Meng, G. Muhammad, P. Tiwari, QMFND: A quantum multimodal fusion-based fake news detection model for social media, Information Fusion 104 (2024) 102172. [10] Z. Qu, Y. Li, P. Tiwari, QNMF: A quantum neural network based multimodal fusion system for intelligent diagnosis, Information Fusion 100 (2023) 101913. [11] J. Zheng, Q. Gao, D. Dong, J. Lü, Y. Deng, A quantum multimodal neural network model for sentiment analysis on quantum circuits, IEEE Transactions on Artificial Intelligence 6 (5) (2024) 1128–1142. [12] Y. Li, Y. Qu, R.-G. Zhou, J. Zhang, QMLSC: A quantum multimodal learning model for sentiment classification, Information Fusion 120 (2025) 103049. [13] J. Gao, P. Li, Z. Chen, J. Zhang, A survey on deep learning for multimodal data fusion, Neural computation 32 (5) (2020) 829–864. [14] T. Jiao, C. Guo, X. Feng, Y. Chen, J. Song, A comprehensive survey on deep learning multi-modal fusion: Methods, technologies and applications., Computers, Materials & Continua 80 (1) (2024). 26 [15] Z. Liu, Y. Shen, V. B. Lakshminarasimhan, P. P. Liang, A. B. Zadeh, L.-P. Morency, E ffi cient low-rank multi-modal fusion with modality-specific factors, in: Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), 2018, pp. 2247–2256. [16] Z. Yu, J. Yu, J. Fan, D. Tao, Multi-modal factorized bilinear pooling with co-attention learning for visual question answering, in: Proceedings of the IEEE international conference on computer vision, 2017, pp. 1821–1830. [17] H. Ben-Younes, R. Cadene, M. Cord, N. Thome, Mutan: Multimodal tucker fusion for visual question answering, in: Proceedings of the IEEE international conference on computer vision, 2017, pp. 2612–2620. [18] Z. Sun, P. Sarma, W. Sethares, Y. Liang, Learning relationships between text, audio, and video via deep canonical correlation for multimodal language analysis, in: Proceedings of the AAAI conference on artificial intelligence, Vol. 34, 2020, pp. 8992–8999. [19] X. Guo, A. Kong, H. Zhou, X. Wang, M. Wang, Unimodal and crossmodal refinement network for multimodal sequence fusion, in: Proceedings of the 2021 conference on empirical methods in natural language processing, 2021, pp. 9143–9153. [20] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, I. Polosukhin, Attention is all you need, Advances in neural information processing systems 30 (2017). [21] A. Nagrani, S. Yang, A. Arnab, A. Jansen, C. Schmid, C. Sun, Attention bottlenecks for multimodal fusion, Advances in neural information processing systems 34 (2021) 14200–14213. [22] Z. Xue, R. Marculescu, Dynamic multimodal fusion, in: Proceedings of the IEEE /CVF conference on computer vision and pattern recognition, 2023, pp. 2575–2584. [23] W. Li, H. Zhou, J. Yu, Z. Song, W. Yang, Coupled mamba: Enhanced multimodal fusion with coupled state space model, Advances in Neural Information Processing Systems 37 (2024) 59808–59832. [24] M. Ma, J. Ren, L. Zhao, D. Testuggine, X. Peng, Are multimodal transformers robust to missing modality?, in: Proceedings of the IEEE /CVF conference on computer vision and pattern recognition, 2022, pp. 18177–18186. [25] A. Peruzzo, J. McClean, P. Shadbolt, M.-H. Yung, X.-Q. Zhou, P. J. Love, A. Aspuru-Guzik, J. L. O’brien, A variational eigenvalue solver on a photonic quantum processor, Nature communications 5 (1) (2014) 4213. [26] K. Zaman, T. Ahmed, M. A. Hanif, A. Marchisio, M. Shafique, A comparative analysis of hybrid-quantum clas-sical neural networks, in: World Congress in Computer Science, Computer Engineering & Applied Computing, Springer, 2024, pp. 102–115. [27] D. Basilewitsch, J. F. Bravo, C. Tutschku, F. Struckmeier, Quantum neural networks in practice: a comparative study with classical models from standard data sets to industrial images, Quantum Machine Intelligence 7 (2) (2025) 110. [28] S. Wang, E. Fontana, M. Cerezo, K. Sharma, A. Sone, L. Cincio, P. J. Coles, Noise-induced barren plateaus in variational quantum algorithms, Nature communications 12 (1) (2021) 6961. [29] M. Larocca, S. Thanasilp, S. Wang, K. Sharma, J. Biamonte, P. J. Coles, L. Cincio, J. R. McClean, Z. Holmes, M. Cerezo, Barren plateaus in variational quantum computing, Nature Reviews Physics 7 (4) (2025) 174–189. [30] R.-X. Zhao, H. Siljak, S. Wang, Y. He, Y. Wang, HQCC: A hybrid quantum-classical classifier with adaptive structure, IEEE Signal Processing Letters (2025). [31] S. M. A. Rizvi, U. I. Paracha, U. Khalid, K. Lee, H. Shin, Quantum machine learning: Towards hybrid quantum-classical vision models, Mathematics 13 (16) (2025) 2645. [32] J. Schnabel, M. Roth, Quantum kernel methods under scrutiny: a benchmarking study, Quantum Machine Intel-ligence 7 (1) (2025) 58. 27 [33] T. Nguyen, T. N. Hoang, P. L. Nguyen, H. L. Vu, T. C. Thang, Expressive and scalable quantum fusion for multimodal learning, arXiv preprint arXiv:2510.06938 (2025). [34] K. Yan, P. Lai, Y. Yang, Y. Ren, T. Badarch, Y. Chen, X. Zheng, Quantum-inspired multimodal fusion with lindblad master equation for sentiment analysis, Neurocomputing 648 (2025) 130710. [35] J. Arevalo, T. Solorio, M. Montes-y Gomez, F. A. González, Gated multimodal networks, Neural Computing and Applications 32 (14) (2020) 10209–10228. [36] Z. Wang, X. Shan, X. Zhang, J. Yang, N24News: A new dataset for multimodal news classification, in: Proceed-ings of the thirteenth language resources and evaluation conference, 2022, pp. 6768–6775. [37] Y. Liu, M. Ott, N. Goyal, J. Du, M. Joshi, D. Chen, O. Levy, M. Lewis, L. Zettlemoyer, V. Stoyanov, RoBERTa: A robustly optimized BERT pretraining approach, arXiv preprint arXiv:1907.11692 (2019). [38] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly, J. Uszkoreit, N. Houlsby, An image is worth 16x16 words: Transformers for image recog-nition at scale, in: International Conference on Learning Representations (ICLR), 2021. [39] D. M. W. Powers, Evaluation: from precision, recall and f-measure to roc, informedness, markedness and corre-lation, Journal of Machine Learning Technologies 2 (1) (2011) 37–63. [40] Y.-H. H. Tsai, P. P. Liang, A. Zadeh, L.-P. Morency, R. Salakhutdinov, Learning factorized multimodal repre-sentations, in: International Conference on Learning Representations (ICLR), 2019. [41] S. M. Jayakumar, W. M. Czarnecki, J. Menick, J. Schwarz, J. Rae, S. Osindero, Y. W. Teh, T. Harley, R. Pascanu, Multiplicative interactions and where to find them, in: International conference on learning representations, 2020. [42] I. Gat, I. Schwartz, A. Schwing, T. Hazan, Removing bias in multi-modal classifiers: Regularization by maxi-mizing functional entropies, Advances in Neural Information Processing Systems 33 (2020) 3197–3208. [43] S. Sankaran, D. Yang, S.-N. Lim, Multimodal fusion refiner networks, arXiv preprint arXiv:2104.03435 (2021). [44] D. Li, Z. Weng, Z. Xuan, Z. Wang, ModiFedCat: A multi-modal distillation based federated catalytic framework, Information Fusion 124 (2025) 103378. [45] L. Wen, Q. Dai, J. Liu, J. Zheng, Y. Dai, D. Wang, Z. Kang, J. Wang, Z. Xu, J. Duan, InfMasking: Unleash-ing synergistic information by contrastive multimodal interactions, Advances in Neural Information Processing Systems 38 (2026) 15529–15555. [46] H. Zou, M. Shen, C. Chen, Y. Hu, D. Rajan, E. S. Chng, UniS-MMC: Multimodal classification via unimodality-supervised multimodal contrastive learning, in: Findings of the Association for Computational Linguistics: ACL 2023, 2023, pp. 659–672. [47] X. Chen, Q. Shuai, F. Hu, Y. Cheng, SDDA: A progressive self-distillation with decoupled alignment for multi-modal image–text classification, Neurocomputing 614 (2025) 128794. [48] R. Kumar, R. Singhal, P. Kulkarni, D. Mehta, K. Jadhav, M3CoL: Harnessing shared relations via multimodal mixup contrastive learning for multimodal classification, Transactions on Machine Learning Research 2025 (2025). [49] Q. McNemar, Note on the sampling error of the di ff erence between correlated proportions or percentages, Psy-chometrika 12 (2) (1947) 153–157. [50] R. J. Tibshirani, B. Efron, An introduction to the bootstrap, Monographs on statistics and applied probability 57 (1) (1993) 1–436. 28

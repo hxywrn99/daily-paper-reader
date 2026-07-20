@@ -1,0 +1,465 @@
+Title: Handwritten and Printed Text Segmentation via Region-Aware Human-Writing Descriptor Engineering
+
+URL Source: https://arxiv.org/pdf/2607.15936v1
+
+Published Time: Mon, 20 Jul 2026 01:15:31 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# Handwritten and Printed Text Segmentation via Region-aware Human-writing Descriptor Engineering 
+
+Zhixian Lu a,b , Jianwei Zhang a,b, ∗, Lei Zhang a,c,d , Fei Yuan e, Jin Wang a, Chang Liu a, Rui Gao a, Qiyu Lei a
+
+> aCollege of Computer Science, Chengdu University, No. 2025, Chengluo Avenue, Longquanyi District, 610106, Chengdu, China
+> bKey Laboratory of Digital Innovation of Tianfu Culture, Sichuan Provincial Department of Culture and Tourism, Chengdu University, Chengdu, China
+> cMachine Intelligence Laboratory, College of Computer Science, Sichuan University, Chengdu, China
+> dTianfu Jincheng Laboratory, Chengdu, China
+> eNetwork Information Centre, Hainan College of Economics and Business, Haikou, China
+
+Abstract 
+
+With the increasing demand for reusing paper documents in educational and office settings, accurate segmentation of handwritten and printed text has become a crucial step in document digitization. Although numerous deep learning models have been developed for this task, their high computational cost limits deployment on resource-constrained edge devices. To address this challenge, we present a lightweight framework optimized for efficient performance on devices with severely limited computational capacity. Our approach begins with the Sentence-level Connected Component Segmen-tation algorithm, aimed at extracting coherent sentence-level segments from document images. We then design a novel Region-aware Handwriting Descriptor (RHD) to capture the intrinsic variability of human handwriting at the sentence level. A simple conventional classifier can then be seamlessly integrated with our designed descriptor, demonstrating strong classification performance for distinguishing handwritten and printed sentence-level text images, highlighting that the proposed descriptor is agnostic to the choice of classifier. Extensive experiments are performed on our self-constructed Multilingual High-Quality Annotated Dataset for Handwritten and Printed Text Segmentation (MAD-HPTS) and a pub-lic benchmark PHD-AS, and the experimental results demonstrate that the proposed framework outperforms current state-of-the-art methods in both accuracy and computational efficiency. On MAD-HPTS, our method sacrifices only 
+
+1.4% accuracy compared to the leading deep neural network baseline, yet achieves more than 8× speedup in inference, making it well-suited for lightweight deployment. 
+
+Keywords: Handwritten and printed text segmentation, Resource-constrained document processing, Feature engineering for handwriting variability 
+
+1. Introduction 
+
+The widespread use of paper documents in educational and office environments necessitates efficient methods for their digital transformation. Among the various pro-  
+
+> ∗Corresponding author
+> Email address: zhangjianwei@cdu.edu.cn (Jianwei Zhang)
+
+cessing steps, Handwritten and Printed Text Segmenta-tion (HPTS) remains a fundamental challenge in docu-ment digitization [1, 2]. This task underpins a range of downstream applications, including document retrieval [3], signature verification [4], and Optical Character Recogni-tion (OCR) enhancement [5]. For example, HPTS can arXiv:2607.15936v1 [cs.CV] 17 Jul 2026 dramatically accelerate document retrieval compared to manual inspection, and it plays a pivotal role in financial systems, where accurate handwritten signature extraction directly impacts security and privacy [3–5]. In addition, re-cent studies report that isolating handwritten content can improve OCR accuracy by up to more than 20% [6, 7]. Historically, HPTS methods can be broadly catego-rized into two main classes: (1) machine learning-based methods [8–13], and (2) deep learning-based meth-ods [6, 7, 14]. Early research predominantly focused on machine learning-based methods, which typically fol-low a three-stage pipeline: (i) extracting connected components (CCs)—such as characters, words, or sen-tences—from the document image; (ii) deriving fea-tures from these components using texture-based descrip-tors such as Gabor filters [9] or Local Binary Patterns (LBP) [12, 13]; and (iii) classifying the CCs based on the extracted features using conventional machine learn-ing classifiers. These methods offer fast feature extraction owing to their lightweight designs. However, their per-formance heavily depends on handcrafted features, which often fail to capture the complex visual variability between handwritten and printed text, thereby limiting segmenta-tion accuracy. To overcome the limitations of machine learning-based methods, deep learning-based methods have been intro-duced to enable automatic feature extraction and improve the resulting segmentation accuracy [6, 7, 14]. These methods typically formulate HPTS as a semantic segmen-tation problem and address it within an end-to-end con-volutional neural network(CNN) framework. For instance, Jo et al.[6] employed a U-Net architecture to perform pixel-level classification of handwritten and printed text. Dutly et al.[14] utilized a Fully Convolutional Network (FCN) for initial segmentation, followed by Conditional Random Fields to refine isolated or ambiguous predictions via con-textual inference. To address the intertwined nature of handwritten and printed text, Gholamian et al. [15] pro-posed a fine-grained feature path within U-Net to enhance the extraction of low-level features. While deep learning-based methods have demonstrated substantially higher segmentation accuracy than traditional machine learning-based approaches, their reliance on large-scale computa-tion and specialized hardware often hinders deployment on edge devices with limited processing capacity. Overall, while machine learning-based methods are com-putationally efficient and well-suited for deployment on resource-constrained devices, they often suffer from limited accuracy. In contrast, deep learning-based approaches de-liver superior segmentation performance but require sub-stantial computational resources, making them impracti-cal for resource-constrained environments. This raises a key question: Can we achieve both high effective-ness and efficiency in HPTS? 
+
+To address this issue, we propose a novel framework that substantially surpasses traditional machine learning-based approaches in performance and markedly outpaces deep learning-based approaches in speed, enabling real-time deployment on edge devices. The framework be-gins with an Sentence-level Connected Component Seg-mentation (SCCS) algorithm to extract sentence-level con-nected components (see Fig. 1). We then introduce a novel feature engineering method, termed the Region-aware Handwriting Descriptor (RHD), which is specifi-cally designed to facilitate the efficient and effective cap-ture of the intrinsic characteristics of human handwrit-ing. By computing statistical features from distinct re-gions within each sentence, RHD provides a powerful and 2Sentence-level Connected Component Segmentation Input Character Localization Sentence Construction Input SCC Region-aware Human-writing Descriptor Sentence-level Connected Component Segmentation Region-aware Human-writing Descriptor Classification Input Output  
+
+> Printed Text Handwritten Text Output SCC Region Division
+> Region0 Region2 Region1
+> Mean and Sum of Squard Deviations Figure 1: The proposed framework processes an input image by first applying the SCCS algorithm to segment it into Sentence-level Connected Components (SCCs). For each SCC, we extract the RHD feature and classify it as handwritten or printed text.
+
+interpretable representation that enables robust differen-tiation between handwritten and printed text. Notably, we find that using only simple statistics such as the mean and standard deviation can achieve performance compa-rable to deep learning-based automatic feature extraction, while incurring minimal computational overhead. To fa-cilitate evaluation, we constructed the Multilingual High-Quality Annotated Dataset for Handwritten and Printed 
+
+Text Segmentation ( MAD-HPTS ), which contains En-glish, Chinese, and Japanese samples, serving as a strong and comprehensive benchmark for HPTS. Extensive ex-periments on both the self-constructed MAD-HPTS and a public dataset PHD-AS demonstrate that the proposed framework consistently delivers competitive segmentation accuracy while maintaining high efficiency. On the MAD-HPTS dataset, the proposed framework achieves overall performance only 1.4% lower than the baseline FCN, yet completes inference in less than 1/8 of the time. When deployed on the RK3576 edge device, it attains the high-est accuracy—approximately 2% higher than the next-best method—while reducing runtime by about 45% , under-scoring its suitability for lightweight, resource-constrained applications. The primary contributions of this paper are summarized as follows: (1) We construct MAD-HPTS, a multilingual high-quality annotated dataset for handwritten and printed text segmentation with sentence-level anno-tations in English, Chinese, and Japanese, covering diverse real-world scenarios such as multiple authors, pen types, scanning devices, and document sources. Compared to existing datasets, MAD-HPTS offers a strong and comprehensive benchmark for evaluating HPTS task. (2) A novel Region-aware Human-writing Descriptor is proposed to capture handwriting variability at the sentence level. RHD introduces only negligible com-putational overhead yet delivers significant perfor-mance gains. Its region-aware feature modeling can be extended to other feature types, offering a promis-3ing direction for feature engineering in HPTS. (3) A effective and efficiency HPTS framework is pro-posed to combine sentence-level connected compo-nent segmentation with RHD-based feature extrac-tion. It achieves competitive accuracy compared to deep learning-based approaches while operating with substantially lower computational cost, making it well-suited for real-time deployment on resource-constrained edge devices. 
+
+2. Related Work 
+
+Over the past decades, research on handwritten and printed text segmentation has progressed from tradi-tional machine learning-based approaches to modern deep learning-based approaches. In the following, we provide a review of representative methods in each category. 
+
+2.1. Machine Learning-based Methods 
+
+Machine learning methods for handwritten and printed text segmentation are typically organized into three stages: preprocessing, feature extraction, and classification [3, 16]. Among these, preprocessing and feature extraction are particularly critical to overall performance, as conven-tional classifiers in traditional machine learning pipelines play a relatively minor role in this task, serving primarily to leverage the extracted features. In the following, we fo-cus our review on approaches for preprocessing and feature extraction. 
+
+2.1.1. Preprocessing 
+
+The goal of preprocessing is to extract Minimal Dis-criminative Units (MDUs) from document images, such as pseudo-words [5], image patches [17], or text blocks [18], which serve as the fundamental units for subsequent clas-sification. Existing methods can be broadly categorized as follows: (1) Region Growing [4, 5, 9, 17, 19–21], which begin by selecting candidate pixels according to predefined heuris-tics, and then progressively merge spatially adjacent re-gions based on morphological features or statistical rules. (2) Profile-driven Segmentation [11, 22, 23], which ana-lyzes vertical or horizontal projection profiles of document images to detect sparse regions. Segmentation lines are then inserted at these low-density positions, and the result-ing partitions are treated as MDUs. Unlike Region Grow-ing, this method relies on global page statistics, making it particularly effective for documents with regular layouts. This study adopts a Region Growing-based methodol-ogy for its simplicity and robustness in transforming doc-ument images into structured text representations. Simi-lar to Zheng et al. [9], we also employ an iterative merg-ing strategy that progressively combines smaller connected components into larger text structures. Unlike most exist-ing methods, which typically select pixels, characters, or word blocks as MDUs for English documents, our method introduces the Sentence-level Connected Component as the MDU. This design avoids the excessive fragmenta-tion caused by over-segmentation in prior methods when applied to Chinese texts with structurally complex char-acters [24]. Furthermore, the SCC-based preprocessing framework exhibits strong generalization ability, extend-ing naturally to languages with different writing systems and layout styles, including English and Japanese. 
+
+2.1.2. Feature Extraction 
+
+After preprocessing, feature extraction is performed for each MDU to facilitate subsequent classification. The ex-tracted features can be broadly categorized as follows: (1) Geometric and Structural Features [9, 11, 22, 25]: MDUs are characterized by simple geometric attributes 4such as height, width, area, aspect ratio, and pixel den-sity. (2) Projection-based Statistical Features [4, 20, 23, 26–28]: These features characterize MDUs by com-puting histogram statistics of projected pixel values along specified directions to capture stroke density and align-ment, as well as run-length features that measure transi-tions between foreground and background pixels to quan-tify continuity and structural complexity. (3) Texture Fea-tures [9, 12, 17, 25, 29, 30]: Local textural variations are analyzed using descriptors such as Gabor filters, Local Bi-nary Patterns (LBP), statistical measures, and pattern frequency analysis. (4) Composite and Advanced Fea-tures [17–19]: To enhance discriminative power, descrip-tors can be combined or replaced with advanced repre-sentations such as chain codes, Bag-of-Visual-Words, or shape-context features. Traditional approaches to handwritten and printed text segmentation often rely on generic image descriptors orig-inally designed for general computer vision tasks, such as Gabor filters, LBP, and projection profiles. While effective at capturing local textures, these methods typically ne-glect the spatial distribution and channel-wise variability inherent to handwritten versus printed text. To address this limitation, we propose the Region-aware Handwrit-ing Descriptor, which explicitly models the spatial vari-ability of handwriting to enhance feature discriminability. The RHD is novel and computationally efficient, requir-ing only simple statistical features, namely the mean and sum of squared deviations (SSD). Conceptually similar to Malakar et al. [12], as both approaches rely on statistical descriptors, our method differs by partitioning each MDU into concentric annuli and computing statistical moments within each annulus across RGB channels. This design more effectively captures the spatial variability of hand-writing and significantly improves discriminative power. 
+
+2.2. Deep Learning-based Methods 
+
+With the rapid advancement of neural networks, deep learning has been applied to various scenarios to solve com-plex problems, such as image recognition, object detection, and medical image analysis [31, 32]. Consequently, deep learning have also been increasingly applied to handwrit-ten and printed text segmentation. Recent studies can be broadly categorized into two groups: hybrid methods and end-to-end methods. Hybrid approaches typically employ neural networks ei-ther as feature extractors or classifiers, which are then in-tegrated into traditional machine learning pipelines. For example, Li et al. [33] first preprocessed document im-ages into connected components and subsequently applied CNNs to classify them as handwritten or printed text. Dutly et al. [7, 14, 34] proposed a lightweight FCN-light model to perform pixel-level segmentation, followed by CRF-based postprocessing to refine the results. Although hybrid methods leverage the powerful feature extraction capabilities of neural networks and achieve improved per-formance over purely traditional approaches, their overall effectiveness is often constrained by pipeline complexity and error propagation across multiple integrated modules. To address these limitations, end-to-end methods for-mulate HPTS as a semantic segmentation problem, en-abling pixel-level segmentation without relying on rule-based preprocessing or handcrafted features. Jo et al. [6] employed a U-Net architecture and achieved strong perfor-mance on synthetic mixed datasets derived from IAM [35] and PRImA [36]. Similarly, Mondal et al. [37] introduced tsegGAN, a generative adversarial framework designed to disentangle and segment touching non-text components from handwritten text regions. By jointly performing seg-5mentation and feature extraction in an end-to-end manner, these methods eliminate the modular constraints inherent to hybrid pipelines and substantially improve the robust-ness of HPTS. Despite the significant performance gains achieved by previous deep learning–based methods for HPTS, their neural architectures often involve tens of millions of pa-rameters and typically demand substantial computational resources and memory [6, 15]. This factor severely restricts their applicability in resource-constrained environments. In this paper, we revisit HPTS from a machine learning perspective rather than adopting deep neural models. Al-though our approach does not exploit automatic feature learning of deep neural networks, we introduce a Region-aware Handwriting Descriptor that generalizes effectively to handwriting characteristics. The proposed method re-lies solely on simple statistical features, yet achieves per-formance comparable to, or even surpassing, deep learn-ing–based counterparts, while requiring only 1/8 of the computational time, making it particularly suitable for de-ployment on edge devices. 
+
+3. Method 
+
+The proposed framework is illustrated in Fig. 1 and com-prises three main modules. First, the Sentence-level Con-nected Component Segmentation module processes the in-put document image into SCCs, which serve as the mini-mal discriminative units in this work. Second, the Region-aware Handwriting Descriptor module extracts features from each SCC to capture subtle distinctions between handwritten and printed text. Finally, a conventional clas-sifier is applied to perform SCC classification. In this sec-tion, we focus primarily on the first two modules, as they constitute the core innovations of our approach. Morphological Normalization Component Initialization Adjacent Component Merging Character Localization Input Sentence Construction  Overlapping Sentence Splitting Neighbor Identification Character Aggregation SCCs CCCs   
+
+> Figure 2: The pipeline illustrates the two stages of the SCCS al-gorithm. The input image undergoes Character Localization and Sentence Construction, generating the mask of all the Sentence-level Connected Components.
+
+3.1. Sentence-level Connected Component Segmentation 
+
+Sentence-Level Connected Component Segmentation aims to decompose the textual content of a document image into SCCs, which serves MDU in our frame-work. As shown in Fig 2, SCCS primarily consists of two parts: (1) Character Localization , which segments the input image into character-level connected compo-nents, and (2) Sentence Construction , which aggregates the character-level connected components into sentence-level ones in each text line. 
+
+3.1.1. Character Localization 
+
+Character Localization is a crucial foundation for aggre-gating foreground pixels into basic CCCs and the subse-quent formation of SCCs. As shown in the red box in Fig 2, this process is composed of three stages: (1) Morphologi-cal Normalization, which enhances the foreground regions and prepares them for further analysis. (2) Component Initialization, which groups foreground pixels into basic 6CCs. (3) Adjacent Component Merging, which combines nearby or overlapping CCs into more complete CCCs. 
+
+Morphological Normalization. In this stage, the input image is first denoised using a smoothing filter to remove the background noise. In this context, foreground pixels represent text regions, while background pixels correspond to non-text areas. The Otsu thresholding [38] is then ap-plied to binarize the image, distinguishing foreground pix-els from background pixels, and isolating the regions of interest. Finally, morphological erosion and dilation are applied to enhance the textual structures. 
+
+Component Initialization. A union-find algorithm is employed to merge all 4-connected adjacent foreground pixels into distinct connected components. Besides the text-related CCs (both handwritten and printed), the im-age also contains numerous noisy CCs that need be re-moved. These noisy CCs can be readily distinguished from text CCs based on differences in area, spatial density (de-fined as the ratio of the component area to the area of its bounding box), or aspect ratio (the length-to-width ratio of the bounding box). By applying predefined thresholds to these properties, the noisy CCs can be effectively fil-tered out. 
+
+Adjacent Component Merging. Many characters, such as the English letter i or various Chinese characters, may be split into multiple CCs. To address this, we merge any two CCs within a distance of 2 pixels into a CCC unit. As a result, the processed image is transformed into distinct handwritten and printed CCCs. 
+
+3.1.2. Sentence Construction 
+
+Sentence Construction is dedicated to further transform-ing the character-level connected components obtained in Section 3.1.1 into sentence-level connected components. As shown in the green box in Fig 2, Sentence Construc-
+
+Algorithm 1 Character Aggregation 
+
+Input: The complete set of CCCs C and the distance threshold τw.
+
+Ensure: The set of all SCCs S. 
+
+> 1:
+
+S ← ∅ ▷ Initialize the SCC set  
+
+> 2:
+
+for each ch ∈ C do  
+
+> 3:
+
+s ← { ch } ▷ Initialize the current sentence  
+
+> 4:
+
+while the character ch end at the left and right ends of the sentence s has a neighbor ch ′ not in s and their distance D(ch ,ch ′) ≤ τw do  
+
+> 5:
+
+s ← s ∪ { ch ′} ▷ Expand SCC by including the neighbor character  
+
+> 6:
+
+end while  
+
+> 7:
+
+S ← S ∪ { s} 
+
+> 8:
+
+end for  
+
+> 9:
+
+return S
+
+tion primarily consists of three stages: (1) Neighbor Iden-tification , which identifies the left and right neighbors of each character; (2) Character Aggregation , where adjacent characters are merged into SCCs; and (3) Overlapping Sen-tence Splitting , where incorrectly merges overlapping SCCs are split into two distinct sentence-level connected compo-nents. 
+
+Neighbor Identification. For each CCC ch , we define its neighboring CCCs on the same text line, denoted as 
+
+N (ch ) = 
+
+n
+
+ch ′ ∈ C \ { ch } ych − ych ′ < τ h
+
+o
+
+, where C \ {ch } represents whole CCC set C except ch itself, y denotes the vertical coordinate of the bounding box center, h its height, and τh = min  hC , h C′
+
+/3 is a tolerance parameter for filtering CCCs from other text lines. 
+
+Character Aggregation. Character aggregation aims to merge neighboring CCCs into SCCs, thereby forming coherent sentences. This step is particularly important in Chinese documents, as individual CCCs are often frag-mented or scattered, making it difficult to support reliable classification without aggregation. As illustrated in Algorithm 1, each CCC is iteratively expanded into an SCC by merging with its left or right neighbor. Specifically, neighboring CCCs are merged when 7(a) Gentle Split 
+
+> SCC Image
+
+(b) Aggressive Split     
+
+> Aggressive Split Path and Horizon Histogram Gentle Split Path Output Output SCC Image Figure 3: Illustration of the two overlapping sentence splitting strategies. (a) Gentle Split for oversize SCCs without actual pixel adhesion. (b) Aggressive Split for oversize SCCs with real pixel overlap.
+
+their horizontal distance is smaller than a threshold τw,which is set as the most frequently occurring horizontal distance between neighboring CCCs. 
+
+Overlapping Sentence Splitting. As character ag-gregation primarily considers horizontal distances when merging characters, CCCs that are vertically misaligned but horizontally close may be erroneously merged into the same SCC, potentially resulting in overlapping SCCs that contain multiple sentences. To address this issue, we intro-duce an Overlapping Sentence Splitting stage to separate such SCCs into their original text lines. In practice, two distinct types of overlapping SCCs are typically observed, and we sequentially apply two complementary strategies, 
+
+Gentle Split and Aggressive Split , to handle each type ac-cordingly. The first case corresponds to bounding-box overlap without pixel-level adhesion, as illustrated in Fig 3 (a). Here, two vertically adjacent SCCs are not truly con-nected, and it is possible to identify a separating path that preserves the structural integrity of both components. 
+
+Gentle Split is designed to find such a non-destructive split path, as illurstrate green pixels in the panel. As detailed in Algorithm 2, a breadth-first search (BFS) is performed to 
+
+Algorithm 2 Gentle Split 
+
+Input: The image of SCC ∈ S m; start pixel (xs, y s) and target pixel (xt, y t) pixel (xt, y t)
+
+Ensure: A path parent separating the SCC  
+
+> 1:
+
+Initialize priority queue Q ← ordered by H, Man-hattan distance to target  
+
+> 2:
+
+Initialize parent map ▷ visited to record the pixel and parent for backtracking.  
+
+> 3:
+
+Q. push (( xs, y s)) ▷ Initialize the start pixel  
+
+> 4:
+
+while Q is not empty do  
+
+> 5:
+
+p ← Q. pop () ▷ The most closed point to target  
+
+> 6:
+
+if p = ( xt, y t) then ▷ Final a path to split SCC  
+
+> 7:
+
+break  
+
+> 8:
+
+end if  
+
+> 9:
+
+for each 4-connected neighbor p0 of p do  
+
+> 10:
+
+if p0 is valid and not visited then  
+
+> 11:
+
+Mark p0 as visited  
+
+> 12:
+
+Set parent [p0] ← p ▷ For backtracking  
+
+> 13:
+
+Q. push (p0) 
+
+> 14:
+
+end if  
+
+> 15:
+
+end for  
+
+> 16:
+
+end while  
+
+> 17:
+
+return parent carve a path from the start pixel to the target pixel using a Manhattan-distance heuristic. The start and target pixels are selected near the vertical center of the left and right boundaries of the SCC, respectively. In practice, they are chosen slightly shifted toward the background-dominated side of the bounding box, preventing the path from im-mediately colliding with text strokes and thus facilitates a smoother segmentation. The precise offset is not critical, 8as the method is robust to small variations. The search is initialized with a priority queue Q ordered by the Manhat-tan distance. The start pixel is first pushed into Q, and all 4-connected valid background neighbors (Item 9-13) are considered as candidates, enqueued into Q, and assigned parent pointers for backtracking. And in Item 10, we de-fine a valid pixel as a background pixel with y-coordinate between   H 
+
+> 4
+
+, 3H
+
+> 4
+
+. We then iteratively pop from Q the pixel with the smallest Manhattan distance to the target pixel (Item 4), and repeat this procedure until the target is reached (Item 6). Finally, the recorded parent pointers describe a path from the start to the target pixel, which could be used for splitting the overlapping sentence. The second case, shown in Fig 3 (b), involves pixel-level connection between adjacent components, making it im-possible to find a non-destructive separating path. To ad-dress this, Aggressive Split segments the overlapping text by searching for a division line that minimally disrupts the foreground text region. We firstly divide the bound-ing box into a sequence of bins along the vertical direction, and then construct a histogram by counting the foreground pixels within each bin, followed by Gaussian smoothing to reduce variability between adjacent bins. The significant local minima of the smoothed histogram are then chosen as division lines, which could segment the multiple-sentence SCC into several single-sentence SCCs. Although this pro-cedure may assign a tiny portion of a SCC to an adjacent one, the affected area is negligible and does not signifi-cantly impact subsequent SCC classification. 
+
+3.2. Region-aware Handwriting Descriptor 
+
+After segmenting the document image into sentence-level components in the previous stage, the next step is to design effective features to distinguish between hand-written and printed text sentences. Visually, handwritten text exhibits irregular strokes and subtle color variations, whereas printed text tends to maintain uniformity in both structure and intensity. Although these two categories are intuitively separable for humans due to their distinct spa-tial distributions, their global statistics at the SCC level (e.g., mean and standard deviation) show only marginal differences. This observation suggests that global descrip-tors overlook critical positional cues.To overcome this limi-tation, we propose a Region-aware Handwriting Descriptor 
+
+that explicitly captures spatial and channel-wise variations within the text regions. The proposed RHD consists of two key components: (1) Region Division , which partitions the input image into several subregions to preserve spatial lo-cality; and (2) Feature Extraction , which computes con-cise statistical and geometric descriptors from each subre-gion to represent structural and chromatic characteristics of handwritten and printed text. 
+
+3.2.1. Region Division 
+
+In this work, we partition the image into several con-centric annuli centered at the image center. There are two main reasons for this design: (1) the concentric annuli pre-serve coarse positional information through the distance-to-center while remaining compact, and (2) the horizontal and vertical symmetry of each annulus ensures that per-annulus statistics accurately reflect the spatial distribution of content. Let the image width and height be W and H,respectively. For any pixel p = ( px, p y ), its Euclidean dis-tance to the central pixel cp =   W 
+
+> 2
+
+, H
+
+> 2
+
+ can be defined as 
+
+Dp = p(px − W/ 2) 2 + ( py − H/ 2) 2.We define n + 1 a strictly increasing radial threshold sequence 0 = S0 < S 1 < · · · < S n =
+
+q W 2 
+
+> 4
+
++ H2 
+
+> 4
+
+to parti-tion the image into n concentric regions R0, R 1, . . . , R n−1,where Ri = {p|Si < D p-cp ≤ Si+1 }. In this study, we present three methods to decide the radial thresholds, 9i.e, linear partitioning, square-law partitioning, and log-polar partitioning. Since S0 and Sn are fixed, we fo-cus our discussion on the intermediate thresholds Si for 
+
+i = 1 , 2, . . . , n −1.
+
+Linear Partitioning. The image is partitioned into n
+
+equal-width concentric annuli, i.e, Si = ( i/n )Sn.
+
+Square Partitioning. To emphasize central details, the radial domain is partitioned with denser thresholds near the origin and sparser ones toward the boundary. This is achieved using an inverse-square progression, i.e., Si =
+
+Sn/(n + 1 − i)2.
+
+Log-polar Partitioning. The image is partitioned into n concentric annuli, whose radial boundaries are equally spaced on the logarithmic scale, i.e., Si = ( Sn)i/n .
+
+3.2.2. Feature Extraction 
+
+To keep the method simple and efficient, we extract only a few basic statistical features: mean, sum of squared de-viations, area, and aspect ratio. Their definitions are as follows: (1) Mean , reflecting a region’s overall brightness, is de-fined as 
+
+μcR = 1
+
+|R|
+
+X
+
+> p∈R
+
+Ic(p), (1) where p denotes a pixel in region R, |R| is the number of pixels in R, and Ic(p) is the value of the c-th channel at pixel p.(2) SSD , characterizing intra-region uniformity and vari-ability, is defined as 
+
+SSD cR = X
+
+> p∈R
+
+(Ic(p) − μcR)2 . (2) (3) Area , measuring the size of a region, is defined as 
+
+AR = |R|. (3) (4) Aspect ratio , describing the geometric shape of a region, is defined as 
+
+αR = wR
+
+hR
+
+, (4) where wR and hR denote the width and height of re-gion R, respectively. These features capture the principal statistical and shape properties of text regions at low computational cost, serving as a robust foundation for subsequent classifica-tion and segmentation. Finally, we construct the region-aware human-writing descriptor FRHD by concatenating the above four features of each region and imgage chan-nel: 
+
+FRHD = [
+
+> R
+
+[ 
+
+> c
+
+{μcR, SSD cR} ∪ { AR, α R}
+
+
+
+. (5) With the constructed RHD, we can easily segment the handwritten and printed text via a conventional classi-fier. Since the text masks of each SCC have already been obtained during the Sentence-level Connected Component Segmentation process, the final handwritten and printed text segmentation can be achieved by simply merging the masks corresponding to the two categories. 
+
+4. Experiments 
+
+4.1. Experimental Settings 4.1.1. Datasets 
+
+To evaluate the generalization capability of the proposed method, we conduct experiments on two datasets as shown as Fig 4: the left panel show the self-collected Multi-lingual Annotated Dataset for Handwritten and Printed Text (MAD-HPTS) and the right panel show a publicly available benchmark (PHD-AS), 10 (b) PHD-AS  
+
+> Printed Handwritten (a) MAD-HPTS
+> Handwritten Printed Figure 4: Examples from the two datasets. (a) MAD-HPTS provides clean and noise-free scans after background removal, covering multiple languages and scripts including English, Chinese, Japanese, and Arabic numerals. (b) PHD-AS contains real-world images with perspective distortion, motion blur, and background clutter, reflecting challenging acquisition conditions.
+
+MAD-HPTS To rigorously assess the proposed method under diverse scenarios, we constructed a large-scale dataset encompassing variations in handwriting styles, pen types, scanning devices, languages, and document types. Specifically, 200 A4 sheets were printed with text drawn from news articles, contracts, and other sources. Three individuals then added handwritten annotations on these sheets using two different black pens, covering Chinese characters, Arabic numerals, English, and Japanese. The annotated documents were scanned using two distinct de-vices based on STM32 microcontrollers, each equipped with a stepper motor operating at constant speed to en-sure stable and accurate scanning. In total, 200 documents were scanned, resulting in 400 digital images with a reso-lution of 2592 × 3666 . Each image was processed by the SCCS preprocessing method to segment the text into SCC blocks, which were subsequently labeled manually to con-struct a binary classification dataset. This yielded 107,830 samples in total, of which 80% were randomly selected for training and the remaining 20% were used for testing. The MAD-HPTS dataset will also be made publicly available through the Paddle AiStudio community. 
+
+PHD-AS The PHD-AS dataset is derived from the Printed Handwritten Data released on the Paddle AiStu-dio community [39]. It contains 4,800 images in total, with 2,000 printed and 2,000 handwritten samples for training, and 400 printed and 400 handwritten samples for testing. The dataset originates from student assignment scenarios and was captured by camera, with content primarily in Chinese and Arabic numerals. As a binary-classification dataset, PHD-AS aligns naturally with the task studied in this work and serves as a complementary benchmark to MAD-HPTS. 
+
+4.1.2. Baselines 
+
+To comprehensively evaluate the effectiveness of the pro-posed method, we compared it against two categories of approaches: (1) traditional machine learning-based meth-ods, and (2) lightweight deep learning-based methods. Since handwritten and printed text segmentation pipelines typically consist of preprocessing, feature extraction, and classification modules, direct end-to-end comparisons are often infeasible. To ensure fairness, we standardized the preprocessing and classifier components across all meth-ods, focusing the comparison on feature extraction mod-ules for machine learning-based approaches, and on net-work architectures for deep learning-based approaches. 11 English Chinese Input    
+
+> Outputed Printed Text
+> Classification Japanese
+> Outputed Handwritten Text Figure 5: Segmentation results on the MAD-HPTS dataset for English, Chinese, and Japanese documents. From top to bottom: input images, classification (blue boxes for printed text and red for handwritten text), printed text, and handwritten text.
+
+Machine Learning-Based Methods. For this category, we implemented six representative handcrafted feature ex-traction methods: (1) Hu moments [40], adapted to our task by computing the mean and variance of moment val-ues across all words within each sentence; (2) gray-level co-occurrence matrix (GLCM) texture statistics calculated at 180 ◦ with a pixel distance of 1 [41]; (3) uniform local binary patterns (LBP), where the 0–255 codes are aggre-gated into eight histogram bins [42]; (4) gradient-based directional features that capture both magnitude and ori-entation information [43]; (5) grayscale intensity descrip-tors proposed by Malakar et al. [12]; and (6) combined in-tensity–structural descriptors introduced by Garlapati et al. [13]. To ensure a fair and consistent comparison focusing ex-clusively on the feature extraction stage, all methods share identical preprocessing procedures and are evaluated using the same random forest classifier with 20 trees. This classi-fier is selected for its simplicity, robustness, computational efficiency, and independence from GPU acceleration, en-abling straightforward deployment on a wide range of edge devices. 
+
+Deep Learning-Based Methods. Although deep learning-based methods generally achieve high accuracy, their computational cost can limit their applicability to resource-constrained environments. To reflect realistic deployment scenarios on edge devices, we selected two lightweight neural networks as baselines: (1) LeNet, which processes fixed-size images of 128 × 256 pixels [44]; and (2) a fully convolutional network (FCN) capable of han-dling images with variable sizes [45]. 12 4.1.3. Hyperparameters 
+
+The hyperparameters employed in our framework are summarized as follows. In the Component Initialization 
+
+stage (Section 3.1.1), the minimum connected component area is set to 10 pixels to remove small noise regions, the spatial density threshold is fixed at 0.02 to filter sparse components, and the aspect ratio is constrained within the range of [1 /35 , 35] to accommodate both narrow and wide character shapes. For the Region-aware Handwriting Descriptor (Section 3.2.2), the number of spatial parti-tions is fixed to 10, and the division is performed using a linear partitioning strategy to ensure uniform coverage of the sentence region. 
+
+4.2. Visualization of Segmentation Results 
+
+To intuitively demonstrate the effectiveness and gen-eralization ability of the proposed method across differ-ent languages, we visualize segmentation results on En-glish, Chinese, and Japanese document samples (Fig. 5). The method exhibits consistent performance across lan-guages with distinct character structures—from the intri-cate strokes of Chinese characters to the simpler shapes of English letters and Japanese kana. It effectively dis-tinguishes between printed and handwritten text even un-der variations in fonts and handwriting styles. Notably, the segmentation masks preserve fine-grained details, such as individual handwritten strokes, indicating high preci-sion. Although minor inaccuracies occasionally occur in densely overlapping regions, the method overall achieves robust segmentation accuracy. These qualitative obser-vations complement the quantitative analyses presented in the following section, providing further evidence of the proposed approach’s effectiveness.                                  
+
+> Table 1: Comparison with machining learning-based methods
+> MAD-HPTS PHD-AS Methods Accuracy(%) Runtime(s) Accuracy(%) Runtime(s) Hu [40] 86.7 11.6 71.3 1.1 GLCM [41] 89.1 27.5 64.0 1.7 LBP [42] 87.3 12.8 70.6 1.1 Malakar et al. [12] 90.0 11.9 66.0 0.9 Direction [43] 93.5 12.5 74.0 1.1 Garlapati et al. [13] 94.9 10.7 82.2 1.0 RHD (Ours) 96.9 8.7 83.8 0.4
+
+4.3. Comparison with Machine Learning-Based Methods 
+
+To systematically assess the robustness and computa-tional efficiency of the proposed RHD method against established feature extraction approaches, we conducted comprehensive experiments on two benchmark datasets, MAD-HPTS and PHD-AS. Both datasets contain pre-cisely annotated text regions, ensuring that the evalua-tion isolates the performance of feature extraction meth-ods. RHD was compared with six well-established base-lines [12, 13, 40–43], and performance was evaluated using multiple metrics. For each metric, the median values over repeated trials were reported to ensure result stability and statistical representativeness. The experimental results summarized in Table 1 clearly demonstrate that RHD consistently achieves the best per-formance across all evaluation metrics on both MAD-HPTS and PHD-AS. In addition to superior accuracy, RHD also maintains the lowest computational overhead among all evaluated methods, underscoring its practical efficiency. Notably, although PHD-AS is captured under real-world conditions with perspective distortion, motion blur, and irregular text alignment, RHD still attains the highest performance under the challenging dataset. This consistent superiority in both accuracy and computational cost further substantiates the effectiveness and robustness of the proposed RHD in diverse, real-world text segmen-tation scenarios. 13 Table 2: Comparison with deep learning-based methods                  
+
+> MAD-HPTS PHD-AS Methods Accuracy(%) Runtime(s) Accuracy(%) Runtime(s) CNN [44] 73.7 229.3 71.3 8.7 FCN [45] 98.3 67.5 91.5 6.3 RHD (Ours) 96.9 8.7 83.8 0.4
+
+4.4. Comparison with Deep Learning-Based Methods 
+
+To further evaluate the practical efficiency of the pro-posed RHD method relative to more powerful neural net-works, we conducted experiments comparing two repre-sentative architectures on MAD-HPTS and PHD-AS. All experiments were performed on the same CPU-only work-station to ensure a fair and consistent comparison. As summarized in Table 2, the proposed RHD method runs over eight times faster than LeNet on MAD-HPTS and more than 15 times faster on PHD-AS, demonstrating significant practical advantages for deployment in mobile or other low-power edge scenarios. Although RHD is slightly less accurate than FCN, achieving only 1.4 per-centage points lower accuracy on MAD-HPTS, the differ-ence is modest. This small gap is likely due to the rela-tively simple feature distributions in the scanner-acquired MAD-HPTS dataset, which can be effectively captured by handcrafted region-aware descriptors. On the more chal-lenging, camera-acquired PHD-AS dataset, the accuracy difference is larger, reflecting the greater benefits of end-to-end feature learning under irregular text layouts. Al-though FCN is more accurate, its much longer inference time limits practicality on resource-constrained devices. In real-world deployments, a minor accuracy trade-off for an order-of-magnitude speed gain often represents the most pragmatic choice, highlighting the effectiveness of the pro-posed RHD approach for efficient, cross-dataset handwrit-ten and printed text classification.                 
+
+> Table 3: Performance comparison on RK3576
+> Methods Accuracy(%) Runtime(s) LBP [42] 85.1 12.3 Hu [40] 85.2 21.2 GLCM [41] 87.7 98.3 Malakar et al. [12] 88.4 20.9 Direction [43] 92.8 13.2 Garlapati et al. [13] 94.3 19.8 RHD (Ours) 95.9 10.8
+
+4.5. Performance on Edge Devices 
+
+To further evaluate the practical applicability and de-ployment efficiency of the proposed method on resource-constrained edge devices, we deployed all methods on the RK3576 platform. Experiments were conducted using 3,000 randomly selected handwritten and 3,000 printed samples from the MAD-HPTS dataset, resulting in a total of 6,000 test images. For each method, both the overall classification accuracy and the total inference time across all images were recorded. Except for the hardware plat-form and the number of test samples, the experimental setup remained identical to that described in Section 4.3. Experimental results, summarized in Table 3, show that RHD continues to achieve the highest accuracy among all tested methods. The slight decrease in accuracy compared to previous experiments is likely due to the balanced se-lection of handwritten and printed testing samples. De-spite this, RHD still clearly outperforms all alternative ap-proaches. Moreover, on the edge device, RHD maintains the lowest inference time, confirming its efficiency and suit-ability for real-world deployment on resource-constrained platforms. 
+
+4.6. Performance with Different Classifiers 
+
+To further evaluate the generality of the proposed RHD features, we compared them with the features of Garlapati et al. [13], which achieved the second-best performance in the previous machine learning-based comparison. Specif-14 Image CCA Region Growing Double RLSA SCCS(Ours) Figure 6: The figure qualitative comparison of four text-segmentation algorithms on seven samples. For each row, columns from left to right show: original image, CCA method [46], region-growing algorithm [4], double-RLSA algorithm [5], and the proposed SCCS method. Red bounding boxes highlight regions where the differences between methods are most visually distinguishable. 
+
+ically, both RHD and Garlapati’s features were used as inputs to several classical machine learning classifiers, in-cluding Decision Tree, Gradient Boosting, RBF SVM, and Random Forest [47–50]. The results, summarized in Table 4, show that RHD fea-tures consistently outperform Garlapati’s features across all classifiers, demonstrating stronger discriminative ca-pability, especially for complex decision boundaries. No-tably, the combination of RHD features with Random For-est achieves the highest performance, with an accuracy of 96.9% and an F1-score of 95.5%, surpassing the results obtained by Garlapati’s features with any classifier.            
+
+> Table 4: Accuracy (%) performance comparison of different classi-fiers.
+> Classifiers Garlapati’s et. al [13] RHD (Our) Decision Tree 93.8 94.1
+> Gradient Boosting 93.9 94.3
+> RBF SVM 93.3 94.9
+> Random Forest 94.9 96.9
+
+4.7. Performance of SCC Segmentation 
+
+Due to the lack of standardized quantitative metrics suitable for evaluating text segmentation quality in our context, and considering that segmentation is not the most critical module of the system, we perform a quali-tative analysis to assess segmentation performance. Over-segmented SCCs do not necessarily lead to errors; for in-stance, a single character may be split into multiple SCCs, but these can still be correctly classified in subsequent stages. Specifically, we visually analyzed and compared the results obtained from four segmentation algorithms: the connected component analysis (CCA) [46], the region growing algorithm [4], the double RLSA algorithm [5], and our proposed SCCS method. The comparison results are shown in Fig. 6. The evalua-tion images were carefully selected to include complex lay-outs in Chinese, English, and Japanese, enabling a compre-hensive visual comparison of the four segmentation algo-rithms. The CCA method produces clean character-level segmentation across all languages, but often over-segments sentences into individual radicals or strokes, which could negatively impact subsequent feature extraction, partic-ularly for Chinese and Japanese characters. In contrast, the region growing algorithm tends to under-segment by merging content from multiple sentences into a huge re-gion, frequently grouping overlapping text lines and inter-secting bounding boxes. The double RLSA algorithm alle-viates some under-segmentation, yet it still fails to connect 15 multiple words within a sentence, particularly in densely written regions of Japanese handwriting. By comparison, the proposed SCCS method yields the most consistent and coherent segmentation results across all three languages. Printed and handwritten text are cleanly separated, over-lapping lines remain distinct, and even small handwritten insertions between printed lines are accurately isolated, demonstrating the superior performance and robustness of SCCS in handling complex multilingual layouts. 
+
+4.8. Enhancing Existing Methods with Region-Aware Fea-ture Design Principle 
+
+To validate the effectiveness and generality of the pro-posed region-aware feature design principle, we applied a simple concentric-region partitioning strategy to five ex-isting feature extraction methods: GLCM [41], LBP [42], Direction [43], Malakar et al.’s grayscale features [12], and Garlapati et al.’s intensity-structural features [13]. Each image was divided into three concentric regions, and fea-tures were extracted separately from each region and then concatenated to form a single feature vector for classifica-tion. The comparative results are shown in Fig. 7. All five methods benefit from region-aware partitioning, achiev-ing noticeable accuracy improvements with minimal ad-ditional computational cost. Notably, Garlapati et al.’s method achieved over 96% accuracy after partitioning, with only a 10.3% increase in processing time. For most texture-based descriptors, the partitioning introduces neg-ligible overhead. In contrast, GLCM requires computing statistics on a 256 × 256 co-occurrence matrix for each region, causing its computational cost to grow nearly lin-early with the number of partitions due to repeated ma-trix computations, which reduces the cost-effectiveness of this optimization. Overall, these results demonstrate that the region-aware feature design principle can consistently enhance traditional feature extractors, highlighting the generality and practical utility of the proposed RHD ap-proach. Features 
+
+> 0.850
+> 0.875
+> 0.900
+> 0.925
+> 0.950
+> 0.975
+> Accuracy
+> Features
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> Runtime (s)  Features Comparison
+> Direction
+> GLCM
+> LBP
+> Malakar's
+> Garlapati's
+> Partition / Original
+> Figure 7: The figure show the existing methods enhanced by region-aware feature design principle. For each feature, the solid bars show the original accuracy or runtime, while the semi-transparent bars indicate the accuracy or runtime after partitioning.
+
+4.9. Comparison of Region Partition Strategies 
+
+The performance of the RHD method is influenced by two key hyper-parameters: the number of partition re-gions and the partitioning strategy. To systematically in-vestigate their impact, we conducted two sets of experi-ments, focusing separately on the number of regions and the choice of partitioning strategy. 
+
+4.9.1. Number of Partition Region 
+
+To analyze the impact of partition granularity, we fixed the partition strategy to linear and varied the number of regions from one to ten. For each configuration, we mea-sured both classification accuracy and inference time. The results, as shown in Fig 8, indicate that increasing the number of regions generally leads to higher accuracy, as finer divisions capture more local spatial variations within the text regions. Importantly, the improvement in accu-racy is accompanied by only a modest increase in com-putational cost. Runtime fluctuations observed for higher region counts are primarily due to measurement noise and the random variation in the structure of the random forest classifier. Further analysis indicates a clear Pareto frontier 16 in the number of partition regions, highlighting a trade-off between accuracy and inference time. This demonstrates the flexibility of the proposed method, allowing the num-ber of regions to be adjusted according to specific accu-racy–time requirements in practical applications. 
+
+> Figure 8: The left figure illustrates classification accuracy as a func-tion of the number of regions; the middle figure shows runtime versus region count; and the right figure depicts the Pareto front between accuracy and region count.
+
+4.9.2. Partition Strategy 
+
+To compare the differences among partitioning strate-gies, we fixed the number of regions to three and system-atically compared three distinct partitioning schemes: lin-ear, square, and log-polar. Each scheme divides the image into regions with different shapes and spatial distributions, potentially affecting the extraction of local features and, consequently, the overall classification performance. As shown in Table 5, the linear partition strategy achieves the highest accuracy. Compared with the results in Table 1, all three partitioning schemes outperform the other compared methods, indicating that regional parti-tioning itself contributes positively to feature discrimina-tion. Furthermore, with only a small number of regions, the consistent improvements demonstrate the robustness and generalization capability of the proposed method.     
+
+> Table 5: Performance comparison of different partition methods Partition methods Accuracy(%) Square 95.8 Log-polar 96.0 Linear 96.1
+
+5. Conclusion 
+
+In this paper, we present the SCCS algorithm for text segmentation and the RHD feature extraction method for distinguishing handwritten from printed characters. On the MAD-HPTS dataset, RHD boosts accuracy by about 2% over the historical method of Garlapati et al. and trims per-sample runtime by roughly 19%. Experimental results demonstrate that our RHD approach consistently achieves the best performance across all evaluation metrics on both the MAD-HPTS and PHD-AS while maintaining minimal computational overhead. When compared with neural-network baselines, RHD’s accuracy on MAD-HPTS is only marginally lower, yet its inference time is less than one-eighth of theirs, yielding a substantial efficiency ad-vantage. We further analyse the impact of region division strategies and region counts, showing that even straight-forward partitioning schemes can deliver substantial ac-curacy improvements with little additional runtime. We hope this work will inspire further research into partition-based feature extraction to optimise performance and re-veal deeper patterns in document analysis. 
+
+Acknowledgements 
+
+This work was supported by the Natural Science Foun-dation of Sichuan Province, China under Grant No. 24NS-FSC2722, the National Natural Science Foundation of China under Grant No. 62406043, the Open Project Fund of the Key Laboratory of Digital Innovation of Tianfu Culture under Grant No. TFWH-2025-15, and Transfor-17 mation Foundation of Tianfu Jincheng Laboratory under Grant No. 2025ZH013. 
+
+References 
+
+[1] K. Kuhnke, L. Simoncini, and Zs. M. Kovacs-V. A sys-tem for machine-written and hand-written character distinction. In Proceedings of the Third International Conference on Document Analysis and Recognition ,volume 2, pages 811–814, Washington, D.C., USA, 1995. IEEE Computer Society. [2] Umapada Pal and Bidyut Baran Chaudhuri. Au-tomatic separation of machine-printed and hand-written text lines. In Proceedings of the Fifth Interna-tional Conference on Document Analysis and Recog-nition , pages 645–648, Bangalore, India, 1999. IEEE. [3] Ranjeet Srivastva, Aditya Raj, Tushar Patnaik, and Bhupendra Kumar. A survey on techniques of sepa-ration of machine printed text and handwritten text. 
+
+International Journal of Engineering and Advanced Technology , 2(3):552–555, 2013. [4] M. S. Shirdhonkar and Manesh B. Kokare. Discrimi-nation between printed and handwritten text in doc-uments. Recent Trends in Image Processing and Pat-tern Recognition , RTIPPR(3):131–134, 2010. [5] Abdel Belaïd, K. C. Santosh, and Vincent Poulain D’Andecy. Handwritten and printed text separation in real document, 2013. [6] Junho Jo, Hyung Il Koo, Jae Woong Soh, and Nam Ik Cho. Handwritten text segmentation via end-to-end learning of convolutional neural networks. Multimedia Tools and Applications , 79(43):32137–32150, 2020. [7] Mahsa Vafaie, Jörg Waitelonis, and Harald Sack. Im-provements in handwritten and printed text separa-tion in historical archival documents. In Proceedings of the 20th Archiving Conference , pages 36–41, Oslo, Norway, 2023. Society for Imaging Science and Tech-nology. [8] Yefeng Zheng, Changsong Liu, and Xiaoqing Ding. Single-character type identification. In Proceedings of SPIE Document Recognition and Retrieval IX , pages 49–56, San Jose, CA, USA, 2001. SPIE. [9] Yefeng Zheng, Huiping Li, and David Doermann. The segmentation and identification of handwriting in noisy document images. In Document Analy-sis Systems V: 5th International Workshop, DAS 2002 Princeton, NJ, USA, August 19–21, 2002 Pro-ceedings , pages 95–105, Princeton, NJ, USA, 2002. Springer. [10] Xujun Peng, Srirangaraj Setlur, Venu Govindaraju, Ramachandrula Sitaram, and Kiran Bhuvanagiri. Markov random field based text identification from annotated machine printed documents. In 2009 10th International Conference on Document Analysis and Recognition , pages 431–435, Brasília, Brazil, 2009. IEEE. [11] Ergina Kavallieratou, Stathis Stamatatos, and Hera Antonopoulou. Machine-printed from handwritten text discrimination. In Proceedings of the Ninth International Workshop on Frontiers in Handwrit-ing Recognition , pages 312–316, Kokubunji, Tokyo, Japan, 2004. IEEE Computer Society. [12] Samir Malakar, Rahul Kumar Das, Ram Sarkar, Sub-hadip Basu, and Mita Nasipuri. Handwritten and 18 printed word identification using gray-scale feature vector and decision tree classifier. Procedia Technol-ogy , 10:831–839, 2013. [13] Bala Mallikarjunarao Garlapati and Srinivasa Rao Chalamala. A system for handwritten and printed text classification. In Proceedings of the 19th UKSim-AMSS International Conference on Com-puter Modelling & Simulation , page 50–54, Cam-bridge, England, 2017. IEEE. [14] Nicolas Dutly, Fouad Slimane, and Rolf Ingold. Phti-ws: A printed and handwritten text identification web service based on fcn and crf post-processing. In 
+
+2019 International Conference on Document Analysis and Recognition Workshops (ICDARW) , pages 20–25, Sydney, Australia, 2019. IEEE. [15] Sina Gholamian and Ali Vahdat. Handwritten and printed text segmentation: A signature case study. In 
+
+Proceedings of the IEEE/CVF International Confer-ence on Computer Vision , pages 582–592, Montreal, Canada, 2023. IEEE/CVF. [16] Shinichi Imade, Seiji Tatsuta, and Toshiaki Wada. Segmentation and classification for mixed text/image documents using neural network. In Proceedings of the Second International Conference on Document Anal-ysis and Recognition , pages 930–934, Tsukuba, Japan, 1993. IEEE. [17] Xujun Peng, Srirangaraj Setlur, Venu Govindaraju, and Ramachandrula Sitaram. Handwritten text sep-aration from annotated machine printed documents using markov random fields. International Jour-nal on Document Analysis and Recognition (IJDAR) ,16(1):1–16, 2013. [18] Konstantinos Zagoris, Ioannis Pratikakis, Aposto-los Antonacopoulos, Basilis Gatos, and Nikos Pa-pamarkos. Distinction between handwritten and machine-printed text based on the bag of visual words model. Pattern Recognition , 47(3):1051–1062, 2014. [19] Sukalpa Chanda, Katrin Franke, and Umapada Pal. Structural handwritten and machine print classi-fication for sparse content and arbitrary oriented document fragments. In Proceedings of the 2010 ACM Symposium on Applied Computing , pages 18– 22, Sierre, Switzerland, 2010. ACM. [20] Jinhong Katherine Guo and Matthew Y Ma. Sep-arating handwritten material from machine printed text using hidden markov models. In Proceedings of Sixth International Conference on Document Analysis and Recognition , pages 439–443, Seattle, Washington, USA, 2001. IEEE. [21] Ahmad Montaser Awal and Abdel Belaïd. Neigh-borhood label extension for handwritten/printed text separation in arabic documents. In 2017 1st Interna-tional Workshop on Arabic Script Analysis and Recog-nition (ASAR) , pages 36–40, Abu Dhabi, United Arab Emirates, 2017. IEEE. [22] Umapada Pal and Bidyut Baran Chaudhuri. Machine-printed and hand-written text lines identifi-cation. Pattern Recognition Letters , 22(3-4):431–441, 2001. [23] ET-Tahir Zemouri and Youcef Chibani. Machine printed handwritten text discrimination using radon transform and svm classifier. In 2011 11th Interna-tional Conference on Intelligent Systems Design and Applications , pages 1306–1310, Jeddah, Saudi Arabia, 2011. IEEE. 19 [24] Jie Xi, Jianming Hu, and Lide Wu. Page segmen-tation of chinese newspapers. Pattern Recognition ,35(12):2695–2704, 2002. [25] Yefeng Zheng, Huiping Li, and David Doermann. Ma-chine printed text and handwriting identification in noisy document images. IEEE Transactions on Pat-tern Analysis and Machine Intelligence , 26(3):337– 353, 2004. [26] Lincoln Faria da Silva, Aura Conci, and Angel Sanchez. Automatic discrimination between printed and handwritten text in documents. In 2009 XXII Brazilian Symposium on Computer Graphics and Im-age Processing , pages 261–267, Brasília, Brazil, 2009. IEEE. [27] Faisal Farooq, Karthik Sridharan, and Venu Govin-daraju. Identifying handwritten text in mixed docu-ments. In ICPR (2) , pages 1142–1145, Hong Kong, China, 2006. ICPR Organization. [28] Dibyajyoti Dhar, Avishek Garain, Pawan Kumar Singh, and Ram Sarkar. Hp_docpres: A method for classifying printed and handwritten texts in doc-tor’s prescription. Multimedia Tools and Applications ,80:9779–9812, 2021. [29] Mallikarjun Hangarge, KC Santosh, Srikanth Dod-damani, and Rajmohan Pardeshi. Statistical texture features based handwritten and printed text classifi-cation in south indian documents, 2013. [30] Manosij Ghosh, Kushal Kanti Ghosh, Showmik Bhowmik, and Ram Sarkar. Coalition game based feature selection for text non-text separation in hand-written documents using lbp based features. Multime-dia Tools and Applications , 80(2):3229–3249, 2021. [31] Jianwei Zhang, Lei Zhang, Junyou Wang, Xin Wei, Jiaqi Li, Xian Jiang, and Dan Du. Sa-rpn: a spa-tial aware region proposal network for acne detection. 
+
+IEEE Journal of Biomedical and Health Informatics ,27(11):5439–5448, 2023. [32] Jianwei Zhang, Lei Zhang, Yan Wang, Junyou Wang, Xin Wei, and Wenjie Liu. An efficient multi-objective evolutionary zero-shot neural architecture search framework for image classification. Inter-national Journal of Neural Systems , 33(5):2350016, 2023. [33] Xiao-Hui Li, Fei Yin, and Cheng-Lin Liu. Printed/handwritten texts and graphics separa-tion in complex documents using conditional random fields. In 2018 13th IAPR International Workshop on Document Analysis Systems (DAS) , pages 145–150, Athens, Greece, 2018. IEEE. [34] Anastasia Prikhodina. Handwritten and printed text separation for historical documents. Bachelor’s thesis, Karlsruhe Institute of Technology, Karlsruhe, Ger-many, 2021. 57 pp. [35] U-V Marti and Horst Bunke. The iam-database: An english sentence database for offline handwrit-ing recognition. International Journal on Document Analysis and Recognition , 5:39–46, 2002. [36] Apostolos Antonacopoulos, David Bridson, Christos Papadopoulos, and Stefan Pletschacher. A realistic dataset for performance evaluation of document lay-out analysis. In 2009 10th International Conference on Document Analysis and Recognition , pages 296– 300, Barcelona, Spain, 2009. IEEE. [37] Riktim Mondal, Showmik Bhowmik, and Ram Sarkar. 20 tseggan: A generative adversarial network for seg-menting touching nontext components from text ones in handwriting. IEEE Transactions on Instrumenta-tion and Measurement , 70:1–10, 2020. [38] Nobuyuki Otsu. A threshold selection method from gray-level histograms. Automatica , 11(285-296):23– 27, 1975. [39] ZhenYouDianXuan. Printed handwritten data. 
+
+https://aistudio.baidu.com/datasetdetail/ 124290/0 , 2022. Accessed: April 19, 2025. [40] Ming-Kuei Hu. Visual pattern recognition by moment invariants. IRE Transactions on Information Theory ,8(2):179–187, 1962. [41] Divya Srivastava, B Rajitha, Suneeta Agarwal, and Shruti Singh. Pattern-based image retrieval using glcm. Neural Computing and Applications , 32:10819– 10832, 2020. [42] Loris Nanni, Alessandra Lumini, and Sheryl Brah-nam. Survey on lbp based texture descriptors for im-age classification. Expert Systems with Applications ,39(3):3634–3641, 2012. [43] Hideyuki Tamura, Shunji Mori, and Takashi Ya-mawaki. Textural features corresponding to visual perception. IEEE Transactions on Systems, Man, and Cybernetics , 8(6):460–473, 1978. [44] Yann LeCun, Léon Bottou, Yoshua Bengio, and Patrick Haffner. Gradient-based learning applied to document recognition. Proceedings of the IEEE ,86(11):2278–2324, 2002. [45] Jonathan Long, Evan Shelhamer, and Trevor Darrell. Fully convolutional networks for semantic segmenta-tion. In Proceedings of the IEEE Conference on Com-puter Vision and Pattern Recognition (CVPR) , pages 3431–3440, Boston, USA, 2015. IEEE. [46] Azriel Rosenfeld and John L. Pfaltz. Connectivity in digital pictures. Journal of the ACM , 13(1):146–160, 1966. [47] Corinna Cortes and Vladimir Vapnik. Support-vector networks. Machine Learning , 20(3):273–297, 1995. [48] Leo Breiman, Jerome H. Friedman, Richard A. Ol-shen, and Charles J. Stone. Classification and Re-gression Trees . Wadsworth International Group, Bel-mont, CA, 1984. [49] Jerome H. Friedman. Stochastic gradient boosting. 
+
+Computational Statistics & Data Analysis , 38(4):367– 378, 1999. [50] Leo Breiman. Random forests. Machine Learning ,45(1):5–32, 2001. 21

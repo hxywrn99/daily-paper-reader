@@ -1,0 +1,617 @@
+Title: TC-MAF: Train-Calibrated Bounded Multi-Evidence Fusion for Multimodal Industrial Anomaly Detection
+
+URL Source: https://arxiv.org/pdf/2607.11170v1
+
+Published Time: Tue, 14 Jul 2026 02:05:21 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+# TC-MAF: Train-Calibrated Bounded Multi-Evidence Fusion for Multimodal Industrial Anomaly Detection 
+
+# Ming Deng 
+
+Shanghai University Shanghai, China chranos@shu.edu.cn 
+
+# Sijin Sun 
+
+National University of Singapore Singapore, Singapore sun.sijin@u.nus.edu 
+
+# Xiaochuan Hu 
+
+University of Electronic Science and Technology of China Chengdu, China 202421090208@std.uestc.edu.cn 
+
+# Xing Wu ∗
+
+Shanghai University Shanghai, China xingwu@shu.edu.cn 
+
+## Abstract 
+
+Multimodal anomaly detection benefits from complementary RGB and 3D evidence, yet auxiliary RGB reconstruction is not equally reliable across product categories and class-wise test-time pol-icy selection is usually unavailable. We propose TC-MAF, a base-anchored multi-evidence fusion design that combines a multimodal detector, complementary Dinomaly evidence, and a small cross-modal consistency cue under one fixed pixel-level fusion formula. A lightweight training-dispersion confidence (TDC) term scales auxiliary participation using only normal training statistics. On MVTec-3D, TC-MAF reaches 0.979 image-level AUROC and 0.990 pixel-level AUPRO, achieving the best mean results on both de-tection and localization among the compared multimodal meth-ods. Systematic ablations show that the fusion structure itself is the dominant factor, while TDC provides a smaller but repro-ducible calibration gain over no calibration or arbitrary calibra-tion. Additional experiments show that the same design remains effective under a pooled-statistics variant, auxiliary-branch and backbone substitutions, few-shot settings, a missing-3D setting, and cross-dataset evaluation on Eyecandies. Code is available at https://anonymous.4open.science/r/TC_MAF-C3BB. 
+
+## CCS Concepts 
+
+• Computing methodologies → Anomaly detection ; Image representations ; Computer vision tasks. 
+
+## Keywords 
+
+multimodal anomaly detection, industrial anomaly detection, RGB-D anomaly detection, adaptive fusion, known-category anomaly detection 
+
+## 1 Introduction 
+
+Combining RGB appearance and 3D geometry improves industrial anomaly detection because many defects manifest more clearly in one modality than the other [ 1, 26 , 28 , 33 ]. Once multiple evidence sources are available, however, the integration rule becomes impor-tant: auxiliary evidence may help substantially on some product categories and much less on others, while anomalous validation data for category-wise policy selection is usually unavailable. Prior methods advance representation learning, anomaly generation, or 
+
+> ∗Corresponding author.
+
+Figure 1: Detection-localization operating points on MVTec-3D. Each point shows one multimodal method in the I-AUROC–P-AUPRO plane. TC-MAF occupies the upper-right frontier among the compared methods, with the highest mean I-AUROC and P-AUPRO. 
+
+cross-modal interaction [ 8 , 16 , 20 , 25 , 28 ], but usually aggregate branch outputs with fixed rules that are only lightly analyzed. This issue becomes especially visible when a multimodal detec-tor is paired with an RGB reconstruction branch. Reconstruction can recover subtle appearance anomalies that geometry may miss, yet its reliability is category-dependent: identity shortcuts emerge under diverse normal patterns [ 30 ], and stable multi-class recon-struction requires careful design [ 13 , 32 ]. The resulting problem is not simply to add more evidence, but to incorporate that evi-dence without allowing it to overwrite the stronger multimodal base indiscriminately. We address this with TC-MAF , a base-anchored multi-evidence fusion design. TC-MAF keeps the multimodal detector as the pri-mary source, adds complementary Dinomaly evidence [ 13 ] through a constrained pixel-level mixture, and uses a small cross-modal con-sistency (CMC) term to reinforce regions where both modalities arXiv:2607.11170v1 [cs.CV] 13 Jul 2026 Conference’17, July 2017, Washington, DC, USA Ming Deng, Sijin Sun, Xiaochuan Hu, and Xing Wu 
+
+appear inconsistent. A lightweight training-dispersion confidence (TDC) term, computed from normal training statistics alone, scales the auxiliary contribution while keeping the fusion operator and its hyperparameters shared across categories. Under this design, TC-MAF achieves 0.979 I-AUROC and 0.990 
+
+P-AUPRO on MVTec-3D, giving the best mean benchmark results among the compared methods. Systematic ablations show that the fusion structure outperforms several natural alternatives, while TDC contributes a smaller but repeatable gain over no calibration and arbitrary calibration. Table 5 further shows that the same de-sign remains effective when the auxiliary branch is replaced with ResAD [ 29 ] or the base backbone with ResNet-18 [ 14 ]. Additional results show that the method also transfers well to Eyecandies, few-shot settings, and a missing-3D setting. Our contributions are as follows: 
+
+• We propose a base-anchored multi-evidence fusion design for multimodal industrial AD, where auxiliary RGB recon-struction evidence is incorporated under one shared pixel-level fusion formula rather than through separate class-wise routing policies. 
+
+• We instantiate this design in TC-MAF: the multimodal de-tector remains the anchor, Dinomaly enters through a con-strained mixture modulated by TDC and local disagreement, and CMC provides lightweight cross-modal reinforcement. 
+
+• We conduct systematic ablations over evidence sources, fu-sion alternatives, and calibration variants, show that a pooled-statistics variant remains close to the default setting, and further evaluate the same design under auxiliary-branch sub-stitution (ResAD), backbone substitution (ResNet-18), cross-dataset evaluation (Eyecandies), few-shot settings, and a missing-3D setting. 
+
+## 2 Related Work 
+
+Exploiting multimodality without cross-modal interference. 
+
+Multimodal industrial AD methods agree that RGB and 3D cues are complementary but differ in where fusion is imposed. Bench-marks such as MVTec-3D and Eyecandies established the aligned RGB+3D setting for this problem [ 3 , 4]. BTF combines classical 3D descriptors with RGB features [ 15 ]. CPMF studies point-cloud anomaly detection with complementary pseudo-multimodal fea-tures [ 5]. M3DM couples patch-wise hybrid feature fusion with decision-layer fusion through multiple memory banks [ 28 ]. 3DSR enhances 3D surface AD through depth simulation and a shared la-tent space [ 33 ]. CMDIAD addresses incomplete-modality inference via cross-modal distillation [ 25 ]. CFMAD learns cross-modal feature mappings for lightweight multimodal detection [ 8 ]. G2SF explic-itly studies geometry-guided score fusion [ 26 ]. MTSJM combines mask training with teacher-student joint memory for multimodal industrial anomaly detection [ 18 ]. 3D-ADNAS revisits multimodal fusion from an architectural perspective [ 21 ]. Collectively, these works broaden how multimodal evidence is extracted and fused, but the fusion rule itself is still typically fixed a priori at the feature, architecture, or score level. This leaves limited room to modulate, at test time, how much and where each auxiliary branch should in-fluence a particular sample and spatial region, even though fusion topology itself has recently been recognized as an important factor in 3D-AD [21]. 
+
+Accuracy versus efficiency and deployment cost. Strong AD often involves a systems trade-off among accuracy, memory, and runtime. PaDiM and PatchCore achieve high accuracy through nominal modeling or retrieval, but at the cost of large feature stores [ 9, 23 ]. SimpleNet shows that lightweight synthetic-anomaly discriminators can be competitive [ 19 ]. AST introduces asymmet-ric student-teacher networks for efficient AD [ 24 ]. PNI leverages position and neighborhood information for efficient detection [ 2]. Yet computational efficiency alone does not address reliability mis-match across categories: under one shared fusion rule without per-class tuning, how should a system rebalance evidences whose utility varies from one category to another? 
+
+Complementary reconstruction evidence versus shortcut risk. Reconstruction-style AD exposes fine-grained appearance de-viations. DRAEM combines reconstruction and discrimination [ 32 ]; RD4AD uses reverse distillation from one-class embedding [ 10 ]; CFLOW-AD employs conditional normalizing flows [ 12 ]; and Trans-Fusion introduces a transparency-based diffusion model for anom-aly detection [ 11 ]. UniAD identifies the identical-shortcut failure of reconstruction models, and Dinomaly shows that Transformer-based reconstruction can become a strong multi-class baseline [ 13 ,30 ]. These works strengthen complementary appearance modeling, but when such evidence is paired with a multimodal detector, its reliability can still vary substantially across categories. A remaining practical question is therefore how to inject reconstruction-oriented auxiliary cues under a shared fusion rule without relying on test-set feedback or per-class tuning. 
+
+Position of TC-MAF. The three threads above highlight a com-mon need: once multiple evidences are available, the integration rule itself becomes a first-class design choice. TC-MAF addresses this by studying a base-anchored fusion rule with a simple training-only calibration term, and by validating that design against system-atic fusion and calibration alternatives (Section 4). 
+
+## 3 Method 3.1 Problem Setup and Overview 
+
+We study unsupervised multimodal anomaly detection on MVTec-3D (10 categories, aligned RGB + 3D, normal-only real-data train-ing). Following the standard benchmark protocol, inference is known-category : the product category of a test sample is available, and the method outputs both an image-level score and a pixel-level anomaly map for that category. A strong multimodal detector already captures much geometric and appearance evidence, yet it can under-react to subtle texture anomalies. A complementary RGB reconstruction branch can re-cover such cases, but uniform fusion is unreliable when that branch is unstable on certain categories. This leads to a more precise ob-jective than simply estimating branch quality: under one shared fusion formula, incorporate auxiliary evidence without letting it dominate the stronger multimodal base. TC-MAF realizes this objective through a base-anchored pixel-level fusion rule. A training-derived calibration term scales how TC-MAF for Multimodal Industrial AD Conference’17, July 2017, Washington, DC, USA 
+
+Figure 2: Schematic overview of TC-MAF. The multimodal base branch provides the anchor evidence, Dinomaly supplies complementary RGB reconstruction evidence, CMC adds a small cross-modal reinforcement cue, and TDC together with disagreement gating determines how strongly auxiliary evidence participates before the final image-level scoring step. 
+
+strongly complementary evidence may participate, a disagreement-dependent gate determines where that participation is locally re-leased, and a small CMC term reinforces regions with inter-modal inconsistency. All quantities derive from normal training statistics, while the fusion operator and its hyperparameters are shared across categories. Figure 2 summarizes the pipeline. Algorithm 1 gives the complete procedure. 
+
+Notation. Let Ω denote the spatial grid and let x ∈ Ω index a loca-tion. We write the three evidence maps as E = {𝑀 base , 𝑀 dino , 𝑀 cross }
+
+with 𝑀 (·) ∈ R𝐻 ×𝑊 , and denote the deployed fusion operator by 
+
+F (E ; 𝑐 𝑑 ) : R𝐻 ×𝑊 ×3 → R𝐻 ×𝑊 . By “shared fusion formula,” we mean that the functional form of F and its hyperparameters are fixed across categories under the known-category benchmark pro-tocol. The default implementation uses category-specific normal statistics for branch normalization and TDC scaling, while a pooled-statistics variant is evaluated separately in Section 4.3. 
+
+## 3.2 Evidence Sources 
+
+TC-MAF combines three complementary evidence sources. The mul-timodal base and Dinomaly branches each produce a z-normalized anomaly map 𝑀 ∈ R𝐻 ×𝑊 and an image-level score 𝑠 ∈ R, while CMC provides an auxiliary normalized pixel map. 
+
+E1: Multimodal base evidence. The primary branch is a multi-modal memory-bank-based detector that follows the Multimodal Memory k-NN design while using the implementation detailed in Appendix A. It outputs a z-normalized base anomaly map 𝑀 base 
+
+and score 𝑠 base , serving as the default decision backbone. Figure 3 shows a simplified view of this branch. Specifically, normal RGB– geometry pairs are encoded into joint patch features, a 10% coreset memory bank is retained as the reference set, and query patches are scored against this bank by 𝑘 -NN to produce the deployed base evidence. 
+
+E2: RGB reconstruction evidence. The auxiliary branch is Dino-maly [ 13 ], a pure-RGB reconstruction model built on DINOv2 [ 22 ]Transformer blocks. It produces a z-normalized anomaly map 𝑀 dino 
+
+and score 𝑠 dino . Dinomaly recovers subtle appearance anomalies that a geometry-heavy detector may miss, but its effectiveness varies across categories. TC-MAF therefore scales its contribution rather than treating it as a uniformly reliable peer. 
+
+E3: Cross-Modal Consistency (CMC). Let r(x) and g(x) denote the ℓ2-normalized RGB and geometry patch features at location x,and let 𝑓 𝑟 →𝑔 , 𝑓 𝑔 →𝑟 be the two train-set-fitted cross-modal mappers. TC-MAF measures bidirectional reconstruction inconsistency as 
+
+𝑒 cross (x) = 12
+
+  1 − cos (¯g(x), g(x))  +  1 − cos (¯r(x), r(x))  , (1) where ¯g(x) = norm (𝑓 𝑟 →𝑔 (r(x))) and ¯r(x) = norm (𝑓 𝑔 →𝑟 (g(x))) .The CMC map is the robustly normalized error map 𝑀 cross (x) =
+
+(𝑒 cross (x) − ˜𝜇 cross )/ ˜𝜎 cross , where ˜𝜇 cross and ˜𝜎 cross are the training-set median and scaled MAD. Its role is purely auxiliary: it reinforces regions where both modalities exhibit unusual cross-modal incon-sistency. 
+
+## 3.3 Adaptive Fusion with a Shared Fusion Rule 
+
+Our deployed fusion rule keeps the multimodal base branch as the anchor, uses a lightweight training-derived calibration term to scale Dinomaly’s contribution, and uses local disagreement to decide where that contribution should be spatially released. The construction keeps the base branch dominant while still allowing complementary evidence to correct it where needed. Conference’17, July 2017, Washington, DC, USA Ming Deng, Sijin Sun, Xiaochuan Hu, and Xing Wu 
+
+Figure 3: Refined schematic of the multimodal base branch used in TC-MAF. Training uses normal RGB and geometry pairs to build a coreset memory bank from fused joint patch features, while inference reuses that bank to score query patches through 
+
+𝑘 -NN and produce 𝑀 base and 𝑠 base .
+
+Training-Dispersion Confidence (TDC). In the normal-only indus-trial setting, auxiliary usefulness cannot be calibrated from anoma-lous validation data. We therefore use a training-derived calibration term based on the dispersion of Dinomaly’s image-level scores on normal training samples. This term acts as a coarse prior for scaling the auxiliary branch inside the fusion rule rather than as a direct predictor of downstream gain. In the default known-category set-ting, each category 𝑐 has its own training-score dispersion 𝜎 (𝑐 )
+
+> train
+
+,computed from Dinomaly’s image-level scores on the normal train-ing samples of that category, and converted into a bounded scalar: 
+
+𝑐 (𝑐 ) 
+
+> 𝑑
+
+= 𝜎 − 𝜎 (𝑐 ) 
+
+> train
+
+− ˆ𝜇 
+
+ˆ𝜎 
+
+!
+
+, (2) where 𝜎 (·) is the sigmoid function, and ˆ𝜇 , ˆ𝜎 are the median and stan-dard deviation of {𝜎 (𝑐 ) 
+
+> train
+
+}𝐶 𝑐 =1 computed across the training classes. The two summary scalars ˆ𝜇 and ˆ𝜎 are fixed constants shared across deployment. Since 𝜎 (·) is monotonically increasing, 𝑐 (𝑐 ) 
+
+> 𝑑
+
+is strictly decreasing in training dispersion, with midpoint 𝑐 (𝑐 ) 
+
+> 𝑑
+
+= 0.5 at 
+
+𝜎 (𝑐 ) 
+
+> train
+
+= ˆ𝜇 . In the equations below we write 𝑐 𝑑 for the category-specific value applied at inference. In practice, TDC is kept because it is simple, training-only, and improves over fixed or random cali-bration by about 0.85pp I-AUROC (Section 4.3). A pooled-statistics variant, which replaces the default per-class normalization statis-tics and category-specific 𝜎 (𝑐 ) 
+
+> train
+
+with pooled training statistics, is evaluated separately and remains close to the default setting in our ablation. 
+
+Locally gated evidence aggregation. At each location x, TC-MAF combines the training-derived scaling term with spatial disagree-ment. Let Δ(x) = |𝑀 dino (x) − 𝑀 base (x)| and let 𝜏 denote the dis-agreement threshold (implemented as 𝜏 = 1). We use 
+
+𝐺 (x) = 𝛾 𝑐 𝑑 𝜎  Δ(x) − 𝜏 , (3) as the deployed gate map. Since 𝜎 (·) is monotonically increasing, the disagreement term is monotonically increasing in disagreement magnitude. We use 𝐺 (x) as a spatially varying mixing coefficient that releases more auxiliary correction where the Dinomaly and base maps disagree more strongly, while still being scaled by 𝑐 𝑑 .The fused map is then written in one step as 
+
+𝑀 fused (x) = (1 − 𝛼 )( 1 − 𝐺 (x)) 
+
+| {z } 
+
+> 𝑤 base (x)
+
+𝑀 base (x)+ ( 1 − 𝛼 )𝐺 (x)
+
+| {z } 
+
+> 𝑤 dino (x)
+
+𝑀 dino (x) + 𝛼 
+
+|{z} 
+
+> 𝑤 cross
+
+𝑀 cross (x). (4) Because 𝑐 𝑑 ∈ ( 0, 1), 𝜎 (Δ(x) − 𝜏 ) ∈ ( 0, 1), and 𝛾 < 1, we have 
+
+0 ≤ 𝐺 (x) < 1; therefore all three coefficients are nonnegative and sum to one, so Eq. 4 is a pointwise convex combination of the three evidence sources. The base detector always remains active, and auxiliary correction is explicitly bounded by the gate. 
+
+Design rationale. TDC provides a training-derived scaling factor, disagreement provides a spatial release signal, and the convex mix-ture keeps the base detector as the primary source. Together, these components allow complementary evidence to contribute where useful while preventing it from overwriting the base indiscrimi-nately. Section 4.3 validates this design: several natural alternatives— static averaging, score-level fusion, rank-level fusion, and a learned TC-MAF for Multimodal Industrial AD Conference’17, July 2017, Washington, DC, USA 
+
+Algorithm 1 TC-MAF: Adaptive Fusion with a Shared Fusion Rule 
+
+Training phase (normal data only):  
+
+> 1:
+
+Dinomaly (pre-trained); for each class 𝑐 , compute score std 𝜎 (𝑐 ) 
+
+> train
+
+on normal training samples  
+
+> 2:
+
+Compute shared ˆ𝜇, ˆ𝜎 ← median, std of {𝜎 (𝑐 ) 
+
+> train
+
+}𝐶 𝑐 =1 ⊲ or use pooled training statistics  
+
+> 3:
+
+Build multimodal base memory bank; fit CMC mappers  
+
+> 4:
+
+Store branch normalization statistics ⊲ mean/std for base and Dinomaly; median/MAD for CMC 
+
+Inference phase (shared fusion formula, all classes):  
+
+> 5:
+
+𝑀 base , 𝑀 dino , 𝑀 cross ← branch-normalized maps ⊲ z-normalized for base/Dinomaly, robustly normalized for CMC  
+
+> 6:
+
+𝑐 𝑑 ← 𝜎  − ( 𝜎 (𝑐 ) 
+
+> train
+
+− ˆ𝜇 )/ ˆ𝜎  ⊲ TDC, Eq. 2  
+
+> 7:
+
+Δ ← | 𝑀 dino − 𝑀 base | ⊲ elementwise disagreement  
+
+> 8:
+
+𝐺 ← 𝛾 𝑐 𝑑 𝜎 (Δ − 𝜏 ) ⊲ vectorized gate map, O ( 𝐻𝑊 ), Eq. 3  
+
+> 9:
+
+𝑀 fused ← ( 1−𝛼 ) ( 1−𝐺 ) ⊙ 𝑀 base + ( 1−𝛼 )𝐺 ⊙ 𝑀 dino + 𝛼𝑀 cross ⊲
+
+vectorized fusion, O ( 𝐻𝑊 ), Eq. 4  
+
+> 10:
+
+𝑠 ← mean  top 0.5% (𝑀 fused ) ⊲ Eq. 5  
+
+> 11:
+
+return 𝑀 fused , 𝑠 
+
+gate—all fall short. Among calibration variants, constant or random 
+
+𝑐 𝑑 drops I-AUROC by ∼0.85 pp, while the pooled-statistics variant remains close to Full. 
+
+## 3.4 Image-Level Scoring 
+
+The image-level score is computed from the fused map as 
+
+𝑠 = mean  top 0.5% (𝑀 fused ). (5) Equivalently, if 𝑃 = 𝐻𝑊 , 𝑚 = max  1, ⌊0.005 𝑃 ⌋, and 𝑀 fused  
+
+> (1)
+
+≥ · · · ≥ 
+
+𝑀 fused   
+
+> (𝑃 )
+
+are the sorted pixel values, then 
+
+𝑠 = 1
+
+𝑚 
+
+> 𝑚
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑀 fused   
+
+> (𝑡 )
+
+. (6) This image-level scoring step affects only I-AUROC ranking; it does not modify pixel maps, retrain any branch, or change P-AUPRO. The same fused map 𝑀 fused is used directly for pixel-level localization. We use a fixed top-0.5% readout throughout the paper to convert fused maps into image-level scores. This readout is part of the deployed evaluation protocol for TC-MAF and is kept unchanged across all experiments. 
+
+## 4 Experiments 4.1 Experimental Setup 
+
+Dataset. We evaluate on MVTec-3D [ 3 ], which contains 10 in-dustrial product categories with aligned RGB images and organized 3D point clouds. Each category provides only normal samples for training; the test set includes both normal and anomalous samples with pixel-level ground-truth masks. As in the standard benchmark protocol, evaluation is performed category by category. 
+
+Metrics. We report image-level AUROC (I-AUROC) for detection, pixel-level AUROC (P-AUROC), and pixel-level AUPRO (P-AUPRO), following the standard MVTec-3D protocol. Image-level scores are computed with Eq. 5 throughout the paper. 
+
+Figure 4: Full-class qualitative overview on MVTec-3D. Each row shows one representative anomalous sample for one class with RGB, depth, the final TC-MAF anomaly map, and the ground-truth mask. Conference’17, July 2017, Washington, DC, USA Ming Deng, Sijin Sun, Xiaochuan Hu, and Xing Wu 
+
+Table 1: Expanded class-wise comparison on MVTec-3D across 3D, RGB, and 3D+RGB settings. Each cell reports I-AUROC/P-AUPRO.                                                                                                                                                                                       
+
+> Setting Method Bagel C.Gland Carrot Cookie Dowel Foam Peach Potato Rope Tire Mean 3D Shape-G.’23 [7] .983/ .974 .682/.871 .978 /.981 .998 /.924 .960 /.898 .737/ .773 .993 /.978 .979 /.983 .966/.955 .871/ .969 .916/.931 3DSR’24 [33] .945/.922 .835 /.872 .969/ .984 .857/.859 .955 /.940 .880 /.714 .963/.970 .934/.978 .998 /.977 .888/.858 .922 /.907 LSFA’24 [27] .986 /.974 .669/ .887 .973/ .981 .990/.921 .950/.901 .802/ .773 .961/ .982 .964 /.983 .967 /.959 .944 /.981 .921/ .934
+> MTSJM’25 [18] .985 /.929 .728/.855 .961/.971 .991 /.887 .876/.878 .773/.764 .906/.940 .935/.971 .932/.937 .856/.951 .894/.908 TC-MAF (Ours) .972/ .963 .913 /.942 .974 /.975 .881/ .936 .934/ .984 .907 /.887 .983 /.972 .949/ .985 .967 /.969 .898 /.903 .938 /.952
+> RGB Shape-G.’23 [7] .911/.946 .936 /.972 .883/.960 .662/ .914 .974 /.958 .772/.776 .785/.937 .641/.949 .884/.956 .706/.957 .815/.933 3DSR’24 [33] .844/.923 .930/.970 .964 /.979 .794 /.859 .998 /.979 .904 /.894 .938/.943 .730 /.951 .978 /.964 .900 /.980 .898 /.944 LSFA’24 [27] .951/.957 .920/ .976 .911/.970 .762/.912 .961/.934 .770/.851 .930/.960 .675/.957 .938 /.970 .787/.961 .861/.945 MTSJM’25 [18] .971 /.976 .908/.969 .942/.975 .731/ .914 .967/.949 .795/.869 .984 /.975 .608/ .963 .838/ .970 .823/ .966 .858/ .953
+> TC-MAF (Ours) .973 /.982 .967 /.977 .979 /.987 .861 /.913 .972/.943 .851 /.901 .962 /.980 .934 /.976 .936/ .981 .895 /.946 .933 /.959
+> 3D+RGB Shape-G.’23 [7] .986/.981 .894/.973 .983/.982 .991/.971 .976/.962 .857/ .978 .990 /.981 .965/.983 .960/.974 .869/.975 .947/.976 3DSR’24 [33] .981/.964 .867/.966 .996 /.981 .981/.942 1.000 /.980 .994 /.973 .986/.981 .978/.977 1.000 /.979 .995 /.979 .978 /.972 CFM’24 [8] .988/.980 .875/.966 .984/.982 .992 /.947 .997 /.959 .924/.967 .964/.982 .949/.983 .979/.976 .950/.982 .960/.972 LSFA’24 [27] 1.000 /.986 .939 /.974 .982/.981 .989/.946 .961/.925 .951/.941 .983/ .983 .962/.983 .989 /.974 .951/ .983 .971/.968 G2SF’25 [26] .997 /.982 .923/.977 .993 /.982 .967/ .979 .966/.971 .991 /.976 .994 /.982 .988 /.983 .966/ .978 .922/.981 .971/ .979
+> MTSJM’25 [18] 1.000 /.984 .931/ .981 .985/ .983 .994 /.968 .968/.939 .899/.951 .986/.977 .947/ .985 .962/.974 .897/.973 .957/.972 TC-MAF (Ours) .992/ .993 .998 /.997 .992/ .997 .953/ .989 .992/ .991 .952/ .979 .988/ .998 .979 /.998 .984/.963 .958 /.992 .979 /.990
+
+Table 2: Comparison with selected 3D+RGB multimodal methods on MVTec-3D. 
+
+Method I-AUROC P-AUPRO Shape-Guided’23 [7] 0.947 0.976 3DSR’24 [33] 0.978 0.972 CFM’24 [8] 0.960 0.972 LSFA’24 [27] 0.971 0.968 G2SF’25 [26] 0.971 0.979 
+
+MTSJM’25 [18] 0.957 0.972 TC-MAF (Ours) 0.979 0.990 
+
+Baselines. We compare against representative 3D+RGB multi-modal baselines on MVTec-3D, including Shape-Guided [ 7], 3DSR [ 33 ], CFM [8], LSFA [27], G2SF [26], and MTSJM [18]. 
+
+Implementation. TC-MAF uses the configuration described in Section 3: Dinomaly [ 13 ] with DINOv2 [ 22 ] ViT-S/14 at 448 ×448 ,multimodal base branch with dual WRN-50-2 [ 31 ] at 288 ×288 , max-imum gate 𝛾 =0.6, and CMC weight 𝛼 =0.15 . All 10 classes share identical fusion settings and training procedures; branch-specific normalization statistics are computed per class by default, while the pooled-statistics variant is evaluated separately in Table 3. 
+
+Protocol scope and comparison notes. All fusion equations and hyperparameters are fixed from training-set statistics and applied identically across all 10 classes; no class-specific fusion formula or threshold optimization is performed. We follow the standard MVTec-3D metric definitions (same roc_auc_score , same PRO pipeline with 200 thresholds, FPR < 0.3, morphological dilation). The pooled-statistics variant and the missing-3D setting are both summarized in Table 3. 
+
+## 4.2 Benchmark Positioning 
+
+Table 2 summarizes TC-MAF together with representative methods on MVTec-3D. In Table 2, TC-MAF achieves the highest mean I-AUROC and P-AUPRO among the compared methods. The lead is 0.1pp on I-AUROC over 3DSR (0.979 vs. 0.978) and 1.1pp on P-AUPRO over G2SF (0.990 vs. 0.979). The main comparison focuses on I-AUROC and P-AUPRO; P-AUROC results are provided separately in Appen-dix I. Class-wise, TC-MAF is especially strong on Cable Gland and maintains near-ceiling localization on most categories, with Rope as the main localization exception, while Cookie and Foam remain the harder categories in the class-wise I-AUROC breakdown. This pattern is consistent with the method’s structure: TC-MAF benefits most when locally concentrated corrective evidence can comple-ment the base, whereas diffuse anomaly concentration remains harder for image-level ranking. Detailed class-wise breakdown is presented in Table 1. 
+
+## 4.3 Controlled Evidence: Component Ablation 
+
+Table 3 presents the systematic ablation study for TC-MAF. All rows use the same evaluation protocol. The study is organized into four groups: (A) evidence ablation, (B) fusion-strategy alternatives, (C) calibration variants, and (D) extended settings. In Group A, “w/o TDC” removes the training-derived scaling term from the deployed gate; in Group C, the same gate form is retained but 𝑐 𝑑 is replaced with non-informative fixed or randomized scalars. The ablation reveals a clear hierarchy. Group A (evidence ab-lation): Within the core fusion-component ablations, removing Dinomaly causes the largest drop ( −2.34pp I-AUROC, −0.94pp P-AUPRO), indicating that complementary reconstruction evidence is the main additional source of gain. CMC adds 1.44pp to I-AUROC, while TDC contributes a smaller 0.79pp improvement. Group B TC-MAF for Multimodal Industrial AD Conference’17, July 2017, Washington, DC, USA 
+
+Figure 5: Weak-category visualization for Cookie and Foam. The examples provide a larger view of the branch-wise responses and the final TC-MAF fused maps, illustrating the diffuse anomaly evidence that makes image-level ranking difficult on these classes while still allowing strong pixel-level localization. Table 3: Systematic ablation on MVTec-3D. All variants use the same evaluation protocol. Groups: (A) evidence abla-tion, (B) fusion-strategy alternatives, (C) calibration variants, (D) extended settings. ΔI is the I-AUROC difference from Full (pp). 
+
+Variant I-AUROC ΔI P-AUPRO TC-MAF (Full) .9788 — .9901 
+
+> A
+
+w/o Dinomaly (base only) .9554 −2.34 .9807 w/o CMC .9644 −1.44 .9891 w/o TDC .9709 −0.79 .9881 
+
+> B
+
+static pixel mean .9488 −3.00 .9871 score-level weighted avg .9521 −2.67 .9875 rank-level fusion .9634 −1.54 .9877 learned logistic gate .9571 −2.17 .9872 w/o disagreement gate .9690 −0.98 .9878 
+
+> C
+
+constant 𝑐 𝑑 .9702 −0.86 .9898 randomized 𝑐 𝑑 .9704 −0.84 .9896 pooled-statistics variant .9782 −0.06 .9892 
+
+> D
+
+missing 3D modality .9330 −4.58 .9586 
+
+(fusion-strategy alternatives): All Group B variants retain the same three evidence sources and TDC; only the way they are com-bined is changed. Static pixel mean drops I-AUROC by 3.00pp; a learned logistic gate drops it by 2.17pp; score-level weighted averag-ing ( −2.67pp) and rank-level fusion ( −1.54pp) also fall short of the deployed pixel-level rule. Removing the disagreement gate costs 0.98pp. These comparisons indicate that the main benefit comes from the fusion structure rather than from generic aggregation. 
+
+Group C (calibration variants): Constant 𝑐 𝑑 (−0.86pp) and ran-domized 𝑐 𝑑 (−0.84pp) both degrade I-AUROC, showing that the training-derived signal is more useful than an arbitrary scalar, even though its average contribution is modest. The pooled-statistics variant, which replaces the default per-class normalization statistics and category-specific 𝜎 (𝑐 ) 
+
+> train
+
+with pooled training statistics, remains close to Full ( −0.06pp I-AUROC, −0.09pp P-AUPRO), suggesting 
+
+Table 4: Few-shot/full-shot results on MVTec-3D. TC-MAF is evaluated under the same shot settings.                                                          
+
+> I-AUROC P-AUPRO Method 5-shot 10-shot 50-shot Full 5-shot 10-shot 50-shot Full BTF’23 [15] 0.671 0.695 0.806 0.865 0.920 0.928 0.947 0.959 AST’23 [24] 0.680 0.689 0.794 0.937 0.903 0.835 0.929 0.944 M3DM’23 [28] 0.822 0.845 0.907 0.945 0.937 0.943 0.955 0.964 CFM’24 [8] 0.811 0.845 0.906 0.960 0.949 0.954 0.965 0.972
+> LSFA’24 [27] 0.834 0.871 0.926 0.971 0.936 0.943 0.962 0.968 TC-MAF (Ours) 0.830 0.873 0.941 0.979 0.952 0.962 0.973 0.990
+
+that the rule is not tightly tied to category-specific calibration statis-tics. Group D: Under the missing-3D setting, I-AUROC decreases by 4.58pp and P-AUPRO by 3.15pp. Performance remains below the full RGB+3D setting, but the RGB-driven evidence and bounded fusion rule still retain useful detection and localization ability when 3D is unavailable. 
+
+Supporting analysis for the training-derived calibration term. We interpret TDC as a lightweight training-only calibrator rather than as the main driver of performance. In Table 3, removing TDC re-duces mean I-AUROC by 0.79pp, indicating a secondary but con-sistent contribution on top of the shared fusion rule. The com-plementary per-class analysis in Appendix H supports the same mechanism: training dispersion correlates with the observed fusion gain over the base branch ( 𝜌 =0.66 , 𝑝 =0.038 ), while TDC confidence correlates with the magnitude of the TDC-specific effect ( 𝜌 =0.68 ,
+
+𝑝 =0.029 ). Together, these results suggest that TDC primarily reg-ulates auxiliary participation under a fixed fusion rule instead of acting as a uniform additive boost. Alternative train-dispersion proxies are summarized in Table 16. 
+
+## 4.4 Additional Results 
+
+Few-shot learning. To evaluate TC-MAF under limited training data, we conduct few-shot experiments on MVTec-3D with 5, 10, and 50 training samples per class. Table 4 reports TC-MAF results under the same shot settings together with prior methods. Conference’17, July 2017, Washington, DC, USA Ming Deng, Sijin Sun, Xiaochuan Hu, and Xing Wu 
+
+Table 5: Generalization of the bounded fusion rule across auxiliary branches and base backbones on MVTec-3D. Each block replaces one component while keeping the fusion rule identical. ΔI is the I-AUROC gap from bounded fusion to the given baseline (pp).                                
+
+> Setting Fusion I-AUROC P-AUPRO ΔI
+> Default: Dinomaly + WRN-50-2 base
+> bounded (Full) .979 .990 —static mean .949 .987 −3.00 learned gate .957 .987 −2.17
+> Alt. auxiliary: ResAD + WRN-50-2 base
+> bounded .946 .891 —static mean .873 .864 −7.30 learned gate .915 .783 −3.10
+> Alt. backbone: Dinomaly + ResNet-18 base
+> bounded .972 .979 —static mean .947 .967 −2.50 learned gate .966 .969 −0.60
+
+Table 4 shows that TC-MAF delivers the best P-AUPRO across all shot settings and the best I-AUROC from 10-shot onward. At 5-shot, LSFA is marginally higher on I-AUROC (0.834 vs. 0.830), but TC-MAF still keeps the strongest localization result. Under reduced normal training data, the same fusion design therefore remains competitive in detection and consistently strong in localization. Per-class few-shot results are provided in Appendix D. 
+
+Pooled-statistics variant. A natural question is whether the fusion rule is tightly coupled to category-specific calibration statistics. To test this, we replace the default per-class normalization statistics and category-specific 𝜎 (𝑐 ) 
+
+> train
+
+with pooled training statistics computed across all 10 classes. Table 3 (Group C, “pooled-statistics variant”) shows that this variant remains close to Full performance ( −0.06pp I-AUROC, −0.09pp P-AUPRO). This result suggests that, within the standard benchmark protocol, the rule is not tightly dependent on category-specific calibration statistics. The default per-class setup is retained for consistency with the known-category evaluation protocol rather than because it yields a clear advantage in this ablation. 
+
+Missing-3D setting. We further evaluate the case where the 3D input is unavailable at inference. Table 3 (Group D) shows a clear reduction from Full performance ( −4.58pp I-AUROC, −3.15pp P-AUPRO). The result indicates that geometry remains useful, while the RGB pathway still carries substantial anomaly information under the same shared fusion rule. 
+
+Generalization across branches and backbones. A key concern is whether TC-MAF’s bounded fusion design is specific to the Dino-maly [ 13 ] + WRN-50-2 [ 31 ] combination or generalizes to other components. We test two substitutions while keeping the fusion rule identical: (i) replacing Dinomaly with ResAD [ 29 ], a residual-based RGB-only detector with a different inductive bias, and (ii) replacing the WRN-50-2 base backbone with ResNet-18 [ 14 ]. For each substi-tution, we compare the full bounded fusion rule against static pixel mean and a learned gate under the same evaluation protocol. 
+
+Table 6: Results on Eyecandies. Results are 10-class means under the same shared fusion formula. 
+
+Method I-AUROC P-AUPRO BTF’23 [15] 0.821 0.846 M3DM’23 [28] 0.897 0.877 CFM’24 [8] 0.881 0.887 LDM’24 [17] 0.948 0.941 
+
+3D-ADNAS’25 [21] 0.946 0.898 TC-MAF (Ours) 0.951 0.954 
+
+Table 5 shows the results on both substitution settings. On the ResNet-18 backbone substitution, the deployed fusion rule outper-forms static mean by +2.5pp I-AUROC and +1.2pp P-AUPRO, and also exceeds learned gate by +0.6pp I-AUROC and +1.0pp P-AUPRO. On the ResAD auxiliary substitution, the same rule outperforms static mean by +7.3pp I-AUROC and +2.7pp P-AUPRO, and also exceeds learned gate by +3.1pp I-AUROC and +10.8pp P-AUPRO. Across both settings, the same fusion rule consistently outperforms static pixel mean and learned gate. Absolute performance still varies with component strength, but the table suggests that the integration scheme remains useful under both auxiliary-branch and backbone substitution. 
+
+Hyperparameter sensitivity. A small hyperparameter sweep over 
+
+(𝛾, 𝛼 ) under the default evaluation protocol is reported in Appen-dix B. I-AUROC changes within about 1.2pp across the tested grid and P-AUPRO within 0.30pp, suggesting that performance is not driven by narrow tuning. 
+
+Cross-dataset evidence. We further test TC-MAF on Eyecandies [ 4 ], a synthetic multimodal anomaly benchmark with aligned RGB and depth observations over 10 confectionery categories. We report the full 10-class mean under the same shared fusion formula and known-category calibration setup. Table 6 reports the Eyecandies benchmark summary under the same shared fusion formula and known-category calibration setup. TC-MAF attains the highest I-AUROC and P-AUPRO in the table, showing that the same bounded fusion design transfers beyond MVTec-3D. This cross-dataset result complements the MVTec-3D benchmark lead and supports the method’s robustness beyond one dataset. 
+
+## 5 Conclusion 
+
+We propose TC-MAF, a base-anchored multi-evidence fusion design for multimodal industrial anomaly detection. TC-MAF combines a multimodal detector, complementary Dinomaly evidence, and a small CMC term under one shared pixel-level fusion formula, while TDC provides a lightweight training-only calibration signal for scaling the auxiliary branch. On MVTec-3D, TC-MAF achieves 0.990 P-AUPRO and 0.979 I-AUROC, yielding the strongest mean benchmark results among the compared multimodal methods. Sys-tematic ablations show that the fusion structure is the main source of improvement, while TDC contributes a smaller but reproducible gain and pooled-statistics calibration remains close to the default setting. Additional experiments show that the same design remains TC-MAF for Multimodal Industrial AD Conference’17, July 2017, Washington, DC, USA 
+
+effective across auxiliary-branch and backbone substitutions, Eye-candies, few-shot evaluation, and a missing-3D setting. 
+
+## References 
+
+[1] Usman Ali, Ali Zia, Abdul Rehman, Umer Ramzan, Zohaib Hassan, Talha Sattar, Jing Wang, and Wei Xiang. 2025. 2D-3D Feature Fusion via Cross-Modal Latent Synthesis and Attention-Guided Restoration for Industrial Anomaly Detection. In 2025 International Conference on Digital Image Computing: Techniques and Applications (DICTA) . IEEE, 1–8. [2] Jaehyeok Bae, Jae-Han Lee, and Seyun Kim. 2023. PNI: Industrial Anomaly Detection using Position and Neighborhood Information. In Proceedings of the IEEE/CVF International Conference on Computer Vision . IEEE, 8121–8130. [3] Paul Bergmann, Xin Jin, David Sattlegger, and Carsten Steger. 2022. The MVTec 3D-AD Dataset for Unsupervised 3D Anomaly Detection and Localization. In 
+
+Proceedings of the 17th International Joint Conference on Computer Vision, Imaging and Computer Graphics Theory and Applications (VISAPP) . SciTePress, Online, 202–213. [4] Luca Bonfiglioli, Marco Toschi, Davide Silvestri, Nicola Fioraio, and Daniele De Gregorio. 2022. The Eyecandies Dataset for Unsupervised Multimodal Anomaly Detection and Localization. In Proceedings of the Asian Conference on Computer Vision . Springer, Macao, China, 3586–3602. [5] Yunkang Cao, Xiaohao Xu, and Weiming Shen. 2023. Complementary Pseudo Multimodal Feature for Point Cloud Anomaly Detection. Pattern Recognition 145 (2023), 109904. [6] Ruitao Chen, Guoyang Xie, Jiaqi Liu, Jinbao Wang, Ziqi Luo, Jinfan Wang, and Feng Zheng. 2023. EasyNet: An Easy Network for 3D Industrial Anomaly De-tection. In Proceedings of the 31st ACM International Conference on Multimedia .ACM, Ottawa, ON, Canada, 7038–7046. [7] Yu-Min Chu, Chieh Liu, Ting-I Hsieh, Hwann-Tzong Chen, and Tyng-Luh Liu. 2023. Shape-Guided Dual-Memory Learning for 3D Anomaly Detection. In 
+
+Proceedings of the 40th International Conference on Machine Learning . PMLR, Honolulu, HI, USA, 6185–6194. [8] Alex Costanzino, Pierluigi Zama Ramirez, Giuseppe Lisanti, and Luigi Di Stefano. 2024. Multimodal Industrial Anomaly Detection by Crossmodal Feature Map-ping. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition . IEEE, Seattle, WA, USA, 17234–17243. [9] Thomas Defard, Aleksandr Setkov, Angelique Loesch, and Romaric Audigier. 2021. PaDiM: A Patch Distribution Modeling Framework for Anomaly Detection and Localization. In Proceedings of the International Conference on Pattern Recognition .Springer, Milan, Italy, 475–489. [10] Hanqiu Deng and Xingyu Li. 2022. Anomaly Detection via Reverse Distillation from One-Class Embedding. In Proceedings of the IEEE/CVF Conference on Com-puter Vision and Pattern Recognition . IEEE, New Orleans, LA, USA, 9737–9746. [11] Matic Fučka, Vitjan Zavrtanik, and Danijel Skočaj. 2024. TransFusion – A Transparency-Based Diffusion Model for Anomaly Detection. In European Con-ference on Computer Vision . Springer, Milan, Italy. [12] Denis Gudovskiy, Shun Ishizaka, and Kazuki Kozuka. 2022. CFLOW-AD: Real-Time Unsupervised Anomaly Detection with Localization via Conditional Nor-malizing Flows. In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision . IEEE, Waikoloa, HI, USA. [13] Jia Guo, Shuai Lu, Weihang Zhang, Fang Chen, Huiqi Li, and Hongen Liao. 2025. Dinomaly: The Less Is More Philosophy in Multi-Class Unsupervised Anomaly Detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition . IEEE, Nashville, TN, USA. [14] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. 2016. Deep residual learning for image recognition. In Proceedings of the IEEE conference on computer vision and pattern recognition . 770–778. [15] Eliahu Horwitz and Yedid Hoshen. 2023. Back to the Feature: Classical 3D Features Are (Almost) All You Need for 3D Anomaly Detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition . IEEE, Vancouver, BC, Canada, 2967–2976. [16] Yiting Li, Fayao Liu, Jingyi Liao, Sichao Tian, Chuan-Sheng Foo, and Xulei Yang. 2025. FIND: Few-Shot Anomaly Inspection with Normal-Only Multi-Modal Data. In Proceedings of the IEEE/CVF International Conference on Computer Vision .23290–23299. [17] Chieh-Hsing Liu, Yu-Min Chu, Ting-I Hsieh, Hwann-Tzong Chen, and Tyng-Luh Liu. 2024. Learning Diffusion Models for Multi-view Anomaly Detection. In European Conference on Computer Vision . https://api.semanticscholar.org/ CorpusID:273706675 [18] Yi Liu, Changsheng Zhang, Xingjun Dong, and Yufei Yang. 2025. A Multimodal Industrial Anomaly Detection Method Based on Mask Training and Teacher– Student Joint Memory. Engineering Applications of Artificial Intelligence 161 (2025), 112299. [19] Zhikang Liu, Yiming Zhou, Yuansheng Xu, and Zilei Wang. 2023. SimpleNet: A Simple Network for Image Anomaly Detection and Localization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition . IEEE, Vancouver, BC, Canada, 20415–20424. [20] Kaifang Long, Lianbo Ma, Jiaqi Liu, Liming Liu, and Guoyang Xie. 2026. Towards an Incremental Unified Multimodal Anomaly Detection: Augmenting Multi-modal Denoising From an Information Bottleneck Perspective. arXiv preprint arXiv:2603.02629 (2026). [21] Kaifang Long, Guoyang Xie, Lianbo Ma, Jiaqi Liu, and Zhichao Lu. 2025. Revisiting Multimodal Fusion for 3D Anomaly Detection from an Architectural Perspective. In Proceedings of the AAAI Conference on Artificial Intelligence , Vol. 39. AAAI Press, Philadelphia, PA, USA, 12273–12281. [22] Maxime Oquab, Timothée Darcet, Théo Moutakanni, Huy Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa, Alaaeldin El-Nouby, et al . 2023. Dinov2: Learning robust visual features without supervision. 
+
+arXiv preprint arXiv:2304.07193 (2023). [23] Karsten Roth, Latha Pemula, Joaquin Zepeda, Bernhard Schölkopf, Thomas Brox, and Peter Gehler. 2022. Towards Total Recall in Industrial Anomaly Detection. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition .IEEE, New Orleans, LA, USA, 14318–14328. [24] Marco Rudolph, Tom Wehrbein, Bodo Rosenhahn, and Bastian Wandt. 2023. Asymmetric Student-Teacher Networks for Industrial Anomaly Detection. In 
+
+Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision .IEEE, Waikoloa, HI, USA, 2592–2602. [25] Wenbo Sui, Daniel Lichau, Josselin Lefèvre, and Harold Phelippeau. 2026. In-complete Multimodal Industrial Anomaly Detection via Cross-Modal Distillation. 
+
+Information Fusion 126 (2026), 103572. [26] Chengyu Tao, Xuanming Cao, and Juan Du. 2025. G2SF: Geometry-Guided Score Fusion for Multimodal Industrial Anomaly Detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision . IEEE, 20551–20560. [27] Yuanpeng Tu, Boshen Zhang, Liang Liu, Yuxi Li, Jiangning Zhang, Yabiao Wang, Chengjie Wang, and Cairong Zhao. 2024. Self-Supervised Feature Adaptation for 3D Industrial Anomaly Detection. In European Conference on Computer Vision .Springer, Milan, Italy, 75–91. [28] Yue Wang, Jinlong Peng, Jiangning Zhang, Ran Yi, Yabiao Wang, and Chengjie Wang. 2023. Multimodal Industrial Anomaly Detection via Hybrid Fusion. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition .IEEE, Vancouver, BC, Canada, 8032–8041. [29] Xincheng Yao, Zixin Chen, Chao Gao, Guangtao Zhai, and Chongyang Zhang. 2024. ResAD: A Simple Framework for Class Generalizable Anomaly Detection. In Advances in Neural Information Processing Systems . Curran Associates. [30] Zhiyuan You, Lei Cui, Yujun Shen, Kai Yang, Xin Lu, Yu Zheng, and Xinyi Le. 2022. A Unified Model for Multi-class Anomaly Detection. In Advances in Neural Information Processing Systems . Curran Associates, New Orleans, LA, USA, 16401– 16409. [31] Sergey Zagoruyko and Nikos Komodakis. 2016. Wide residual networks. arXiv preprint arXiv:1605.07146 (2016). [32] Vitjan Zavrtanik, Matej Kristan, and Danijel Skočaj. 2021. DRÆM – A Discrimi-natively Trained Reconstruction Embedding for Surface Anomaly Detection. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision . IEEE, Montreal, QC, Canada, 8330–8339. [33] Vitjan Zavrtanik, Matej Kristan, and Danijel Skočaj. 2024. Cheating Depth: Enhancing 3D Surface Anomaly Detection via Depth Simulation. In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision . IEEE, Waikoloa, HI, USA, 2164–2172. Conference’17, July 2017, Washington, DC, USA Ming Deng, Sijin Sun, Xiaochuan Hu, and Xing Wu 0.1 0.2 0.3 0.4 0.5 0.6 0.7 
+
+Dino Confidence cd 
+
+> -2.0
+> 0.0
+> 2.0
+> 4.0
+> 6.0
+> I-AUROC (pp), TDC vs. w/o TDC
+> bagel
+> cable gland carrot
+> cookie
+> dowel
+> foam
+> peach
+> potato
+> rope
+> tire
+> Spearman = -0.612
+> p = 0.060
+> n = 10 classes
+
+TDC Gate Effect vs. Dino Confidence 
+
+Figure 6: Direct class-wise view of the relation between TDC confidence and the signed TDC-specific image-level effect on MVTec-3D. Each point is one category. The mixed positive and negative effects indicate that TDC acts as a category-dependent calibration term rather than a uniform uplift. 
+
+## A Implementation Details 
+
+Code entry point. The released pipeline is invoked via run_tcmaf. sh , which iterates over all 10 MVTec-3D classes and calls the evalu-ation script with the data root, checkpoint directories, GPU index, evaluation configuration, and output path. Cross-modal scoring logic comes from the shared fusion module to keep the implemen-tation consistent with the base branch. 
+
+Dinomaly branch. The encoder follows Dinomaly [ 13 ] and uses a frozen DINOv2 [ 22 ] ViT-S/14 backbone ( 𝑑 =384 ) with multi-layer extraction from target layers {2, 3, . . . , 9}. Extracted features are grouped into two fusion sets of four layers each: {0, 1, 2, 3} and 
+
+{4, 5, 6, 7} for both encoder and decoder sides. The decoder con-sists of 8 Transformer blocks ( 𝑑 =384 , 6 heads, MLP ratio 4, linear attention) preceded by a single bottleneck MLP with dropout 0.2. Anomaly maps are computed from encoder–decoder cosine dis-tance, smoothed with a Gaussian kernel ( 𝑘 =5, 𝜎 =4), and upsampled to input resolution. Input images are resized to 448 ×448 , yielding 
+
+32 ×32 patch tokens for the DINOv2 backbone. 
+
+Multimodal base branch. The base detector uses dual Wide-ResNet-50-2 backbones [ 31 ] (frozen and ImageNet-pretrained) for RGB and geometry. Features are extracted from layer2 and layer3 and pro-jected to 256 channels. A coreset memory bank is built from 10% of training patches, and anomaly maps are produced by 𝑘 -NN scoring (𝑘 =3) with z-normalization. Training runs for 20 epochs with Adam (lr 10 −4, weight decay 10 −5, batch size 4) on normal training data, with synthetic anomaly augmentation generated from those nor-mal samples (probability 0.7, strength [0.2, 0.8]). Input resolution is 
+
+288 ×288 for both modalities. 
+
+Cross-modal mappers. Cross-modal reliability is computed by training lightweight residual MLP mappers between the normal-ized RGB and geometry patch features used by the deployed CMC 
+
+Figure 7: Full-class qualitative overview on Eyecandies. Each row shows one representative anomalous sample for one class with RGB, depth, the final TC-MAF anomaly map, and the ground-truth mask. Even when image-level separation is less pronounced on a few categories, the fused maps still highlight the annotated defect regions with locally concen-trated responses. TC-MAF for Multimodal Industrial AD Conference’17, July 2017, Washington, DC, USA 0.0008 0.0010 0.0012 0.0014 0.0016 0.0018         
+
+> train
+> 0.02
+> 0.00
+> 0.02
+> 0.04
+> 0.06
+> 0.08
+> 0.10
+> Fusion gain (I-AUROC)
+> Bag
+> CaG
+> Car
+> Coo
+> Dow
+> Foa
+> Pea
+> Pot
+> Rop
+> Tir
+> (a) Dispersion vs. fusion gain
+> Spearman =+0.66, p=0.038
+> 0.1 0.2 0.3 0.4 0.5 0.6 0.7
+
+cd (TDC confidence)    
+
+> 0.00
+> 0.01
+> 0.02
+> 0.03
+> 0.04
+> 0.05
+> 0.06
+> |TDC effect| (I-AUROC)
+> Bag
+> CaG Car
+> Coo
+> Dow
+> Foa
+> Pea
+> Pot Rop
+> Tir
+> (b) Confidence vs. effect magnitude
+> Spearman =+0.68, p=0.029
+
+Figure 8: Per-class correlation between TDC inputs and observed fusion effects on MVTec-3D (10 categories). (a) Training dispersion vs. fusion gain over the base-only branch. (b) TDC confidence vs. absolute TDC-specific effect. The plots are consistent with interpreting TDC as a lightweight training-only calibration signal, while its average gain remains modest. 
+
+module on the training set. The CMC map 𝑀 cross is the mean of bidi-rectional prediction errors (RGB →Geo and Geo →RGB), robustly normalized by the training-set median and scaled MAD. 
+
+Calibration constants. The two scalars in Eq. 2 are derived purely from training data: ˆ𝜇 = 0.000978 and ˆ𝜎 = 0.000291 , computed as the median and standard deviation of the category-specific Dino-maly training-score dispersions {𝜎 (𝑐 ) 
+
+> train
+
+}10  
+
+> 𝑐 =1
+
+on MVTec-3D. These constants are fixed at deployment time and shared across all classes. In the default setting, each class uses its own 𝜎 (𝑐 ) 
+
+> train
+
+together with these shared summary constants. Table 3 shows that replacing the default per-class normalization statistics with pooled training statistics changes performance only marginally. 
+
+## B Supplementary Sensitivity Results 
+
+The missing-3D extended setting is already summarized in Group D of Table 3; this section focuses on the supplementary hyperparam-eter sensitivity results. 
+
+Table 7: Sensitivity to gate cap 𝛾 and cross-modal weight 𝛼 .Bold marks the deployed default. 
+
+I-AUROC P-AUPRO 
+
+𝛾 \𝛼 0.05 0.15 0.25 0.05 0.15 0.25 0.3 .973 .977 .968 .989 .990 .990 0.6 .972 .979 .976 .990 .990 .989 0.9 .967 .973 .976 .987 .989 .989 
+
+Fusion hyperparameters. All fusion equations and hyperparame-ters are fixed across the 10 classes: maximum gate 𝛾 = 0.6, CMC weight 𝛼 = 0.15 , and disagreement threshold 𝜏 = 1.0 (Eq. 3). For the final paper I-AUROC numbers, the image-level score is computed from stored fused maps using Eq. 5; no fusion map is regenerated for this step. 
+
+## C Metric Fairness and Qualitative Analysis 
+
+Comparison protocol note. All benchmark scores reported here use the same metric implementations: image-level AUROC and pixel-level AUROC are computed with roc_auc_score , and P-AUPRO uses the standard PRO pipeline (200 thresholds, 5 × 5 di-lation, FPR < 0.3, area-under-curve after FPR normalization). This appendix summarizes the metric setup used in our final presenta-tion. 
+
+Efficiency breakdown. Dinomaly requires 15.7 ±0.1 ms and 240 MB, while the multimodal base branch requires 43.9 ±2.3 ms and 1564 MB. Sequential execution totals 59.6 ms and 1804 MB, so runtime is dom-inated by evidence generation rather than the lightweight adaptive fusion itself. 
+
+Table 8: Efficiency breakdown showing branch-wise cost com-position. 
+
+Method Mem. (MB) FPS Latency (ms) Shape-Guided’23 [7] 6155 0.3 3333.3 M3DM’23 [28] 11962 0.7 1428.6 CFM’24 [8] 621 21 47.6 3DSR’24 [33] 2921 38 26.3 Dinomaly branch 240 63.9 15.7 ±0.1 Multimodal base branch 1564 22.8 43.9 ±2.3 TC-MAF (Ours) 1804 16.8 59.6 Conference’17, July 2017, Washington, DC, USA Ming Deng, Sijin Sun, Xiaochuan Hu, and Xing Wu 
+
+## D Few-Shot Class-Wise Results 
+
+This section provides the per-class breakdown of few-shot experi-ments on MVTec-3D. Tables 9 and 10 show TC-MAF’s results for 1/5/10/50-shot together with the full-shot reference. 
+
+## E Cross-Dataset Class-Wise Results on Eyecandies 
+
+Tables 11 and 13 report the per-category I-AUROC and P-AUPRO comparison on Eyecandies, complementing the mean-level sum-mary in Table 6. TC-MAF uses the same shared fusion formula and known-category calibration setup as on MVTec-3D. 
+
+Table 14: Mean-level P-AUROC comparison on full-shot set-ting. TC-MAF uses the same fixed fusion rule across all classes. 
+
+Method MVTec-3D BTF’23 [15] 0.992 AST’23 [24] 0.976 M3DM’23 [28] 0.992 CFM’24 [8] 0.993 LSFA’24 [27] 0.993 TC-MAF (Ours) 0.996 
+
+Among the methods summarized in Table 14, TC-MAF attains the highest mean P-AUROC on MVTec-3D. Table 14 summarizes that mean-level comparison, while Table 12 provides the per-class TC-MAF P-AUROC breakdown for MVTec-3D and Eyecandies. To-gether with the Eyecandies mean P-AUROC of 0.985 in Table 12, these results show that TC-MAF’s localization gains are also re-flected in pixel-level classification accuracy. 
+
+## F Evidence Source Ablation 
+
+Table 15 decomposes TC-MAF into its constituent evidence sources on MVTec-3D. “Dinomaly (RGB recon.)” is the standalone recon-struction branch; “Multimodal base” is the multimodal base detector that jointly processes RGB and 3D inputs; “TC-MAF” is the full adaptive fusion. Under this internal evaluation protocol, the fused result is higher than either individual source on all three reported metrics, supporting the view that TC-MAF combines complemen-tary evidence within the tested setup. 
+
+Table 15: Evidence source decomposition on MVTec-3D. Each row uses a single evidence source or the full TC-MAF fusion. All numbers use the same evaluation protocol.             
+
+> Evidence source I-AUROC P-AUROC P-AUPRO Dinomaly (RGB recon.) 0.924 0.992 0.977 Multimodal base 0.955 0.992 0.981 TC-MAF (Ours) 0.979 0.996 0.990
+
+Notably, the multimodal base alone already achieves strong P-AUPRO (0.981), and TC-MAF’s adaptive fusion with Dinomaly lifts it to 0.990 (+0.9pp). The I-AUROC gain from fusion is larger (+2.3pp over the base), showing that the reconstruction branch contributes complementary evidence that the gate mechanism successfully harvests. 
+
+## G Alternative Proxy Comparison 
+
+Table 16 reports proxy comparison results on MVTec-3D. Here, “w/o TDC” removes the training-derived scaling term from the deployed gate, whereas the other rows retain the same gate structure and only change the proxy used to instantiate 𝑐 𝑑 . Std, MAD, and mean absolute deviation remain close, whereas entropy-like and residual-dispersion proxies are weaker. 
+
+Table 16: Proxy comparison for training-only calibration sig-nals on MVTec-3D. Std, MAD, and mean absolute deviation proxies belong to the same train-dispersion family and re-main close; entropy-like and residual-dispersion proxies are weaker. 
+
+Proxy I-AUROC P-AUPRO Std-based TDC (ours) 0.9788 0.9901 MAD-like 0.9786 0.9901 Mean abs. deviation 0.9784 0.9909 
+
+Residual dispersion 0.9661 0.9896 Entropy-like 0.9664 0.9865 w/o TDC 0.9709 0.9881 
+
+## H TDC Correlation Details 
+
+This section collects the per-class diagnostics behind the main-paper discussion of TDC. Figure 6 plots the signed TDC-specific image-level effect against TDC confidence for the 10 MVTec-3D categories. The mixed positive and negative signed effects are con-sistent with interpreting TDC as a category-dependent calibration term under the shared fusion rule rather than as a uniform uplift. Figure 8 complements this view with the absolute-effect analysis used in the corresponding Spearman tests. 
+
+## I Pixel-Level AUROC Results 
+
+Table 14 reports mean-level pixel-level AUROC (P-AUROC) for MVTec-3D. TC-MAF numbers are computed from the same shared fusion formula under the benchmark protocol used throughout this paper. For completeness, TC-MAF also achieves 0.985 P-AUROC on Eye-candies, and Table 12 provides the per-class breakdown. Together with the MVTec-3D P-AUROC of 0.996 (Table 14), this shows that TC-MAF’s localization strength extends to pixel-level classification accuracy, not only region-level precision (P-AUPRO). Table 12 provides the full per-class breakdown for both datasets. TC-MAF for Multimodal Industrial AD Conference’17, July 2017, Washington, DC, USA 
+
+Table 9: TC-MAF class-wise I-AUROC on MVTec-3D few-shot settings. 
+
+Setting Bagel Cable Gland Carrot Cookie Dowel Foam Peach Potato Rope Tire Mean 1-shot 0.574 0.524 0.589 0.801 0.627 0.797 0.573 0.798 0.741 0.631 0.666 5-shot 0.886 0.641 0.799 0.793 0.871 0.851 0.845 0.830 0.953 0.832 0.830 10-shot 0.936 0.779 0.813 0.830 0.922 0.864 0.883 0.876 0.960 0.864 0.873 50-shot 0.977 0.991 0.970 0.882 0.967 0.897 0.951 0.903 0.963 0.912 0.941 full 0.992 0.998 0.992 0.953 0.992 0.952 0.988 0.979 0.984 0.958 0.979 
+
+Table 10: TC-MAF class-wise P-AUPRO on MVTec-3D few-shot settings. 
+
+Setting Bagel Cable Gland Carrot Cookie Dowel Foam Peach Potato Rope Tire Mean 1-shot 0.819 0.715 0.895 0.824 0.821 0.902 0.874 0.952 0.891 0.832 0.853 5-shot 0.987 0.857 0.975 0.951 0.979 0.893 0.990 0.977 0.928 0.985 0.952 10-shot 0.973 0.955 0.982 0.963 0.976 0.883 0.992 0.985 0.933 0.981 0.962 50-shot 0.989 0.967 0.986 0.981 0.984 0.905 0.994 0.992 0.953 0.983 0.973 full 0.993 0.997 0.997 0.989 0.991 0.979 0.998 0.998 0.963 0.992 0.990 
+
+Table 11: Class-wise I-AUROC comparison on Eyecandies. TC-MAF uses the same fixed fusion rule as on MVTec-3D. 
+
+Method Candy C. Choc. Cook. Choc. Pral. Confetto Gummy B. Hazel. T. Licor. S. Lollipop Marshm. Pepper. C. Mean BTF’23 [15] 0.712 0.882 0.784 0.942 0.774 0.579 0.829 0.840 0.986 0.882 0.821 EasyNet’23 [6] 0.737 0.934 0.866 0.966 0.717 0.822 0.847 0.863 0.977 0.960 0.869 M3DM’23 [28] 0.624 0.958 0.958 1.000 0.886 0.758 0.949 0.836 1.000 1.000 0.897 3DSR’24 [33] 0.651 0.998 0.904 0.978 0.875 0.861 0.965 0.899 0.990 0.971 0.909 CFM’24 [8] 0.680 0.931 0.952 0.880 0.865 0.782 0.917 0.840 0.998 0.962 0.881 LDM’24 [17] 0.859 1.000 1.000 0.995 0.910 0.738 0.998 0.976 1.000 1.000 0.948 3D-ADNAS’25 [21] 0.896 1.000 0.970 1.000 0.827 0.882 0.931 0.950 1.000 1.000 0.946 TC-MAF (Ours) 0.896 0.998 0.989 0.998 0.905 0.841 0.952 0.938 1.000 0.988 0.951 Table 12: Per-class P-AUROC under full-shot setting. TC-MAF uses the same fixed fusion rule across all classes. 
+
+MVTec-3D 
+
+Bagel Cable G. Carrot Cookie Dowel Foam Peach Potato Rope Tire Mean 0.997 0.998 0.999 0.996 0.998 0.992 0.999 0.999 0.988 0.998 0.996 Eyecandies 
+
+Candy C. Choc. Cook. Choc. Pral. Confetto Gummy B. Hazel. T. Licor. S. Lollipop Marshm. Pepper. C. Mean 0.988 0.993 0.983 0.989 0.976 0.965 0.986 0.991 0.989 0.994 0.985 
+
+Table 13: Class-wise P-AUPRO comparison on Eyecandies. TC-MAF uses the same fixed fusion rule as on MVTec-3D. 
+
+Method Candy C. Choc. Cook. Choc. Pral. Confetto Gummy B. Hazel. T. Licor. S. Lollipop Marshm. Pepper. C. Mean BTF’23 [15] 0.871 0.900 0.698 0.966 0.823 0.567 0.884 0.905 0.953 0.897 0.846 M3DM’23 [28] 0.906 0.826 0.803 0.983 0.855 0.688 0.880 0.906 0.966 0.955 0.877 CFM’24 [8] 0.942 0.902 0.831 0.965 0.875 0.762 0.791 0.913 0.939 0.949 0.887 LDM’24 [17] 0.964 0.953 0.951 0.982 0.931 0.765 0.969 0.935 0.982 0.983 0.941 3D-ADNAS’25 [21] 0.945 0.891 0.827 0.958 0.857 0.748 0.911 0.907 0.964 0.972 0.898 TC-MAF (Ours) 0.972 0.969 0.967 0.980 0.948 0.824 0.959 0.971 0.965 0.984 0.954
