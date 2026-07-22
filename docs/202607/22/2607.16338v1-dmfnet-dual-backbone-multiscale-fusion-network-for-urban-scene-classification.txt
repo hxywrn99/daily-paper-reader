@@ -1,0 +1,277 @@
+Title: DMFNet: Dual-Backbone Multiscale Fusion Network for Urban Scene Classification
+
+URL Source: https://arxiv.org/pdf/2607.16338v1
+
+Published Time: Tue, 21 Jul 2026 00:05:47 GMT
+
+Number of Pages: 4
+
+Markdown Content:
+# DMFNet: Dual-Backbone Multiscale Fusion Network for Urban Scene Classification 
+
+Anamitra Ghosh 
+
+Jadavpur University 
+
+anamitra108@gmail.com 
+
+Abhiroop Chatterjee 
+
+Jadavpur University 
+
+abhiroopchat1998@gmail.com 
+
+Susmita Ghosh 
+
+Jadavpur University 
+
+susmitaghoshju@gmail.com 
+
+Abstract —This article presents DMFNet, a dual-backbone multiscale feature fusion framework with residual feature prop-agation and spatial attention for remote sensing scene classifi-cation. Existing approaches often face challenges in effectively capturing multiscale feature interactions and learning robust feature representations from complex aerial scenes with high intra-class variability and inter-class similarity. To address these limitations, the proposed framework employs two pretrained backbone networks to extract diverse hierarchical feature repre-sentations. A multiscale feature fusion mechanism with residual feature propagation is introduced to enhance feature interaction across multiple resolution levels. In addition, a spatial attention module is introduced to emphasize informative spatial regions in multi-object scenes. Further, a two-stage training strategy consisting of backbone freezing followed by selective fine-tuning is adopted to ensure stable optimization and improved general-ization. Experiments conducted on the benchmark AID dataset demonstrate that the DMFNet achieves an average accuracy of 97.46% ± 0.14%. Ablative analysis further show the importance of various components in unison. 
+
+Index Terms —Remote sensing scene classification, Dual-backbone feature extraction, Multiscale feature fusion, Residual feature propagation 
+
+I. I NTRODUCTION 
+
+Remote sensing scene classification has witnessed signifi-cant progress with the increasing availability of high-resolution aerial imagery and advances in deep learning. Early ap-proaches relied on handcrafted feature descriptors, which were limited in capturing complex spatial patterns and semantic information. The adoption of convolutional neural networks (CNNs) enabled automatic hierarchical feature learning, while early feature fusion and multiscale frameworks demonstrated the effectiveness of multiscale representation and feature ag-gregation for aerial scene classification [1]–[5]. Subsequent attention-based CNN methods incorporated channel attention, multiscale attention, bidirectional fusion, feature refinement, multilevel inheritance, and adaptive trans-fer learning to improve discriminative capability and fea-ture propagation [6]–[13]. More recently, transformer-based and hybrid CNN–Transformer architectures have further en-hanced contextual understanding, multiscale feature interac-tion, and adaptive feature fusion through graph convolution, cross-attention, spatial–channel modeling, and advanced fu-sion strategies [14]–[29]. Despite these advances, many ex-isting methods either rely on single-backbone architectures, limiting feature diversity, or introduce increased architectural complexity while providing limited mechanisms for effective multiscale feature propagation. To address these limitations, we propose a dual-backbone multiscale feature fusion framework with residual feature propagation network. The proposed framework employs ConvNeXt-Tiny [30] and EfficientNet-B1 [31] as parallel backbone networks to extract diverse hierarchical feature representations. A multiscale feature fusion mechanism with residual feature propagation facilitates effective feature in-teraction across multiple resolutions, while spatial attention enhances discriminative feature learning by emphasizing in-formative regions. Furthermore, a two-stage training strategy comprising backbone freezing followed by selective fine-tuning ensures stable optimization and improved generaliza-tion. Experimental results on the AID dataset using a stratified 50:50 train–test split show an average classification accuracy of 97.46% ± 0.14%, indicating consistent performance. 
+
+Fig. 1. DMFNet: Flow diagram of the proposed dual-backbone framework with multi-scale residual propagation and feature aggregation. 
+
+II. M ETHODOLOGY 
+
+The core idea of this work (Fig. 1) is to process input images through parallel streams to extract complementary semantic and spatial feature representations. These multi-resolution features are dynamically shared across stages via residual propagation and combined using a channel-wise fusion mech-anism. A spatial attention module then refines the fused maps to emphasize distinct object boundaries while filtering out complex background noise. Finally, the network uses a robust arXiv:2607.16338v1 [cs.CV] 16 Jul 2026 two-stage fine-tuning strategy to generate accurate domain-adapted scene classifications. We detail the proposed approach in the following subsections comprehensively. 
+
+A. Dual-Backbone Feature Extraction 
+
+Single-backbone architectures often have limited capability to learn diverse feature representations, which can reduce their effectiveness in modeling the complex spatial arrangements and semantic variations present in remote sensing scenes. To overcome this limitation, the proposed framework employs a dual-backbone architecture comprising ConvNeXt-Tiny and EfficientNet-B1. Owing to their distinct architectural designs, the two networks learn diverse hierarchical feature representa-tions, where ConvNeXt-Tiny captures rich semantic context while EfficientNet-B1 preserves fine-grained spatial details. The integration of these diverse representations enhances mul-tiscale feature learning, enabling more effective modeling of complex aerial scenes. Given an input image X, the two backbone networks extract hierarchical feature maps at multiple scales: 
+
+{F 1 
+
+> C
+
+, F 2 
+
+> C
+
+, F 3 
+
+> C
+
+} = GConvNeXt (X) (1) 
+
+{F 1 
+
+> E
+
+, F 2 
+
+> E
+
+, F 3 
+
+> E
+
+} = GEfficientNet (X) (2) where GConvNeXt and GEfficientNet denote the feature extraction functions of ConvNeXt-Tiny and EfficientNet-B1, respec-tively. The feature maps F iC and F iE correspond to the outputs of three progressively deeper feature stages of the respective backbone networks, capturing hierarchical representations at different spatial resolutions. Since the extracted feature maps have different channel dimensions, channel alignment is performed before multiscale feature fusion as: 
+
+ˆF = ReLU (BN (Conv 1×1(F ))) (3) where F denotes the input feature map, ˆF is the channel-aligned feature map, and Conv 1×1 represents the channel alignment operation. The 1 × 1 convolution projects feature maps from both backbones into a common channel space. 
+
+B. Multiscale Feature Fusion with Residual Propagation 
+
+Existing multiscale approaches often process feature maps independently at different scales, resulting in limited inter-scale interaction and reduced contextual understanding. To address this issue, a multiscale feature fusion mechanism with residual feature propagation is introduced to facilitate effective information exchange across hierarchical feature levels. Residual feature propagation is applied to enable feature propagation across scales: 
+
+˜F iC = F iC + R(F i−1 
+
+> C
+
+) (4) 
+
+˜F iE = F iE + R(F i−1 
+
+> E
+
+) (5) where R denotes spatial resizing for alignment. This resid-ual aggregation improves gradient flow and ensures effective feature reuse across multiple scales. Feature maps from both backbones are fused at correspond-ing levels using channel-wise concatenation: 
+
+F i 
+
+> fused
+
+= Conv 1×1([ ˜F iC ∥ ˜F iE ]) (6) where ∥ denotes concatenation along the channel dimension, and Conv 1×1 represents convolution followed by batch nor-malization. This fusion integrates diverse feature representa-tions to jointly capture local spatial details and high-level semantic information .The fused multiscale feature maps F 1
+
+> fused
+
+, F 2
+
+> fused
+
+, and F 3
+
+> fused
+
+are further refined to F i 
+
+> atten
+
+using spatial attention to empha-size informative spatial regions at different hierarchical levels before final multiscale aggregation. To further integrate multiscale information, a pyramid ag-gregation strategy is applied: 
+
+Ffinal =
+
+> 3
+
+X
+
+> i=1
+
+P(F i
+
+> atten
+
+) (7) where P denotes pooling operations used for spatial alignment. This aggregation integrates information from multiple spatial resolutions to generate a robust feature representation for classification. 
+
+C. Spatial Attention Mechanism 
+
+In complex aerial scenes, a spatial attention mechanism is employed to emphasize informative regions while suppressing less relevant features. For a feature map F i
+
+> fused
+
+, spatial descriptors are computed using channel-wise average and max pooling: 
+
+Favg = AvgPool (F i
+
+> fused
+
+), Fmax = MaxPool (F i
+
+> fused
+
+) (8) These descriptors capture diverse information, where average pooling encodes global contextual information and max pool-ing highlights salient activations. The descriptors are concate-nated and passed through a convolution operation: 
+
+Ms(F i
+
+> fused
+
+) = σ(Conv 7×7([ Favg ∥ Fmax ])) (9) where Conv 7×7 denotes a 7 × 7 convolution, and σ is the sigmoid activation function. The resulting attention map Ms
+
+represents spatial importance weights. The refined feature map is obtained as: 
+
+F i 
+
+> atten
+
+= Ms(F i
+
+> fused
+
+) ⊗ F i 
+
+> fused
+
+(10) where ⊗ denotes element-wise multiplication. This improves feature discrimination by emphasizing informative spatial re-gions .III. E XPERIMENTS AND RESULTS 
+
+A. Dataset Description 
+
+Experiments were conducted on the Aerial Image Dataset (AID) [32], a widely used benchmark dataset for remote sensing scene classification. The dataset contains 10,000 high-resolution aerial images of size approximately 600 × 600 
+
+pixels categorized into 30 distinct scene classes, including residential, industrial, forest, airport, and farmland. Due to significant intra-class variability and inter-class similarity, the dataset presents considerable challenges for accurate scene classification. A stratified 50:50 train–test split is adopted to preserve balanced class distribution. 
+
+B. Image Preprocessing 
+
+Each RGB image is resized and preprocessed using Effi-cientNet normalization. To improve class balance and enhance model robustness, upsampling-based data augmentation is applied using random horizontal flipping, contrast adjustment, and brightness variation. 
+
+C. Training Strategy and Optimization 
+
+The model is trained with a batch size of 24 using a two-stage optimization process. In the first stage, the backbone net-works are frozen, and only the newly added fusion, attention, and classification layers are trained using the Adam optimizer with a learning rate of 10 −3. In the second stage, the last 40 layers of each backbone network are selectively unfrozen and fine-tuned using a reduced learning rate of 10 −5.                                                      
+
+> THE TWO-STAGE OPTIMIZATION PIPELINE
+> Let network parameters be partitioned as Θ = {ΘB,ΘH}, where Θrepresents the total network parameters, ΘBrepresents the dual backbones, and ΘHdenotes the fusion heads.
+> Stage 1: Latent Space Alignment (Backbones Frozen )
+> Θ∗
+> H= arg min
+> ΘH
+> X
+> (x,y )∈D
+> L(Φ( x; Θ H,ΘB), y )s.t.ΘB= Θ pre
+> B
+> By enforcing an absolute constraint ( s.t.) locking the active backbone weights to their ImageNet-pretrained baseline ( Θpre
+> B), the search space undergoes a severe dimensional reduction. The optimization operator ( arg min ) isolates and updates only the head parameters ( ΘH) to minimize the accumulated loss function ( L)across every input image sample xand ground-truth label ywithin the target dataset (D). The forward mapping function ( Φ) computes predictions over a restricted, convex-like subspace where deep features act as deterministic base operators. This stage serves as a structural buffer, and prevents the backward propagation of unaligned gradients that would collapse the generalized feature base to find the intermediate optimal head state ( Θ∗
+> H).
+> Stage 2: Selective Manifold Adaptation (Joint Fine-Tuning )
+> {Θ(L)∗
+> B,Θ∗∗
+> H}= arg min
+> {Θ(L)
+> B,ΘH}
+> X
+> (x,y )∈D
+> L
+> 
+> Φ( x; Θ H,Θ(L)
+> B), y
+> 
+> s.t.Θ(\L)
+> B=static ,ηstage2 = 10 −2·ηstage1
+> Rather than executing a risky global optimization, a selective partition unfreezes only the deepest L= 40 layers ( Θ(L)
+> B) while early layers ( Θ(\L)
+> B) capturing spatial primitives remain completely frozen. The step-down learning rate penalty (ηstage2 ) heavily scales down the initial base step-size ( ηstage1 ) by a factor of 10 −2
+> to bound the descent velocity. This acts as a highly localized manifold warping procedure that gently shifts high-level semantic boundaries to output the final converged deep backbone weights ( Θ(L)∗
+> B) and shifted head weights ( Θ∗∗
+> H) to adapt to the target dataset without destabilizing foundational representations.
+
+D. Results and Analysis DMFNet achieves strong and consistent classification per-formance on the AID dataset. Experimental evaluation over five independent runs yields an average classification accuracy of 97.46% ± 0.14%, demonstrating stable optimization and robust generalization. In addition, the proposed framework achieves an average precision of 97.48% ± 0.13%, recall of 97.46% ± 0.14%, and F1-score of 97.46% ± 0.14%, 
+
+TABLE I ACCURACY COMPARISON WITH STATE -OF -THE -A RT METHODS ON AID DATASET (50:50 T RAIN –T EST SPLIT )
+
+Method Accuracy (%) 
+
+Existing Methods 
+
+SF-CNN [5] TGRS ’19 96 .66 ± 0.11 
+
+CAD [6] JSTARS ’20 97 .16 ± 0.26 
+
+EAM [11] GRSL ’21 97 .06 ± 0.19 
+
+SCViT [18] TGRS ’22 96 .98 ± 0.16 
+
+LG-ViT [20] GRSL ’23 97 .67 ± 0.15 
+
+GMFANet [23] TGRS ’24 99 .73 ± 0.09 
+
+MSCN [26] TGRS ’25 97 .46 ± 0.12 
+
+SACGNet [29] JSTARS ’26 97 .25 ± 0.04 
+
+Proposed Methodology 
+
+DMFNet 97 .46 ± 0.14 
+
+indicating balanced classification performance across diverse scene categories. Table I compares the proposed framework with existing state-of-the-art methods on the AID dataset. Although GM-FANet [23] achieves the highest reported accuracy which is attributed to there strong curriculum learning on a large pool of training dataset, the proposed framework delivers competitive performance. In addition, it demonstrates stable learning behavior and consistent predictions across multiple experimental runs with a low variance. This highlights its reliability for remote sensing scene classification. 
+
+E. Ablative Analysis 
+
+To evaluate the contribution of each proposed component, Table II presents the ablation study conducted on the pro-posed framework. M1 and M2 represent the single-backbone baselines based on ConvNeXt-Tiny and EfficientNet-B1, re-spectively. M3 incorporates multiscale residual feature fusion, M4 further integrates the spatial attention module, and M5 represents the complete framework with upsampling-based data augmentation. Table II confirms the effectiveness of each proposed component. Progressive integration of multiscale residual feature fusion, spatial attention, and upsampling-based data augmentation consistently improves classification accuracy, with M5 achieving the highest accuracy. 
+
+TABLE II ABLATION STUDY OF THE PROPOSED METHOD ON THE AID D ATASET 
+
+Model Accuracy (%) 
+
+M1 (ConvNeXt-Tiny Baseline) 95 .12 ± 0.46 
+
+M2 (EfficientNet-B1 Baseline) 94 .85 ± 0.21 
+
+M3 (with Multiscale Fusion) 96 .91 ± 0.16 
+
+M4 (with Spatial Attention) 97 .24 ± 0.15 
+
+M5 (Complete Framework) 97 .46 ± 0.14 
+
+IV. C ONCLUSION 
+
+This article builds a dual-backbone multiscale feature fusion framework with residual feature propagation and spatial at-tention for remote sensing scene classification. By integrating ConvNeXt-Tiny and EfficientNet-B1, the proposed framework captures diverse feature representations and enhances inter-scale interaction and discriminative feature learning. Experi-ments on the AID dataset using a stratified 50:50 train–test split achieved an competitive average accuracy of 97.46% ±
+
+0.14%, with a precision of 97.48% ± 0.13%, recall of 97.46% 
+
+± 0.14%, and F1-score of 97.46% ± 0.14%. Future work will focus on scaling the framework to larger datasets and enhancing computational efficiency. Specifically, we aim to explore lightweight architectures building upon our prior work [33], and investigate model compression techniques alongside the zero-shot learning paradigms in remote sensing established in [34] in the future with varying training [35] strategies. REFERENCES [1] Y. Liu, Y. Liu and L. Ding, “Scene Classification Based on Two-Stage Deep Feature Fusion,” in IEEE Geoscience and Remote Sensing Letters ,vol. 15, no. 2, pp. 183-186, Feb. 2018. [2] Y. Liu, Y. Zhong and Q. Qin, “Scene Classification Based on Multiscale Convolutional Neural Network,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 56, no. 12, pp. 7109-7121, Dec. 2018. [3] Y. Yu and F. Liu, “Aerial Scene Classification via Multilevel Fusion Based on Deep Convolutional Neural Networks,” in IEEE Geoscience and Remote Sensing Letters , vol. 15, no. 2, pp. 287-291, Feb. 2018. [4] X. Lu, H. Sun and X. Zheng, “A Feature Aggregation Convolutional Neural Network for Remote Sensing Scene Classification,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 57, no. 10, pp. 7894-7906, Oct. 2019. [5] J. Xie, N. He, L. Fang and A. Plaza, “Scale-Free Convolutional Neural Network for Remote Sensing Scene Classification,” in IEEE Transac-tions on Geoscience and Remote Sensing , vol. 57, no. 9, pp. 6916-6928, Sept. 2019. [6] W. Tong, W. Chen, W. Han, X. Li and L. Wang, “Channel-Attention-Based DenseNet Network for Remote Sensing Image Scene Classifica-tion,” in IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 13, pp. 4121-4132, 2020. [7] A. Chatterjee and S. Ghosh, “Learning Hyperspectral Images with Cu-rated Text Prompts for Efficient Multimodal Alignment,” arXiv preprint arXiv:2509.22697 , Sep. 2025. [8] H. Sun, S. Li, X. Zheng and X. Lu, “Remote Sensing Scene Clas-sification by Gated Bidirectional Network,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 58, no. 1, pp. 82-96, Jan. 2020. [9] G. Zhang et al., “A Multiscale Attention Network for Remote Sensing Scene Images Classification,” in IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 14, pp. 9530-9545, 2021. [10] H. Alhichri, A. S. Alswayed, Y. Bazi, N. Ammour and N. A. Alajlan, “Classification of Remote Sensing Images Using EfficientNet-B3 CNN Model With Attention,” in IEEE Access , vol. 9, pp. 14078-14094, 2021. [11] A. Chatterjee, S. Ghosh and A. Ghosh, “Cross-Instance Contrastive Masking in Vision Transformers for Self-Supervised Hyperspectral Im-age Classification,” in Workshop on Spurious Correlation and Shortcut Learning: Foundations and Solutions , 2025. [12] J. Hu, Q. Shu, J. Pan, J. Tu, Y. Zhu and M. Wang, “MINet: Multi-level Inheritance Network-Based Aerial Scene Classification,” in IEEE Geoscience and Remote Sensing Letters , vol. 19, pp. 1-5, 2022. [13] W. Wang, Y. Chen and P. Ghamisi, “Transferring CNN With Adaptive Learning for Remote Sensing Scene Classification,” in IEEE Transac-tions on Geoscience and Remote Sensing , vol. 60, pp. 1-18, 2022. [14] G. Wang, N. Zhang, W. Liu, H. Chen and Y. Xie, “MFST: A Multi-Level Fusion Network for Remote Sensing Scene Classification,” in 
+
+IEEE Geoscience and Remote Sensing Letters , vol. 19, pp. 1-5, 2022. [15] K. Xu, H. Huang, P. Deng and Y. Li, “Deep Feature Aggregation Frame-work Driven by Graph Convolutional Network for Scene Classification in Remote Sensing,” in IEEE Transactions on Neural Networks and Learning Systems , vol. 33, no. 10, pp. 5751-5765, Oct. 2022. [16] X. Tang, M. Li, J. Ma, X. Zhang, F. Liu and L. Jiao, “EMTCAL: Efficient Multiscale Transformer and Cross-Level Attention Learning for Remote Sensing Scene Classification,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 60, pp. 1-15, 2022. [17] W. Chen, S. Ouyang, W. Tong, X. Li, X. Zheng and L. Wang, “GCSANet: A Global Context Spatial Attention Deep Learning Network for Remote Sensing Scene Classification,” in IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 15, pp. 1150-1162, 2022. [18] P. Lv, W. Wu, Y. Zhong, F. Du and L. Zhang, “SCViT: A Spatial-Channel Feature Preserving Vision Transformer for Remote Sensing Image Scene Classification,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 60, pp. 1-12, 2022. [19] Y. Yu et al., “C²-CapsViT: Cross-Context and Cross-Scale Capsule Vision Transformers for Remote Sensing Image Scene Classification,” in IEEE Geoscience and Remote Sensing Letters , vol. 19, pp. 1-5, 2022. [20] T. Peng, J. Yi and Y. Fang, “A Local–Global Interactive Vision Trans-former for Aerial Scene Classification,” in IEEE Geoscience and Remote Sensing Letters , vol. 20, pp. 1-5, 2023. [21] M. Bi, M. Wang, Z. Li and D. Hong, “Vision Transformer With Contrastive Learning for Remote Sensing Image Scene Classification,” in IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 16, pp. 738-749, 2023. [22] X. Chen et al., “Hierarchical Feature Fusion of Transformer With Patch Dilating for Remote Sensing Scene Classification,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 61, pp. 1-16, 2023. [23] Y. Zhao et al., “Gradient-Guided Multiscale Focal Attention Network for Remote Sensing Scene Classification,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 62, pp. 1-18, 2024. [24] X. Wang, Y. Sun and P. He, “AFIMNet: An Adaptive Feature Interaction Network for Remote Sensing Scene Classification,” in IEEE Geoscience and Remote Sensing Letters , vol. 22, pp. 1-5, 2025. [25] X. Lu, M. Yang, Y. Chen, S. Xiong and X. Lu, “Multibranch Fusion-Based Feature Enhance for Remote-Sensing Scene Classification,” in 
+
+IEEE Transactions on Geoscience and Remote Sensing , vol. 63, pp. 1-17, 2025. [26] J. Ma, W. Jiang, X. Tang, X. Zhang, F. Liu and L. Jiao, “Multiscale Sparse Cross-Attention Network for Remote Sensing Scene Classifica-tion,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 63, pp. 1-16, 2025. [27] C. Shi, M. Ding and L. Wang, “Reparameterized Feature Aggrega-tion Convolutional Neural Network for Remote Sensing Scene Image Classification,” in IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 18, pp. 12603-12615, 2025. [28] S. Wan, Z. Zhao, X. Bian and B. Li, “Joint Network Based on Affine Transformation and Residual Connection for Remote Sensing Scene Classification,” 2025 International Conference on Advances in Electrical Engineering and Computer Applications (AEECA) , 2025, pp. 613-618. [29] C. Shi, W. Jin, Y. Shuai, M. Wu and T. Wang, “Joint Shifted Attention and Cross-Guided Feature Fusion for Remote Sensing Scene Classifica-tion,” in IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 19, pp. 5143-5154, 2026. [30] Z. Liu, H. Mao, C.-Y. Wu, C. Feichtenhofer, T. Darrell and S. Xie, “A ConvNet for the 2020s,” 2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2022, pp. 11966-11976. [31] M. Tan and Q. Le, “EfficientNet: Rethinking Model Scaling for Con-volutional Neural Networks,” in Proceedings of the 36th International Conference on Machine Learning (ICML) , Long Beach, CA, USA, 2019, pp. 6105-6114. [32] G. -S. Xia et al., “AID: A Benchmark Data Set for Performance Evaluation of Aerial Scene Classification,” in IEEE Transactions on Geoscience and Remote Sensing , vol. 55, no. 7, pp. 3965-3981, 2017. [33] A. Chatterjee, S. Ghosh, and A. Ghosh, “Context-aware masking and learnable diffusion-guided patch refinement in transformers via sparse supervision for hyperspectral image classification,” in Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 2025, pp. 2906-2915. [34] A. Chatterjee, S. Ghosh, A. Ghosh, and E. Ientilucci, “CASPA: Graph-Structured Concept Anchors for Modality-Agnostic Adaptation in Vision-Language Models,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2026, pp. 31566-31576. [35] Y. Huang, L. Wang, P. Zhao, Y. Zhao, Q. Yang, Y. Du and F. Ling, “Deep Learning in Urban Green Space Extraction in Remote Sensing: A Comprehensive Systematic Review,” in International Journal of Remote Sensing , vol. 46, no. 3, pp. 1117-1150, 2025.

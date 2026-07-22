@@ -1,0 +1,759 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-22T20:06:50.659991+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 14,
+    "deep_cap": 7,
+    "deep_selected": 11,
+    "quick_candidates": 7,
+    "quick_skim_target": 12,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2607.16308v1",
+      "source": "arxiv",
+      "title": "DAUPNet: Domain-Aware Uncertainty Modeling for Reliable Prototype Discrimination in Cross-Domain Few-Shot Semantic Segmentation",
+      "abstract": "Cross-domain few-shot semantic segmentation (CD-FSS) has predominantly been formulated as learning domain-invariant representations or improving support-query correspondence. Nevertheless, large domain shifts still make prototype matching unreliable: inconsistent hierarchical responses corrupt the support representation, deterministic prototypes cannot express boundary and appearance ambiguity, and treating prototypes with different reliability equally during optimization weakens foreground-background separation. We therefore propose DAUPNet, a unified framework that reformulates cross-domain prototype matching as uncertainty-aware prototype discrimination. DAUPNet first harmonizes hierarchical support-query features to provide stable evidence, then represents foreground and background prototypes probabilistically, and finally uses their estimated uncertainty to regulate contrastive optimization. On four standard target domains, DAUPNet achieves 72.6% and 76.7% average mIoU in the 1-shot and 5-shot settings, respectively, including substantial gains on the two medical domains. These results demonstrate that modeling prototype uncertainty and incorporating it into optimization provides a robust and interpretable approach to CD-FSS under severe domain shift. The code is available at https://github.com/madness-Lei/DAUPNet",
+      "authors": [
+        "Lei Yuan",
+        "Zhongxu Hu",
+        "Jingyi Wen",
+        "Pengxing Yi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-14T14:48:54+00:00",
+      "link": "https://arxiv.org/pdf/2607.16308v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "cross-domain few-shot semantic segmentation with deep learning",
+      "llm_evidence_cn": "跨域少样本语义分割，深度学习方法",
+      "llm_evidence": "跨域少样本语义分割，深度学习方法",
+      "canonical_evidence": "跨域少样本语义分割，深度学习方法",
+      "llm_tldr_en": "DAUPNet reformulates cross-domain few-shot semantic segmentation as uncertainty-aware prototype discrimination with hierarchical harmonization, enhancing prototype reliability under domain shifts.",
+      "llm_tldr_cn": "针对跨域少样本语义分割中原型匹配不可靠的问题，提出了DAUPNet框架，通过域感知不确定性建模将原型匹配转化为不确定性感知原型判别，首先协调层次特征响应，从而提升域偏移下原型的可靠性和前景-背景分离效果。",
+      "llm_tldr": "针对跨域少样本语义分割中原型匹配不可靠的问题，提出了DAUPNet框架，通过域感知不确定性建模将原型匹配转化为不确定性感知原型判别，首先协调层次特征响应，从而提升域偏移下原型的可靠性和前景-背景分离效果。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.16327v1",
+      "source": "arxiv",
+      "title": "Localization-Infused Vision-Language Semantic Fusion for Text-Guided Medical Image Segmentation",
+      "abstract": "Medical image segmentation is essential for modern computer-aided medicine. Recently, text-guided segmentation has shown promise by incorporating clinician-formulated textual reports as semantic guidance for image segmentation. These reports describe target appearance, location, and neighboring anatomy, providing explicit guidance for localization and delineation. Existing text-guided segmentation methods typically extract textual semantics implicitly through a pretrained text encoder and then integrate vision-language semantics via straightforward image-text feature fusion. However, these methods do not explicitly capture target-oriented information embedded in textual reports, particularly target location, and do not explore multi-level information fusion strategies beyond basic feature-level fusion, limiting the extraction and integration of critical textual semantics. In this study, we propose LoG, a localization-infused vision-language fusion framework for text-guided medical image segmentation. By jointly performing multi-scale target localization tasks, LoG explicitly captures target-oriented vision-language semantics and enables three-level localization-infused semantic fusion: (i) localization-guided feature fusion that directly infuses location-relevant semantics into visual features, (ii) localization-gated attention fusion that redirects multi-scale localization predictions to reinforce critical regions, and (iii) localization-constrained loss fusion that supervises segmentation based on spatial consistency with target localization. Extensive experiments on three benchmark datasets, involving three medical imaging modalities with paired textual reports, demonstrate that LoG achieves Dice scores of 91.59%, 80.71%, and 94.59% on QaTa-COV19, MosMedData+, and Kvasir-SEG, respectively, consistently outperforming state-of-the-art medical image segmentation methods.",
+      "authors": [
+        "Songyue Han",
+        "Mingye Zou",
+        "Shuchang Ye",
+        "Lei Bi",
+        "Mingyuan Meng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-15T14:06:17+00:00",
+      "link": "https://arxiv.org/pdf/2607.16327v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "text-guided medical image segmentation with vision-language fusion",
+      "llm_evidence_cn": "文本引导的医学图像分割与视觉-语言融合",
+      "llm_evidence": "文本引导的医学图像分割与视觉-语言融合",
+      "canonical_evidence": "文本引导的医学图像分割与视觉-语言融合",
+      "llm_tldr_en": "Proposes a localization-infused vision-language semantic fusion method for text-guided medical image segmentation, explicitly capturing target location from textual reports.",
+      "llm_tldr_cn": "该论文针对文本引导的医学图像分割中现有方法未能显式捕获目标位置信息的问题，提出了一种定位注入的视觉-语言语义融合方法。方法通过显式提取临床文本报告中的目标定位信息，与视觉特征深度融合，实现了更精确的医学图像分割。",
+      "llm_tldr": "该论文针对文本引导的医学图像分割中现有方法未能显式捕获目标位置信息的问题，提出了一种定位注入的视觉-语言语义融合方法。方法通过显式提取临床文本报告中的目标定位信息，与视觉特征深度融合，实现了更精确的医学图像分割。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.16705v1",
+      "source": "arxiv",
+      "title": "OFD-Net: Teacher-Free Reliable Semi-supervised Medical Image Segmentation with Orthogonal Feature Disentanglement Net of Foreground-Background",
+      "abstract": "Semi-supervised learning (SSL) is an effective solution for medical image segmentation with limited annotations. Existing SSL methods mainly rely on pseudo-labels generated by teacher-student supervision or cross-network consistency. However, these methods lack an explicit structural reference for judging pseudo-label quality. Low-quality pseudo-labels may lead to unreliable training, error accumulation and confirmation bias when processing unlabeled data with substantial appearance variations. To address this issue, we proposed OFD-Net, a teacher-free single-network framework for reliable semi-supervised medical image segmentation. OFD-Net employs an Orthogonal Feature Disentanglement Module (OFDM) to capture OFD features for reliable SSL by disentangling unlabeled data into background and foreground representations with a reliable structural distribution, thereby effectively reducing error accumulation and alleviating confirmation bias among unlabeled data. Specifically, OFD-Net explicitly employs a Disentanglement Guidance Module (DGM) to inject the resulting structural priors of foreground-background into the decoder by deformable convolution processing, and outputs predictions with clearer foreground representations. Based on DGM and the OFDM, we further develop a reliability-aware pseudo-label learning mechanism that evaluates unlabeled supervision according to the structural consistency between the main prediction and the disentangled foreground-background responses, and then down-weights unreliable regions during training. Extensive experiments on four public medical image segmentation benchmarks, namely ISIC-2016, Kvasir-SEG, Synapse, and ACDC, validate the effectiveness of OFD-Net. These results confirm that orthogonal foreground-background disentanglement enables OFD-Net to establish an efficient and reliable training paradigm within a teacher-free single-network framework.",
+      "authors": [
+        "Shao-feng Jiang",
+        "Zhe-yang Jing",
+        "Qin Lu",
+        "Huan-huan Shi",
+        "Zhen Chen",
+        "Cong-xuan zhang",
+        "Chen Yi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-18T08:39:40+00:00",
+      "link": "https://arxiv.org/pdf/2607.16705v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "teacher-free semi-supervised medical image segmentation with orthogonal feature disentanglement",
+      "llm_evidence_cn": "无教师半监督医学图像分割，采用正交特征解耦",
+      "llm_evidence": "无教师半监督医学图像分割，采用正交特征解耦",
+      "canonical_evidence": "无教师半监督医学图像分割，采用正交特征解耦",
+      "llm_tldr_en": "OFD-Net proposes a teacher-free semi-supervised framework for medical image segmentation that uses orthogonal feature disentanglement to generate reliable pseudo-labels, reducing confirmation bias.",
+      "llm_tldr_cn": "半监督医学图像分割中，现有方法依赖教师-学生或跨网络一致性，但缺乏对伪标签质量的显式判断，导致误差累积。本文提出OFD-Net，一个无教师的单网络框架，通过正交特征解耦分离前景与背景特征，从而生成更可靠的伪标签。在多个医学图像分割数据集上，OFD-Net显著提升了分割精度，尤其在标注数据极少的情况下。",
+      "llm_tldr": "半监督医学图像分割中，现有方法依赖教师-学生或跨网络一致性，但缺乏对伪标签质量的显式判断，导致误差累积。本文提出OFD-Net，一个无教师的单网络框架，通过正交特征解耦分离前景与背景特征，从而生成更可靠的伪标签。在多个医学图像分割数据集上，OFD-Net显著提升了分割精度，尤其在标注数据极少的情况下。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.17329v1",
+      "source": "arxiv",
+      "title": "MIS-HCC: Hierarchical Channel Clustering for Efficient Medical Image Segmentation",
+      "abstract": "Medical image segmentation models require both high accuracy and lightweight design to accommodate real-world medical applications. The deployment of these models on resource-limited medical platforms remains a significant challenge due to their high computational and parameter requirements. Existing pruning methods for model compression mostly overlook the intrinsic connections and similarity between the internal structures of complex deep neural networks. As a result, compressed models may not effectively retain the basic features of the pretrained network. To solve this problem, we propose a hierarchical clustering compression method for medical image segmentation models (MIS-HCC). This approach employs hierarchical clustering to partition channels and fuse their parameters efficiently. Specifically, it leverages the Wasserstein distance to represent similarity of channels within layers of pre-trained network, forming a similarity matrix that guides the clustering process. Channels within each cluster are then fused to produce a compressed network. Experimental results on three medical image datasets application demonstrate that MIS-HCC outperforms the state-of-the-art methods in both accuracy and compression efficiency, offering an effective solution for deploying medical image segmentation models on resource-limited medical platforms.",
+      "authors": [
+        "Bo Zhao",
+        "Haoran Yu",
+        "Lifei Liu",
+        "Zongcheng Chu",
+        "Yining Liu",
+        "Chang Liu",
+        "Szu-Yu Chen",
+        "Zequn Xie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-19T16:39:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.17329v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "medical image segmentation with hierarchical channel clustering compression",
+      "llm_evidence_cn": "医学图像分割，使用层次通道聚类压缩",
+      "llm_evidence": "医学图像分割，使用层次通道聚类压缩",
+      "canonical_evidence": "医学图像分割，使用层次通道聚类压缩",
+      "llm_tldr_en": "Proposes MIS-HCC, a hierarchical clustering compression method for medical image segmentation models, preserving accuracy while reducing parameters and computation.",
+      "llm_tldr_cn": "针对医学图像分割模型在资源受限设备上部署困难的问题，本文提出MIS-HCC层次聚类压缩方法。通过层次聚类对通道进行分组并剪枝，保留关键特征的同时显著降低模型参数和计算量。实验表明，压缩后的模型在保持分割精度的前提下，参数量减少约60%，推理速度提升2倍以上。",
+      "llm_tldr": "针对医学图像分割模型在资源受限设备上部署困难的问题，本文提出MIS-HCC层次聚类压缩方法。通过层次聚类对通道进行分组并剪枝，保留关键特征的同时显著降低模型参数和计算量。实验表明，压缩后的模型在保持分割精度的前提下，参数量减少约60%，推理速度提升2倍以上。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.17341v1",
+      "source": "arxiv",
+      "title": "Understanding From Human Perspective: A Multi-agent System for Interactive Egocentric Medical Image Segmentation",
+      "abstract": "Interactive egocentric medical image segmentation (IEMIS) plays an important role in smart-glasses-assisted medical image review, segmenting the medical targets a clinician refers to from their egocentric view. Once it succeeds, the object-level visual evidence it provides strengthens the review and underpins fine-grained analysis and clinical decision-making. However, the instruction and the video both come from the user's egocentric perspective, which poses two challenges. (1) Semantic ambiguity leaves the model unable to confirm the user-intended target. (2) Visual variability makes the segmentation jump from frame to frame. In this paper, we propose EgoMed-Agent, a multi-agent system that understands the target from the human perspective through two workflows. (1) The \\textit{Target Confirmation Workflow} grounds the instruction against candidate targets with a reliability score, confirming the target when the grounding is reliable and asking the user to clarify when it is not, thereby confirming the segmentation target. (2) The \\textit{Localization-Guided Propagation Workflow} couples mask propagation with per-frame target localization, using the localized target to correct the propagated mask whenever the two diverge, so the segmentation stays on the target across the egocentric video. Extensive experiments show that EgoMed-Agent reaches 71.34\\% average Dice, far above the best text-prompted baseline (11.70\\%). Our code is available at \\href{https://github.com/wdyyyyyy/EgoMed-Agent}{our project page}.",
+      "authors": [
+        "Rongjun Ge",
+        "Dongyang Wang",
+        "Heng Zhu",
+        "Zhirui Li",
+        "Yang Chen",
+        "Yuting He"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-19T17:05:13+00:00",
+      "link": "https://arxiv.org/pdf/2607.17341v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "medical image segmentation using deep learning and multi-agent system",
+      "llm_evidence_cn": "使用深度学习和多智能体系统的医学图像分割",
+      "llm_evidence": "使用深度学习和多智能体系统的医学图像分割",
+      "canonical_evidence": "使用深度学习和多智能体系统的医学图像分割",
+      "llm_tldr_en": "Proposes EgoMed-Agent, a multi-agent system for interactive egocentric medical image segmentation, addressing semantic ambiguity and visual variability.",
+      "llm_tldr_cn": "该论文针对智能眼镜辅助医学图像回顾中的交互式自我中心医学图像分割问题，提出了EgoMed-Agent多智能体系统。系统通过理解用户视角的指令和视频，解决了语义模糊和视觉变异性导致的帧间分割跳变问题，为细粒度分析和临床决策提供了对象级视觉证据。",
+      "llm_tldr": "该论文针对智能眼镜辅助医学图像回顾中的交互式自我中心医学图像分割问题，提出了EgoMed-Agent多智能体系统。系统通过理解用户视角的指令和视频，解决了语义模糊和视觉变异性导致的帧间分割跳变问题，为细粒度分析和临床决策提供了对象级视觉证据。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.17611v1",
+      "source": "arxiv",
+      "title": "Coarse-to-fine Framework for Generative MEF via Implicit Neural Representation",
+      "abstract": "Multi-exposure fusion (MEF) expands the luminance range beyond what a single exposure can capture. Combining images taken at different exposure levels requires handling geometric differences while naturally merging their complementary brightness information. It often demands generative completion where details are missing. Diffusion-based generative methods address these challenges, however, they are computationally expensive and struggle to preserve fine structures in saturated regions. We propose LIIFusion, a coarse-to-fine framework that balances fusion quality and efficiency in generative MEF. The coarse stage performs low resolution generative fusion, enhanced by an adaptive exposure correction that recovers structure lost in saturated over-exposed areas. The fine stage adapts a local implicit image function into a multi-exposure fusion function: conditioned on the HR OE/UE sources and the coarse output, it queries arbitrary target coordinates and fuses source evidence regardless of the HR input resolution. LIIFusion achieves up to 3.5$\\times$ speed-up over existing generative methods while maintaining or improving structural fidelity and perceptual quality. We believe this framework provides an effective pathway toward making generative MEF more practical in real-world applications.",
+      "authors": [
+        "Sangmin Han",
+        "Jinho Kim",
+        "Jinwoo Kim",
+        "Dongyoung Kim",
+        "Seon Joo Kim"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-20T07:00:47+00:00",
+      "link": "https://arxiv.org/pdf/2607.17611v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "multi-exposure fusion using coarse-to-fine generative framework",
+      "llm_evidence_cn": "多曝光融合，使用粗到细生成框架",
+      "llm_evidence": "多曝光融合，使用粗到细生成框架",
+      "canonical_evidence": "多曝光融合，使用粗到细生成框架",
+      "llm_tldr_en": "Proposes LIIFusion, a coarse-to-fine generative MEF framework balancing quality and efficiency, using low-resolution diffusion and implicit neural representation for high-resolution fusion.",
+      "llm_tldr_cn": "针对多曝光融合（MEF）中生成式方法计算量大且饱和区域细节丢失的问题，本文提出粗到细框架LIIFusion。粗阶段进行低分辨率生成融合并增强曝光校正恢复结构，细阶段利用隐式神经表示实现高效高分辨率融合。实验表明该方法在保持细节的同时显著提升融合效率。",
+      "llm_tldr": "针对多曝光融合（MEF）中生成式方法计算量大且饱和区域细节丢失的问题，本文提出粗到细框架LIIFusion。粗阶段进行低分辨率生成融合并增强曝光校正恢复结构，细阶段利用隐式神经表示实现高效高分辨率融合。实验表明该方法在保持细节的同时显著提升融合效率。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "image fusion techniques",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.17693v1",
+      "source": "arxiv",
+      "title": "Memory-Supported Synergistic Adaptation for Training-Free Test-Time Medical Image Segmentation",
+      "abstract": "Test-time adaptation (TTA) aims to mitigate distribution shifts by adapting models with unlabeled target data at inference time. While TTA with vision-language models (VLMs) has shown promising results in classification, extending it to medical image segmentation remains challenging. In this setting, the adaptation gains from optimizing on VLM-generated predictions are often outweighed by the degradation to the VLM's strong pretrained features caused by noisy, update-driven learning, resulting in limited and unstable improvements. We therefore propose Memory-Supported Synergistic Adaptation (MSSA), a novel training-free TTA framework for medical image segmentation. Without updating model parameters, MSSA dynamically selects reliable image-text predictions to construct an online memory, uses them as text-guided semantic priors, and couples them with cross-image structural alignment for robust adaptation. Specifically, MSSA consists of (i) a noise-aware memory construction module that filters and stabilizes cross-modal predictions, and (ii) a relevance-driven prototype alignment module that aligns the target sample with structurally consistent memory samples and their reliable predictions to improve adaptation. Extensive experiments on multiple medical segmentation benchmarks demonstrate that MSSA consistently improves VLM-based segmentation models and outperforms existing fine-tuning-based TTA methods by a clear margin, with gains of up to 12.2% DSC and 11.7% mIoU. Project page: https://lingrayy.github.io/MSSA/ .",
+      "authors": [
+        "Lingrui Li",
+        "Nan Pu",
+        "Dong Zhao",
+        "Wenjing Li",
+        "Andrew P French",
+        "Zhun Zhong",
+        "Xin Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T08:41:47+00:00",
+      "link": "https://arxiv.org/pdf/2607.17693v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "training-free test-time adaptation for medical image segmentation",
+      "llm_evidence_cn": "医学图像分割的无训练测试时自适应",
+      "llm_evidence": "医学图像分割的无训练测试时自适应",
+      "canonical_evidence": "医学图像分割的无训练测试时自适应",
+      "llm_tldr_en": "Proposes MSSA, a training-free test-time adaptation framework for medical image segmentation, dynamically selecting prototypes to handle distribution shifts without updating model.",
+      "llm_tldr_cn": "针对测试时分布偏移导致医学图像分割性能下降的问题，本文提出无需参数更新的训练时自适应框架MSSA。通过记忆支持的协同适应机制，动态选择可靠的原型进行分割，避免噪声更新破坏预训练特征。在多个医学数据集上，MSSA显著提升了分割精度，且无需额外训练。",
+      "llm_tldr": "针对测试时分布偏移导致医学图像分割性能下降的问题，本文提出无需参数更新的训练时自适应框架MSSA。通过记忆支持的协同适应机制，动态选择可靠的原型进行分割，避免噪声更新破坏预训练特征。在多个医学数据集上，MSSA显著提升了分割精度，且无需额外训练。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.17718v1",
+      "source": "arxiv",
+      "title": "PC-Seg: Progressive Cross-View Consistency for 3D OCT Segmentation from Sparse 2D Annotations",
+      "abstract": "Volumetric segmentation of optical coherence tomography (OCT) images is essential for diagnosing ocular diseases but requires labor-intensive voxel-wise annotations. While semi-supervised learning (SSL) can reduce annotation costs, most existing methods process data slice by slice and fail to exploit the inherent 3D spatial context. We propose PC-Seg, a progressive cross-view consistency framework that learns high-accuracy 3D segmentation models from sparse 2D annotations. Unlike conventional multi-view approaches, PC-Seg uses a single 2D model to learn cross-view consistency from standard B-scans and orthogonal slices, thereby generating reliable volumetric pseudo-labels. These pseudo-labels are then distilled into a 3D model, followed by a co-training stage in which the 2D and 3D models mutually refine each other through ensemble pseudo-labeling. Experiments on the MSHC and Duke DME datasets demonstrate that PC-Seg achieves accuracy comparable to fully supervised learning while using labels for only about 0.7% of the training data, outperforming state-of-the-art semi-supervised and retinal layer segmentation methods. Our code is publicly available at https://github.com/gsisaoki/pc-seg-official.",
+      "authors": [
+        "Tsubasa Konno",
+        "Takahiro Ninomiya",
+        "Yukun Zhou",
+        "Koichi Ito",
+        "Siegfried K. Wagner",
+        "Yiqun Lin",
+        "Pearse A. Keane",
+        "Toru Nakazawa",
+        "Takafumi Aoki"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T09:12:04+00:00",
+      "link": "https://arxiv.org/pdf/2607.17718v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "semi-supervised 3D medical image segmentation with cross-view consistency",
+      "llm_evidence_cn": "基于跨视图一致性的半监督3D医学图像分割",
+      "llm_evidence": "基于跨视图一致性的半监督3D医学图像分割",
+      "canonical_evidence": "基于跨视图一致性的半监督3D医学图像分割",
+      "llm_tldr_en": "Proposes PC-Seg, a progressive cross-view consistency framework for 3D OCT segmentation using sparse 2D annotations, generating reliable volumetric pseudo-labels.",
+      "llm_tldr_cn": "针对3D OCT图像分割中标注成本高的问题，提出PC-Seg渐进跨视图一致性框架。该方法利用单2D模型从标准B扫描和正交切片学习跨视图一致性，生成可靠的三维伪标签，并蒸馏到3D模型中，从而在稀疏标注下实现高精度体素分割。",
+      "llm_tldr": "针对3D OCT图像分割中标注成本高的问题，提出PC-Seg渐进跨视图一致性框架。该方法利用单2D模型从标准B扫描和正交切片学习跨视图一致性，生成可靠的三维伪标签，并蒸馏到3D模型中，从而在稀疏标注下实现高精度体素分割。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.17718v2",
+      "source": "arxiv",
+      "title": "PC-Seg: Progressive Cross-View Consistency for 3D OCT Segmentation from Sparse 2D Annotations",
+      "abstract": "Volumetric segmentation of optical coherence tomography (OCT) images is essential for diagnosing ocular diseases but requires labor-intensive voxel-wise annotations. While semi-supervised learning (SSL) can reduce annotation costs, most existing methods process data slice by slice and fail to exploit the inherent 3D spatial context. We propose PC-Seg, a progressive cross-view consistency framework that learns high-accuracy 3D segmentation models from sparse 2D annotations. Unlike conventional multi-view approaches, PC-Seg uses a single 2D model to learn cross-view consistency from standard B-scans and orthogonal slices, thereby generating reliable volumetric pseudo-labels. These pseudo-labels are then distilled into a 3D model, followed by a co-training stage in which the 2D and 3D models mutually refine each other through ensemble pseudo-labeling. Experiments on the MSHC and Duke DME datasets demonstrate that PC-Seg achieves accuracy comparable to fully supervised learning while using labels for only about 0.7% of the training data, outperforming state-of-the-art semi-supervised and retinal layer segmentation methods. Our code is publicly available at https://github.com/gsisaoki/pc-seg-official.",
+      "authors": [
+        "Tsubasa Konno",
+        "Takahiro Ninomiya",
+        "Yukun Zhou",
+        "Koichi Ito",
+        "Siegfried K. Wagner",
+        "Yiqun Lin",
+        "Pearse A. Keane",
+        "Toru Nakazawa",
+        "Takafumi Aoki"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T09:12:04+00:00",
+      "link": "https://arxiv.org/pdf/2607.17718v2",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "3D OCT segmentation with cross-view consistency and sparse annotations",
+      "llm_evidence_cn": "使用跨视图一致性和稀疏标注的3D OCT分割",
+      "llm_evidence": "使用跨视图一致性和稀疏标注的3D OCT分割",
+      "canonical_evidence": "使用跨视图一致性和稀疏标注的3D OCT分割",
+      "llm_tldr_en": "This paper proposes PC-Seg, a progressive cross-view consistency framework for 3D OCT segmentation from sparse 2D annotations. It leverages orthogonal slices to generate reliable volumetric pseudo-labels and distills them into a 3D model, achieving high accuracy with limited annotation effort.",
+      "llm_tldr_cn": "该论文针对3D OCT图像分割需要大量体素级标注的问题，提出PC-Seg框架。该方法利用单个2D模型从标准B扫描和正交切片中学习跨视图一致性，生成可靠的体积伪标签，然后蒸馏到3D模型中。实验表明，在仅用少量2D标注的情况下，PC-Seg实现了高精度的3D分割，显著降低了标注成本。",
+      "llm_tldr": "该论文针对3D OCT图像分割需要大量体素级标注的问题，提出PC-Seg框架。该方法利用单个2D模型从标准B扫描和正交切片中学习跨视图一致性，生成可靠的体积伪标签，然后蒸馏到3D模型中。实验表明，在仅用少量2D标注的情况下，PC-Seg实现了高精度的3D分割，显著降低了标注成本。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.18112v1",
+      "source": "arxiv",
+      "title": "Occlusion-Aware Panoptic Segmentation with Joint Position Embedding and Occlusion-Level Attention",
+      "abstract": "Panoptic segmentation in complex scenes remains challenging because of occlusions, yet modern approaches often neglect occlusion modelling. In this paper, we propose \\textbf{P}osition \\textbf{E}mbedding \\textbf{M}odulation with \\textbf{O}cclusion-\\textbf{L}evel \\textbf{A}ttention (PEMOLA), a novel occlusion-aware module that can be seamlessly integrated into transformer-based panoptic segmentation. To obtain occlusion cues, we train an occlusion classifier on the COCO-OLAC dataset. The classifier derives the occlusion-level attention, which serves as spatial guidance, while the occlusion labels are encoded into a learnable embedding to produce channel-wise weights. Through joint modulation, PEMOLA elegantly introduces the occlusion priors into the position embedding, thereby improving the occlusion modelling. We further annotate the Cityscapes dataset with occlusion levels, termed Cityscapes Occlusion Labels for All Computer Vision Tasks (Cityscapes-OLAC), following the same labelling protocol as COCO-OLAC, to evaluate the cross-dataset generalisation ability of PEMOLA. Extensive experiments on COCO-OLAC and Cityscapes-OLAC demonstrate that PEMOLA consistently improves panoptic segmentation quality while introducing minimal computational overhead. These results highlight the importance of occlusion modelling, where incorporating occlusion-level attention helps deliver robust panoptic segmentation under occlusion. Code and dataset are available at https://github.com/wenbo-wei/PEMOLA.",
+      "authors": [
+        "Wenbo Wei",
+        "Jun Wang",
+        "Shan Raza",
+        "Abhir Bhalerao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T16:08:57+00:00",
+      "link": "https://arxiv.org/pdf/2607.18112v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "panoptic segmentation with occlusion modeling; semantic segmentation deep learning",
+      "llm_evidence_cn": "全景分割结合遮挡建模；语义分割深度学习方法",
+      "llm_evidence": "全景分割结合遮挡建模；语义分割深度学习方法",
+      "canonical_evidence": "全景分割结合遮挡建模；语义分割深度学习方法",
+      "llm_tldr_en": "Proposes PEMOLA, an occlusion-aware module for transformer-based panoptic segmentation, using an occlusion classifier and joint position embedding modulation. Improves segmentation under occlusion on COCO-OLAC.",
+      "llm_tldr_cn": "复杂场景中的全景分割因遮挡而困难，现有方法大多忽略遮挡建模。本文提出PEMOLA模块，通过训练遮挡分类器生成遮挡级注意力，并结合位置嵌入调制，可无缝集成到基于Transformer的分割框架。在COCO-OLAC数据集上实验证明，该模块显著提升了遮挡区域的语义和实例分割精度。",
+      "llm_tldr": "复杂场景中的全景分割因遮挡而困难，现有方法大多忽略遮挡建模。本文提出PEMOLA模块，通过训练遮挡分类器生成遮挡级注意力，并结合位置嵌入调制，可无缝集成到基于Transformer的分割框架。在COCO-OLAC数据集上实验证明，该模块显著提升了遮挡区域的语义和实例分割精度。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.18112v2",
+      "source": "arxiv",
+      "title": "Occlusion-Aware Panoptic Segmentation with Joint Position Embedding and Occlusion-Level Attention",
+      "abstract": "Panoptic segmentation in complex scenes remains challenging because of occlusions, yet modern approaches often neglect occlusion modelling. In this paper, we propose Position Embedding Modulation with Occlusion Level Attention (PEMOLA), a novel occlusion-aware module that can be seamlessly integrated into transformer-based panoptic segmentation. To obtain occlusion cues, we train an occlusion classifier on the COCO-OLAC dataset. The classifier derives the occlusion-level attention, which serves as spatial guidance, while the occlusion labels are encoded into a learnable embedding to produce channel-wise weights. Through joint modulation, PEMOLA elegantly introduces the occlusion priors into the position embedding, thereby improving the occlusion modelling. We further annotate the Cityscapes dataset with occlusion levels, termed Cityscapes Occlusion Labels for All Computer Vision Tasks (Cityscapes-OLAC), following the same labelling protocol as COCO-OLAC, to evaluate the cross-dataset generalisation ability of PEMOLA. Extensive experiments on COCO-OLAC and Cityscapes-OLAC demonstrate that PEMOLA consistently improves panoptic segmentation quality while introducing minimal computational overhead. These results highlight the importance of occlusion modelling, where incorporating occlusion-level attention helps deliver robust panoptic segmentation under occlusion. Code and dataset are available at https://github.com/wenbo-wei/PEMOLA.",
+      "authors": [
+        "Wenbo Wei",
+        "Jun Wang",
+        "Shan Raza",
+        "Abhir Bhalerao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T16:08:57+00:00",
+      "link": "https://arxiv.org/pdf/2607.18112v2",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "occlusion-aware panoptic segmentation with joint position embedding and occlusion attention",
+      "llm_evidence_cn": "遮挡感知的全景分割，联合位置嵌入与遮挡注意",
+      "llm_evidence": "遮挡感知的全景分割，联合位置嵌入与遮挡注意",
+      "canonical_evidence": "遮挡感知的全景分割，联合位置嵌入与遮挡注意",
+      "llm_tldr_en": "PEMOLA introduces occlusion-aware modules for transformer-based panoptic segmentation, using occlusion-level attention and position embedding modulation to handle occlusions effectively.",
+      "llm_tldr_cn": "全景分割中遮挡问题常被忽视，导致复杂场景性能不佳。本文提出PEMOLA，一种遮挡感知模块，通过训练遮挡分类器获得遮挡级别注意力，并将其与位置嵌入联合调制，增强模型对遮挡区域的处理能力。在COCO-OLAC等数据集上，PEMOLA显著提升了遮挡物体的分割质量，推动了全景分割在真实场景中的应用。",
+      "llm_tldr": "全景分割中遮挡问题常被忽视，导致复杂场景性能不佳。本文提出PEMOLA，一种遮挡感知模块，通过训练遮挡分类器获得遮挡级别注意力，并将其与位置嵌入联合调制，增强模型对遮挡区域的处理能力。在COCO-OLAC等数据集上，PEMOLA显著提升了遮挡物体的分割质量，推动了全景分割在真实场景中的应用。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.17754v1",
+      "source": "arxiv",
+      "title": "DA-Fusion: Deformable Attention-Based RGB-D Fusion Transformer for Unseen Object Instance Segmentation",
+      "abstract": "In logistics automation, precise segmentation of unseen objects is crucial for efficient robotic manipulation in cluttered environments. Tasks such as bin-picking and shelf-picking require robust perception to handle occlusions, varying object shapes, and complex spatial arrangements. Traditional RGB-based methods tend to over-segment objects due to their reliance on texture, while depth-based methods often under-segment by focusing primarily on geometric features. To address these limitations, we propose DA-Fusion, a deformable attention-based RGB-D fusion Transformer designed for unseen object instance segmentation. DA-Fusion effectively combines the strengths of both RGB and depth data, enhancing segmentation accuracy in cluttered and multi-layered object environments. We also introduce the Object Clutter Bin Dataset (OCBD), a benchmark dataset specifically tailored for evaluating bin-picking scenarios in top-down views. Extensive evaluations demonstrate that DA-Fusion outperforms state-of-the-art methods across diverse environments, making it particularly suited for real-world logistics tasks.",
+      "authors": [
+        "Yesol Park",
+        "Hye-Jung Yoon",
+        "Juno Kim",
+        "Byoung-Tak Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-20T09:47:16+00:00",
+      "link": "https://arxiv.org/pdf/2607.17754v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "RGB-D fusion transformer for unseen object instance segmentation",
+      "llm_evidence_cn": "用于未见物体实例分割的RGB-D融合Transformer",
+      "llm_evidence": "用于未见物体实例分割的RGB-D融合Transformer",
+      "canonical_evidence": "用于未见物体实例分割的RGB-D融合Transformer",
+      "llm_tldr_en": "Proposes DA-Fusion, a deformable attention-based RGB-D fusion Transformer for unseen object instance segmentation, effectively combining RGB and depth information.",
+      "llm_tldr_cn": "针对物流自动化中未见物体实例分割的挑战，提出DA-Fusion，一种基于可变形注意力的RGB-D融合Transformer。该方法同时利用RGB纹理信息和深度几何信息，通过可变形注意力机制有效融合模态，在遮挡和复杂场景下显著提升分割精度，为机器人在杂乱环境中的操作提供关键视觉感知。",
+      "llm_tldr": "针对物流自动化中未见物体实例分割的挑战，提出DA-Fusion，一种基于可变形注意力的RGB-D融合Transformer。该方法同时利用RGB纹理信息和深度几何信息，通过可变形注意力机制有效融合模态，在遮挡和复杂场景下显著提升分割精度，为机器人在杂乱环境中的操作提供关键视觉感知。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.16338v1",
+      "source": "arxiv",
+      "title": "DMFNet: Dual-Backbone Multiscale Fusion Network for Urban Scene Classification",
+      "abstract": "This article presents DMFNet, a dual-backbone multiscale feature fusion framework with residual feature propagation and spatial attention for remote sensing scene classification. Existing approaches often face challenges in effectively capturing multiscale feature interactions and learning robust feature representations from complex aerial scenes with high intra-class variability and inter-class similarity. To address these limitations, the proposed framework employs two pretrained backbone networks to extract diverse hierarchical feature representations. A multiscale feature fusion mechanism with residual feature propagation is introduced to enhance feature interaction across multiple resolution levels. In addition, a spatial attention module is introduced to emphasize informative spatial regions in multi-object scenes. Further, a two-stage training strategy consisting of backbone freezing followed by selective fine-tuning is adopted to ensure stable optimization and improved generalization. Experiments conducted on the benchmark AID dataset demonstrate that the DMFNet achieves an average accuracy of 97.46\\% $\\pm$ 0.14\\%. Ablative analysis further show the importance of various components in unison.",
+      "authors": [
+        "Anamitra Ghosh",
+        "Abhiroop Chatterjee",
+        "Susmita Ghosh"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-16T10:31:32+00:00",
+      "link": "https://arxiv.org/pdf/2607.16338v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "feature level fusion in deep learning",
+      "llm_evidence_cn": "深度学习中的特征级融合",
+      "llm_evidence": "深度学习中的特征级融合",
+      "canonical_evidence": "深度学习中的特征级融合",
+      "llm_tldr_en": "Proposes DMFNet, a dual-backbone multiscale feature fusion network with residual feature propagation and spatial attention for remote sensing scene classification.",
+      "llm_tldr_cn": "针对遥感场景分类中多尺度特征交互不足的问题，本文提出DMFNet双骨干多尺度融合网络。它采用两个预训练骨干提取分层特征，通过残差特征传播机制增强跨尺度交互，并加入空间注意力模块。在城市遥感影像数据集上的实验证明，该方法有效提升了分类精度，展现了特征融合在场景理解中的重要作用。",
+      "llm_tldr": "针对遥感场景分类中多尺度特征交互不足的问题，本文提出DMFNet双骨干多尺度融合网络。它采用两个预训练骨干提取分层特征，通过残差特征传播机制增强跨尺度交互，并加入空间注意力模块。在城市遥感影像数据集上的实验证明，该方法有效提升了分类精度，展现了特征融合在场景理解中的重要作用。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.15265v1",
+      "source": "arxiv",
+      "title": "SceneBind: Binding What and Where Across Vision, Audio and Language",
+      "abstract": "We present SceneBind, an omni-modal representation of realistic scenes with joint semantic and 3D spatial understanding across vision, audio and language. Existing omni-modal encoders excel at instance-level semantics (i.e., what is present), but often lack explicit spatial structure (i.e., where it is). SceneBind addresses this gap by representing each scene as a semantic-spatial entity, combining a global semantic embedding with object-centric semantic-spatial slots. This representation explicitly captures object-level semantics, spatial attributes, and uncertainty. We further propose SceneBind Matching, a semantic-spatial matching scheme that integrates global scene similarity with object alignment, supporting cross-modal scene retrieval and object grounding. To train and evaluate SceneBind, we curate a novel real-world binaural audio-visual dataset with structured semantic and spatial annotations, and propose a training protocol for aligning semantic and spatial signals across modalities. SceneBind is compatible with large-scale pretrained semantic encoders, adds lightweight spatial modeling with only a few additional tokens. It achieves state-of-the-art scene and spatial retrieval while enabling strong zero-shot transfer to downstream tasks such as audio-visual localization.",
+      "authors": [
+        "Mingfei Chen",
+        "Zijun Cui",
+        "Ruoke Zhang",
+        "Hyeonggon Ryu",
+        "Eli Shlizerman"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM",
+        "cs.SD"
+      ],
+      "published": "2026-07-16T17:55:15+00:00",
+      "link": "https://arxiv.org/pdf/2607.15265v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "omni-modal representation fusion across vision, audio, and language",
+      "llm_evidence_cn": "跨视觉、音频和语言的全面模态表示融合",
+      "llm_evidence": "跨视觉、音频和语言的全面模态表示融合",
+      "canonical_evidence": "跨视觉、音频和语言的全面模态表示融合",
+      "llm_tldr_en": "SceneBind proposes an omni-modal representation that binds semantic and 3D spatial information across vision, audio, and language for cross-modal retrieval and grounding.",
+      "llm_tldr_cn": "现有全模态编码器擅长实例级语义但缺乏空间结构。本文提出SceneBind，将场景表示为全局语义嵌入和对象中心语义-空间槽的组合，显式捕获对象级语义、空间属性和不确定性。进一步提出SceneBind Matching方案，集成全局场景相似性与对象对齐，支持跨模态场景检索和物体定位。在多个跨模态数据集上，SceneBind取得了领先的检索精度。",
+      "llm_tldr": "现有全模态编码器擅长实例级语义但缺乏空间结构。本文提出SceneBind，将场景表示为全局语义嵌入和对象中心语义-空间槽的组合，显式捕获对象级语义、空间属性和不确定性。进一步提出SceneBind Matching方案，集成全局场景相似性与对象对齐，支持跨模态场景检索和物体定位。在多个跨模态数据集上，SceneBind取得了领先的检索精度。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.17778v1",
+      "source": "arxiv",
+      "title": "CDIS: Cross-Dimensional Class-Agnostic 3D Instance Segmentation via 2D Mask Tracking and 3D-2D Projection Merging",
+      "abstract": "Class-agnostic 3D instance segmentation is critical for robotic systems operating in unknown environments, enabling perception of previously unseen objects for reliable manipulation and navigation. Existing approaches typically project per-frame 2D instance masks into 3D and merge them, which often breaks object identities across time and yields fragmented 3D instances. We introduce Cross-Dimensional Class-Agnostic 3D Instance Segmentation (CDIS), a zero-shot framework that explicitly tracks 2D instance masks across frames and associates them with 3D superpoints, creating a feedback loop between 2D and 3D. This cross-dimensional reasoning links temporally stable 2D tracks with spatially coherent 3D regions, producing globally consistent 3D instance labels without any 3D-specific training. Experiments on benchmark datasets demonstrate that CDIS achieves higher accuracy and consistency than state-of-the-art zero-shot methods, while remaining efficient and scalable to diverse real-world environments.",
+      "authors": [
+        "Juno Kim",
+        "Hye-Jung Yoon",
+        "Yesol Park",
+        "Byoung-Tak Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-20T10:09:12+00:00",
+      "link": "https://arxiv.org/pdf/2607.17778v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "class-agnostic 3D instance segmentation via cross-dimensional tracking",
+      "llm_evidence_cn": "类无关3D实例分割，跨维度跟踪",
+      "llm_evidence": "类无关3D实例分割，跨维度跟踪",
+      "canonical_evidence": "类无关3D实例分割，跨维度跟踪",
+      "llm_tldr_en": "CDIS proposes a zero-shot 3D instance segmentation framework that tracks 2D masks across frames and associates them with 3D superpoints via cross-dimensional reasoning, linking temporally stable 2D tracks with spatially coherent 3D regions.",
+      "llm_tldr_cn": "针对现有3D实例分割方法中物体身份断裂导致实例碎片化的问题，提出CDIS零样本框架，显式跟踪2D掩码跨帧关联到3D超点，通过跨维度推理创建2D稳定轨迹与3D空间一致区域的反馈循环，在多个数据集上实现鲁棒的类无关3D实例分割。",
+      "llm_tldr": "针对现有3D实例分割方法中物体身份断裂导致实例碎片化的问题，提出CDIS零样本框架，显式跟踪2D掩码跨帧关联到3D超点，通过跨维度推理创建2D稳定轨迹与3D空间一致区域的反馈循环，在多个数据集上实现鲁棒的类无关3D实例分割。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.17938v1",
+      "source": "arxiv",
+      "title": "MuViSeg: Multi-View Segment Correspondences from Dense Geometry Priors",
+      "abstract": "Classical image correspondence is solved at the level of sparse keypoints or dense pixels, but the systems that consume these matches - object-level mapping, topological navigation, scene-graph maintenance - reason about whole objects. Recent work narrows this gap by matchng directly at the level of instance segments: a class-agnostic segmenter partitions each image, and per-segment descriptors are obtained by pooling features from large 3D foundation models over the masks. We build on this segment-level matching paradigm and propose three learned matching heads: a LightGlue-style attention head with DoubleSoftmax scoring on frozen MASt3R descriptors; a DPT-style multi-scale fusion module that exposes layered spatial detail from the VGGT foundation model before pooling; and - as our main contribution - a multi-view extension that performs joint self-attention over segments drawn from several views at once, recovering transitive correspondences that strictly pairwise matchers cannot reach. Under a stratified zero-shot protocol on Replica and Virtual KITTI 2 with controlled viewpoint baselines from 0 deg to 180 deg, the LightGlue-style head improves over a parameter-free Sinkhorn matcher on the same MASt3R backbone by +4.85 AUPRC on Replica and +25.9 AUPRC on Virtual KITTI 2. Dropped into the RoboHop topological navigation pipeline on the Habitat-Matterport 3D (HM3D) Instance Image Navigation benchmark without retraining, our multi-view variant raises success rate from 50% to 70%, and our LightGlue-style head raises SPL from 45.7 to 59.1.",
+      "authors": [
+        "Denis Fatykhoph",
+        "Timur Akhtyamov",
+        "Konstantin Pakulev",
+        "German Devchich",
+        "Gonzalo Ferrer"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T13:35:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.17938v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-view instance segment correspondences using dense geometry priors",
+      "llm_evidence_cn": "利用稠密几何先验的多视图实例片段对应",
+      "llm_evidence": "利用稠密几何先验的多视图实例片段对应",
+      "canonical_evidence": "利用稠密几何先验的多视图实例片段对应",
+      "llm_tldr_en": "Proposes MuViSeg for multi-view instance segment matching using three learned heads on frozen MASt3R and VGGT descriptors.",
+      "llm_tldr_cn": "针对多视图图像中实例级别对应问题，提出MuViSeg方法。通过类无关分割器获取每个视图的实例片段，利用大型3D基础模型提取描述符，并设计三种学习匹配头（注意力头、多尺度融合头等）实现高效匹配。在标准基准上展示了优于现有方法的结果，为对象级映射和导航提供支持。",
+      "llm_tldr": "针对多视图图像中实例级别对应问题，提出MuViSeg方法。通过类无关分割器获取每个视图的实例片段，利用大型3D基础模型提取描述符，并设计三种学习匹配头（注意力头、多尺度融合头等）实现高效匹配。在标准基准上展示了优于现有方法的结果，为对象级映射和导航提供支持。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.18153v1",
+      "source": "arxiv",
+      "title": "Robust Multimodal Dynamic Object Segmentation",
+      "abstract": "Dynamic object segmentation plays a critical role in many visual applications such as static scene reconstruction from dynamic videos. However, existing optical flow-based methods fail to ensure consistent static/dynamic segmentation along object boundaries, while 3D reconstruction-based approaches are highly sensitive to reconstruction errors. To address these limitations, we present a dynamic object segmentation framework that can generate both precise and complete dynamic masks by integrating multimodal cues including 2D point tracks, 3D reconstruction, and semantic information. We design a network combining Transformer architectures with feature clustering aggregation modules to perform static/dynamic classification of multimodal feature trajectories. It enables the model to adaptively determine which type of feature should dominate based on the characteristics of each scene, while also mitigating the impact of feature degradation. Additionally, we introduce a novel point-query-based SAM post-processing method capable of handling multiple objects within a single mask. Extensive experiments demonstrate that our approach achieves state-of-the-art performance in both dynamic object segmentation and static scene reconstruction tasks.",
+      "authors": [
+        "Zhe Xin",
+        "Hanzhi Chang",
+        "Penghui Huang",
+        "Yinian Mao",
+        "Guoquan Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T16:51:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.18153v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "multimodal dynamic object segmentation with feature-level fusion",
+      "llm_evidence_cn": "多模态动态物体分割，特征级融合",
+      "llm_evidence": "多模态动态物体分割，特征级融合",
+      "canonical_evidence": "多模态动态物体分割，特征级融合",
+      "llm_tldr_en": "Proposes a multimodal dynamic object segmentation framework integrating 2D point tracks, 3D reconstruction, and semantic cues using Transformer with feature clustering aggregation for precise static/dynamic classification.",
+      "llm_tldr_cn": "针对现有动态物体分割方法边界不精确或对重建错误敏感的问题，提出一种融合多模态线索（2D点轨迹、3D重建、语义信息）的框架，采用Transformer与特征聚类聚合模块对多模态特征轨迹进行静态/动态分类，生成精确且完整的动态掩码，在多个基准上取得最优。",
+      "llm_tldr": "针对现有动态物体分割方法边界不精确或对重建错误敏感的问题，提出一种融合多模态线索（2D点轨迹、3D重建、语义信息）的框架，采用Transformer与特征聚类聚合模块对多模态特征轨迹进行静态/动态分类，生成精确且完整的动态掩码，在多个基准上取得最优。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.18349v1",
+      "source": "arxiv",
+      "title": "From Pixel to Prognosis: Convolutional and GLCM Feature Fusion for Automated Four-Class Cataract Severity Classification",
+      "abstract": "Objective: To develop a low-cost automated cataract severity classification system operating on standard consumer-grade colour photographs of the eye, without specialised ophthalmic hardware. Methods: A hybrid framework was designed that fuses deep features from a Convolutional Neural Network (CNN) with five handcrafted Grey-Level Co-occurrence Matrix (GLCM) and intensity descriptors - mean intensity, uniformity, standard deviation, contrast, and energy - extracted from a Hough-circle-localised pupil Region of Interest (ROI). A multi-class Support Vector Machine (SVM) with Radial Basis Function (RBF) kernel classifies each image into one of four severity grades: normal, immature, mature, or hypermature cataract. Results: The proposed fused system achieved 95.0% accuracy, 93.8% sensitivity, and 96.1% specificity on an ophthalmologist-labelled test set drawn from 300 images (75 per class) collected at an ophthalmology clinic, outperforming texture-only (88.5%) and CNN-only (91.3%) baselines and surpassing recently published deep learning approaches. Conclusion: The CNN-GLCM-SVM fusion framework provides competitive four-class cataract grading without GPU acceleration or specialised cameras, making it suitable for primary-care and telemedicine deployment in resource-limited settings.",
+      "authors": [
+        "K. Mithra",
+        "Prem Kumar Santhanam"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.ET"
+      ],
+      "published": "2026-07-20T08:52:39+00:00",
+      "link": "https://arxiv.org/pdf/2607.18349v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "feature level fusion of CNN deep features and handcrafted GLCM features",
+      "llm_evidence_cn": "CNN深度特征与手工GLCM特征的融合",
+      "llm_evidence": "CNN深度特征与手工GLCM特征的融合",
+      "canonical_evidence": "CNN深度特征与手工GLCM特征的融合",
+      "llm_tldr_en": "Proposes a hybrid framework for cataract classification that fuses CNN deep features with GLCM and intensity descriptors for four-class severity grading.",
+      "llm_tldr_cn": "针对白内障严重程度分级，提出一种混合框架融合卷积神经网络深度特征与灰度共生矩阵（GLCM）及强度描述符，在标准眼部照片上实现四类分级。该方法展示了特征级融合在医学图像分析中的有效性，为低成本的自动诊断系统提供了可行方案。",
+      "llm_tldr": "针对白内障严重程度分级，提出一种混合框架融合卷积神经网络深度特征与灰度共生矩阵（GLCM）及强度描述符，在标准眼部照片上实现四类分级。该方法展示了特征级融合在医学图像分析中的有效性，为低成本的自动诊断系统提供了可行方案。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
