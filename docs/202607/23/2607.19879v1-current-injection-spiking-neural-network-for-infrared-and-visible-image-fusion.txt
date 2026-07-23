@@ -1,0 +1,661 @@
+Title: Current Injection Spiking Neural Network for Infrared and Visible Image Fusion
+
+URL Source: https://arxiv.org/pdf/2607.19879v1
+
+Published Time: Thu, 23 Jul 2026 00:35:04 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+> 1
+
+# Current Injection Spiking Neural Network for Infrared and Visible Image Fusion 
+
+Rui Zhao, Member, IEEE, Zhuoyuan Li, Wenrui Li, Member, IEEE, Yanchen Dong, Yajing Zheng, Member, IEEE, 
+
+Giuseppe Valenzise, Senior Member, IEEE, Weisi Lin, Fellow, IEEE 
+
+Abstract —Infrared and visible image fusion (IVIF) aims to integrate the complementary information of two modalities into a single image with richer scene content. While existing methods are largely built on artificial neural networks (ANNs), which densely compute over all activations, spiking neural networks (SNNs) communicate through sparse binary spikes and perform computation only where and when a spike occurs, offering a route to more energy-efficient fusion. However, directly apply-ing SNNs to IVIF creates a fundamental tension: cross-modal fusion relies on fine-grained responses from both modalities, whereas communicating only through binary spikes can discard complementary cues that remain below the firing threshold. The membrane potential retains these subthreshold responses before firing, letting both modalities jointly shape the output when integrated at this stage. Building on this, we propose CIS-Fuse, a spiking neural network that performs cross-modal fusion directly at the membrane-potential level. At its core is the current injection spiking (CIS) operator, which injects one modality as a gated auxiliary current into the driving neuron of the other, so the two integrate before spike firing. A per-channel learnable injection strength further allows different feature channels to adaptively regulate the modulation magnitude. Building on CIS, we construct a bidirectional cross-modal fusion (BCMF) module and deploy it on a dual-branch architecture with asymmet-ric stacking depths, where the two branches develop a clear functional specialization. Extensive experiments on four IVIF benchmarks and on downstream object detection and semantic segmentation tasks show that CIS-Fuse achieves fusion quality on par with state-of-the-art ANN-based methods, while inheriting the energy efficiency of spike-based computation, with roughly an order of magnitude lower inference energy than the similarly-sized ANN-based DCEvo. Code will be released upon publication. 
+
+Index Terms —Infrared and visible image fusion, spiking neural networks, membrane-potential integration, cross-modal fusion 
+
+I. I NTRODUCTION 
+
+# INFRARED and visible image fusion (IVIF) [1], [2] aims to integrate the complementary information of two modalities into a single image with richer scene content. Visible images 
+
+Corresponding author: Weisi Lin. 
+
+Rui Zhao and Weisi Lin are with the College of Computing and Data Science, Nanyang Technological University, Singapore (E-mail: ruizhao26@gmail.com, wslin@ntu.edu.sg). Zhuoyuan Li is with the Department of Electrical and Electronic En-gineering, The Hong Kong Polytechnic University, Hong Kong (E-mail: zhuoyuan1997@gmail.com). Wenrui Li is with the Department of Computer Science and Technology, Harbin Institute of Technology, Harbin, China. (e-mail: liwr@hit.edu.cn). Yanchen Dong and Yajing Zheng are with the State Key Labora-tory for Multimedia Information Processing, School of Computer Science, Peking University, Beijing, China (E-mail: yanchendong@stu.pku.edu.cn, yj.zheng@pku.edu.cn). Giuseppe Valenzise is with the Universit´ e Paris-Saclay, CentraleSup´ elec, CNRS, Laboratoire des Signaux et Syst´ emes, Gif-sur-Yvette, France (E-mail: giuseppe.valenzise@l2s.centralesupelec.fr). A Neuron 
+
+> Dendrite
+> Soma
+> Input A
+> Input B
+> Integration at
+> membrane
+> potential
+
+Dendrite Integration 
+
+> Current Injection
+> Spiking Neuron
+> Feature A
+> Membrane
+> Potential
+> Membrane
+> Potential
+
+Spike th V
+
+CIS -Fuse main I
+
+> Gate G Gate G aux
+
+GI 
+
+
+
+Infrared Vis ible 
+
+> CIS -Fuse
+
+T
+
+Fused Image 
+
+Biological Inspiration Proposed Neuron Proposed Method  
+
+> Feature B
+
+Fig. 1. Biological inspiration and design philosophy of CIS-Fuse. Left : Den-drites receive inputs from multiple sources and integrate them at the membrane potential before the soma fires a spike, known as dendritic integration. Middle :The proposed CIS neuron treats one modality as the main driving current 
+
+Imain and the other as a gated auxiliary current αG Iaux , enabling cross-modal integration before spike firing. Right : CIS-Fuse processes infrared and visible inputs through T recurrent spiking steps to produce the fused image. 
+
+provide rich texture and color details that align well with human visual perception, but they degrade severely under low illumination, smoke, or nighttime conditions. Infrared images, in contrast, sense thermal radiation and remain robust in such adverse conditions, reliably highlighting thermal targets such as pedestrians and vehicles. The physical complemen-tarity of the two modalities makes the fused images broadly valuable for downstream visual tasks, including autonomous driving [3], object detection [4] and tracking [5], and semantic segmentation [6], [7]. Recent advances in deep learning have substantially pro-pelled IVIF research, driving a transition from hand-crafted fusion rules toward fully learnable architectures and, more recently, from purely visual quality optimization toward joint optimization with high-level perception. Early CNN-based methods [8]–[10] learn modality-shared and modality-specific representations end-to-end, while Transformer-based meth-ods [11], [12] broaden the receptive field to better capture cross-modal long-range dependencies. In parallel, genera-tive formulations based on adversarial [13], [14] or diffu-sion [15], [16] models pursue more realistic fused appearance. Downstream-task-driven frameworks [17]–[19] couple fusion with detection or segmentation so that the fused image directly serves perception. Despite these advances, the above methods are largely built on the artificial neural network (ANN) paradigm, where in-arXiv:2607.19879v1 [cs.CV] 22 Jul 2026 2
+
+formation is represented by continuous real-valued activations and processed through dense multiply-accumulate operations. The dense computation in ANNs can be costly for resource-constrained perception systems, such as onboard drones or mobile robots, in which infrared and visible sensing needs to operate continuously. Spiking neural networks (SNNs) [20], [21], in contrast, communicate through sparse binary spikes and perform event-driven computation, offering a promising route to energy-efficient visual processing on neuromorphic hardware [22]. These characteristics make SNNs an appealing computational paradigm for image fusion [23]. SNNs have been widely employed to process neuromorphic data [24], [25], such as the output of event-based cameras [26], [27], owing to their asynchronous nature. They have also been ap-plied to conventional image-processing tasks to reduce energy consumption [28], [29]. In this work, we adopt the latter perspective and leverage SNNs for energy-efficient image fusion of conventional infrared and visible images. However, applying SNNs to IVIF cannot simply replace ANN activations with binary spikes. Cross-modal fusion relies on fine-grained responses from both modalities, yet a weak response below the firing threshold may still carry complemen-tary evidence when combined with the other modality. If cross-modal interaction occurs only after spike firing, such sub-threshold responses are discarded before they can contribute to fusion. This creates a fundamental tension between the binary communication of SNNs and the fine-grained information integration required by IVIF. The membrane potential provides a natural way to resolve this tension. Before spike firing, it retains and accumulates input currents, including responses that remain below the firing threshold. Integrating the two modalities at this pre-spike stage therefore allows their complementary evidence to jointly determine neuronal firing, while subsequent informa-tion propagation remains spike-based. From this perspective, membrane-potential-level fusion reconciles fine-grained cross-modal integration with sparse spike-driven computation, echo-ing how a biological neuron combines currents from multiple sources before firing [30]. To realize this pre-spike fusion principle, we introduce the Current Injection Spiking (CIS) operator. CIS injects the auxiliary modality as a gated, content-dependent current into the main modality neuron’s membrane potential, so that the two modalities integrate before the spike is emitted, while a per-channel learnable strength α lets each feature channel adaptively regulate its own modulation magnitude. On top of CIS, we further construct a Bidirectional Cross-Modal Fusion (BCMF) module that injects in both directions in an alternating manner, letting the IR and VIS representations mutually refine each other before firing. We deploy BCMF on a dual-branch architecture with asym-metric stacking depths, imposing only a soft, non-binding bias at initialization. After training, the per-channel α distributions of the two branches settle into well-separated regimes, indi-cating that the network arrives at a clear functional special-ization between the two branches [31]. Finally, we introduce a reparameterized output head for stronger reconstruction and a T -step output-mean supervision that aligns training with the aggregated multi-step output. We name the proposed method CIS-Fuse . Extensive ex-periments on four IVIF benchmarks, namely RoadScene [32], MSRS [33], M3FD [17], and FMB [18], together with down-stream object detection and semantic segmentation, show that CIS-Fuse attains fusion quality on par with state-of-the-art ANN-based methods while preserving the energy efficiency of spike-based computation. The main contributions of this paper are summarized as follows. (1) We approach IVIF from the perspective of where fusion should take place within the spiking dynamics, and pro-pose to integrate the two modalities at the continuous membrane potential before spike firing, so that fine-grained cross-modal responses are preserved rather than lost at the binary spike. (2) We propose the CIS operator, which injects one modality as a gated, per-channel-scaled current into the membrane potential of the other, together with its bidirectional extension BCMF. Deployed on a dual-branch architecture with asymmetric stacking depths, CIS induces an emer-gent functional specialization between the two branches. (3) Extensive experiments on four IVIF benchmarks and on downstream detection and segmentation show that CIS-Fuse matches state-of-the-art ANN-based methods in fusion quality while retaining the energy efficiency of spike-based computation. II. R ELATED WORK 
+
+A. Infrared and Visible Image Fusion 
+
+Fusion for visual enhancement. 
+
+Reconstruction-oriented IVIF methods aim to improve fused-image quality. CNN-based methods commonly design feature decomposition and aggregation strategies to capture complementary cross-modal information, e.g., U2Fusion [8] adaptively preserves informative source content, SDNet [9] formulates fusion as gradient and intensity reconstruction, and CDDFuse [10] decomposes features into base and detail com-ponents. Others introduce lightweight or high-order designs, such as DeFusion [34], LRRNet [35], and SHIP [36]. Another line exploits transformers and language guid-ance: Text-IF [11] introduces semantic text guidance for degradation-aware fusion, and FILM [37] uses vision-language models to guide image fusion. MURF [38], TC-MoA [12], and S4Fusion [39] address misalignment, multi-task adaptation, and long-range dependency modeling, respectively. Beyond feed-forward reconstruction models, some methods exploit generative priors for IVIF. FusionGAN [14] uses adver-sarial learning to preserve visible textures and infrared targets. DCINN [40] adopts a conditional invertible network to per-form detail-preserving fusion. DDFM [15] injects cross-modal information into a pretrained diffusion process, while Dif-Fusion [16] extends diffusion-based fusion to multi-channel generation for better color fidelity. However, diffusion-based methods usually require higher inference costs. 
+
+Fusion for downstream tasks. 
+
+A parallel line of work couples image fusion with down-stream perception tasks, making fused images more benefi-cial for high-level visual understanding. TarDAL [17] jointly 3
+
+formulates fusion and object detection via target-aware dual adversarial learning, and SegMIF [18] builds an interactive fusion-segmentation framework. MetaFusion [41], TIMFu-sion [42], and DCEvo [19] further incorporate meta-features, task guidance, and evolutionary learning into fusion. These methods demonstrate the potential of task-aware optimization for bridging low-level fusion and high-level perception. De-spite their varied designs, the above IVIF methods all build on the ANN paradigm, where cross-modal interaction is carried out through dense continuous activations. 
+
+B. Deep Spiking Neural Networks 
+
+Deep SNN training and architecture. 
+
+Spiking neural networks (SNNs) differ from artificial neural networks (ANNs) by communicating with discrete spikes. Each neuron accumulates input currents in its membrane potential and fires only when it exceeds a threshold [20]. Spike-based communication provides sparsity and temporal dynamics, but the non-differentiable firing function makes deep SNN training challenging. To enable end-to-end opti-mization, surrogate gradient learning [43] approximates the gradient of spike activations and allows SNNs to be trained with spatio-temporal backpropagation [44]. Based on this, directly trained deep SNNs have been advanced by temporal normalization [45], learnable neuron dynamics [46], and spik-ing residual architectures [47], which improve training stability and representation capacity. 
+
+SNNs for visual representation and dense prediction. 
+
+With advances in training and architecture design, SNNs have been extended from image classification to more complex visual tasks, including object detection [26], optical flow estimation [27], and image reconstruction [24]. This trend is particularly natural for neuromorphic cameras [48]–[53], which output sparse and asynchronous event or spike streams that align well with spike-driven computation [25], [54]– [56]. SNNs provide temporal accumulation and sparse feature selection through membrane-potential dynamics [57], [58]. However, their binary spike communication may suppress fine-grained responses that remain below the firing threshold, which can be particularly detrimental to IVIF because weak infrared targets and subtle visible textures may still provide valuable complementary evidence. The membrane potential retains such responses before spike firing, yet exploiting this continuous internal state for cross-modal fusion remains largely unexplored. III. T HE PROPOSED CIS-F USE 
+
+A. Preliminaries of SNNs 
+
+As the core of CIS-Fuse operates at the membrane potential, we first review the membrane-potential dynamics of a spiking neuron and fix the notation used throughout. Spiking neu-ral networks process information through binary spikes over discrete time steps. For a spiking neuron at time step t, the membrane potential first charges from its previous state and the current input, then fires a binary spike once it crosses the ( 1) t −XTime Step: 1t −( 2) t −V( 1) t −H( 1) t −V( 1) t −S( ) tH( ) tS( ) tV( ) tX Time Step: t                                          
+
+> Input Charge Reset Fire Output
+> Fig. 2. Computational graph of aspiking neuron unrolled across two consecutive time steps [46]. At each step t, the neuron receives an input
+> X(t), charges its membrane potential from the previous state V(t−1) to an intermediate state H(t), fires a spike S(t)when the threshold is crossed, and then resets to obtain V(t)for the next step. 0.0
+> 1.5
+> Input  X(t)
+> 0
+> 0.5
+> Vth
+> Potential  V(t) Vth
+> 025 50 75 100
+> Timestep t
+> 0
+> 1
+> Spike  S(t)
+> Input Potential Reset Spike Threshold Vth
+> Fig. 3. Dynamics of a leaky integrate-and-fire (LIF) neuron under a constant input current. The input X(t)continuously charges the membrane potential
+> V(t), which decays toward the resting potential in the absence of input. A spike S(t)is emitted whenever V(t)reaches the firing threshold Vth , after which the membrane potential is reset.
+
+threshold, and is finally reset according to the firing result. We describe these three steps as [44], [54]: 
+
+H(t) = F(V(t − 1) , X(t)) , (1) 
+
+S(t) = Θ( H(t) − Vth ), (2) 
+
+V(t) = H(t) − Vth S(t), (3) where X(t) is the input feature and S(t) is the output spike. 
+
+H(t) denotes the pre-reset membrane potential, while V(t) is the post-reset state propagated to the next time step. The step function Θ( ·) outputs 1 when the membrane potential reaches the threshold Vth and outputs 0 otherwise. Eq. (3) adopts a soft reset that subtracts the threshold Vth after firing, as opposed to a hard reset that clamps the potential to a fixed value 
+
+Vreset . We use the soft reset throughout CIS-Fuse. The function 
+
+F(·) specifies how temporal information is accumulated in the membrane potential, and different choices of F lead to different spiking neuron models. Fig. 2 illustrates the recurrent computation of this process, and Fig. 3 shows the membrane evolution of a LIF neuron under a constant input current. The integrate-and-fire (IF) neuron adopts the simplest charg-ing function, in which the membrane potential perfectly accu-mulates all past inputs: 
+
+FIF (V(t − 1) , X(t)) = V(t − 1) + X(t). (4) 4Membrane 
+
+> Potentials
+> Output 1
+> Output 2
+> Output T
+> Fused
+> Image
+
+Fig. 4. Overall architecture of CIS-Fuse and its dual-axis forward propagation. Along the network forward axis, infrared and visible inputs are first encoded into IR and VIS features via a weight-shared encoder, then jointly processed by a shallow BCMF branch and a deep BCMF branch with asymmetric stacking depths. The two branch outputs are concatenated and decoded by a RepHead to produce the per-step output. Along the temporal propagation axis, the network unrolls over T time steps, and the membrane potentials of all spiking neurons are propagated forward along the gray dashed arrows to carry temporal context. The outputs from all T steps are averaged to yield the final fused image. 
+
+While computationally simple, the IF neuron lacks any forget-ting mechanism, so past inputs accumulate indefinitely without decay. The leaky integrate-and-fire (LIF) neuron addresses this by introducing an exponential leakage term controlled by the membrane time constant τ :
+
+FLIF (V(t − 1) , X(t)) = V(t − 1) + 1
+
+τ
+
+ −(V(t − 1) − Vreset ) + X(t), (5) where a larger τ produces longer memory while a smaller 
+
+τ emphasizes recent inputs. In standard LIF, τ is a fixed hyperparameter shared across all neurons, which limits the model’s ability to adapt temporal dynamics to data. The parametric LIF (PLIF) neuron [46] addresses this limitation by parameterizing the leakage as 1/τ = σ(w) with w a learnable scalar and σ(·) the sigmoid function, so that 1/τ remains in 
+
+(0 , 1) throughout training. Each spiking layer thus learns its own temporal time scale jointly with the network weights, which has been shown to substantially improve representation capacity in deep SNNs. We adopt PLIF neurons throughout CIS-Fuse for this reason. For notational simplicity, we omit the time-step superscript (t) from feature, current, membrane-potential, and spike variables in the subsequent network-level formulations, unless the temporal index is explicitly required. 
+
+B. Overall Architecture of the CIS-Fuse 
+
+The overall architecture of CIS-Fuse is illustrated in Fig. 4, which unrolls along two orthogonal axes: the network forward axis that processes spatial features from the two modalities, and the temporal propagation axis that evolves the membrane potentials across T time steps. 
+
+Network forward. Along the forward axis, the infrared image Iir and the visible image Ivis are first fed into a weight-shared spiking encoder, which transforms each modality into main Faux F3x3 Conv 3x3 Conv 
+
+> BatchNorm
+> 3x3 Conv 3x3 Conv
+> BatchNorm
+> 1x1 Conv
+> BatchNorm
+> Sigmoid Gmain Iaux I
+> A learnable
+> per -channel
+> scale factor
+> Current
+> Integration
+> SN
+> 3x3 Conv 3x3 Conv
+> BatchNorm
+> SN aux GI
+> fuse F
+> Element -wise addition
+> Element -wise multiplication
+> SN SN  Spiking Neuron
+
+Fig. 5. Structure of the proposed Current Injection Spiking (CIS) module. The main and auxiliary features are encoded into two currents, with the auxiliary one additionally modulated by a content-dependent gate and a learnable per-channel scale factor. The two currents are combined before thresholding to jointly charge the same membrane potential. 
+
+a spike-based feature. We denote the resulting features as the IR feature Fir and the VIS feature Fvis . The two features are then jointly processed by two parallel fusion branches with asymmetric stacking depths: a shallow BCMF branch with a single BCMF block and a deep BCMF branch stacking three such blocks of the same structure but with independent parameters. Each BCMF block, built upon the proposed CIS operator, performs bidirectional cross-modal current injection between IR and VIS, and each branch outputs a fused spiking feature. The two branch outputs are concatenated along the channel dimension and passed to a spiking decoder equipped with a reparameterized head (abbreviated as RepHead here-after), which produces the per-step output. 
+
+Temporal propagation. Since CIS-Fuse is a spiking neural network, all neurons maintain a membrane potential that carries temporal context across time steps. The network is unrolled for T steps with shared parameters: at every step, the same pair of input images is fed in, while the mem-5
+
+brane potentials of all spiking neurons are inherited from the previous step. For static inputs, the temporal axis represents iterative membrane charging over repeated presentations rather than physical scene evolution. This allows the network to progressively refine its internal representations. The T per-step outputs are aggregated by averaging to produce the final fused image. In the following subsections, we detail the CIS operator and its bidirectional extension into the BCMF module and the dual-branch deployment in Sec. III-C. The RepHead reparam-eterization strategy is in Sec. III-D. 
+
+C. Current Injection Module 
+
+The two modalities are encoded into features Fir and Fvis by the weight-shared encoder, whose body is a patch-embedding convolution followed by a stack of ResBlockSNN blocks. We build the proposed cross-modal fusion mechanism to process these features, organized in two levels: the bottom-level CIS module performs unidirectional cross-modal current injection, while the upper-level BCMF block pairs two CIS modules into bidirectional modulation with alternating refinement. 
+
+CIS module. The CIS module takes a pair of features 
+
+(Fmain , Faux ) as input, where Fmain serves as the main driving modality and Faux as the auxiliary modulating modality. The two features are first encoded into input currents Imain and 
+
+Iaux through a 3 × 3 Conv-BN block, respectively. A content-dependent gate G is computed from Faux itself via a 1 × 1
+
+Conv-BN-Sigmoid branch. The main current and the gated auxiliary current are combined before spike generation to form a fused current that charges the membrane potential: 
+
+Icis = Imain + αGI aux , (6) where α ∈ RC×1×1 is a learnable per-channel injection scale factor, and the multiplication among α, G, and Iaux is performed element-wise. This fused current Icis plays the role of the input X(t) in Eq. (1). Following the charging and firing dynamics of a spiking neuron, the fused current updates the pre-reset membrane potential and determines the emitted spike as 
+
+Hfuse = F (Vfuse , Icis ) , (7) 
+
+Sfuse = Θ ( Hfuse − Vth ) , (8) where Vfuse denotes the membrane state inherited from the preceding time step. Therefore, an auxiliary response that is insufficient to trigger a spike independently can still shift the membrane potential and influence the firing decision when combined with the main current. In this sense, cross-modal interaction occurs through the continuous membrane potential before being converted into a binary spike. The resulting spike is subsequently processed by a 3 × 3
+
+Conv-BN-SN block, with a residual connection from Fmain 
+
+giving the fused output: 
+
+Ffuse = SN (BN (Conv 3×3 (Sfuse ))) + Fmain . (9) For brevity, we denote the entire CIS module as Ffuse =
+
+CIS (Fmain , Faux ). Two design components distinguish CIS ir Fvis FCIS Module       
+
+> IR VIS
+> CIS Module
+> IR VIS
+> CIS Module
+> VIS IR
+> CIS Module
+> VIS IR
+> Softmax
+> Weighted Sum
+> Softmax
+> Weighted Sum ResBlockSNN ir Fvis F
+> BCMF BCMF BCMF BCMF
+> BCMF BCMF
+> BCMF BCMF
+> Concat Concat Decoder
+> with Rep -Head
+> Shallow BCMF Branch
+> Bidirectional Cross -Modal Fusion (BCMF)
+> Deep BCMF Branch
+
+Fig. 6. Structure of a Bidirectional Cross-Modal Fusion (BCMF) branch. The branch stacks K blocks, each carrying out one round of alternating bidirectional injection between IR and VIS through a pair of CIS modules. Only the last block is followed by a softmax-weighted sum and a refinement block, while the preceding blocks contain only the alternating CIS pair. The shallow and deep BCMF branches use K=1 and K=3 , respectively. 0.2 0.4 0.6 0.8 1.0 1.2 1.4  
+
+> value
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> 2.5
+> 3.0
+> 3.5
+> Density
+> mean=0.532
+> mean=0.923
+> Distribution of Learned : Shallow vs Deep BCMF Branch
+> Shallow
+> Deep
+> Shallow Mean
+> Deep Mean
+
+Fig. 7. Distribution of the learned per-channel injection strength α in the shallow and deep BCMF branches after training. The two distributions are substantially separated, indicating that, when left to optimize freely, the network settles into a clear functional specialization between the two branches. 
+
+from generic cross-attention or gated fusion: (i) a driver-modulator asymmetry in which only the auxiliary current is gated, preserving the integrity of the main modality; and (ii) the per-channel learnable α that allows different feature chan-nels to adaptively regulate the modulation magnitude. More importantly, the two modality-specific currents are combined before thresholding and jointly contribute to the membrane-potential dynamics in Eq. (7) and (8). This mechanism also draws inspiration from dendritic integration in biological neu-rons [30], where currents arriving from multiple sources are integrated before the soma generates a spike. 
+
+BCMF block. A BCMF block builds on CIS to realize bidirectional cross-modal modulation with alternating refine-ment, and a branch is formed by stacking K such blocks. With (F(0)  
+
+> ir
+
+, F(0)  
+
+> vis
+
+) = ( Fir , Fvis ), the k-th block updates the two modalities by: 
+
+F(k) 
+
+> ir
+
+= CIS (k)
+
+> a
+
+ F(k−1)  
+
+> ir
+
+, F(k−1) 
+
+> vis
+
+, (10) 
+
+F(k) 
+
+> vis
+
+= CIS (k)
+
+> b
+
+ F(k−1)  
+
+> vis
+
+, F(k)
+
+> ir
+
+. (11) Note that the second equation conditions on the just-updated 
+
+F(k) 
+
+> ir
+
+rather than F(k−1)  
+
+> ir
+
+, which is the key mechanism of alternating refinement: each VIS update is built upon an IR feature that has already absorbed the current round of VIS information. The two CIS modules inside a block, as well as those across different blocks, have independent parameters, so the K blocks form a stacked sequence rather than a weight-63x3 Conv     
+
+> BatchNorm
+> 3x3 Conv
+> BatchNorm
+> 1x1 Conv
+> BatchNorm
+> 5x5 Conv
+> BatchNorm
+> Input
+> Output
+> 5x5 Conv
+> Input
+> Output
+> During Training During Inference
+> Fig. 8. Structure of the proposed RepHead. Left : the training-time multi-branch design with parallel 3 ×3, 1 ×1, and 5 ×5 Conv-BN branches summed element-wise. Right : the inference-time equivalent, obtained by algebraically collapsing the three branches into a single 5 ×5 convolution.
+
+shared recurrence. After the K blocks, the two refined features 
+
+F(K) 
+
+> ir
+
+and F(K) 
+
+> vis
+
+are merged through a softmax-weighted sum and passed to a spiking residual block: 
+
+Fbcmf = ResBlockSNN  W1F(K) 
+
+> ir
+
++ W2F(K)
+
+> vis
+
+, (12) where W1 and W2 are pixel-wise softmax weights predicted from [F(K) 
+
+> ir
+
+, F(K) 
+
+> vis
+
+] by a lightweight Conv-BN-ReLU-Conv head, and the multiplication between weights and features is element-wise. We denote the resulting branch as Fbcmf =
+
+BCMF K (Fir , Fvis ), where the superscript K is the number of stacked blocks. 
+
+Dual-branch deployment. We deploy two parallel branches on the same encoded pair (Fir , Fvis ): a shallow BCMF branch BCMF 1 with a single block and a deep BCMF branch BCMF 3
+
+with three stacked blocks. Since the blocks carry independent parameters, the deep BCMF branch is three blocks in sequence rather than one block reused three times. The two branches are initialized with a soft asymmetric bias on the injection strength 
+
+α but are otherwise free to be updated by the training objective, with no hard architectural constraints on their parameters. After training, the learned α distributions of the two branches become substantially separated, as visualized in Fig. 7. The shallow BCMF branch settles into a regime of mild cross-modal modulation, while the deep BCMF branch performs much stronger modulation. This indicates that, when left to optimize freely, the network settles into a clear functional specialization between the two branches, echoing the parallel magnocellular and parvocellular pathways of the biological visual system [31]. The two branch outputs are concatenated along the channel dimension and forwarded to the decoder. 
+
+D. Reparameterized Output Head 
+
+At each time step, the decoder maps the fused spiking feature to a fused image. Since this final projection bridges spike-based representations and pixel intensities, a single convolution may limit reconstruction quality, whereas directly deepening the head increases inference cost. To resolve this tension, the RepHead adopts a structurally reparameterized design [54], [59], shown in Fig. 8. The key idea is to de-couple training-time expressiveness from inference-time cost: RepHead uses a multi-branch design during training, and is algebraically collapsed into a single convolution at inference. We next describe its two forms in turn. 
+
+Training-time multi-branch structure. Given the decoder feature F at each time step, RepHead processes it with three parallel Conv-BN branches: a two-layer 3×3 branch, a single 1×1 branch, and a single 5×5 branch. These branches provide complementary parameterizations, where the stacked 
+
+3×3 convolutions model local spatial compositions, the 1×1
+
+branch preserves channel-wise mixing, and the 5×5 branch introduces a larger spatial receptive field. Since no nonlinear activation is inserted inside the branches, each branch remains a linear transformation of the input feature. The training-time output is obtained by element-wise summation: 
+
+Htrain (F) = B3×3(F) + B1×1(F) + B5×5(F), (13) where B3×3, B1×1, and B5×5 denote the three training-time branches. This design enriches the optimization-time representation while preserving the linearity required for exact structural reparameterization. 
+
+Inference-time fused convolution. Since each branch is lin-ear in F and BN can be folded into its preceding convolution, the entire RepHead is mathematically equivalent to a single convolution. We pre-compute the equivalent kernel by folding each Conv-BN pair, collapsing the two-layer 3×3 branch into an equivalent 5×5 kernel via convolution, zero-padding the 
+
+1×1 kernel to 5×5, and summing the three resulting kernels: 
+
+Kinfer = Kfold  
+
+> 3×3→5×5
+
++ pad 5
+
+ Kfold 
+
+> 1×1
+
+ + Kfold 
+
+> 5×5
+
+. (14) At inference, the entire RepHead therefore reduces to a single 
+
+5×5 convolution. From a deployment perspective, this means the deployed RepHead is structurally identical to a plain convolutional layer, and thus imposes no additional burden on SNN inference pipelines. 
+
+E. Training Strategy 
+
+Output-mean supervision. As described in Sec. III-B, CIS-Fuse unrolls over T time steps and produces a per-step output at each step. A common practice in SNN training is to apply the loss at every step independently and average the resulting losses, which we refer to as per-step-loss supervision. We instead adopt output-mean supervision: the per-step outputs are first averaged into the final fused image Ifused , and the loss is then computed once on this aggregated output: 
+
+Ifused = 1
+
+T
+
+> T
+
+X
+
+> t=1
+
+N (Iir , Ivis ; t), (15) 
+
+Lout-mean = L(Ifused , Iir , Ivis ) , (16) where N (·; t) denotes the network output at time step t.Although the per-step and output-mean losses appear sim-ilar, they are not equivalent for nonlinear losses, since 
+
+L
+
+ 1
+
+> T
+
+P 
+
+> t
+
+ˆIt
+
+̸
+
+= 1
+
+> T
+
+P 
+
+> t
+
+L(ˆIt) in general. Output-mean loss aligns the training objective with the test-time aggregated output, whereas per-step-loss supervision biases the network toward strong single-step rather than strong aggregated pre-dictions. Our ablation in Table III confirms that output-mean supervision yields better fusion quality. 
+
+Loss function. Our overall training loss combines three terms: a maximum-intensity term for pixel-level fidelity, 7
+
+TABLE I QUANTITATIVE COMPARISON ON ROAD SCENE , MSRS, M3FD, AND FMB BENCHMARKS . F OR EACH METRIC , THE TOP FOUR RESULTS ARE MARKED FROM GREEN TO YELLOW , AS DETAILED AT THE BOTTOM . A VG RANK DENOTES THE AVERAGE RANKING ACROSS ALL EVALUATION METRICS .Benchmark RoadScene MSRS Method / Metric EN SD SF AG SCD CC VIFF AvgRank EN SD SF AG SCD CC VIFF AvgRank SDNet [9] [IJCV’21] 7.14 40.20 13.70 5.36 1.49 0.55 0.60 9.4 5.25 17.35 8.67 2.67 0.99 0.64 0.50 12.6 U2Fusion [8] [TPAMI’22] 7.09 38.12 13.25 5.27 1.70 0.61 0.60 8.6 5.37 25.52 9.07 2.82 1.24 0.65 0.54 10.9 TarDAL [17] [CVPR’22] 7.17 47.44 10.83 3.94 1.55 0.56 0.54 9.7 5.28 25.22 5.98 1.83 0.71 0.45 0.42 15.4 DeFusion [34] [ECCV’22] 7.23 44.44 10.22 3.99 1.69 0.58 0.63 8.6 6.46 37.63 8.60 2.80 1.35 0.60 0.77 10.4 LRRNet [35] [TPAMI’23] 6.99 40.00 11.14 4.02 1.61 0.58 0.49 11.4 6.19 31.78 8.46 2.63 0.79 0.51 0.54 13.4 MURF [38] [TPAMI’23] 6.83 36.73 16.20 6.18 1.56 0.59 0.54 8.3 5.04 20.63 10.49 3.38 1.02 0.62 0.44 11.9 Dif-Fusion [16] [TIP’23] 7.16 43.71 14.12 5.56 1.43 0.54 0.59 8.6 6.66 41.90 11.63 3.88 1.59 0.60 0.83 4.7 
+
+SegMIF [18] [ICCV’23] 7.16 41.88 13.52 5.08 1.60 0.59 0.67 7.1 5.95 37.28 11.10 3.47 1.57 0.63 0.88 7.4 TIMFusion [42] [TPAMI’24] 7.18 46.56 12.87 4.71 1.30 0.53 0.74 9.3 6.27 36.73 9.67 2.91 1.34 0.58 0.65 11.1 DCINN [40] [IJCV’24] 7.00 38.24 10.28 4.06 1.32 0.53 0.23 14.3 6.00 40.30 10.51 3.34 1.49 0.58 0.82 9.7 SHIP [36] [CVPR’24] 7.15 44.67 14.58 5.45 1.41 0.53 0.71 7.7 6.43 41.13 11.81 3.92 1.51 0.59 0.91 5.7 TC-MoA [12] [CVPR’24] 7.12 41.97 10.24 4.06 1.42 0.55 0.67 11.1 6.55 41.63 10.91 3.58 1.60 0.61 0.81 6.4 Text-IF [11] [CVPR’24] 7.28 48.62 13.55 5.30 1.67 0.58 0.74 4.7 6.67 42.60 11.46 3.70 1.62 0.60 1.04 4.3 
+
+S4Fusion [39] [TIP’25] 7.28 46.54 14.54 5.41 1.36 0.52 0.80 6.9 6.53 42.75 11.71 3.79 1.53 0.59 1.00 5.1 DCEvo [19] [CVPR’25] 7.15 45.22 13.42 4.91 1.57 0.56 0.77 7.6 6.63 42.94 11.46 3.71 1.66 0.61 1.03 3.7 
+
+CIS-Fuse (Ours) [Ours] 7.38 53.32 15.28 5.89 1.79 0.59 0.66 2.7 6.69 43.70 11.30 3.74 1.86 0.62 0.90 3.1 
+
+Benchmark M3FD FMB Method / Metric EN SD SF AG SCD CC VIFF AvgRank EN SD SF AG SCD CC VIFF AvgRank SDNet [9] [IJCV’21] 6.84 35.10 13.60 4.72 1.52 0.50 0.58 8.6 6.15 21.82 10.86 3.53 1.17 0.62 0.64 12.3 U2Fusion [8] [TPAMI’22] 6.96 35.29 13.12 4.85 1.75 0.57 0.68 5.6 6.60 29.15 10.31 3.41 1.49 0.65 0.66 9.1 TarDAL [17] [CVPR’22] 6.87 42.18 7.63 2.67 1.29 0.46 0.55 11.9 6.63 39.34 6.94 2.17 1.03 0.51 0.56 12.7 DeFusion [34] [ECCV’22] 6.77 33.32 9.04 3.17 1.48 0.51 0.59 11.3 6.71 35.13 8.84 2.77 1.49 0.62 0.64 8.6 LRRNet [35] [TPAMI’23] 6.44 27.17 10.68 3.59 1.46 0.54 0.57 12.4 6.28 25.89 10.12 3.05 1.34 0.64 0.61 12.4 MURF [38] [TPAMI’23] 6.50 31.48 12.55 4.87 1.46 0.52 0.42 11.1 6.37 31.28 13.88 4.77 1.34 0.60 0.45 9.9 Dif-Fusion [16] [TIP’23] 6.80 33.86 14.73 5.10 1.38 0.48 0.59 9.3 6.66 33.12 14.12 4.38 1.42 0.60 0.63 8.0 SegMIF [18] [ICCV’23] 6.85 36.17 14.14 4.81 1.72 0.57 0.74 4.9 6.83 37.08 13.69 4.18 1.72 0.66 0.78 4.0 
+
+TIMFusion [42] [TPAMI’24] 6.75 33.12 12.31 4.11 1.37 0.49 0.70 11.9 6.51 28.44 12.23 3.59 1.24 0.58 0.71 11.6 DCINN [40] [IJCV’24] 6.59 29.43 11.21 3.84 1.46 0.52 0.69 11.4 6.47 28.65 11.47 3.51 1.39 0.61 0.76 10.4 SHIP [36] [CVPR’24] 6.82 35.22 15.26 5.16 1.31 0.47 0.82 7.3 6.66 34.09 14.58 4.44 1.35 0.58 0.89 6.9 TC-MoA [12] [CVPR’24] 6.84 34.22 13.57 4.50 1.47 0.50 0.77 8.6 6.66 33.07 13.44 3.97 1.43 0.59 0.81 8.3 Text-IF [11] [CVPR’24] 6.90 36.75 15.09 5.08 1.49 0.50 0.90 4.6 6.72 34.75 14.66 4.39 1.48 0.60 0.95 4.4 
+
+S4Fusion [39] [TIP’25] 6.88 37.70 14.78 4.96 1.13 0.43 0.93 6.7 6.57 31.97 14.47 4.31 1.07 0.52 0.95 9.0 DCEvo [19] [CVPR’25] 6.84 35.59 14.11 4.61 1.49 0.50 0.81 7.0 6.67 34.75 13.77 4.04 1.50 0.61 0.89 5.7 
+
+CIS-Fuse (Ours) [Ours] 6.99 37.35 14.66 5.08 1.71 0.55 0.72 3.6 6.92 38.37 14.67 4.54 1.70 0.64 0.78 2.7 
+
+* The best, second-best, third-best, and fourth-best results are marked as 1st 2nd 3rd 4th 
+
+a maximum-gradient term for structural boundaries, and a sum-of-correlations-of-differences (SCD) term that encourages complementary information transfer from both modalities: 
+
+L = Lint + λgrad Lgrad + λscd Lscd . (17) The intensity term Lint pulls the fused image toward the element-wise maximum of the two sources, preserving both salient thermal targets and bright textured regions: 
+
+Lint = max( Iir , Ivis ) − Ifused 1. (18) The gradient term Lgrad applies the same maximum-selection principle in the gradient domain, sharpening object boundaries and fine textures: 
+
+Lgrad = max( |∇ Iir |, |∇ Ivis |) − |∇ Ifused | 1, (19) where ∇ denotes the Sobel operator. The SCD term [60] provides a global complementarity criterion that the two ℓ1
+
+terms cannot capture on their own: 
+
+Lscd = − ρ(Ivis , Ifused − Iir ) + ρ(Iir , Ifused − Ivis ), (20) where ρ(·, ·) denotes the Pearson correlation coefficient. In-tuitively, Ifused − Iir should resemble Ivis and vice versa, indicating that the fused image absorbs distinctive content from both sources. IV. E XPERIMENTS 
+
+A. Implementation Details 
+
+Datasets. We train CIS-Fuse on the MSRS [33] training set, which contains 1083 aligned infrared-visible image pairs. The trained model is then tested without any fine-tuning on four widely-used IVIF benchmarks, namely RoadScene [32], MSRS [33], M3FD [17], and FMB [18], with 50, 361, 300, and 280 test pairs, respectively. All images are converted to the YCbCr color space [61], [62]: only the Y channel is fused, and the visible Cb/Cr channels are recombined with the fused Y at inference to produce the color output. 
+
+Training settings. The network is trained end-to-end for 60 epochs with a batch size of 8 on an NVIDIA RTX 4090. We use the Adam optimizer with an initial learning rate of 
+
+3×10 −4, which is halved at epochs 20 and 40. During training, each image pair is randomly cropped to 64 × 64 patches. The number of spiking time steps is set to T =4 , and all spiking neurons are PLIF with initial τ =2 .0 and a soft-reset scheme. The loss weights are set to λgrad =1 .0 and λscd =0 .1.
+
+Architecture configuration. Both the IR and VIS encoders share the same architecture and parameters, with a feature dimension of C=64 and 3 ResBlockSNN blocks. The shallow BCMF branch uses K=1 block with the injection strength 8(a) Infrared (b) Visible (c) SDNet (d) U2Fusion (e) TarDAL (f) DeFusion                            
+
+> (g) LRRNet (h) MURF (i) Dif -Fusion (j) SegMIF (k) TIMFusion (l) DCINN
+> (m) SHIP (n) TC -MoA (o) Text -IF (p) S4Fusion (q) DCEvo (r) CIS -Fuse (Ours)
+> Fig. 9. Qualitative comparison on the RoadScene dataset. CIS-Fuse preserves salient thermal targets while retaining sharper textures and contrast than competing methods. Zoomed-in patches are shown at the bottom. Please enlarge for details. (a) Infrared (b) Visible (c) SDNet (d) U2Fusion (e) TarDAL (f) DeFusion
+> (g) LRRNet (h) MURF (i) Dif -Fusion (j) SegMIF (k) TIMFusion (l) DCINN
+> (m) SHIP (n) TC -MoA (o) Text -IF (p) S4Fusion (q) DCEvo (r) CIS -Fuse (Ours)
+> Fig. 10. Qualitative comparison on the MSRS dataset. CIS-Fuse retains strong thermal cues while recovering visible-side details that others over-smooth. Zoomed-in patches are shown at the bottom. Please enlarge for details.
+
+initialized to α0=0 .25 , while the deep BCMF branch uses 
+
+K=3 blocks with α0=0 .75 . The RepHead uses parallel 3 ×3, 1×1, and 5 ×5 branches during training, and is reparameterized into a single 5 ×5 convolution at inference. 
+
+B. Comparison on IVIF 
+
+Compared methods. 
+
+We compare CIS-Fuse against 15 representative state-of-the-art IVIF methods covering CNN-based, Transformer-based, generative, and task-driven paradigms, namely SD-Net [9], U2Fusion [8], TarDAL [17], DeFusion [34], LRR-Net [35], MURF [38], Dif-Fusion [16], SegMIF [18], TIM-Fusion [42], DCINN [40], SHIP [36], TC-MoA [12], Text-IF [11], S4Fusion [39], and DCEvo [19]. All competing methods are evaluated using their official pretrained models and default settings. 
+
+Evaluation metrics. Following standard IVIF evaluation protocol, we adopt seven widely-used metrics: entropy (EN), standard deviation (SD), spatial frequency (SF), average gra-dient (AG), sum of correlations of differences (SCD) [60], correlation coefficient (CC), and visual information fidelity for fusion (VIFF) [63]. Higher values indicate better fusion quality for all seven metrics. To summarize cross-metric performance, we additionally report AvgRank , the average ranking of each method across all seven metrics on a given benchmark, where a lower AvgRank indicates better performance. 
+
+Quantitative results. Table I reports the quantitative com-parison on RoadScene, MSRS, M3FD, and FMB. CIS-Fuse achieves the best AvgRank on all four benchmarks, consis-tently outperforming the strongest competitors such as Text-IF, DCEvo, and S4Fusion. In particular, CIS-Fuse ranks among the top methods on SD across the four benchmarks, indicating that the fused images preserve a wide intensity range and retain strong contrast from both modalities. 
+
+Qualitative results. Fig. 9–12 show qualitative comparisons on the four benchmarks. As shown in Fig. 9 for RoadScene, CIS-Fuse simultaneously preserves the sharp thermal silhou-ettes of vehicles and pedestrians and the fine textures of trees, road markings, and building fac ¸ades, whereas several competing methods either dim the infrared targets, as seen in LRRNet and DCINN, or wash out visible-side textures, as 9(a) Infrared (b) Visible (c) SDNet (d) U2Fusion (e) TarDAL (f) DeFusion                            
+
+> (g) LRRNet (h) MURF (i) Dif -Fusion (j) SegMIF (k) TIMFusion (l) DCINN
+> (m) SHIP (n) TC -MoA (o) Text -IF (p) S4Fusion (q) DCEvo (r) CIS -Fuse (Ours)
+> Fig. 11. Qualitative comparison on the M3FD dataset. CIS-Fuse jointly preserves infrared targets and visible-side textures. In the zoomed-in patches at the bottom, the pedestrian stays sharp against the haze while the background retains fine texture. Please enlarge for details. (a) Infrared (b) Visible (c) SDNet (d) U2Fusion (e) TarDAL (f) DeFusion
+> (g) LRRNet (h) MURF (i) Dif -Fusion (j) SegMIF (k) TIMFusion (l) DCINN
+> (m) SHIP (n) TC -MoA (o) Text -IF (p) S4Fusion (q) DCEvo (r) CIS -Fuse (Ours)
+> Fig. 12. Qualitative comparison on the FMB dataset. CIS-Fuse produces clearer object contours and richer scene context, especially in regions with strongly complementary modalities. Zoomed-in patches are shown at the bottom. Please enlarge for details.
+
+seen in TarDAL. Fig. 10 presents results on MSRS, which features challenging low-light nighttime scenes; CIS-Fuse re-tains bright thermal cues such as pedestrians and headlights without overexposing them, and recovers visible-side details that other methods over-smooth. In Fig. 11 for M3FD, CIS-Fuse produces more natural-looking fused images with clearer object contours under haze and complex outdoor illumination. Finally, Fig. 12 shows the results on FMB, where CIS-Fuse maintains clear scene structure and rich texture even when the two modalities provide highly complementary information. Overall, these results show that membrane-potential-level fu-sion attains fusion quality comparable to ANN-based methods under the spike-based paradigm. 
+
+C. Ablation Studies 
+
+To validate the design choices of CIS-Fuse, we conduct ablation studies on the MSRS test set. Table II examines four architectural design dimensions, where each variant alters only one component while keeping all other settings identical to the full model. Table III further examines the training strategy along two axes, namely the loss supervision scheme and the number of spiking time steps. We discuss each group in turn. As SNN-based IVIF baselines are scarce, all ablations below are conducted within an identical SNN framework, isolating the gain of CIS from that of the SNN paradigm itself. 
+
+Fusion mechanism. We first compare our CIS-based fusion against two common baselines, element-wise addition and concatenation followed by a 1×1 convolution. As shown in Group 1 of Table II, both baselines lag behind CIS on nearly every metric, with notable drops on SD and SCD. These results suggest that integrating the two modalities through gated current injection before spike firing is more effective than simple feature-level addition or concatenation. 
+
+BCMF directionality. We then ablate the bidirectional and alternating-refinement design of BCMF. Unidirectional variants, namely IR →VIS only and VIS →IR only, consistently degrade fusion quality, confirming that neither modality alone should be treated as the sole modulator. Removing the alternat-ing mechanism while keeping both directions, denoted Non-alternating BCMF, also underperforms our full design on SD and SF, showing that conditioning each update on the just-10 
+
+TABLE II ABLATION STUDIES ON CIS-F USE . E ACH VARIANT ALTERS ONLY ONE DESIGN DIMENSION WHILE KEEPING ALL OTHER COMPONENTS IDENTICAL TO OURS .Variant EN SD SF AG SCD CC VIFF Group 1: Fusion mechanism Element-wise add 6.60 40.89 10.88 3.65 1.80 0.62 0.89 Concat + 1 ×1 conv 6.61 41.73 10.49 3.48 1.82 0.63 0.85 Ours 6.69 43.70 11.30 3.74 1.86 0.62 0.90 Group 2: BCMF directionality IR → VIS only 6.59 41.05 10.56 3.50 1.80 0.62 0.88 VIS → IR only 6.62 40.70 10.70 3.58 1.79 0.63 0.90 Non-alternating BCMF 6.70 41.81 10.80 3.58 1.82 0.62 0.86 Ours 6.69 43.70 11.30 3.74 1.86 0.62 0.90 Group 3: Dual-branch deployment Symmetric ( K=2 ) 6.66 41.92 10.75 3.57 1.82 0.62 0.90 Inverted depth 6.63 41.97 10.81 3.58 1.82 0.62 0.89 Ours 6.69 43.70 11.30 3.74 1.86 0.62 0.90 Group 4: Spiking neuron type IF neuron 6.54 42.53 11.22 3.68 1.77 0.62 0.90 LIF neuron 6.55 41.48 10.86 3.58 1.78 0.62 0.85 Ours 6.69 43.70 11.30 3.74 1.86 0.62 0.90 TABLE III TRAINING STRATEGY ABLATION STUDIES . “O UTPUT MEAN ” SUPERVISION AND T =4 ARE ADOPTED IN OUR FINAL MODEL .Variant EN SD SF AG SCD CC VIFF Loss supervision strategy Last-step only 6.56 42.83 11.11 3.48 1.81 0.63 0.85 Per-step loss 6.62 42.36 11.06 3.61 1.85 0.63 0.90 Output mean (Ours) 6.69 43.70 11.30 3.74 1.86 0.62 0.90 Number of spiking time steps TT =1 6.69 42.48 11.05 3.71 1.85 0.63 0.87 
+
+T =2 6.65 42.66 11.32 3.74 1.83 0.63 0.87 
+
+T =4 (Ours) 6.69 43.70 11.30 3.74 1.86 0.62 0.90 
+
+T =8 6.70 42.13 11.15 3.74 1.82 0.62 0.91 
+
+updated representation of the other modality is essential for effective mutual refinement. 
+
+Dual-branch deployment. Group 3 of Table II compares our asymmetric shallow-deep deployment against two al-ternatives. Setting both branches to identical depths K=2 ,denoted Symmetric, removes the soft inductive bias that drives functional specialization, while swapping the depths, denoted Inverted, contradicts the bias by pairing a strong injection strength with shallow stacking and vice versa. Both variants underperform the proposed shallow-K=1 plus deep-K=3 
+
+design, validating that the asymmetric configuration is what enables the functional divergence observed in Fig. 7. 
+
+Spiking neuron type. We further replace the PLIF neuron with the simpler IF and LIF neurons throughout the network. As shown in Group 4 of Table II, both variants produce noticeably weaker fusion quality, particularly on EN, SD, and SCD. This confirms that the learnable membrane time constant in PLIF allows each spiking layer to adapt its temporal dynamics to the data, which is beneficial for the multi-step membrane-potential integration central to CIS-Fuse. 
+
+Training strategy. Finally, Table III ablates the training strategy. For loss supervision, the last-step-only and per-step-loss variants both underperform the proposed output-mean 
+
+TABLE IV QUANTITATIVE COMPARISON OF OBJECT DETECTION ON THE M3FD 
+
+> DATASET
+
+. E ACH FUSION METHOD IS USED TO TRAIN A SEPARATE 
+
+YOLO V8S DETECTOR UNDER IDENTICAL SETTINGS , AND WE REPORT THE PER -CLASS AP@[0.5:0.95] AS WELL AS THE OVERALL M AP@[0.5:0.95] 
+
+> AVERAGED ACROSS ALL SIX CATEGORIES
+
+.Method People Car Bus Motor. Lamp Truck All Infrared 55.9 68.3 73.9 42.2 41.3 55.3 56.1 Visible 44.2 71.0 77.3 50.6 45.5 56.3 57.5 SDNet [9] 55.8 71.6 74.4 49.6 46.9 56.8 59.2 
+
+U2Fusion [8] 54.8 71.3 74.5 50.9 45.4 57.4 59.0 
+
+TarDAL [17] 54.2 70.5 75.5 47.4 44.3 55.6 57.9 DeFusion [34] 54.8 71.3 73.5 50.0 41.3 56.8 58.0 LRRNet [35] 53.2 71.6 72.3 50.8 42.4 56.3 57.8 MURF [38] 54.0 69.4 74.2 46.1 43.6 56.6 57.3 Dif-Fusion [16] 54.8 71.2 77.1 50.2 42.6 56.8 58.8 
+
+SegMIF [18] 54.3 71.1 74.9 48.7 47.5 55.0 58.6 TIMFusion [42] 52.0 70.8 73.2 48.7 43.1 58.3 57.7 DCINN [40] 54.2 70.2 72.3 47.7 40.7 62.1 57.9 SHIP [36] 54.3 70.8 75.5 49.8 42.6 55.1 58.0 TC-MoA [12] 54.1 71.2 76.2 49.6 42.8 55.9 58.3 Text-IF [11] 54.4 71.4 72.6 50.1 44.7 57.8 58.5 S4Fusion [39] 53.7 71.6 73.4 51.3 42.4 55.9 58.0 DCEvo [19] 54.8 71.0 73.7 50.2 43.0 58.3 58.5 CIS-Fuse (Ours) 54.7 70.9 76.5 49.4 48.2 58.8 59.8 
+
+* 1st, 2nd, 3rd, 4th best: 1st 2nd 3rd 4th 
+
+supervision, confirming that aligning the training objective with the test-time aggregated output is important for nonlinear fusion losses such as SCD. For the number of spiking time steps, performance increases from T =1 to T =4 but saturates beyond that, with T =8 offering no consistent gain over T =4 .We therefore adopt T =4 as a favorable trade-off between fusion quality and inference cost. 
+
+D. Comparison on Downstream Tasks 
+
+Beyond visual quality, a key motivation for IVIF is to provide more informative inputs for downstream perception. We evaluate CIS-Fuse on two representative tasks, object detection on M3FD and semantic segmentation on MSRS, and compare against the same 15 IVIF baselines used in Sec. IV-B. 
+
+Object detection. We adopt YOLOv8s via Ultralytics as the detector, initialized from its official COCO-pretrained weights. For each fusion method, we fine-tune a separate detector on its fused images using the official M3FD train split, and then evaluate on the M3FD test split. All detectors are trained for 200 epochs with a batch size of 16 and an initial learning rate of 0.01, at an input resolution of 640 × 640 . We report per-class average precision (AP) at IoU thresholds from 0.5 to 0.95 with a step of 0.05, denoted AP@[0.5:0.95], as well as the overall mAP averaged over all classes. As shown in Table IV, CIS-Fuse achieves the best overall mAP of 59.8, surpassing the strongest baselines SDNet and U2Fusion. The per-class behavior suggests that the fused images simultaneously preserve thermal saliency for compact targets and visible-side texture for larger structured objects. 
+
+Semantic segmentation. We adopt SegFormer [64] with a MiT-B2 backbone as the segmenter, where the backbone is initialized from ImageNet-pretrained weights and the segmen-tation head is randomly initialized for the 9 MSRS classes. Following the same protocol as in detection, a separate seg-menter is fine-tuned on the fused images of each method using the MSRS standard train split and evaluated on the standard 11                                                                                                                                                                                                                                                                                                                                                                                                                
+
+> TABLE V QUANTITATIVE COMPARISON OF SEMANTIC SEGMENTATION ON THE MSRS DATASET . E ACH FUSION METHOD TRAINS A SEPARATE SEG FORMER SEGMENTER UNDER IDENTICAL SETTINGS ,AND WE REPORT PER -CLASS IOUAND PIXEL ACCURACY TOGETHER WITH THE OVERALL M IOUAND M ACC .THE FIRST TWO ROWS REPORT SINGLE -MODALITY REFERENCES .Method unlabelled car person bike curve car stop guardrail color cone bump mIoU mAcc IoU Acc IoU Acc IoU Acc IoU Acc IoU Acc IoU Acc IoU Acc IoU Acc IoU Acc Infrared 98.2 99.3 87.1 92.2 71.3 83.6 68.8 77.3 56.7 64.6 64.8 75.6 55.1 57.7 54.7 63.4 72.2 78.6 69.9 76.9 Visible 98.2 99.3 89.1 93.7 61.6 73.0 69.6 79.0 58.0 68.3 69.5 80.2 70.0 74.6 59.4 72.6 73.2 80.2 72.1 80.1 SDNet [9] 98.3 99.4 88.3 92.7 72.5 84.0 70.0 80.3 58.6 67.3 67.7 77.0 71.5 79.0 55.6 63.8 71.9 80.0 72.7 80.4 U2Fusion [8] 98.4 99.4 88.6 92.8 71.2 82.9 70.4 79.8 59.2 67.8 69.2 78.4 76.0 81.5 57.5 65.8 73.9 81.5 73.8 81.1 TarDAL [17] 98.1 99.3 87.5 92.0 66.6 78.7 67.1 75.9 52.8 60.6 66.0 75.9 74.4 79.1 50.1 58.7 73.1 80.6 70.6 77.9 DeFusion [34] 98.3 99.4 88.4 92.6 69.9 82.0 69.9 78.9 59.0 68.6 67.4 78.2 69.3 73.8 58.7 67.2 75.9 83.1 73.0 80.4 LRRNet [35] 98.4 99.4 89.4 93.7 71.4 83.4 70.2 79.1 59.5 70.1 70.9 79.9 72.6 77.9 58.5 67.4 74.0 80.4 73.9 81.3
+> MURF [38] 98.3 99.3 88.0 92.3 71.4 83.0 69.7 79.5 59.0 67.4 66.1 76.2 66.7 70.3 55.6 64.2 71.6 80.3 71.8 79.2 Dif-Fusion [16] 98.4 99.4 89.0 93.6 71.1 82.8 70.0 79.1 59.4 69.2 69.4 78.7 71.6 76.5 57.1 66.4 71.7 78.3 73.1 80.4 SegMIF [18] 98.3 99.4 88.0 92.4 71.0 83.2 70.7 79.6 59.0 67.9 69.5 79.9 73.0 76.6 55.2 65.7 77.4 83.7 73.6 80.9 TIMFusion [42] 98.2 99.3 87.1 91.6 67.1 78.6 70.3 79.3 58.2 67.8 69.4 79.2 76.0 81.9 54.3 66.2 71.0 78.4 72.4 80.3 DCINN [40] 98.3 99.4 88.2 92.4 70.9 82.7 69.4 78.6 59.2 68.1 69.9 80.4 70.1 74.4 54.1 65.3 73.4 80.7 72.6 80.2 SHIP [36] 98.4 99.4 88.4 93.0 71.3 83.3 69.9 78.6 59.4 69.0 71.4 81.0 68.1 71.7 57.4 66.0 74.3 80.9 73.2 80.3 TC-MoA [12] 98.3 99.4 87.9 92.4 70.4 82.3 69.9 79.0 58.0 67.9 69.6 79.1 68.0 72.8 57.8 66.7 76.4 83.8 72.9 80.4 Text-IF [11] 98.3 99.3 87.9 92.9 70.3 82.1 69.5 78.8 59.5 69.6 71.0 79.8 73.6 78.5 55.1 66.5 71.0 77.4 72.9 80.5 S4Fusion [39] 98.3 99.4 87.5 91.8 70.5 82.0 70.5 79.0 59.9 69.7 68.1 78.2 76.3 81.0 57.7 68.1 74.1 81.7 73.7 81.2
+> DCEvo [19] 98.4 99.4 88.9 93.4 70.9 82.5 70.5 79.8 60.0 69.8 72.4 80.9 71.0 75.8 55.9 66.4 76.1 83.4 73.8 81.3
+> CIS-Fuse (Ours) 98.4 99.3 88.6 93.4 71.2 83.1 70.2 79.6 59.4 69.2 72.2 82.4 74.7 79.9 58.6 66.6 75.3 82.2 74.3 81.7
+> * 1st, 2nd, 3rd, 4th best: 1st 2nd 3rd 4th
+
+test split. All segmenters are trained for 100 epochs with a batch size of 4 and an initial learning rate of 6 × 10 −5, at an input resolution of 512 × 512 . We report per-class IoU and pixel accuracy across the nine MSRS categories, together with the overall mIoU and mAcc. As shown in Table V, CIS-Fuse achieves the best overall mIoU of 74.3 and mAcc of 81.7, and remains competitive on safety-critical categories such as car stop, guardrail, and color cone, where reliable segmentation benefits from both thermal cues and visible-side texture. Fig. 13 further provides qualitative comparisons, where CIS-Fuse yields cleaner object boundaries and more complete masks on small safety-critical structures than competing methods. The consistent gains on both detection and segmentation indicate that the membrane-potential-level cross-modal integration in CIS-Fuse transfers well to high-level perception tasks. 
+
+E. Computational Costs 
+
+We analyze the computational cost of CIS-Fuse by measur-ing its spike firing rates, from which the theoretical inference energy is then estimated under a standard operation-level cost model and compared against recent ANN-based methods. 
+
+Spike firing rate. Fig. 14 (a) shows the per-sample distri-butions of the average firing rate at each spiking layer of CIS-Fuse on the M3FD dataset [17]. For layers containing a paired 
+
+(sn 1, sn 2) within the same residual unit, the two are averaged per sample to form a single merged layer, yielding 15 merged layers in total. The 15 layers cover the full forward path, where L01–L03 correspond to the encoder, L04–L06 to the shallow BCMF branch, L07–L13 to the deep BCMF branch, and L14–L15 to the decoder. The network-wide average firing rate is r ≈ 14 .48% , indicating that the majority of spike-driven operations reduce to additions skipped at zero input. 
+
+Energy model. Following the prior SNN literature [24], we provide a theoretical energy estimate by assigning a fixed energy cost to each multiply-accumulate (MAC) in ANN layers and each accumulate (AC) in SNN layers: 
+
+EANN = N ANN MAC · eMAC , ESNN = N SNN AC · eAC , (21) where we adopt the widely used eMAC = 4 .6 pJ and eAC =0.9 pJ. Unlike ANN MACs that are triggered by every input activation, an SNN AC is triggered only when the presynaptic neuron emits a spike. Its effective operation count is therefore scaled by the layer-wise firing rate: 
+
+N SNN AC = T · X
+
+> l
+
+rl · N raw MAC ,l , (22) where N raw MAC ,l is the dense MAC count of the l-th spiking layer if it were treated as an ANN layer, rl is its measured average firing rate, and T is the number of spiking time steps. For CIS-Fuse, we use the per-layer firing rates measured on M3FD with T = 4 .These values follow the 45 nm CMOS measurements of Horowitz [65] and are widely adopted in the SNN energy-efficiency literature [24], [66]. The same model is applied to both ANNs and SNNs, counting dense MACs for the former and firing-rate-scaled ACs for the latter, giving a first-order architectural estimate rather than an on-device measurement. 
+
+Energy comparison. Using the above model, we com-pare CIS-Fuse against three recent ANN-based methods, DCEvo [19], TC-MoA [12], and Text-IF [11]. These four methods have 1.54M (deployed), 2.01M, 340.58M, and 215.12M parameters, respectively. We vary the input width from 320 to 800 under a fixed 4:3 aspect ratio. As shown in Fig. 14 (b), CIS-Fuse consistently incurs a lower energy cost across the range, with the gap widening at higher resolu-tions. Beyond fusion quality, the result also indicates that the energy efficiency intrinsic to spike-based computation is well preserved under our membrane-potential-level fusion design. 12 (a) Visible (b) SDNet (c) U2Fusion (d) TarDAL (e) DeFusion (f) LRRNet 
+
+(g) MURF (h) Dif -Fusion (i) SegMIF (j) TIMFusion (k) DCINN (I) SHIP 
+
+(m) TC -MoA (n) Text -IF (o) S4Fusion (p) DCEvo (q) CIS -Fuse (r) Ground Truth 
+
+Fig. 13. Qualitative comparison of semantic segmentation on the MSRS dataset. Predicted masks are overlaid on the visible image. 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35      
+
+> Average Firing Rate
+> L01
+> L02
+> L03
+> L04
+> L05
+> L06
+> L07
+> L08
+> L09
+> L10
+> L11
+> L12
+> L13
+> L14
+> L15
+> Merged Spiking Layer
+> (a) Spike Firing Rate
+> 300 400 500 600 700 800
+> Input Width (4:3 Input)
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> Energy (J)
+> (b) Energy Cost Comparison
+> CIS-Fuse
+> DCEvo
+> TC-MoA
+> Text-IF
+
+Fig. 14. (a) Per-sample average firing rates of the 15 merged spiking layers of CIS-Fuse on the M3FD test set, with paired sn1/sn2 averaged per sample. L01–L03 correspond to the encoder, L04–L06 to the shallow BCMF branch, L07–L13 to the deep BCMF branch, and L14–L15 to the decoder. (b) Total inference energy versus input width at a 4:3 aspect ratio, compared with three recent ANN-based methods. 
+
+V. C ONCLUSION 
+
+In this paper, we explored infrared and visible image fusion under the spiking neural network paradigm. To preserve fine-grained cross-modal responses that may otherwise be lost through binary spikes, we proposed to perform fusion at the continuous membrane-potential level before firing. We developed the Current Injection Spiking (CIS) operator, which injects a gated auxiliary current into the main-modality neuron, and extended it into a Bidirectional Cross-Modal Fusion (BCMF) block with alternating refinement. Combined with an asymmetric dual-branch architecture, a reparameterized output head, and output-mean supervision, CIS-Fuse achieves competitive fusion quality on four IVIF benchmarks and downstream perception tasks. Energy analysis based on the measured firing rates further suggests that CIS-Fuse requires less inference energy than representative ANN-based methods. REFERENCES [1] A. Toet, L. J. Van Ruyven, and J. M. Valeton, “Merging thermal and visual images by a contrast pyramid,” Optical Engineering , vol. 28, no. 7, pp. 789–792, 1989. [2] J. Liu, G. Wu, Z. Liu, D. Wang, Z. Jiang, L. Ma, W. Zhong, X. Fan, and R. Liu, “Infrared and visible image fusion: From data compatibility to task adaption,” IEEE TPAMI , vol. 47, no. 4, pp. 2349–2369, 2024. [3] Q. Ha, K. Watanabe, T. Karasawa, Y. Ushiku, and T. Harada, “MFNet: Towards real-time semantic segmentation for autonomous vehicles with multi-spectral scenes,” in IROS , 2017, pp. 5108–5115. [4] L. Tan, Y. Zhang, K. Han, P. Dai, Y. Zhang, Y. Wu, and R. Ji, “RLE: A unified perspective of data augmentation for cross-spectral re-identification,” NeurIPS , vol. 37, pp. 126 977–126 996, 2024. [5] C. Li, C. Zhu, Y. Huang, J. Tang, and L. Wang, “Cross-modal ranking with soft consistency and noisy labels for robust RGB-T tracking,” in 
+
+ECCV , 2018, pp. 808–823. [6] Z. Li, Z. Yuan, L. Li, D. Liu, X. Tang, and F. Wu, “Object segmentation-assisted inter prediction for versatile video coding,” IEEE TBC , vol. 70, no. 4, pp. 1236–1253, 2024. [7] L. Tang, J. Yuan, and J. Ma, “Image fusion in the loop of high-level vision tasks: A semantic-aware real-time infrared and visible image fusion network,” Information Fusion , vol. 82, pp. 28–42, 2022. [8] H. Xu, J. Ma, J. Jiang, X. Guo, and H. Ling, “U2Fusion: A unified unsupervised image fusion network,” IEEE TPAMI , vol. 44, no. 1, pp. 502–518, 2020. [9] H. Zhang and J. Ma, “SDNet: A versatile squeeze-and-decomposition network for real-time image fusion,” IJCV , vol. 129, no. 10, pp. 2761– 2785, 2021. [10] Z. Zhao, H. Bai, J. Zhang, Y. Zhang, S. Xu, Z. Lin, R. Timofte, and L. Van Gool, “CDDFuse: Correlation-driven dual-branch feature decomposition for multi-modality image fusion,” in CVPR , 2023, pp. 5906–5916. [11] X. Yi, H. Xu, H. Zhang, L. Tang, and J. Ma, “Text-IF: Leveraging semantic text guidance for degradation-aware and interactive image fusion,” in CVPR , 2024, pp. 27 026–27 035. [12] P. Zhu, Y. Sun, B. Cao, and Q. Hu, “Task-customized mixture of adapters for general image fusion,” in CVPR , 2024, pp. 7099–7108. [13] D. Wang, J. Liu, X. Fan, and R. Liu, “Unsupervised misaligned infrared and visible image fusion via cross-modality image generation and registration,” in IJCAI , 2022, pp. 3508–3515. [14] J. Ma, W. Yu, P. Liang, C. Li, and J. Jiang, “FusionGAN: A generative adversarial network for infrared and visible image fusion,” Information Fusion , vol. 48, pp. 11–26, 2019. [15] Z. Zhao, H. Bai, Y. Zhu, J. Zhang, S. Xu, Y. Zhang, K. Zhang, D. Meng, R. Timofte, and L. Van Gool, “DDFM: Denoising diffusion model for multi-modality image fusion,” in ICCV , 2023, pp. 8082–8093. [16] J. Yue, L. Fang, S. Xia, Y. Deng, and J. Ma, “Dif-Fusion: Toward high color fidelity in infrared and visible image fusion with diffusion models,” 
+
+IEEE TIP , vol. 32, pp. 5705–5720, 2023. [17] J. Liu, X. Fan, Z. Huang, G. Wu, R. Liu, W. Zhong, and Z. Luo, “Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection,” in CVPR ,2022, pp. 5802–5811. [18] J. Liu, Z. Liu, G. Wu, L. Ma, R. Liu, W. Zhong, Z. Luo, and X. Fan, “Multi-interactive feature learning and a full-time multi-modality benchmark for image fusion and segmentation,” in ICCV , 2023, pp. 8115–8124. [19] J. Liu, B. Zhang, Q. Mei, X. Li, Y. Zou, Z. Jiang, L. Ma, R. Liu, and X. Fan, “DCEvo: Discriminative cross-dimensional evolutionary learning for infrared and visible image fusion,” in CVPR , 2025, pp. 2226–2235. [20] W. Maass, “Networks of spiking neurons: the third generation of neural network models,” Neural Networks , vol. 10, no. 9, pp. 1659–1671, 1997. [21] A. Tavanaei, M. Ghodrati, S. R. Kheradpisheh, T. Masquelier, and A. Maida, “Deep learning in spiking neural networks,” Neural Networks ,vol. 111, pp. 47–63, 2019. [22] K. Roy, A. Jaiswal, and P. Panda, “Towards spike-based machine 13 
+
+intelligence with neuromorphic computing,” Nature , vol. 575, no. 7784, pp. 607–617, 2019. [23] B. Li, L. Zhang, T. Bao, Y. Lei, X. Zhang, and J. Liu, “When multi-focus image fusion meets nonlinear spiking neural P systems,” IEEE TMM , 2025. [24] L. Zhu, X. Wang, Y. Chang, J. Li, T. Huang, and Y. Tian, “Event-based video reconstruction via potential-assisted spiking neural network,” in 
+
+CVPR , 2022, pp. 3594–3604. [25] Y. Zheng, J. Zhang, R. Zhao, J. Ding, S. Chen, W. Wu, R. Xiong, Z. Yu, and T. Huang, “SpikeCV: open a continuous computer vision era,” Science China Information Sciences , vol. 69, no. 3, p. 132106, 2026. [26] Z. Li, T. Gao, Y. An, T. Chen, J. Zhang, Y. Wen, M. Liu, and Q. Zhang, “Brain-inspired spiking neural networks for energy-efficient object detection,” in CVPR , 2025, pp. 3552–3562. [27] J. Hagenaars, F. Paredes-Vall´ es, and G. De Croon, “Self-supervised learning of event-based optical flow with spiking neural networks,” in 
+
+NeurIPS , vol. 34, 2021, pp. 7167–7179. [28] X. Luo, M. Yao, Y. Chou, B. Xu, and G. Li, “Integer-valued training and spike-driven inference spiking neural network for high-performance and energy-efficient object detection,” in ECCV . Springer, 2024, pp. 253–272. [29] Y. Xiao, Q. Yuan, K. Jiang, W. Huang, Q. Zhang, T. Zheng, C.-W. Lin, and L. Zhang, “Spiking meets attention: Efficient remote sensing image super-resolution with attention spiking neural networks,” in NeurIPS ,vol. 38, 2025, pp. 65 240–65 259. [30] M. London and M. H¨ ausser, “Dendritic computation,” Annual Review of Neuroscience , vol. 28, no. 1, pp. 503–532, 2005. [31] M. Livingstone and D. Hubel, “Segregation of form, color, movement, and depth: anatomy, physiology, and perception,” Science , vol. 240, no. 4853, pp. 740–749, 1988. [32] H. Xu, J. Ma, Z. Le, J. Jiang, and X. Guo, “FusionDN: A unified densely connected network for image fusion,” in AAAI , vol. 34, no. 07, 2020, pp. 12 484–12 491. [33] L. Tang, J. Yuan, H. Zhang, X. Jiang, and J. Ma, “PIAFusion: A pro-gressive infrared and visible image fusion network based on illumination aware,” Information Fusion , vol. 83, pp. 79–92, 2022. [34] P. Liang, J. Jiang, X. Liu, and J. Ma, “Fusion from decomposition: A self-supervised decomposition approach for image fusion,” in ECCV ,2022, pp. 719–735. [35] H. Li, T. Xu, X.-J. Wu, J. Lu, and J. Kittler, “LRRNet: A novel representation learning guided fusion network for infrared and visible images,” IEEE TPAMI , vol. 45, no. 9, pp. 11 040–11 052, 2023. [36] N. Zheng, M. Zhou, J. Huang, J. Hou, H. Li, Y. Xu, and F. Zhao, “Probing synergistic high-order interaction in infrared and visible image fusion,” in CVPR , 2024, pp. 26 384–26 395. [37] Z. Zhao, L. Deng, H. Bai, Y. Cui, Z. Zhang, Y. Zhang, H. Qin, D. Chen, J. Zhang, P. Wang et al. , “Image fusion via vision-language model,” in 
+
+ICML , 2024, pp. 60 749–60 765. [38] H. Xu, J. Yuan, and J. Ma, “MURF: Mutually reinforcing multi-modal image registration and fusion,” IEEE TPAMI , vol. 45, no. 10, pp. 12 148– 12 166, 2023. [39] H. Ma, H. Li, C. Cheng, G. Wang, X. Song, and X.-J. Wu, “S4Fusion: Saliency-aware selective state space model for infrared and visible image fusion,” IEEE TIP , 2025. [40] W. Wang, L.-J. Deng, R. Ran, and G. Vivone, “A general paradigm with detail-preserving conditional invertible network for image fusion,” IJCV ,vol. 132, no. 4, pp. 1029–1054, 2024. [41] W. Zhao, S. Xie, F. Zhao, Y. He, and H. Lu, “MetaFusion: Infrared and visible image fusion via meta-feature embedding from object detection,” in CVPR , 2023, pp. 13 955–13 965. [42] R. Liu, Z. Liu, J. Liu, X. Fan, and Z. Luo, “A task-guided, implicitly-searched and meta-initialized deep model for image fusion,” IEEE TPAMI , vol. 46, no. 10, pp. 6594–6609, 2024. [43] E. O. Neftci, H. Mostafa, and F. Zenke, “Surrogate gradient learning in spiking neural networks,” IEEE SPM , vol. 36, no. 6, pp. 51–63, 2019. [44] Y. Wu, L. Deng, G. Li, J. Zhu, Y. Xie, and L. Shi, “Direct training for spiking neural networks: Faster, larger, better,” in AAAI , vol. 33, no. 01, 2019, pp. 1311–1318. [45] H. Zheng, Y. Wu, L. Deng, Y. Hu, and G. Li, “Going deeper with directly-trained larger spiking neural networks,” in AAAI , vol. 35, no. 12, 2021, pp. 11 062–11 070. [46] W. Fang, Z. Yu, Y. Chen, T. Masquelier, T. Huang, and Y. Tian, “Incorporating learnable membrane time constant to enhance learning of spiking neural networks,” in ICCV , 2021, pp. 2661–2671. [47] W. Fang, Z. Yu, Y. Chen, T. Huang, T. Masquelier, and Y. Tian, “Deep residual learning in spiking neural networks,” in NeurIPS , vol. 34, 2021, pp. 21 056–21 069. [48] Z. Xiao and X. Wang, “Event-based video super-resolution via state space models,” in CVPR , 2025, pp. 12 564–12 574. [49] Z. Xiao, Z. Li, Y. Zhao, Y. Liu, Z. Zhang, and W. Jia, “Learning dual modality interactions for event-based motion deblurring,” IEEE TMM ,2026. [50] R. Zhao, R. Xiong, J. Zhao, Z. Yu, X. Fan, and T. Huang, “Learning optical flow from continuous spike streams,” in NeurIPS , vol. 35, 2022, pp. 7905–7920. [51] R. Zhao, R. Xiong, J. Zhao, J. Zhang, X. Fan, Z. Yu, and T. Huang, “Boosting spike camera image reconstruction from a perspective of dealing with spike fluctuations,” in CVPR , 2024, pp. 24 955–24 965. [52] J. Wang, R. Zhao, R. Xiong, X. Wang, X. Fan, and T. Huang, “Sam-ple: Semantic alignment through temporal-adaptive multimodal prompt learning for event-based open-vocabulary action recognition,” in ICCV ,2025, pp. 14 409–14 419. [53] R. Zhao, R. Xiong, D. Wang, S. Xuan, J. Zhang, X. Fan, and T. Huang, “Spike camera optical flow estimation based on continuous spike streams,” IEEE TPAMI , vol. 48, no. 4, pp. 4756–4770, 2026. [54] R. Zhao, R. Xiong, J. Zhang, Z. Yu, S. Zhu, L. Ma, and T. Huang, “Spike camera image reconstruction using deep spiking neural networks,” IEEE TCSVT , vol. 34, no. 6, pp. 5207–5212, 2024. [55] Q. Zhan, G. Liu, X. Xie, R. Tao, M. Zhang, and H. Tang, “Spiking transfer learning from rgb image to neuromorphic event stream,” IEEE TIP , vol. 33, pp. 4274–4287, 2024. [56] J. Zhang, M. Zhang, Y. Wang, Q. Liu, B. Yin, H. Li, and X. Yang, “Spiking neural networks with adaptive membrane time constant for event-based tracking,” IEEE TIP , vol. 34, pp. 1009–1021, 2025. [57] W. Li, P. Wang, R. Xiong, and X. Fan, “Spiking tucker fusion trans-former for audio-visual zero-shot learning,” IEEE TIP , vol. 33, pp. 4840– 4852, 2024. [58] W. Li, W. Han, L.-J. Deng, R. Xiong, and X. Fan, “Spiking variational graph representation inference for video summarization,” IEEE TIP ,2025. [59] X. Ding, X. Zhang, N. Ma, J. Han, G. Ding, and J. Sun, “RepVGG: Making vgg-style convnets great again,” in CVPR , 2021, pp. 13 733– 13 742. [60] V. Aslantas and E. Bendes, “A new image quality metric for image fusion: The sum of the correlations of differences,” AEU International Journal of Electronics and Communications , vol. 69, no. 12, pp. 1890– 1896, 2015. [61] Z. Li, J. Liao, C. Tang, H. Zhang, Y. Li, Y. Bian, X. Sheng, X. Feng, Y. Li, C. Gao et al. , “USTC-TD: A test dataset and benchmark for image and video coding in 2020s,” IEEE TMM , vol. 28, pp. 269–284, 2026. [62] Z. Li, J. Li, Y. Li, J. Li, L. Li, D. Liu, and F. Wu, “In-loop fil-tering using learned look-up tables for video coding,” arXiv preprint arXiv:2509.09494 , 2025. [63] Y. Han, Y. Cai, Y. Cao, and X. Xu, “A new image fusion performance metric based on visual information fidelity,” Information Fusion , vol. 14, no. 2, pp. 127–135, 2013. [64] E. Xie, W. Wang, Z. Yu, A. Anandkumar, J. M. Alvarez, and P. Luo, “SegFormer: Simple and efficient design for semantic segmentation with transformers,” in NeurIPS , 2021, pp. 12 077–12 090. [65] M. Horowitz, “1.1 computing’s energy problem (and what we can do about it),” in ISSCC . IEEE, 2014, pp. 10–14. [66] M. Yao, J. Hu, Z. Zhou, L. Yuan, Y. Tian, B. Xu, and G. Li, “Spike-driven transformer,” in NeurIPS , vol. 36, 2023, pp. 64 043–64 058.

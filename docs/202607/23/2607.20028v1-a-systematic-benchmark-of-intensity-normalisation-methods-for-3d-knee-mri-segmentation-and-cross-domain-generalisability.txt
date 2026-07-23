@@ -1,0 +1,232 @@
+Title: A Systematic Benchmark of Intensity Normalisation Methods for 3D Knee MRI Segmentation and Cross-Domain Generalisability
+
+URL Source: https://arxiv.org/pdf/2607.20028v1
+
+Published Time: Thu, 23 Jul 2026 00:46:10 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# A Systematic Benchmark of Intensity Normalisation Methods for 3D Knee MRI Segmentation and Cross-Domain Generalisability 
+
+Oliver Mills 1[0009 −0001 −9554 −5788] , Philip Conaghan 1,2[0000 −0002 −3478 −5665] , and Samuel Relton 1[0000 −0003 −0634 −4587]  
+
+> 1
+
+University of Leeds, Leeds, UK  
+
+> 2
+
+NIHR Leeds Biomedical Research Centre, Leeds, UK 
+
+Abstract. Robust out-of-the-box performance is essential for the clini-cal deployment of deep learning models in medical imaging. An impor-tant but underexplored factor affecting model generalisability is intensity normalisation, particularly for magnetic resonance imaging (MRI), where image intensities vary across scanners and protocols. In this study, we systematically compared seven normalisation methods and their impact on the performance of a 3D U-Net model for meniscus segmentation from knee MRI. The methods included standard scaling approaches, histogram-based techniques, and a Gaussian Mixture Model (GMM)-based method. Models were trained on the IWOAI 2019 dataset and evaluated on both internal and external test sets (SKM-TEA) to assess generalisability. Performance was similar internally but differences were significant on external data, with Z-score, Nyúl histogram matching, and CLAHE showing greater robustness than other methods. However, these differences were small compared to the significant performance drop ob-served between datasets. Overall, while intensity normalisation had a measurable effect on model generalisability, its impact was limited rela-tive to the effects of domain shift, highlighting the need for complemen-tary strategies for robust deployment. 
+
+Keywords: Deep Learning, U-Net, MRI Normalisation, Meniscus Seg-mentation, Knee MRI, Musculoskeletal Imaging, External Validation 
+
+# 1 Introduction 
+
+Segmentation is a key task in medical image analysis, enabling measurement of tissue boundaries and volumes. Deep learning models have shown strong perfor-mance in this domain, offering improved efficiency and consistency [27]. How-ever, they are sensitive to data characteristic changes and perform poorly on images that differ from their training data distribution [20]. This issue, known as domain shift, is common in medical imaging due to variations in scanner type, imaging protocol, and patient population. In MRI, signal variations occur even when the same scanner is used. Preprocessing and normalisation techniques help mitigate these effects by keeping image intensity distributions consistent, arXiv:2607.20028v1 [cs.CV] 22 Jul 2026 2 Mills et al. 
+
+and in doing so stabilising training and improving model robustness [10]. While fine-tuning models on target-domain data can help reduce the impact of do-main shift, it is often infeasible due to the scarcity of accurate annotations in medical imaging. As a result, models are usually trained on data from select centres, highlighting the need for robust models that perform well on unseen institutions. Recent work has explored AI-based approaches for harmonisation and domain adaptation, including style transfer and adversarial methods, as well as statistical techniques such as ComBat [19]. However, these approaches typi-cally require access to target-domain data and additional training or fine-tuning, which may not be practical in many deployment settings. In contrast, the role of standard intensity normalisation methods not requiring further retraining in improving out-of-distribution robustness has received limited attention outside of brain MRI. This study addresses that gap by systematically comparing seven intensity normalisation methods for 3D meniscus segmentation in knee MRI. Meniscus segmentation is important for quantitative assessment in osteo-arthritis research in order to investigate the role the tissue plays in the disease pathway [8,22,1,24,9]. However, it remains a challenging task due to the tissue’s small size, irregular shape, and low contrast with surrounding tissues [36]. These factors make accurate segmentation difficult, even for human experts, and in-crease model sensitivity to variations in image intensity and quality. Therefore, meniscus segmentation provides a useful test case for evaluating how intensity normalisation methods affect model robustness across diverse MRI data. While intensity normalisation has been studied in brain and breast MRI, its role in musculoskeletal imaging remains underexplored. 
+
+1.1 Normalisation techniques 
+
+Normalisation is a standard preprocessing step in computer vision that improves model training stability and performance by bringing image intensities into a consistent range [23]. Two common normalisation techniques are Z-score and min-max scaling, which both apply linear transformations to image intensity values. In general computer vision tasks with natural images, Z-score normalisa-tion typically uses dataset-wide mean and variance to rescale images. However, this approach is less suitable for MRI due to inter-image intensity variations. Instead, images are often transformed using image-specific means and standard deviations. Min-max scaling rescales images to a specified range, typically [0, 1]. This method is more sensitive to outliers than Z-score, so a more robust method of min-max scaling is often used, where image intensities are clipped to a given percentile before transformation, commonly [1st, 99th] percentiles [18]. However, these methods fail to account for acquisition variability across datasets or ensure that the same anatomical structures fall within consistent in-tensity ranges across images. Unlike imaging modalities such as CT, where pixel intensity has an intrinsic meaning which allows for targeted selection of tissue types (known as windowing), MRI exhibit large intensity variance across scans, making standardisation and quantitative analysis a challenge [28]. To address MRI Normalisation and Knee Segmentation Generalisability 3
+
+this, Nyúl and Udupa proposed a histogram matching method to better stan-dardise MR image intensities. Introduced in [31] and refined in [32], a histogram “template” is calculated from training image, and new images are transformed by matching histogram landmarks to this template. This method has become standard across MRI studies, and has been shown to be effective in various ap-plications, such as identifying multiple sclerosis [40]. However, there are concerns that this method is not independent of biological variation and may therefore remove important information [41]. That study, which focused on brain MRI, proposed white stripe normalisation, which uses a specific intensity peak (cor-responding to normal-appearing white matter) for standardisation. However, no equivalent method exists for knee MRI, and other newly proposed MRI stan-dardisation and harmonisation methods also focus solely on brain MRI [45,39,3]. MR images often suffer from low or non-uniform contrast, making it difficult to distinguish and segment specific structures. While normalisation methods such as Z-score and min-max scaling focus on standardising intensity distri-butions, they have little effect on the contrast of the image. Therefore, tech-niques for contrast enhancement are often used. Common approaches involve modification of the intensity histogram of an image [14]. Histogram equali-sation (HE) improves the global contrast of an image by scaling the inten-sity distribution’s cumulative distribution function, resulting in a more uni-form histogram [13]. However, HE does not account for spatial intensity varia-tions, which can lead to inadequate local contrast enhancement, as well as over-and under-enhancement in regions with intensity inhomogeneities. Adaptive his-togram equalisation (AHE) addresses this limitation by applying HE locally [35,11]. However, this can over-amplify noise in homogeneous regions. Contrast-limited adaptive histogram equalisation (CLAHE) mitigates this issue by using a clipping limit to restrict enhancement in such regions [13], and has been been shown to improve performance of deep learning models [11,12]. 
+
+1.2 Related works 
+
+Studies investigating the effect of intensity normalisation methods on the robust-ness of radiomics feature extraction from MRI have been performed, particularly in brain and breast imaging [2,25,38]. These studies found that intensity normal-isation improved feature robustness, although the optimal method varied across specific tasks and datasets. However, they did not investigate deep learning tasks such as segmentation, and work on musculoskeletal imaging remains limited. Few studies have systematically evaluated how preprocessing affects deep learning segmentation performance in MRI, especially on external datasets. One study tested external data only after model fine-tuning [21], while another eval-uated performance solely on internal data [4]. Neither study found conclusive results, with only resampling providing noticeable improvements in performance [4]. In contrast, a CT study found that windowing improved segmentation perfor-mance [18], but this method is not applicable to MRI due to its lack of intrinsic tissue-specific intensity values. To our knowledge, only one study has investigated the effect of MRI standardisation on segmentation performance when applied to 4 Mills et al. 
+
+data from other centres [10], but this focused on brain FLAIR MRI, with the best-performing method tailored to that modality. These studies highlight the limited understanding of how preprocessing impacts MRI segmentation perfor-mance, particularly under domain shift and outside of brain imaging. A related study used the same two datasets as the present work to compare the performance of pretrained models on unseen datasets [37]. It found that sequence changes caused larger performance drops than scanner or centre ef-fects. Findings emphasise the importance of addressing domain shift in medical imaging, especially when it involves different imaging protocols, and highlight the need to explore preprocessing strategies such as intensity normalisation that could help mitigate this issue. 
+
+# 2 Materials and methods 
+
+2.1 Datasets IWOAI 2019 Data from the 2019 International Workshop on Osteoarthritis Imaging Knee Segmentation (IWOAI 2019) Challenge was used in this study for model training and internal testing [5]. This dataset is a subset of the Os-teoarthritis Initiative (OAI), a multi-centre longitudinal study of patients at risk of femoral-tibial knee osteoarthritis [30,34]. The IWOAI 2019 dataset contained 176 images composed of 3D sagittal double-echo steady-state (DESS) MRI of 88 patients at two time points (baseline and 1-year follow-up). Each image was size 
+
+384 × 384 × 160 slices, with a spatial resolution of 0.36 mm × 0.36 mm × 0.7mm (slice thickness). Training, validation and test folds (of size 120, 24 and 24 respec-tively) were provided by challenge organisers, where Kellgren-Lawrence grade, BMI, and sex were approximately equally distributed across all folds. Manual segmentations of cartilage and menisci were also provided, annotated by a single expert segmenter from Stryker Imorphics [5]. 
+
+SKM-TEA The Stanford Knee MRI with Multi-Task Evaluation (SKM-TEA) dataset was used for external testing [6]. It includes 3D quantitative double-echo steady-state (qDESS) MRI knee scans of 155 patients with knee pathology, acquired using two scanners at Stanford Healthcare. Images were size 512 ×512 ×
+
+2s, with s being the number of slices, which varied from 80 to 88 depending on knee size, and spatial resolution of 0.31 mm × 0.31 mm × 0.8mm. The dataset included manual annotations of the lateral and medial meniscus, created by two researchers that were supervised by experienced musculoskeletal radiologists [6]. The qDESS sequence produces two separate images (“echos”) of different contrast [37,44]. SKM-TEA and IWOAI 2019 both used DESS-type sequences but employed different imaging protocols. 
+
+2.2 Preprocessing 
+
+For training, the images in the IWOAI 2019 dataset were cropped in the in-plane dimensions from 384 × 384 down to 200 × 256 , with the approximately MRI Normalisation and Knee Segmentation Generalisability 5
+
+central cropping region selected based on the spatial distribution of ground truth segmentations in the training data. This reduced computational requirements during model training while increasing the proportion of the image containing the menisci. For external testing on the SKM-TEA dataset, the two echos of the qDESS sequence were first combined into a single image using the root-sum-of-squares method. Images were then cropped using the same width-to-height proportions as the training data, resulting in a final in-plane size of 266 × 341 .
+
+2.3 Normalisation schemes 
+
+Seven different data preprocessing methods were compared: 
+
+• Z-score : Each image was standardised by its individual mean and standard deviation. 
+
+• Min-max scaling : Image intensities were linearly scaled to [0, 1]. 
+
+• Robust min-max scaling : Images were clipped to the 1st and 99th per-centiles before performing min-max scaling. 
+
+• HE (histogram equalisation) : The intensity histogram was equalised globally across the entire image. 
+
+• CLAHE (contrast-limited adaptive histogram equalisation) : Image histograms were equalised locally using kernels of size 1/10th of the image dimensions. A clip limit of 0.01 was applied to prevent over-enhancement. HE and CLAHE were implemented using the scikit-image library [43]. 
+
+• Nyúl standardisation : A histogram matching method proposed by Nyúl and Udupa [32]. A template was created using intensity landmarks from the training data. This template was then used to transform both the training and test data. The method was implemented using the torchIO package [33]. 
+
+• GMM (Gaussian Mixture Model) normalisation : Based on white stripe normalisation in brain MRI [41], this method standardises images using the mean of a selected intensity peak. A GMM with four components was fitted to the intensity distribution of each image. The component with the second largest mean was used to standardise the image. 
+
+2.4 Model training 
+
+The nnU-Net framework [16] was used to train all models. Although transformer-based architectures have become increasingly popular for medical image segmen-tation, nnU-Net remains a competitive state-of-the-art baseline, particularly in scenarios with limited training data [17]. Additionally, foundation models have been shown to underperform on meniscus segmentation [29], further supporting the use of a conventional but well-validated architecture. IWOAI 2019 training and validation splits were combined, and 3D U-Net models were trained using 5-fold cross-validation with identical splits across all normalisation methods. Ex-periments were planned using default nnU-Net settings [16], resulting in a batch size of 2 and a patch size of 112 ×128 ×160. All models were trained for 500 epochs. During inference, we assessed model performance from each iteration of the cross-validation to evaluate the stability of the normalisation procedures. 6 Mills et al. 
+
+2.5 Metrics and statistical tests Volumetric measures The Dice Similarity Coefficient (DSC), which measures the overlap of two sets, was used to assess volumetric agreement between the ground truth and predicted masks [7]. Variations in meniscal volumes between manual and automatic segmentations were assessed using Lin’s concordance cor-relation coefficient (CCC) [26] and mean absolute error (MAE). 
+
+Distance measures The Hausdorff Distance (HD) is a spatial distance metric that measures the maximum difference between closest points of two sets [15]. It indicates how well spatial structures of the predicted segmentation align with the ground truth. HD is sensitive to outliers and noise, so this study used the 95th percentile Hausdorff Distance (HD95) for increased robustness [42]. 
+
+Statistical analysis Due to large variation of DSC and HD95 scores across test images relative to inter-method differences, separate linear mixed-effects models (LMMs) were fitted to both metrics using predictions from all five fold-trained models for each method to investigate statistical significance while accounting for repeated measures within folds and images. LMMs were fitted using the lme4 
+
+package in R, using the equation: Metric ∼ Method + (1 |Fold ) + (1 |TestImage ) (1) with Method as a fixed effect term and random intercept terms for Fold and 
+
+TestImage . Z-score normalisation was used as the reference category for the fixed effect. An initial Type III analysis of variance (ANOVA) with Satterthwaite’s method was used to test for an overall effect of Method . If significant, pairwise comparisons between methods were performed using Tukey-adjusted post hoc tests on the model estimates to control for multiple comparisons. A significance threshold of α = 0 .05 was used throughout. 
+
+# 3 Results 
+
+Models trained using different normalisation methods were evaluated on both internal (IWOAI 2019 test split) and external (SKM-TEA) data, with results shown in Table 1. Standard deviations reflect variation across the five fold-trained models. To visualise DSC distributions across test images, box plots are shown in Fig. 1, where predictions from the five fold-trained models were ensembled by averaging voxel-wise softmax probabilities. 
+
+3.1 Internal test set (IWOAI 2019) 
+
+On the internal test set, min-max achieved the highest mean DSC, followed by GMM and Z-score. However, inter-method variation was small. A Type III ANOVA on the fitted LMM revealed a significant effect of method ( F (6 , 942) = MRI Normalisation and Knee Segmentation Generalisability 7
+
+Table 1: Comparison of metrics across methods on internal (IWOAI 2019) and external (SKM-TEA) test data. Metrics are reported as the mean ± one stan-dard deviation of values obtained from each of the five cross-validation model predictions. (HE: histogram equalisation; CLAHE: contrast-limited adaptive his-togram equalisation; GMM: Gaussian Mixture Model)                                                                
+
+> Method DSC
+> (%) ↑
+> HD95
+> (mm) ↓CCC ↑MAE
+> (mm 3)↓
+> Internal Test Data
+> Z-score 89.04 ±0.12 1.51 ±0.03 0.939 ±0.006 225 ±9Min-max 89.05 ±0.07 1.50 ±0.03 0.935 ±0.005 230 ±14 Robust min-max 88.90 ±0.14 1.52 ±0.04 0.930 ±0.007 252 ±15 HE 88.68 ±0.09 1.54 ±0.05 0.926 ±0.008 257 ±14 CLAHE 88.83 ±0.10 1.53 ±0.03 0.928 ±0.016 252 ±23 Nyúl [32] 88.93 ±0.19 1.52 ±0.05 0.927 ±0.014 254 ±24 GMM 89.05 ±0.14 1.48 ±0.05 0.939 ±0.005 224 ±14 External Test Data
+> Z-score 78.95 ±0.28 3.19 ±0.21 0.829 ±0.008 490 ±5Min-max 78.45 ±0.23 3.21 ±0.13 0.827 ±0.008 499 ±6R. min-max 78.48 ±0.26 3.09 ±0.11 0.819 ±0.010 501 ±8HE 78.31 ±0.24 3.30 ±0.15 0.831 ±0.011 491 ±5CLAHE 78.86 ±0.26 3.05 ±0.23 0.831 ±0.005 481 ±5Nyúl [32] 79.10 ±0.34 3.19 ±0.24 0.850 ±0.006 476 ±7
+> GMM 78.44 ±0.14 3.17 ±0.27 0.820 ±0.016 502 ±9
+
+8.08 , p < 0.001 ), but pairwise comparisons found few statistically significant differences. The top three methods outperformed HE and CLAHE significantly, and HE performed significantly worse that all methods apart from CLAHE. Meanwhile, no significant effect of method was found for HD95 ( F (6 , 942) = 1 .71 ,
+
+p = 0 .12 ). Comparison of manual vs. automated segmentation volumes (CCC and MAE) mirrored DSC results, with Z-score, min-max, and GMM performing best. HE was the lowest-performing preprocessing method across all metrics. 
+
+3.2 External test set (SKM-TEA) 
+
+On the external test set, inter-method differences appeared more pronounced than in internal testing. Nyúl achieved the highest DSC, followed by Z-score and CLAHE. HE had the lowest DSC. Due to variation across test subjects conceal-ing inter-method differences (Fig. 1), an LMM was fitted to the DSC scores (Ta-ble 2; Type III ANOVA: F (6 , 5260) = 79 .06 , p < 0.001 ). Variance decomposition indicated that most variability in DSC was attributable to differences between images (intra-class correlation coefficient (ICC) = 0.945), while the contribution from cross-validation folds was negligible (ICC = 0.003). The marginal R2 was 0.005, indicating that normalisation method explained only 0.5% of total vari-ance. Estimated marginal means of DSC across the five methods, plotted in Fig 2, 8 Mills et al. Z-score 
+
+> Min-max
+> R. Min-max
+> HE
+> CLAHE
+> Nyúl
+> GMM
+> 70
+> 75
+> 80
+> 85
+> 90
+> DSC (%)
+
+Fig. 1: Box plots showing DSC performance of different preprocessing methods across test images on both internal (blue, IWOAI 2019) and external (orange, SKM-TEA) datasets. Outliers (identified using the 1.5 ×IQR rule) have been omitted for clarity, as their distribution were similar across methods. show a separation between the top three and bottom four methods. Post hoc pairwise comparisons confirmed this, with Nyúl, Z-score, and CLAHE all out-performing min-max, robust min-max, HE, and GMM significantly ( p < 0.001 ). While Nyúl also performed significantly better than CLAHE ( p < 0.001 ), its advantage over Z-score was not statistically significant ( p = 0 .053 ), despite the confidence interval for the fixed effect not containing zero (Table 2). All pairwise 
+
+p-values are shown in Fig. 3. Nyúl also performed best on volumetric CCC and MAE. Although CLAHE achieved the lowest mean HD95, LMM analysis found no significant overall effect of method ( F (6 , 5264) = 1 .29 , p = 0 .26 ). Table 2: Estimated differences in DSC score compared to Z-score (reference category; estimated DSC = 78.95%, CI [78.28, 79.63]) on external test data, based on a linear mixed-effects model with a fixed effect for method and random intercepts for fold and test image. Significance was assessed separately using Tukey-adjusted pairwise comparisons.                       
+
+> Method Estimated ∆DSC (%) 95% CI
+> Min-max -0.51 [-0.60, -0.41] Robust min-max -0.48 [-0.57, -0.38] HE -0.65 [-0.74, -0.55] CLAHE -0.09 [-0.19, 0.00] Nyúl [32] 0.14 [0.05, 0.24] GMM -0.51 [-0.61, -0.42] MRI Normalisation and Knee Segmentation Generalisability 9Nyúl
+> Z-score
+> CLAHE
+> R. Min-max GMM
+> Min-max HE
+> 78.0
+> 78.2
+> 78.4
+> 78.6
+> 78.8
+> 79.0
+> 79.2
+> 79.4
+> DSC (%)
+> aab b
+> ccd cd d
+
+Fig. 2: Estimated marginal means of DSC scores on the external test set (SKM-TEA) across normalisation methods, derived from a linear mixed-effects model. Error bars show 95% confidence intervals. Letters next to each point represent compact letter display groups from Tukey-adjusted pairwise comparisons; meth-ods sharing the same letter are not significantly different at the 5% level. Among the two top-performing methods, Nyúl showed better volumetric con-sistency with ground truth annotations that Z-score, which tended to under-predict meniscus volume (mean difference: -103 mm 3 (∼ 1300 voxels)). For a visual comparison of the two methods, image intensity profiles of both IWOAI 2019 and SKM-TEA datasets were plotted after transformation (Fig. 4). As seen in Fig. 4a, differences between the datasets remain after Z-score, whereas Nyúl resulted in more consistent intensity profiles across the datasets (Fig. 4b). 
+
+# 4 Discussion 
+
+Performance varied little on internal test data across normalisation methods, as expected given the shared domain with training images. Most methods per-formed comparably, with only HE and CLAHE performing significantly worse. This was likely due to their inconsistent contrast enhancement further disrupting tissue-specific intensity meaning across the dataset. On the external test set, where domain shift was present, small but statisti-cally significant differences between methods were observed, with LMM analysis identifying statistically significant advantages for Nyúl, Z-score, and CLAHE. Inter-method variation was small relative to variation between images (Fig. 1), highlighting the difficulty of this segmentation task. Differences between meth-ods were modest ( ∼ 1% DSC), whereas all methods experienced a substantially larger performance drop between internal and external datasets ( ∼ 10% DSC), indicating that domain shift has a much greater impact on performance than the choice of normalisation method. Notably, the marginal R2 indicated that normalisation method explained only a small proportion of total variance. No 10 Mills et al. Nyúl                
+
+> Z-score
+> CLAHE
+> R. Min-max
+> Min-max
+> GMM
+> HE
+> Nyúl
+> Z-score
+> CLAHE
+> R. Min-max
+> Min-max
+> GMM
+> HE
+> 0.053 <0.001 <0.001 <0.001 <0.001 <0.001
+> 0.493 <0.001 <0.001 <0.001 <0.001
+> <0.001 <0.001 <0.001 <0.001
+> 0.997 0.990 0.010
+> 1.000 0.067
+> 0.098
+> 0
+> 0.001
+> 0.01
+> 0.05
+> 1
+
+Fig. 3: Tukey-adjusted pairwise p-values from linear mixed-effects model compar-isons of DSC scores between methods. Darker shades indicate greater statistical significance. Rows and columns are ordered by descending mean DSC. significant differences were seen in HD95, indicating that segmentation shape was consistent across methods. Differences between internal and external performance revealed method-specific behaviour. Min-max scaling suffered the largest performance drop, likely due to sensitivity to dataset-specific intensity outliers, whereas Nyúl showed the smallest drop, suggesting greater robustness to cross-dataset intensity variations. CLAHE, which showed lower performance on the internal test set, ranked among the top methods externally, suggesting that contrast alteration might offer some generalisability benefits under domain shift. In contrast, the GMM-based ap-proach performed well internally but less well externally, likely due to differences in intensity profiles between datasets affecting peak estimation (Fig. 4a). Among the top-performing methods, Z-score slightly underestimated menis-cal volumes, while Nyúl had minimal volumetric bias. Although the magnitude of the underestimation was small ( ∼ 2% of total volume), the majority of these inaccuracies fell on the meniscal boundaries, which could affect surface features. An example is shown in Fig. 5, where several methods introduce a gap in the lat-eral posterior horn that is not present in the ground truth; notably, this artifact is not observed with Nyúl normalisation. Despite Nyúl achieving better alignment of intensity distributions compared to Z-score (Fig. 4), this did not translate to better segmentation performance. This suggests that histogram matching does not necessarily improve perfor-mance, and could come at the cost of preserving biological variation. Differences between datasets likely contributed to the observed performance drop. Although both datasets used DESS-type MRI sequences, their imaging MRI Normalisation and Knee Segmentation Generalisability 11 1 0 1 2 3     
+
+> Intensity
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1.2
+> 1.4
+> Density
+> IWOAI 2019
+> SKM-TEA
+> (a) Z-score Normalisation 10123
+> Intensity
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> Density
+> IWOAI 2019
+> SKM-TEA (b) Nyúl Histogram Matching [32]
+
+Fig. 4: Comparison of intensities of images from both the IWOAI 2019 (red) and SKM-TEA (blue) datasets after different normalisation methods. protocols differed (e.g. echo time, repetition time), leading to subtle differences in image contrast (Fig. 4a). Patient populations also differed: IWOAI 2019 in-cludes patients at risk of or with early-stage osteoarthritis (OA), whereas SKM-TEA specifically recruited patients with knee pathologies, likely including more severe, late-stage OA cases. However, no significant difference in DSC was ob-served between images with and without recorded pathology labels in the ex-ternal dataset (Mann–Whitney U test, p = 0 .67 ), suggesting that pathology presence alone does not explain the observed performance differences. Annota-tion differences are another source of variation. On a challenging task such as meniscus segmentation, inter-annotator variability could be large, but this is dif-ficult to assess and is a limitation of this study. However, the lack of systematic over- or under-segmentation of volume suggests no major bias. Advanced harmonisation and domain adaptation methods, including adver-sarial approaches, style transfer, and ComBat-based techniques, have been pro-posed to address domain shift in medical imaging. These approaches often rely on access to target-domain data or task-specific adaptation. In contrast, this study evaluates simple intensity normalisation methods that require no target-domain information, providing a practical baseline for comparison. 
+
+# 5 Conclusion 
+
+This study evaluated the impact of different intensity normalisation methods on knee MRI meniscus segmentation, both internally and externally. Internal per-formance differences were minimal, with all methods performing similarly when trained and tested within the same domain. On external data, fold-level analy-sis with linear mixed effect modelling revealed small but statistically significant differences, with Nyúl, Z-score, and CLAHE outperforming other methods on volume-based metrics. However, these differences were modest compared to the 12 Mills et al.       
+
+> (a) Ground Truth (b) Z-score (c) Min-max (d) Robust min-max
+> (e) HE (f) CLAHE (g) Nyúl [32] (h) GMM
+
+Fig. 5: Qualitative comparison of meniscus segmentation across normalisation methods for the case with the greatest variability in Dice score. (a) Ground truth; (b–h) predictions from seven methods. Masks are shown as 2D represen-tations, created by summing the 3D masks along the inferior-superior axis. A notable difference is seen in the lateral posterior horn (bottom left of each panel), where several methods (e.g., min–max, robust min–max, and GMM-based nor-malisation) introduce a gap not present in the ground truth. performance drop observed between internal and external data. This suggests that, while normalisation choice can have a measurable effect on model general-isability, its contribution is limited relative to the impact of domain shift. 
+
+Data availability 
+
+The datasets used in this study are publicly available. IWOAI 2019 can be ac-cessed upon request at https://github.com/denizlab/2019_IWOAI_Challenge while SKM-TEA is available at https://doi.org/10.71718/2ghb-nv62, with infor-mation and tutorials at https://github.com/StanfordMIMI/skm-tea. All code developed for preprocessing, training, and evaluation is publicly available at https://github.com/oliverjm1/mri_normalisation. MRI Normalisation and Knee Segmentation Generalisability 13 
+
+# References 
+
+1. Bhattacharyya, T., et al.: The Clinical Importance of Meniscal Tears Demonstrated by Magnetic Resonance Imaging in Osteoarthritis of the Knee*. JBJS 85 (1), 4(Jan 2003) 2. Carré, A., et al.: Standardization of brain MR images across machines and pro-tocols: Bridging the gap for MRI-based radiomics. Scientific Reports 10 (1), 12340 (Jul 2020). https://doi.org/10.1038/s41598-020-69298-z 3. Dalvit Carvalho da Silva, R., Jenkyn, T.R., Carranza, V.A.: Enhanced pre-processing for deep learning in MRI whole brain segmentation using orthogonal mo-ments. Brain Multiphysics 3, 100049 (Jan 2022). https://doi.org/10.1016/j.brain. 2022.100049 4. de Raad, K., et al.: The Effect of Preprocessing on Convolutional Neural Networks for Medical Image Segmentation. In: 2021 IEEE 18th International Symposium on Biomedical Imaging (ISBI). pp. 655–658 (Apr 2021). https://doi.org/10.1109/ ISBI48211.2021.9433952 5. Desai, A.D., et al.: The International Workshop on Osteoarthritis Imaging Knee MRI Segmentation Challenge: A Multi-Institute Evaluation and Analysis Frame-work on a Standardized Dataset. RADIOLOGY-ARTIFICIAL INTELLIGENCE 
+
+3(3) (May 2021). https://doi.org/10.1148/ryai.2021200078 6. Desai, A.D., et al.: Skm-tea: A dataset for accelerated mri reconstruction with dense image labels for quantitative clinical evaluation. In: Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2) (2021), available at: https://datasets-benchmarks-proceedings.neurips. cc/paper_files/paper/2021/file/03c6b06952c750899bb03d998e631860-Paper-round2.pdf 7. Dice, L.R.: Measures of the Amount of Ecologic Association Between Species. Ecology 26 (3), 297–302 (1945). https://doi.org/10.2307/1932409 8. Englund, M., et al.: Effect of meniscal damage on the development of frequent knee pain, aching, or stiffness. Arthritis and Rheumatism 56 (12), 4048–4054 (Dec 2007). https://doi.org/10.1002/art.23071 9. Englund, M., et al.: Meniscus pathology, osteoarthritis and the treatment contro-versy. Nature Reviews Rheumatology 8(7), 412–419 (Jul 2012). https://doi.org/ 10.1038/nrrheum.2012.69 10. Ghazvanchahi, A., Maralani, P.J., Moody, A.R., Khademi, A.: Effect of Intensity Standardization on Deep Learning for WML Segmentation in Multi-Centre FLAIR MRI. In: Medical Imaging with Deep Learning. pp. 1923–1940. PMLR, Nashville, TN, United States (Jan 2024) 11. Härtinger, P., Steger, C.: Adaptive histogram equalization in constant time. Jour-nal of Real-Time Image Processing 21 (3), 93 (May 2024). https://doi.org/10. 1007/s11554-024-01465-1 12. Hayati, M., et al.: Impact of CLAHE-based image enhancement for diabetic retinopathy classification through deep learning. Procedia Computer Science 216 ,57–66 (Jan 2023). https://doi.org/10.1016/j.procs.2022.12.111 13. Hummel, R.: Image enhancement by histogram transformation. Computer Graph-ics and Image Processing 6(2), 184–195 (Apr 1977). https://doi.org/10.1016/ S0146-664X(77)80011-7 14. Hummel, R.A.: Histogram modification techniques. Computer Graphics and Im-age Processing 4(3), 209–224 (Sep 1975). https://doi.org/10.1016/0146-664X(75) 90009-X 14 Mills et al. 15. Huttenlocher, D., Klanderman, G., Rucklidge, W.: Comparing images using the Hausdorff distance. IEEE Transactions on Pattern Analysis and Machine Intelli-gence 15 (9), 850–863 (Sep 1993). https://doi.org/10.1109/34.232073 16. Isensee, F., et al.: nnU-Net: A self-configuring method for deep learning-based biomedical image segmentation. Nature Methods 18 (2), 203–211 (Feb 2021). https: //doi.org/10.1038/s41592-020-01008-z 17. Isensee, F., et al.: nnU-Net Revisited: A Call for Rigorous Validation in 3D Medical Image Segmentation. In: Linguraru, M.G., Dou, Q., Feragen, A., Giannarou, S., Glocker, B., Lekadir, K., Schnabel, J.A. (eds.) Medical Image Computing and Computer Assisted Intervention – MICCAI 2024. pp. 488–498. Springer Nature Switzerland, Cham (2024). https://doi.org/10.1007/978-3-031-72114-4_47 18. Islam, M., Khan, K.N., Khan, M.S.: Evaluation of Preprocessing Techniques for U-Net Based Automated Liver Segmentation. In: 2021 International Conference on Artificial Intelligence (ICAI). pp. 187–192 (Apr 2021). https://doi.org/10.1109/ ICAI52203.2021.9445204 19. Johnson, W.E., Li, C., Rabinovic, A.: Adjusting batch effects in microarray expres-sion data using empirical Bayes methods. Biostatistics 8(1), 118–127 (Jan 2007). https://doi.org/10.1093/biostatistics/kxj037 20. Kondrateva, E., et al.: Domain shift in computer vision models for MRI data analysis: An overview. In: Thirteenth International Conference on Machine Vision. vol. 11605, pp. 126–133. SPIE, Rome, Italy (Jan 2021). https://doi.org/10.1117/ 12.2587872 21. Kondrateva, E., et al.: Negligible effect of brain MRI data preprocessing for tumor segmentation. Biomedical Signal Processing and Control 96 , 106599 (Oct 2024). https://doi.org/10.1016/j.bspc.2024.106599 22. Kornaat, P.R., et al.: Osteoarthritis of the knee: Association between clinical fea-tures and MR imaging findings. Radiology 239 (3), 811–817 (Jun 2006). https: //doi.org/10.1148/radiol.2393050253 23. LeCun, Y.A., Bottou, L., Orr, G.B., Müller, K.R.: Efficient BackProp. In: Mon-tavon, G., Orr, G.B., Müller, K.R. (eds.) Neural Networks: Tricks of the Trade: Second Edition, pp. 9–48. Springer, Berlin, Heidelberg (2012). https://doi.org/10. 1007/978-3-642-35289-8_3 24. Lenchik, L., et al.: Automated Segmentation of Tissues Using CT and MRI: A Systematic Review. Academic Radiology 26 (12), 1695–1706 (Dec 2019). https: //doi.org/10.1016/j.acra.2019.07.006 25. Li, Y., et al.: Impact of Preprocessing and Harmonization Methods on the Removal of Scanner Effects in Brain MRI Radiomic Features. Cancers 13 (12), 3000 (Jan 2021). https://doi.org/10.3390/cancers13123000 26. Lin, L.I.: A concordance correlation coefficient to evaluate reproducibility. Biomet-rics 45 (1), 255–268 (Mar 1989) 27. Litjens, G., et al.: A survey on deep learning in medical image analysis. Medical Image Analysis 42 , 60–88 (Dec 2017). https://doi.org/10.1016/j.media.2017.07.005 28. Masoudi, S., et al.: Quick guide on radiology image pre-processing for deep learning applications in prostate cancer research. Journal of Medical Imaging 8(1), 010901 (Jan 2021). https://doi.org/10.1117/1.JMI.8.1.010901 29. Mills, O., Conaghan, P., Ravikumar, N., Relton, S.: Putting the Segment Anything Model to the Test with 3D Knee MRI - A Comparison with State-of-the-Art Per-formance. arXiv preprint arXiv:2504.13340 (Apr 2025). https://doi.org/10.48550/ arXiv.2504.13340 MRI Normalisation and Knee Segmentation Generalisability 15 30. Nevitt, M., Felson, D., Lester, G.: The Osteoarthritis Initiative: Protocol for the Cohort Study. https://nda.nih.gov/static/docs/ StudyDesignProtocolAndAppendices.pdf (2006), accessed July 8, 2025 31. Nyúl, L.G., Udupa, J.K.: On standardizing the MR image intensity scale. Magnetic Resonance in Medicine 42 (6), 1072–1081 (1999). https://doi.org/10.1002/(SICI) 1522-2594(199912)42:6<1072::AID-MRM11>3.0.CO;2-M 32. Nyúl, L., Udupa, J., Zhang, X.: New variants of a method of MRI scale stan-dardization. IEEE Transactions on Medical Imaging 19 (2), 143–150 (Feb 2000). https://doi.org/10.1109/42.836373 33. Pérez-García, F., Sparks, R., Ourselin, S.: TorchIO: A Python library for efficient loading, preprocessing, augmentation and patch-based sampling of medical images in deep learning. Computer Methods and Programs in Biomedicine 208 , 106236 (Sep 2021). https://doi.org/10.1016/j.cmpb.2021.106236 34. Peterfy, C.G., Schneider, E., Nevitt, M.: The osteoarthritis initiative: Report on the design rationale for the magnetic resonance imaging protocol for the knee. Osteoarthritis and Cartilage 16 (12), 1433–1441 (Dec 2008). https://doi.org/10. 1016/j.joca.2008.06.016 35. Pizer, S.M., et al.: Adaptive histogram equalization and its variations. Computer Vision, Graphics, and Image Processing 39 (3), 355–368 (Sep 1987). https://doi. org/10.1016/S0734-189X(87)80186-X 36. Rahman, M.M., Dürselen, L., Seitz, A.M.: Automatic segmentation of knee menisci – A systematic review. Artificial Intelligence in Medicine 105 , 101849 (May 2020). https://doi.org/10.1016/j.artmed.2020.101849 37. Schmidt, A.M., et al.: Generalizability of Deep Learning Segmentation Algo-rithms for Automated Assessment of Cartilage Morphology and MRI Relaxom-etry. Journal of Magnetic Resonance Imaging 57 (4), 1029–1039 (2023). https: //doi.org/10.1002/jmri.28365 38. Schwarzhans, F., et al.: Image normalization techniques and their effect on the robustness and predictive power of breast MRI radiomics. European Journal of Radiology 187 , 112086 (Jun 2025). https://doi.org/10.1016/j.ejrad.2025.112086 39. Sederevičius, D., et al.: A robust intensity distribution alignment for harmonization of T1w intensity values (Jun 2022). https://doi.org/10.1101/2022.06.15.496227 40. Shah, M., et al.: Evaluating intensity normalization on MRIs of human brain with multiple sclerosis. Medical Image Analysis 15 (2), 267–282 (Apr 2011). https://doi. org/10.1016/j.media.2010.12.003 41. Shinohara, R.T., et al.: Statistical normalization techniques for magnetic resonance imaging. NeuroImage : Clinical 6, 9–19 (Aug 2014). https://doi.org/10.1016/j.nicl. 2014.08.008 42. Taha, A.A., Hanbury, A.: Metrics for evaluating 3D medical image segmentation: Analysis, selection, and tool. BMC Medical Imaging 15 (1), 29 (Aug 2015). https: //doi.org/10.1186/s12880-015-0068-x 43. van der Walt, S., et al.: Scikit-image: Image processing in Python. PeerJ 2, e453 (Jun 2014). https://doi.org/10.7717/peerj.453 44. Welsch, G.H., et al.: Rapid estimation of cartilage T2 based on double echo at steady state (DESS) with 3 Tesla. Magnetic Resonance in Medicine 62 (2), 544– 549 (2009). https://doi.org/10.1002/mrm.22036 45. Wrobel, J., et al.: Intensity warping for multisite MRI harmonization. NeuroImage 
+
+223 , 117242 (Dec 2020). https://doi.org/10.1016/j.neuroimage.2020.117242
