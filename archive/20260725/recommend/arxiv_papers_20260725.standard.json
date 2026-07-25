@@ -1,0 +1,467 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-25T21:18:16.018129+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 6,
+    "deep_cap": 7,
+    "deep_selected": 6,
+    "quick_candidates": 5,
+    "quick_skim_target": 12,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2607.17718v1",
+      "source": "arxiv",
+      "title": "PC-Seg: Progressive Cross-View Consistency for 3D OCT Segmentation from Sparse 2D Annotations",
+      "abstract": "Volumetric segmentation of optical coherence tomography (OCT) images is essential for diagnosing ocular diseases but requires labor-intensive voxel-wise annotations. While semi-supervised learning (SSL) can reduce annotation costs, most existing methods process data slice by slice and fail to exploit the inherent 3D spatial context. We propose PC-Seg, a progressive cross-view consistency framework that learns high-accuracy 3D segmentation models from sparse 2D annotations. Unlike conventional multi-view approaches, PC-Seg uses a single 2D model to learn cross-view consistency from standard B-scans and orthogonal slices, thereby generating reliable volumetric pseudo-labels. These pseudo-labels are then distilled into a 3D model, followed by a co-training stage in which the 2D and 3D models mutually refine each other through ensemble pseudo-labeling. Experiments on the MSHC and Duke DME datasets demonstrate that PC-Seg achieves accuracy comparable to fully supervised learning while using labels for only about 0.7% of the training data, outperforming state-of-the-art semi-supervised and retinal layer segmentation methods. Our code is publicly available at https://github.com/gsisaoki/pc-seg-official.",
+      "authors": [
+        "Tsubasa Konno",
+        "Takahiro Ninomiya",
+        "Yukun Zhou",
+        "Koichi Ito",
+        "Siegfried K. Wagner",
+        "Yiqun Lin",
+        "Pearse A. Keane",
+        "Toru Nakazawa",
+        "Takafumi Aoki"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T09:12:04+00:00",
+      "link": "https://arxiv.org/pdf/2607.17718v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Deep learning based medical image segmentation",
+      "llm_evidence_cn": "基于深度学习的医学图像分割",
+      "llm_evidence": "基于深度学习的医学图像分割",
+      "canonical_evidence": "基于深度学习的医学图像分割",
+      "llm_tldr_en": "Proposes PC-Seg, a progressive cross-view consistency framework for 3D OCT segmentation from sparse 2D annotations, achieving high accuracy with reduced annotation cost by leveraging 3D spatial context.",
+      "llm_tldr_cn": "针对OCT体积分割需要大量体素标注的问题，提出渐进式跨视图一致性框架PC-Seg，仅用稀疏2D标注即可学习高精度3D分割模型。该方法通过单2D网络学习B扫描与正交切片间的跨视图一致性，生成可靠体素伪标签并蒸馏到3D模型。在多个OCT数据集上达到与全监督方法相当的性能，显著降低了标注成本，为医学图像半监督分割提供了有效利用3D空间信息的新方案。",
+      "llm_tldr": "针对OCT体积分割需要大量体素标注的问题，提出渐进式跨视图一致性框架PC-Seg，仅用稀疏2D标注即可学习高精度3D分割模型。该方法通过单2D网络学习B扫描与正交切片间的跨视图一致性，生成可靠体素伪标签并蒸馏到3D模型。在多个OCT数据集上达到与全监督方法相当的性能，显著降低了标注成本，为医学图像半监督分割提供了有效利用3D空间信息的新方案。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.20955v1",
+      "source": "arxiv",
+      "title": "FSB-Net: Frequency-Spatial Boundary Network for Brain Stroke Lesion Segmentation in Non-Contrast CT",
+      "abstract": "Accurate segmentation of brain stroke lesions in non-contrast computed tomography (NCCT) scans is critical for rapid clinical decision-making, yet remains difficult due to the low contrast between lesion and normal brain tissue, heterogeneous lesion morphology across ischemic and hemorrhagic subtypes, and ambiguous boundaries caused by partial volume effects. Current deep learning approaches primarily optimize region-level overlap but lack explicit boundary modeling, leading to imprecise delineation that can affect volumetric assessment and treatment planning. We propose FSB-Net, a frequency-spatial boundary network that leverages frequency-domain analysis for boundary-aware stroke lesion segmentation. FSB-Net introduces three components: (i) a Wavelet Boundary Detection Head (WBDH) that applies the discrete wavelet transform to multi-scale encoder features, extracting high-frequency sub-bands as boundary representations; (ii) a Frequency-Spatial Cross-Attention Module (FSCAM) that performs bidirectional attention between wavelet boundary features and spatial decoder features for selective boundary enhancement; and (iii) a Spectral Boundary Loss that penalizes high-frequency discrepancies in the Fourier domain to optimize boundary sharpness. Built on a PVTv2-B2 encoder, FSB-Net is evaluated on a public Brain Stroke CT dataset containing both ischemic and hemorrhagic cases. Experimental results show that FSB-Net outperforms U-Net, UNet++, MANet, and DeepLabV3+ across all metrics, achieving state-of-the-art performance in mean Dice, mean IoU, and HD95.",
+      "authors": [
+        "Linke Fan",
+        "Xianglong Li",
+        "Huixin Huang",
+        "Kai Shu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T06:31:38+00:00",
+      "link": "https://arxiv.org/pdf/2607.20955v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "deep learning based brain stroke lesion segmentation in NCCT",
+      "llm_evidence_cn": "基于深度学习的非增强CT脑卒中病灶分割",
+      "llm_evidence": "基于深度学习的非增强CT脑卒中病灶分割",
+      "canonical_evidence": "基于深度学习的非增强CT脑卒中病灶分割",
+      "llm_tldr_en": "Proposes FSB-Net, a frequency-spatial boundary network for accurate brain stroke lesion segmentation in non-contrast CT, leveraging frequency-domain boundary modeling.",
+      "llm_tldr_cn": "非增强CT中脑卒中病灶分割面临低对比度、形态多样和边界模糊的挑战。现有深度学习方法侧重区域级重叠，缺乏显式边界建模。提出FSB-Net频率-空间边界网络，利用频域分析增强边界感知，结合空间注意力精确定位。在公开数据集上，FSB-Net在Dice和边界指标上均优于现有方法，有助于临床决策。",
+      "llm_tldr": "非增强CT中脑卒中病灶分割面临低对比度、形态多样和边界模糊的挑战。现有深度学习方法侧重区域级重叠，缺乏显式边界建模。提出FSB-Net频率-空间边界网络，利用频域分析增强边界感知，结合空间注意力精确定位。在公开数据集上，FSB-Net在Dice和边界指标上均优于现有方法，有助于临床决策。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.17754v1",
+      "source": "arxiv",
+      "title": "DA-Fusion: Deformable Attention-Based RGB-D Fusion Transformer for Unseen Object Instance Segmentation",
+      "abstract": "In logistics automation, precise segmentation of unseen objects is crucial for efficient robotic manipulation in cluttered environments. Tasks such as bin-picking and shelf-picking require robust perception to handle occlusions, varying object shapes, and complex spatial arrangements. Traditional RGB-based methods tend to over-segment objects due to their reliance on texture, while depth-based methods often under-segment by focusing primarily on geometric features. To address these limitations, we propose DA-Fusion, a deformable attention-based RGB-D fusion Transformer designed for unseen object instance segmentation. DA-Fusion effectively combines the strengths of both RGB and depth data, enhancing segmentation accuracy in cluttered and multi-layered object environments. We also introduce the Object Clutter Bin Dataset (OCBD), a benchmark dataset specifically tailored for evaluating bin-picking scenarios in top-down views. Extensive evaluations demonstrate that DA-Fusion outperforms state-of-the-art methods across diverse environments, making it particularly suited for real-world logistics tasks.",
+      "authors": [
+        "Yesol Park",
+        "Hye-Jung Yoon",
+        "Juno Kim",
+        "Byoung-Tak Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-20T09:47:16+00:00",
+      "link": "https://arxiv.org/pdf/2607.17754v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "RGB-D fusion transformer for instance segmentation",
+      "llm_evidence_cn": "用于实例分割的RGB-D融合Transformer",
+      "llm_evidence": "用于实例分割的RGB-D融合Transformer",
+      "canonical_evidence": "用于实例分割的RGB-D融合Transformer",
+      "llm_tldr_en": "Proposes a deformable attention-based RGB-D fusion Transformer for unseen object instance segmentation, effectively combining RGB and depth cues to handle occlusions and cluttered scenes.",
+      "llm_tldr_cn": "面向物流自动化中未知物体实例分割任务，提出基于可变形注意力的RGB-D融合Transformer DA-Fusion。通过可变形注意力模块自适应融合RGB纹理和深度几何特征，有效应对遮挡和杂乱场景。实验证明在分割精度上显著优于纯RGB或深度方法，为机器人操作提供鲁棒感知能力。",
+      "llm_tldr": "面向物流自动化中未知物体实例分割任务，提出基于可变形注意力的RGB-D融合Transformer DA-Fusion。通过可变形注意力模块自适应融合RGB纹理和深度几何特征，有效应对遮挡和杂乱场景。实验证明在分割精度上显著优于纯RGB或深度方法，为机器人操作提供鲁棒感知能力。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.17778v1",
+      "source": "arxiv",
+      "title": "CDIS: Cross-Dimensional Class-Agnostic 3D Instance Segmentation via 2D Mask Tracking and 3D-2D Projection Merging",
+      "abstract": "Class-agnostic 3D instance segmentation is critical for robotic systems operating in unknown environments, enabling perception of previously unseen objects for reliable manipulation and navigation. Existing approaches typically project per-frame 2D instance masks into 3D and merge them, which often breaks object identities across time and yields fragmented 3D instances. We introduce Cross-Dimensional Class-Agnostic 3D Instance Segmentation (CDIS), a zero-shot framework that explicitly tracks 2D instance masks across frames and associates them with 3D superpoints, creating a feedback loop between 2D and 3D. This cross-dimensional reasoning links temporally stable 2D tracks with spatially coherent 3D regions, producing globally consistent 3D instance labels without any 3D-specific training. Experiments on benchmark datasets demonstrate that CDIS achieves higher accuracy and consistency than state-of-the-art zero-shot methods, while remaining efficient and scalable to diverse real-world environments.",
+      "authors": [
+        "Juno Kim",
+        "Hye-Jung Yoon",
+        "Yesol Park",
+        "Byoung-Tak Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-20T10:09:12+00:00",
+      "link": "https://arxiv.org/pdf/2607.17778v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "class-agnostic 3D instance segmentation via cross-dimensional reasoning",
+      "llm_evidence_cn": "跨维度类无关3D实例分割",
+      "llm_evidence": "跨维度类无关3D实例分割",
+      "canonical_evidence": "跨维度类无关3D实例分割",
+      "llm_tldr_en": "Introduces a zero-shot framework for 3D instance segmentation that tracks 2D masks across frames and merges with 3D superpoints, achieving temporally consistent 3D instances.",
+      "llm_tldr_cn": "针对机器人未知环境中的3D实例分割，提出跨维度类无关3D实例分割框架CDIS。通过跟踪帧间2D实例掩码并与3D超点关联，形成2D-3D反馈回路，解决投影合并导致的分裂问题。在零样本设置下生成时空一致的3D实例，显著提升分割完整性和鲁棒性。",
+      "llm_tldr": "针对机器人未知环境中的3D实例分割，提出跨维度类无关3D实例分割框架CDIS。通过跟踪帧间2D实例掩码并与3D超点关联，形成2D-3D反馈回路，解决投影合并导致的分裂问题。在零样本设置下生成时空一致的3D实例，显著提升分割完整性和鲁棒性。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.19765v1",
+      "source": "arxiv",
+      "title": "Extending a Large View Synthesis Model for Multi-view Panoptic Segmentation",
+      "abstract": "Large view synthesis models synthesize novel views through cross-view attention without explicit 3D representations, and recent studies have shown that they learn accurate spatial correspondence from RGB supervision alone. We observe that this correspondence generalizes beyond appearance. When non-photorealistic signals such as binary encoded panoptic labels are passed through the model, they are propagated to novel views with consistent spatial structure. These results indicate that the correspondence learned for RGB view synthesis can also propagate view-independent per-pixel labels. From this observation, we present the first work to extend large view synthesis models beyond appearance rendering to 3D scene understanding. We propose a panoptic segmentation pipeline that reuses a frozen view synthesis model to propagate panoptic labels from input views to novel views, without 3D reconstruction or any segmentation-specific training of the view synthesis model. Given panoptic labels on the input views, we encode them into binary channel representations and pass them through the same model to render target-view segmentation. On ScanNet, our method achieves segmentation quality on par with Gaussian based approaches requiring explicit 3D reconstruction, while outperforming them in novel view synthesis by more than 7 dB. The label propagation also transfers across datasets, surpassing these approaches on Replica without any fine-tuning.",
+      "authors": [
+        "Kwonyoung Ryu",
+        "In-Jae Lee",
+        "Jonghyun Jin",
+        "Hyunjee Lee",
+        "Jongmin Lee",
+        "Jaesik Park"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-22T05:16:30+00:00",
+      "link": "https://arxiv.org/pdf/2607.19765v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "extends view synthesis model to multi-view panoptic segmentation",
+      "llm_evidence_cn": "扩展视图合成模型到多视图全景分割",
+      "llm_evidence": "扩展视图合成模型到多视图全景分割",
+      "canonical_evidence": "扩展视图合成模型到多视图全景分割",
+      "llm_tldr_en": "First work extending large view synthesis models to panoptic segmentation, showing RGB correspondence can propagate per-pixel labels across novel views.",
+      "llm_tldr_cn": "观察到大型视图合成模型学习的空间对应关系不仅能用于RGB渲染，还能推广到非真实感信号（如全景分割标签）。提出首个将视图合成模型扩展到3D场景理解的工作，通过交叉注意力传播标签，无需显式3D表示。在多视图分割任务上取得良好效果，证明了生成模型在视觉理解中的潜力。",
+      "llm_tldr": "观察到大型视图合成模型学习的空间对应关系不仅能用于RGB渲染，还能推广到非真实感信号（如全景分割标签）。提出首个将视图合成模型扩展到3D场景理解的工作，通过交叉注意力传播标签，无需显式3D表示。在多视图分割任务上取得良好效果，证明了生成模型在视觉理解中的潜力。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.21371v1",
+      "source": "arxiv",
+      "title": "DINOde: Continuous Vision-Text Alignment for Open-Vocabulary Semantic Segmentation",
+      "abstract": "Open-vocabulary semantic segmentation (OVSS) leverages textual semantics to segment objects beyond predefined categories. While the self-supervised model DINOv3 provides strong structured visual representations, its lack of native textual alignment hinders its direct application to OVSS. To bridge this gap, we propose DINOde, an ODE-based framework that continuously aligns CLIP text embeddings with the DINO visual manifold. Our approach employs two complementary components: (i) Semantic Text Flow (STF), which evolves text embeddings toward the DINO manifold through a continuous ODE trajectory, and (ii) Global Context Flow (GCF), which progressively refines the holistic image representation carried by DINO's CLS token. To preserve the hyperspherical geometry of the feature space during this evolution, we further introduce Velocity Tangent Projection, which constrains the learned velocity field to the tangent space. By modeling alignment as a continuous trajectory, DINOde avoids the manifold entanglement inherent in discrete MLP projections and yields more robust cross-modal alignment. Extensive experiments demonstrate that DINOde consistently outperforms existing methods and achieves state-of-the-art performance across multiple OVSS benchmarks. The code is available at https://github.com/yoon307/DINOde.",
+      "authors": [
+        "Sung-Hoon Yoon",
+        "Hoyong Kwon",
+        "Changgyoon Oh",
+        "Kuk-Jin Yoon"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-23T14:37:27+00:00",
+      "link": "https://arxiv.org/pdf/2607.21371v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "open-vocabulary semantic segmentation via vision-text alignment",
+      "llm_evidence_cn": "通过视觉-文本对齐的开放词汇语义分割",
+      "llm_evidence": "通过视觉-文本对齐的开放词汇语义分割",
+      "canonical_evidence": "通过视觉-文本对齐的开放词汇语义分割",
+      "llm_tldr_en": "DINOde uses an ODE-based continuous alignment of CLIP text embeddings with DINO visual manifold for open-vocabulary semantic segmentation.",
+      "llm_tldr_cn": "开放词汇语义分割需要利用文本语义分割未定义类别。本文提出DINOde，基于常微分方程的框架，通过语义文本流将文本嵌入沿ODE轨迹连续演变至DINO视觉流形，并利用全局上下文流细化CLS标记。该方法无需微调视觉编码器，在多个OVSS基准上达到最先进性能，有效弥合了自监督特征与文本对齐之间的鸿沟。",
+      "llm_tldr": "开放词汇语义分割需要利用文本语义分割未定义类别。本文提出DINOde，基于常微分方程的框架，通过语义文本流将文本嵌入沿ODE轨迹连续演变至DINO视觉流形，并利用全局上下文流细化CLS标记。该方法无需微调视觉编码器，在多个OVSS基准上达到最先进性能，有效弥合了自监督特征与文本对齐之间的鸿沟。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.17938v1",
+      "source": "arxiv",
+      "title": "MuViSeg: Multi-View Segment Correspondences from Dense Geometry Priors",
+      "abstract": "Classical image correspondence is solved at the level of sparse keypoints or dense pixels, but the systems that consume these matches - object-level mapping, topological navigation, scene-graph maintenance - reason about whole objects. Recent work narrows this gap by matchng directly at the level of instance segments: a class-agnostic segmenter partitions each image, and per-segment descriptors are obtained by pooling features from large 3D foundation models over the masks. We build on this segment-level matching paradigm and propose three learned matching heads: a LightGlue-style attention head with DoubleSoftmax scoring on frozen MASt3R descriptors; a DPT-style multi-scale fusion module that exposes layered spatial detail from the VGGT foundation model before pooling; and - as our main contribution - a multi-view extension that performs joint self-attention over segments drawn from several views at once, recovering transitive correspondences that strictly pairwise matchers cannot reach. Under a stratified zero-shot protocol on Replica and Virtual KITTI 2 with controlled viewpoint baselines from 0 deg to 180 deg, the LightGlue-style head improves over a parameter-free Sinkhorn matcher on the same MASt3R backbone by +4.85 AUPRC on Replica and +25.9 AUPRC on Virtual KITTI 2. Dropped into the RoboHop topological navigation pipeline on the Habitat-Matterport 3D (HM3D) Instance Image Navigation benchmark without retraining, our multi-view variant raises success rate from 50% to 70%, and our LightGlue-style head raises SPL from 45.7 to 59.1.",
+      "authors": [
+        "Denis Fatykhoph",
+        "Timur Akhtyamov",
+        "Konstantin Pakulev",
+        "German Devchich",
+        "Gonzalo Ferrer"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T13:35:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.17938v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-view instance segmentation and matching",
+      "llm_evidence_cn": "多视图实例分割与匹配",
+      "llm_evidence": "多视图实例分割与匹配",
+      "canonical_evidence": "多视图实例分割与匹配",
+      "llm_tldr_en": "Learns matching heads for segment-level correspondences across views using dense geometry priors from foundation models, enabling object-level mapping.",
+      "llm_tldr_cn": "针对图像对应从稀疏关键点向实例级别发展的需求，提出MuViSeg。利用MASt3R和VGGT等基础模型的密集几何先验，学习注意力和多尺度融合匹配头，实现跨视图的实例级分割对应。该方法支持对象级建图和拓扑导航，弥合了像素匹配与对象级应用之间的差距。",
+      "llm_tldr": "针对图像对应从稀疏关键点向实例级别发展的需求，提出MuViSeg。利用MASt3R和VGGT等基础模型的密集几何先验，学习注意力和多尺度融合匹配头，实现跨视图的实例级分割对应。该方法支持对象级建图和拓扑导航，弥合了像素匹配与对象级应用之间的差距。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.18801v1",
+      "source": "arxiv",
+      "title": "ZeroSplat: Generalized Referring Segmentation in 3D Gaussian Splatting",
+      "abstract": "Recent advancements in 3D Gaussian Splatting (3DGS) have enabled language-guided scene understanding. However, existing Referring 3D Gaussian Splatting (R3DGS) methods are fundamentally restricted to single-target queries. To reflect the ambiguity of real-world instructions, we introduce the Generalized Referring 3D Gaussian Splatting Segmentation (GR3DGS) task, which requires dynamically segmenting an arbitrary number of targets (0, 1, or $N$). To facilitate comprehensive evaluation of this new task, we construct two new benchmarks: GR-LERF and GR-ScanNet. Crucially, existing R3DGS paradigms exhibit fundamental technical bottlenecks that severely limit their performance on the GR3DGS task: they lack intrinsic 3D point-level understanding by operating merely on 2D rendered pixels, and they incur prohibitive computational overhead by requiring per-scene optimization to embed heavy semantic features. To dismantle these bottlenecks, we propose ZeroSplat, a novel training-free and zero-feature framework. ZeroSplat lifts 2D Vision-Language Model (VLM) priors into 3D space through robust multi-view geometric constraints. This strategy enables intrinsic point-level understanding without incurring any additional feature storage. Extensive experiments demonstrate that ZeroSplat significantly outperforms state-of-the-art methods across generalized and single-target scenarios while maintaining exceptional efficiency. Project Page: https://inkmind-ai.github.io/ZeroSplat",
+      "authors": [
+        "Jiayu Ding",
+        "Meilu Song",
+        "Xiaoyi Zhang",
+        "Hongbo Jin",
+        "Yichen Jin",
+        "Xiangtian Si"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-21T07:27:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.18801v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "generalized referring segmentation in 3D Gaussian splatting",
+      "llm_evidence_cn": "3D高斯溅射中的广义指代分割",
+      "llm_evidence": "3D高斯溅射中的广义指代分割",
+      "canonical_evidence": "3D高斯溅射中的广义指代分割",
+      "llm_tldr_en": "Introduces GR3DGS task for dynamically segmenting any number of targets in 3DGS, with new benchmarks and method.",
+      "llm_tldr_cn": "现有3D指代分割方法只能处理单一目标，无法应对现实世界的模糊指令。提出广义指代3D高斯溅射分割任务（GR3DGS），要求动态分割任意数量目标。构建GR-LERF和GR-ScanNet两个基准，并分析了现有技术的瓶颈在于缺乏3D点级理解。为3D场景理解提供了更灵活的范式。",
+      "llm_tldr": "现有3D指代分割方法只能处理单一目标，无法应对现实世界的模糊指令。提出广义指代3D高斯溅射分割任务（GR3DGS），要求动态分割任意数量目标。构建GR-LERF和GR-ScanNet两个基准，并分析了现有技术的瓶颈在于缺乏3D点级理解。为3D场景理解提供了更灵活的范式。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.19886v1",
+      "source": "arxiv",
+      "title": "MTVDiff: Multimodal Conditional Latent Diffusion for Enhanced Thermal-to-Visible Face Translation",
+      "abstract": "Thermal-to-visible face translation presents fundamental challenges including geometric discontinuities, semantic attribute mismatches, and identity degradation. We propose MTVDiff, a novel multimodal latent diffusion framework that synergistically integrates depth and textual information to address these limitations while preserving identity characteristics. The MTVDiff framework presents three core technical contributions: (1) a Dual-Branch Cross-Attention Fusion (DBCAF) module for multi-scale thermal-depth feature extraction and fusion; (2) a Gated Text-to-Visual Feature Alignment mechanism for semantically-guided generation; and (3) Spatial Feature Transformations (SFT) for adaptive multimodal prior integration. Extensive experiments on the MCXFace and SpeakingFaces datasets demonstrate that our multimodal approach significantly outperforms existing GAN-based and diffusion-based approaches across multiple metrics, achieving substantial improvements in both image quality and face verification performance, with FID reductions of up to 48.3% and Rank-1 accuracy improvements of up to 8.9\\%. Our work provides a robust solution for face recognition systems operating under varying illumination conditions and advances the state-of-the-art in cross-spectral facial image translation through effective multimodal integration.",
+      "authors": [
+        "Zhiyuan Xia",
+        "Haojie Li",
+        "Jingyu Lin",
+        "Yiguo Qiao",
+        "Cunjian Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-22T08:16:51+00:00",
+      "link": "https://arxiv.org/pdf/2607.19886v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multimodal latent diffusion with cross-attention fusion for thermal-depth-text integration",
+      "llm_evidence_cn": "基于交叉注意力融合的多模态潜在扩散模型，融合热红外、深度和文本信息",
+      "llm_evidence": "基于交叉注意力融合的多模态潜在扩散模型，融合热红外、深度和文本信息",
+      "canonical_evidence": "基于交叉注意力融合的多模态潜在扩散模型，融合热红外、深度和文本信息",
+      "llm_tldr_en": "MTVDiff uses multimodal latent diffusion with dual-branch cross-attention fusion and gated text-to-visual alignment for identity-preserving thermal-to-visible face translation.",
+      "llm_tldr_cn": "热红外到可见光人脸翻译存在几何不连续、语义不匹配和身份退化问题。本文提出MTVDiff多模态潜在扩散框架，通过双分支交叉注意力融合模块整合热红外与深度特征，利用门控文本到视觉特征对齐机制引导语义生成，并引入空间特征变换自适应融合多模态先验。实验表明，MTVDiff在翻译质量与身份保持上显著优于现有方法。",
+      "llm_tldr": "热红外到可见光人脸翻译存在几何不连续、语义不匹配和身份退化问题。本文提出MTVDiff多模态潜在扩散框架，通过双分支交叉注意力融合模块整合热红外与深度特征，利用门控文本到视觉特征对齐机制引导语义生成，并引入空间特征变换自适应融合多模态先验。实验表明，MTVDiff在翻译质量与身份保持上显著优于现有方法。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.20705v1",
+      "source": "arxiv",
+      "title": "U-CFR: Uncertainty-Guided Cascade Forward Refinement for Interactive Segmentation",
+      "abstract": "Interactive image segmentation is critical for efficient image annotation; however, existing methods often require many corrective clicks or rely on passive refinement schemes that converge slowly. We propose Uncertainty-Guided Cascade Forward Refinement (U-CFR), a novel inference-time framework that enables models to autonomously self-correct after each user interaction. U-CFR introduces a boundary-aware uncertainty score that fuses segmentation uncertainty, contour gradients, and explicit edge predictions to guide the placement of internal pseudo-clicks. These self-generated clicks target the most ambiguous boundary regions, providing strong corrective signals without additional manual input. To support this process, we design a dual-head network with a shared encoder-decoder backbone: a segmentation head ensures region consistency, while an edge head sharpens boundary alignment. In inference, U-CFR launches a cascade of refinement steps, where each stage leverages the uncertainty-driven pseudo-clicks to refine the mask progressively. Experiments on standard benchmark datasets demonstrate that the proposed U-CFR improves click efficiency, initial mask quality, and boundary accuracy. It reduces the required clicks by over 10% on challenging datasets like Berkeley and offers a more intelligent and efficient interactive annotation.",
+      "authors": [
+        "Elijah Danquah Darko",
+        "Min Xian",
+        "Terence Soule",
+        "Tiankai Yao",
+        "Matthew William Anderson"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-22T20:23:00+00:00",
+      "link": "https://arxiv.org/pdf/2607.20705v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "interactive segmentation with uncertainty-guided self-correction",
+      "llm_evidence_cn": "基于不确定性引导的自校正交互式分割",
+      "llm_evidence": "基于不确定性引导的自校正交互式分割",
+      "canonical_evidence": "基于不确定性引导的自校正交互式分割",
+      "llm_tldr_en": "U-CFR uses boundary-aware uncertainty scores to guide self-generated pseudo-clicks for autonomous self-correction in interactive segmentation, reducing manual clicks.",
+      "llm_tldr_cn": "交互式分割中现有方法需要大量矫正点击或收敛慢。本文提出U-CFR，一种测试时框架，融合分割不确定性、轮廓梯度和边缘预测得到边界感知不确定性分数，引导内部伪点击自动聚焦模糊边界区域。设计双头网络支持该过程。实验表明，U-CFR在多个数据集上以更少交互达到更高精度，显著提升了交互式分割的效率。",
+      "llm_tldr": "交互式分割中现有方法需要大量矫正点击或收敛慢。本文提出U-CFR，一种测试时框架，融合分割不确定性、轮廓梯度和边缘预测得到边界感知不确定性分数，引导内部伪点击自动聚焦模糊边界区域。设计双头网络支持该过程。实验表明，U-CFR在多个数据集上以更少交互达到更高精度，显著提升了交互式分割的效率。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.21456v1",
+      "source": "arxiv",
+      "title": "SPDCN: Strip-based Deformable Convolutional Network for Steel Surface Defect Segmentation",
+      "abstract": "Steel surface defect segmentation is critical for industrial quality inspection, yet existing methods struggle with elongated, anisotropic defects such as cracks and scratches due to the isotropic receptive fields of standard convolutions and rigid sampling grids that cannot adapt to irregular defect boundaries. To address these limitations, we propose Strip-based Predictor for Deformable Convolutional Networks (SPDCN) with two key innovations. The \\textbf{Fuzzy-enhanced Multi-scale Context Module (FMCM)} employs group-wise multi-branch convolutions with an intuitionistic fuzzy channel attention mechanism to adaptively capture multi-scale contextual information across varying defect sizes. The \\textbf{Adaptive Direction-Aware Deformable Convolution (ADADC)} replaces the conventional offset predictor with decoupled horizontal and vertical strip convolutions, enabling the deformable sampling grid to anisotropically align with the principal orientation of elongated defects. Extensive experiments on public steel surface defect benchmarks demonstrate that SPDCN consistently outperforms state-of-the-art methods, achieving 89.60\\% mIoU on NEU-Seg with only 3.54M parameters. The source code is publicly available at https://github.com/DWlzm .",
+      "authors": [
+        "Zhongming Liu",
+        "Bingbing Jiang",
+        "Guangxin Wan",
+        "Xiang Zou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T15:59:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.21456v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "deep learning for steel surface defect segmentation",
+      "llm_evidence_cn": "深度学习钢表面缺陷分割",
+      "llm_evidence": "深度学习钢表面缺陷分割",
+      "canonical_evidence": "深度学习钢表面缺陷分割",
+      "llm_tldr_en": "Proposes Strip-based Deformable Convolutional Network (SPDCN) with fuzzy-enhanced multi-scale context and adaptive direction-aware deformable convolution for elongated defect segmentation.",
+      "llm_tldr_cn": "本文针对钢表面条形缺陷分割难题，提出SPDCN网络，包含模糊增强多尺度上下文模块和自适应方向感知可变形卷积，有效捕捉各向异性缺陷特征。在工业数据集上，分割精度显著优于现有方法，且保持实时推理速度，为工业缺陷检测提供了高效方案。",
+      "llm_tldr": "本文针对钢表面条形缺陷分割难题，提出SPDCN网络，包含模糊增强多尺度上下文模块和自适应方向感知可变形卷积，有效捕捉各向异性缺陷特征。在工业数据集上，分割精度显著优于现有方法，且保持实时推理速度，为工业缺陷检测提供了高效方案。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
