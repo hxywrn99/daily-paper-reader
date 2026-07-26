@@ -6,55 +6,49 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-25
-- 运行时间：2026-07-25 21:22:28 UTC
+- 最新运行日期：2026-07-26
+- 运行时间：2026-07-26 21:16:30 UTC
 - 运行状态：成功
-- 本次总论文数：11
+- 本次总论文数：9
 - 精读区：6
-- 速读区：5
+- 速读区：3
 
 ### 今日简报（AI）
-1) 今日共收录11篇论文，精读6篇、速读5篇，重点聚焦医学图像分割与多模态生成技术突破。
-2) 最值得关注的是PC-Seg（10分）提出渐进式跨视图一致性实现稀疏标注下3D OCT分割，以及FSB-Net（9分）利用频-空边界网络提高非增强CT脑卒中病灶分割精度。
-3) 建议优先阅读PC-Seg与FSB-Net的方法设计，后续可关注MuViSeg与ZeroSplat在跨视图对应和3D场景分割中的扩展应用。
-- 详情：[/202607/25/README](/202607/25/README)
+今日精选9篇论文，精读6篇，重点聚焦多模态医学数据融合与交互式分割两大前沿，均获9.0高分。  
+最值得关注的方向：几何注意力机制在异质医学数据上的多模态融合，以及不确定性引导的级联精化交互式分割方法。  
+建议读者优先精读这两篇高分论文，理解其混合注意力架构与级联优化策略，可应用于医疗影像分析或交互式标注工具。
+- 详情：[/202607/26/README](/202607/26/README)
 
 ### 精读区论文标签
-1. [PC-Seg: Progressive Cross-View Consistency for 3D OCT Segmentation from Sparse 2D Annotations](/202607/25/2607.17718v1-pc-seg-progressive-cross-view-consistency-for-3d-oct-segmentation-from-sparse-2d-annotations)  
-   标签：评分：10.0/10、query:image-seg
-   evidence：基于深度学习的医学图像分割
-2. [FSB-Net: Frequency-Spatial Boundary Network for Brain Stroke Lesion Segmentation in Non-Contrast CT](/202607/25/2607.20955v1-fsb-net-frequency-spatial-boundary-network-for-brain-stroke-lesion-segmentation-in-non-contrast-ct)  
+1. [Advancing Multimodal Fusion on Heterogeneous Medical Data with Hybrid Geometry Attention](/202607/26/2607.19086v1-advancing-multimodal-fusion-on-heterogeneous-medical-data-with-hybrid-geometry-attention)  
+   标签：评分：9.0/10、query:image-fusion
+   evidence：异构医学数据上的多模态融合与混合几何注意力
+2. [U-CFR: Uncertainty-Guided Cascade Forward Refinement for Interactive Segmentation](/202607/26/2607.20705v1-u-cfr-uncertainty-guided-cascade-forward-refinement-for-interactive-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的非增强CT脑卒中病灶分割
-3. [DA-Fusion: Deformable Attention-Based RGB-D Fusion Transformer for Unseen Object Instance Segmentation](/202607/25/2607.17754v1-da-fusion-deformable-attention-based-rgb-d-fusion-transformer-for-unseen-object-instance-segmentation)  
-   标签：评分：8.0/10、query:image-fusion
-   evidence：用于实例分割的RGB-D融合Transformer
-4. [CDIS: Cross-Dimensional Class-Agnostic 3D Instance Segmentation via 2D Mask Tracking and 3D-2D Projection Merging](/202607/25/2607.17778v1-cdis-cross-dimensional-class-agnostic-3d-instance-segmentation-via-2d-mask-tracking-and-3d-2d-projection-merging)  
+   evidence：交互式分割自纠正
+3. [Unified Video Dense Prediction from Disjoint Data](/202607/26/2607.21592v1-unified-video-dense-prediction-from-disjoint-data)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：统一视频模型预测包括语义分割在内的多种密集属性
+4. [ZeroSplat: Generalized Referring Segmentation in 3D Gaussian Splatting](/202607/26/2607.18801v1-zerosplat-generalized-referring-segmentation-in-3d-gaussian-splatting)  
    标签：评分：8.0/10、query:image-seg
-   evidence：跨维度类无关3D实例分割
-5. [Extending a Large View Synthesis Model for Multi-view Panoptic Segmentation](/202607/25/2607.19765v1-extending-a-large-view-synthesis-model-for-multi-view-panoptic-segmentation)  
+   evidence：广义指代3D分割
+5. [IGGT4D: Streaming 4D Instance-Grounded Geometry Transformer](/202607/26/2607.19228v1-iggt4d-streaming-4d-instance-grounded-geometry-transformer)  
    标签：评分：8.0/10、query:image-seg
-   evidence：扩展视图合成模型到多视图全景分割
-6. [DINOde: Continuous Vision-Text Alignment for Open-Vocabulary Semantic Segmentation](/202607/25/2607.21371v1-dinode-continuous-vision-text-alignment-for-open-vocabulary-semantic-segmentation)  
+   evidence：流式4D实例分割
+6. [Loss Landscape Topology Reveals Why Simple Baselines are Competitive at 3D Point Cloud Segmentation Under Class Imbalance](/202607/26/2607.21089v1-loss-landscape-topology-reveals-why-simple-baselines-are-competitive-at-3d-point-cloud-segmentation-under-class-imbalance)  
    标签：评分：8.0/10、query:image-seg
-   evidence：通过视觉-文本对齐的开放词汇语义分割
+   evidence：3D点云语义分割中的类别不平衡分析
 
 ### 速读区论文标签
-1. [MuViSeg: Multi-View Segment Correspondences from Dense Geometry Priors](/202607/25/2607.17938v1-muviseg-multi-view-segment-correspondences-from-dense-geometry-priors)  
+1. [RayOcc: Occlusion-Aware Ray Occupancy Estimation via Gaussian Mixture Intensity](/202607/26/2607.17660v1-rayocc-occlusion-aware-ray-occupancy-estimation-via-gaussian-mixture-intensity)  
    标签：评分：7.0/10、query:image-seg
-   evidence：多视图实例分割与匹配
-2. [ZeroSplat: Generalized Referring Segmentation in 3D Gaussian Splatting](/202607/25/2607.18801v1-zerosplat-generalized-referring-segmentation-in-3d-gaussian-splatting)  
+   evidence：使用多视图图像的遮挡感知3D语义占用预测
+2. [Spectral-Spatial Synergistic Guided Network for Hyperspectral Salient Object Detection](/202607/26/2607.21032v1-spectral-spatial-synergistic-guided-network-for-hyperspectral-salient-object-detection)  
    标签：评分：7.0/10、query:image-seg
-   evidence：3D高斯溅射中的广义指代分割
-3. [MTVDiff: Multimodal Conditional Latent Diffusion for Enhanced Thermal-to-Visible Face Translation](/202607/25/2607.19886v1-mtvdiff-multimodal-conditional-latent-diffusion-for-enhanced-thermal-to-visible-face-translation)  
-   标签：评分：7.0/10、query:image-fusion
-   evidence：基于交叉注意力融合的多模态潜在扩散模型，融合热红外、深度和文本信息
-4. [U-CFR: Uncertainty-Guided Cascade Forward Refinement for Interactive Segmentation](/202607/25/2607.20705v1-u-cfr-uncertainty-guided-cascade-forward-refinement-for-interactive-segmentation)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：基于不确定性引导的自校正交互式分割
-5. [SPDCN: Strip-based Deformable Convolutional Network for Steel Surface Defect Segmentation](/202607/25/2607.21456v1-spdcn-strip-based-deformable-convolutional-network-for-steel-surface-defect-segmentation)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：深度学习钢表面缺陷分割
+   evidence：通过光谱-空间协同网络进行高光谱显著目标检测
+3. [Fusion Embedding: A Unified Embedding Space for Text, Image, Video, and Audio](/202607/26/2607.18666v1-fusion-embedding-a-unified-embedding-space-for-text-image-video-and-audio)  
+   标签：评分：6.0/10、query:image-fusion
+   evidence：跨文本、图像、视频、音频的多模态嵌入融合
 
 
 <div class="dpr-home-promo-card">
