@@ -1,0 +1,1355 @@
+Title: Paper Title (use style: paper title)
+
+URL Source: https://arxiv.org/pdf/2607.23136v1
+
+Published Time: Tue, 28 Jul 2026 00:31:48 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+XXX -X-XXXX -XXXX -X/XX/$XX.00 ©20XX IEEE 
+
+# Optimized Embedded Implementation of 
+
+# Hyperspectral –Multispectral Image Fusion on 
+
+# Raspberry Pi 
+
+Salah Eddine Brezini 
+
+Intelligent Systems Research 
+
+Laboratory (Laresi) 
+
+University of Science and 
+
+Technology of Oran 
+
+Oran,Algeria 
+
+salaheddine.brezini@univ -usto.dz 
+
+Chams Eddine Choucha 
+
+Advanced D ata Science and 
+
+Cognitive Applications Laboratory 
+
+University of Science and 
+
+Technology of Oran 
+
+Oran,Algeria 
+
+chamseddine.choucha@univ -
+
+usto.dz 
+
+Okba Bekhelifi 
+
+Intelligent Systems Research 
+
+Laboratory (Laresi) 
+
+University of Science and 
+
+Technology of Oran 
+
+Oran,Algeria 
+
+okba.bekhelifi@univ -usto.dz 
+
+Sarra Boukhacheba 
+
+Intelligent Systems Research 
+
+Laboratory (Laresi) 
+
+University of Science and 
+
+Technology of Oran 
+
+Oran,Algeria 
+
+Oussama Mezouar 
+
+Intelligent Systems Research 
+
+Laboratory (Laresi) 
+
+University of Science and 
+
+Technology of Oran 
+
+Oran,Algeria 
+
+oussama.mezouar@ensttic.dz 
+
+Fethi Abdelatif Dali 
+
+Intelligent Systems Research 
+
+Laborator y (Laresi) 
+
+University of Science and 
+
+Technology of Oran 
+
+Oran,Algeria 
+
+Abstract — Remote sensing optical images have become 
+
+central to a wide range of applications. In particular, 
+
+hyperspectral images, with their high spectral resolution, enable 
+
+the extra ction of rich information about the objects and 
+
+materials present in the observed scene. Nevertheless, 
+
+processing such data comes at the expense of a high 
+
+computational load due to its large data volume, making real -
+
+time processing very difficult to achiev e. Recently, we proposed 
+
+an approach to investigate the feasibility of processing such data 
+
+on a Raspberry Pi by implementing a hyperspectral super -
+
+resolution technique, namely HSB -SV. However, the 
+
+implementation resulted in high computational time. To 
+
+ove rcome this limitation, we apply computational optimization 
+
+techniques based on migrating the most intensive operations to 
+
+PyTorch and edge inference frameworks such as ONNX 
+
+Runtime and ExecuTorch with the XNNPACK backend. The 
+
+proposed optimized implementat ion is deployed on a Raspberry 
+
+Pi 5 platform. Experimental results demonstrate a significant 
+
+reduction in computational time, achieving a 1.48x overall 
+
+speedup on the Raspberry Pi 5, the total execution time 
+
+decreases significantly, from 527.1 ms to 356.7 ms 
+
+corresponding to a 32.3% dminution , while fully preserving the 
+
+fusion quality, making the approach more suitable for 
+
+embedded and edge computing scenarios, particularly for UAV -
+
+based hyperspectral remote sensing applications. 
+
+Keywords —Hyperspectral imag ing, multispectral imaging, 
+
+image fusion, hyperspectral super -resolution, embedded systems, 
+
+edge computing, Raspberry Pi 5, computational optimization, real -
+
+time processing. 
+
+I. INTRODUCTION 
+
+Raspberry Pi has emerged as a widely used low -cost, 
+
+small -form -factor computing platform for a broad range of 
+
+applications. It is no longer limited to simple data acquisition 
+
+tasks, but also supports data processing and storage 
+
+capabilities. In addition, it can be deployed as a lightweight 
+
+computing platform for various emb edded applications, 
+
+including image processing  [1] and precision agriculture [2] .
+
+Moreover, Raspberry Pi exhibits efficient energy 
+
+consumption, with continuous development since its 
+
+introduction in 2012, making it suitable for real -time 
+
+embedded system s. Thus, Raspberry Pi is well -suited for 
+
+platforms such as unmanned aerial vehicles (UAVs), since its 
+
+lightweight design and low energy consumption are critical 
+
+factors [3] . In this context, UAVs have become widely used 
+
+platforms for remote sensing appli cations [4] . Remote sensing 
+
+optical images are widely used in a variety of applications, 
+
+including precision agriculture [5] , environmental monitoring 
+
+[6], [7] renewable energy [8] and urbanism [9], [10] , due to 
+
+their ability to provide valuable information about the Earth’s 
+
+surface [11] . In particular, hyperspectral images (HSIs) play a 
+
+crucial role in remote sensing applications due to their high 
+
+spectral resolution, which enables accurate material 
+
+discrimination and detailed scene analysis [12] . However, this 
+
+rich spectral information comes at the cost of a significant 
+
+increase in data dimensionality, leading to substantial 
+
+computational challenges for practical processing and real -
+
+time applications .
+
+Recently, we implemented a lightweight hy perspectral 
+
+super -resolution technique [13] , namely Hyperspectral Super -
+
+Resolution with Spectral Bundles for Spectral Variability 
+
+(HSB -SV) [14] , on a Raspberry Pi to validate the feasibility 
+
+of processing hyperspectral images on such a low -cost 
+
+platfo rm. HSB -SV aims to fuse an HSI with a multispectral 
+
+image (MSI) to overcome one of the main limitations of 
+
+hyperspectral imaging, namely its low spatial resolution. This 
+
+fusion process, also referred to as hypersharpening [15], [16] ,
+
+produces a high -spat ial -resolution hyperspectral image by 
+
+combining the rich spectral content of the HSI with the fine 
+
+spatial detail of the MSI. The HSB -SV demonstrated its 
+
+effectiveness and computational efficiency on both synthetic 
+
+and real datasets [14] , making it parti cularly well -suited for 
+
+urban remote sensing scenarios where both high spectral 
+
+resolution needed for accurate material discrimination and 
+
+high spatial resolution required for precise mapping of 
+
+complex urban structures are simultaneously required [10] .
+
+Despite the successful implementation on Raspberry Pi 3 and 
+
+the encouraging results obtained , the processing time 
+
+remained relatively significant for real -time and rapid 
+
+applications. To address this limitation, this work proposes an 
+
+optimized implementati on of HSB -SV on Raspberry Pi 5. The 
+
+Raspberry Pi 5 is equipped with a quad -core Arm Cortex A76 processor. At 2.4 GHz clock, it can deliver up to 19.2 double 
+
+precision GFLOPS per core [ 24 ] thanks to the ARMv8.2 
+
+architecture and the Arm NEON Single Instructi on, Multiple 
+
+Data (SIMD) extension. Moreover, Deep Learning 
+
+frameworks like PyTorch and inference engines provide 
+
+highly accelerated execution against conventional 
+
+mathematical libraries. The proposed optimization consists of 
+
+migrating the computationally intensive operations of the 
+
+original Python implementation to PyTorch and edge 
+
+inference frameworks such as ONNX Runtime and 
+
+ExecuTorch with the XNNPACK backend. By leveraging 
+
+highly optimized CPU kernels, the proposed implementation 
+
+reduces the execution time of HSB -SV while preserving the 
+
+performance of the original method, thereby improving its 
+
+suitability for embedded hyperspectral image processing 
+
+applications. 
+
+The remainder of this paper is organized as follows. 
+
+Section II describes the HSB -SV algorit hm and its associated 
+
+mathematical formulation. Section III presents the 
+
+computational optimization of HSB -SV for embedded 
+
+deployment. Section IV presents the experimental results. 
+
+Finally, Section V concludes the paper. 
+
+II. HSB -SV ALGORITHM 
+
+This section descr ibes the mathematical modeling 
+
+underlying the HSB -SV method and details the 
+
+corresponding algorithm. HSB -SV extends the linear spectral 
+
+unmixing (LSU) model to account for a physical 
+
+phenomenon known as spectral variability (SV) [17], [18] .
+
+The LSU model represents each pixel of an HSI or MSI as a 
+
+linear combination of pure spectral signatures, referred to as 
+
+endmembers, weighted by their corresponding abundance 
+
+coefficients, which represent the proportion of each material 
+
+present within the pixel [19] . Thus , for the rest of this paper 
+
+the considered HSIs and MSIs are described by: 
+
+where 𝑋 ℎ ∈ 𝑅 + 
+
+> 𝑃 ℎ×𝐿 ℎ
+
+and 𝑋 𝑚 ∈ 𝑅 + 
+
+> 𝑃 𝑚 ×𝐿 𝑚
+
+are the observed 
+
+hyperspectral and multispectral images, respectively. 𝑃 
+
+stands for the number of pixels and 𝐿 the number of spect ral 
+
+bands, with h and m indices referring to the hyperspectral and 
+
+multispectral images, respectively. 𝐴 ℎ ∈ 𝑅 + 
+
+> 𝑃 ℎ×𝑁
+
+and 𝐴 𝑚 ∈
+
+𝑅 + 
+
+> 𝑃 𝑚 ×𝑁
+
+are the spatially degraded associated abundance 
+
+fractions of the HSI and associated abundance fract ions of the 
+
+MSI. The estimated hyperspectral and spectrally degraded 
+
+multispectral endmember spectra are denoted by 𝑆 ℎ ∈ 𝑅 +
+
+> 𝑁 ×𝐿 ℎ
+
+and 𝑆 𝑚 ∈ 𝑅 + 
+
+> 𝑁 ×𝐿 𝑚
+
+. The spatially degraded abundance 𝐴 ℎ and 
+
+the spectrally degraded endmember spectra 𝑆 𝑚 are here 
+
+modelled as 
+
+𝐴 ℎ = 𝐹𝐴 𝑚 , (3) 
+
+𝑆 𝑚 = 𝑆 ℎ 𝑅 . (4) 
+
+the matrix 𝐹 ∈ 𝑅 + 
+
+> 𝑃 ℎ×𝑃 𝑚
+
+represents the point spread function 
+
+(PSF) and 𝑅 ∈ 𝑅 + 
+
+> 𝐿 ℎ×𝐿 𝑚
+
+describes the spectral response 
+
+function (SRF). 
+
+HSB -SV is built aroun d two main stages. The first stage 
+
+aims to estimate the spectral information of the HSI by 
+
+constructing a spectral library, also referred to as spectral 
+
+bundles, that captures the SV of the materials present in the 
+
+scene. SV can be defined as the phenomeno n whereby the 
+
+spectral signature of a given material may vary depending on 
+
+its spatial location within the considered HSI [18] . To account 
+
+for SV, HSB -SV employs a simple strategy known as 
+
+Automated Extraction of Endmember Bundles (AEEB). The 
+
+AEEB techni que consists of repeatedly applying an 
+
+Endmember Extraction Algorithm (EEA) to randomly 
+
+selected subsets of the HSI in order to build a spectral library 
+
+that captures the variability of the materials present in the 
+
+scene. The employed EEA method is the Ver tex Component 
+
+Analysis  (VCA) [20] . The spectra bundles can be expressed 
+
+as [21] 
+
+where 𝐵 𝑗 ∈ 𝑅 + 
+
+> 𝐿 ℎ×𝑌 𝑗
+
+denotes bundle representing the 𝑗 − th 
+
+class, 𝐽 represents the number of classes, 𝑌 𝑗 is the number of 
+
+pure spectra in the 𝑗 −th class and 𝑌 the total number of 
+
+endmember spe ctra of all classes with 𝑌 = ∑ 𝑌 𝑗  
+
+> 𝐽
+> 𝑗 =1
+
+. Hence, 
+
+an observed hyperspectral pixel spectrum 𝑥 ℎ𝑖 ∈ 𝑅 + 
+
+> 𝐿 ℎ×1
+
+is 
+
+expressed as 
+
+where 𝑎 ℎ𝑖 ∈ 𝑅 + 
+
+> 𝑌 ×1
+
+stands for the abundance coefficients 
+
+corresponding t o each individual spectrum of the endmember 
+
+bundles 𝐵 .
+
+In the second stage, the spatial information is extracted 
+
+from the MSI through a sparse regression technique namely 
+
+sparse unmixing by variable splitting and augmented 
+
+lagrangian (SUnSAL) based on the previously estimated 
+
+spectral library and the considered MSI. First, The resulting 
+
+spectral library from the first step is spectrally degraded using 
+
+(4) to obtain 𝐵 𝑚 in order to match the spectral characteristics 
+
+of the MSI sensors. As matter of fact the SRF is estimated 
+
+during the fusion process by considering the method 
+
+described in [22] , allowing HSB -SV to operate in a fully 
+
+blind manner. SUnSAL is applied between the spectrally 
+
+degraded 𝐵 𝑚 and 𝑋 𝑚 to obtain the high -spatial -resolution 
+
+abundance fractions. The main objective of sparse unmixing 
+
+is to estimate the abundance coefficients from a large spectral 
+
+dictionary. Thus, the objective of SUnSAL is to estimate the 
+
+high -spatial -resolution abundance fractions 𝑎 𝑚 𝑖 by 
+
+optimizing th e following cost function, separately for each 
+
+pixel as 
+
+where ‖∙‖2 
+
+> 2
+
+is the ℓ2-norm and ‖∙‖1 is the ℓ1-norm which is 
+
+responsible for promoting sparsi ty. 𝜆 is a non -negative 
+
+parameter which tunes the relative weight between ℓ1 and ℓ2.
+
+SUnSAL utilizes the Alternating Direction Method of 
+
+Multipliers (ADMM) to optimize (7). To help the reader to 
+
+understand the SUnSAL method, they may refer to [23] .
+
+Given that the proposed work emphasizes time efficiency, 
+
+sparse -based methods are particularly suitable due to their 
+
+𝑋 ℎ = 𝐴 ℎ𝑆 ℎ , (1) 
+
+𝑋 𝑚 = 𝐴 𝑚 𝑆 𝑚 , (2) 
+
+𝐵 = [𝐵 1|𝐵 2|⋯ |𝐵 𝑗 ] (5) 
+
+𝑥 ℎ𝑖 = 𝐵 𝑎 ℎ𝑖  (6) 
+
+min 1
+
+2
+
+> 𝑎 𝑚 𝑖
+
+‖𝐵 𝑚 𝑎 𝑚 𝑖 − 𝑥 𝑚 𝑖 ‖2 
+
+> 2
+
++ 𝜆 ‖𝑎 𝑚 𝑖 ‖1 (7) relatively low computational cost. Therefore, the 
+
+combination of AEEB and SUnSAL is well tailored for this 
+
+work and time efficiency purpo se. 
+
+The last part of the proposed framework focuses on 
+
+reconstructing the high -spatial -resolution HSI by integrating 
+
+the spectral information extracted from the HSI with the 
+
+spatial details provided by the MSI. Thus, the last stage of the 
+
+proposed approac h consists in creating the fusion product 𝑋 𝑓 ̃
+
+by recombining the obtained matrices. Hence, each pixel 
+
+spectrum 𝑥 𝑓 𝑖 ̇̃ of the unobservable sharpened high -spatial -
+
+resolution hyperspectral image 𝑋 𝑓 ̃ is defined as 
+
+The complete diagram , composed of the three main parts 
+
+of the HSB -SV , is illustrated in Fig. 1.  
+
+> Fig. 1.
+
+Block diagram of the proposed HSB -SV 
+
+III. COMPUTATIONAL OPTIMIZATION OF HSB -SV FOR 
+
+EMBEDDED DEPLOYMENT 
+
+A. Accelerators 
+
+PyTorch ecosystem: One f actor in the success of deep 
+
+learning is the continuous development of open source 
+
+frameworks that provide seamless training and deployment 
+
+on different devices from dedicated GPUs to consumer 
+
+computers and edge CPUs. PyTorch represents the 
+
+computations as a dynamic computational graph at runtime, 
+
+capturing the operations as a directed acyclic graph (DAG) 
+
+where nodes denote tensor operations and edges track data 
+
+dependencies [2 5]. When executed on CPUs, PyTorch invoke 
+
+hardware specific optimized micro -kerne ls. For general 
+
+linear algebra routines, these kernels use CUDA primitives 
+
+on NVIDIA GPUs, whereas on CPUs, they utilize Intel 
+
+onneDNN for x86 -64 systems and OpenBLAS for ARM 
+
+devices. Once the training is completed, the dynamic graph 
+
+can be compiled into an optimized static graph in an 
+
+intermediate representation (IR) format using the ahead -of -
+
+time (AOT) export feature. In this manner, the python 
+
+interpreter overhead is bypassed [2 6]. 
+
+To deploy such models on resource -constrained edge 
+
+devices, the PyTorch e cosystem provides ExecuTorch (ET) 
+
+as a native edge -deployment solution. ExecuTorch [2 7]
+
+lowers the IR into hardware agnostic edge dialect, and to use 
+
+the hardware specific extensions, it partitions and delegates 
+
+subgraphs to the hardware backend. For Arm CPUs, 
+
+XNNPACK is the designated backend. XNNPACK [2 8] is an 
+
+open -source, highly optimized library of floating -point neural 
+
+network inference operators. The library achieves state -of -
+
+the -art efficiency on CPUs by mapping the localized 
+
+computation graph dire ctly onto parallel hardware execution 
+
+pipelines. The highest improvements with these tools are 
+
+observed for weight -quantized models and for mini -batches 
+
+tensors inference as in Deep Learning use cases, however, we 
+
+harness the optimized primitives in a stat eless manner i.e. 
+
+forward computation graphs with function calls without 
+
+persistent trainable parameters. ONNXruntime (ORT) : The 
+
+Open Neural Network Exchange (ONNX) ecosystem 
+
+enforces a standardized, model representation that 
+
+encapsulates deep learning arch itectures into a serializable, 
+
+framework -agnostic computational graph. As a high -
+
+performance inference engine built to execute this format, 
+
+ONNX Runtime ingests this static directed acyclic graph 
+
+(DAG) to apply graph optimization, such as constant folding, 
+
+algebraic simplifications, and structural operator fusion [ 29 ]. 
+
+To efficiently execute these optimized graphs, ONNX 
+
+Runtime abstracts hardware -specific acceleration through 
+
+Execution Providers (EPs) [ 30 ]. The engine evaluates the 
+
+capabilities of the platf orm and partitions the global 
+
+computation graph into hardware -compatible subgraphs [ 31 ]. 
+
+Subgraphs assigned to the native CPU Execution Provider are 
+
+then lowered into high -performance architecture primitives. 
+
+In this way, ONNXRuntime ensures portable and s table low -
+
+latency execution. 
+
+B.Optimization approach 
+
+Based on the analysis of the original Python 
+
+implementation, the computational cost is dominated by 
+
+intensive linear algebra operations, including matrix 
+
+multiplications, pseudo -inverse computations, sin gular value 
+
+decomposition (SVD), and non -negative least -squares 
+
+(NNLS) optimization. Accordingly, an optimized 
+
+implementation of HSB -SV is proposed. The optimization 
+
+consists of first, porting the most computationally demanding 
+
+operations to PyTorch and ex porting the modules to the 
+
+accelerators format. A mixed -design strategy was adopted, 
+
+combining framework -supported operations with existing 
+
+implementations for functions that are not natively supported 
+
+by current inference engines. In particular, SVD and pseudo -
+
+inverse computations were migrated to PyTorch only , while 
+
+the SciPy implementation of NNLS was retained as it uses 
+
+the Lawson -Hanson active -set algorithm [32]. 
+
+Since most of the computational burden is concentrated in 
+
+the VCA and SUnSAL algorithms, these components were 
+
+selected as the primary optimization targets. In addition to the 
+
+framework -level optimizations, a minor yet effective 
+
+algorithmic modification was introduced in the VCA 
+
+component. In its original formulation [20] , VCA estimates 
+
+the SNR from the input data in order to select the appropriate 
+
+projection strategy. However, in the context of UAV -based 
+
+acquisition which is the target deployment scenario of the 
+
+Raspberry Pi 5 platform considered in this work the 
+
+acquisition distance is sign ificantly shorter than that of 
+
+satellite sensors, resulting in a higher and more stable SNR. 
+
+Consequently, the SNR estimation step was bypassed by 
+
+fixing the SNR to a constant value of 30 dB. This assumption 
+
+eliminates the noise estimation overhead and red uces the 
+
+computational cost of the VCA component without any 
+
+meaningful loss of accuracy for the considered deployment 
+
+scenario. 
+
+𝑥 𝑓 𝑖 ̇̃ = 𝐵 𝑎 𝑚 𝑖 . (8) Six implementation configurations were evaluated: the 
+
+original NumPy -based implementation, a full PyTorch 
+
+migration, ONNX Runti me, ExecuTorch with the 
+
+XNNPACK backend, and two hybrid configurations 
+
+combining ONNX Runtime or ExecuTorch with PyTorch for 
+
+operations not supported by inference engines. We run two 
+
+experiments: first, we tested the conversion of VCA and 
+
+SUnSAL in terms o f error between the original code and new 
+
+implementations and the execution time of each function 
+
+separately. Second, we tested the entire HSB -SV method with 
+
+the six configurations. In the first experiments, the results are 
+
+reported as a mean of 50 iterati ons, and in the second 
+
+experiments, we run 5 warm -up iterations to eliminate the 
+
+influence of the initialization lag, then we run the HSB -SV 
+
+process for 50 iterations and report the mean and standard 
+
+deviation of these repetitions. All the tests were evalu ated on 
+
+two machines, a laptop (PC) with a 16 GB RAM and an Intel 
+
+CPU i5 -8365U @ 1.60 GHz Max Turbo 4.10 GHz having 
+
+SIMD extensions: SSE , SSE 2, SSE3, SSES3 , SSE 4_1 ,
+
+SSE 4_2, FMA, AVX and AVX2 . The target machine was a 
+
+16 GB RAM Raspberry Pi 5 equipped with an Arm Cortex -
+
+A76 @2.4 Hz having the SIMD extensions: ASIMD, FPHP, 
+
+ASIMDHP and ASIMDRDM. 
+
+IV. EXPERIMENTAL RESULTS AND PERFORMANCE 
+
+EVALUATION 
+
+A benchmark synthetic dataset was employed to evaluate 
+
+the proposed approach. Following Wald’s protocol, the 
+
+dataset wa s generated from a reference hyperspectral image 
+
+(REF) [11] (Fig. 2), consisting of 100 × 100 pixels and 144 
+
+spectral bands covering wavelengths from 0.38 to 1.05 μm. 
+
+The scene contains seven distinct materials and exhibits SV ,
+
+making it suitable for ass essing fusion algorithms under 
+
+realistic conditions. To create the low -resolution 
+
+hyperspectral image (LR -HSI), the reference image was 
+
+spatially degraded using a Gaussian filtering operation and a 
+
+downsampling factor of 4 [17] . The corresponding high -
+
+re solution multispectral image (HR -MSI) was synthesized 
+
+using the spectral response functions of the WorldView -2
+
+sensor, yielding 8 multispectral bands. This dataset was 
+
+selected because it provides a well -established evaluation 
+
+framework and has been extens ively used to validate the 
+
+effectiveness of the HSB -SV method on both synthetic and 
+
+real hyperspectral data.   
+
+> Fig. 2RGB representation of the reference image used in the conducted
+> experiments
+
+Table 1. shows the results of the first experiment for 
+
+VCA. O n PC, the MAE between the original code (Numpy) 
+
+and the conversions is on the order of 1e -6 and the difference 
+
+between PyTorch and the rest of accelerators is in the order 
+
+of 1e -8. The former difference is due to the half precision 
+
+(float32) operations of PyTorch, and the latter minimal 
+
+difference is due to the shared backend primitives executed 
+
+and they differ in the graph layout, memory planning and 
+
+input data types. ExecuTorch inputs are torch tensors, 
+
+whereas ONNXRuntime is fed with Numpy ndarrays. The 
+
+same patterns is observed on the Pi 5, with a negligible 
+
+increase. On the execution time, native PyTorch outperforms 
+
+all the rest with a 14.82 millisecond (ms) (2.52x faster than 
+
+the original), this is due to the use of the oneDNN library. 
+
+ExecuTorch + XNN PACK comes second and 
+
+ONNXRuntime comes third. On the Pi 5, 
+
+ExecuTorch+XNNPACK is the fastest with 24.05 ms (1.4x 
+
+improvement). Here, the absence of the AVX2 and FMA is 
+
+seen. Nevertheless, on VCA, the three accelerators are 
+
+competitive on both machines.         
+
+> TABLE I. THE RESULTS OF THE VCA CONVERSION .FOR EACH ROW THE
+> LIB 1-LIB 2REPRESENTS THE MAE DIFFERENCE BETWEEN THEM .
+
+VCA  PC  Pi 5 
+
+MAE (lower is better) 
+
+Original -PyTorch  1.5189 e -06  2.6668 e -06 
+
+Original -ORT  1.5187 e-06  2.6667 e -06 
+
+Original -ET  1.5185 e-06  2.6669 e -06 
+
+PyTorch -ORT  1.5545 e-08  1.5972 e -06 
+
+PyTorch -ET  1.2600 e-08  1.1590 e -06 
+
+RT -OT  2.0300 e-08  1.6780 e -06 
+
+Execution time (ms) (lower is better) 
+
+Original  37.4225  33.6947 
+
+PyTorch  14.8186  26.2564 
+
+ORT  15.6846  25.6340 
+
+ET  15.1057  24.0489 
+
+Table 2. reports the results of the first experiment for 
+
+SUnSAL . Here, the MAE is smaller on both machines with 
+
+an order of 1e -7 for the difference between the original code 
+
+and the conversions, and between the accelerators, the same 
+
+minimal scale of 1e -8 is observed. In th e execution time, the 
+
+range is higher, with PyTorch showing the best performance 
+
+of 52. 72 ms on PC and 170.53 ms on Pi 5, making an 
+
+improvement of 6.80x and 1.53x respectively. The other 
+
+accelerators fails to deliver competitive results due to the 
+
+iterati ve nature of the algorithm, that creates a significant 
+
+boundary overhead by passing data from native tensors to 
+
+backend engines repeatedly. This overhead is absent in VCA 
+
+because its iterations are smaller depending on the number of 
+
+endmembers.          
+
+> TABLE II. THE RESULT S OF THE SU NSAL CONVERSION .FOR EACH ROW
+> THE LIB 1-LIB 2REPRESENTS THE MAE DIFFERENCE BETWEEN THEM .
+
+SUnSAL  PC  Pi 5 
+
+MAE (lower is better) 
+
+Original -PyTorch  2.6343 e -07  1.0176 e -07 
+
+Original -ORT  2.6902 e -07  1.1421 e -07 
+
+Original -ET  2.6327 e -07  1.0903 e -07 
+
+PyTorch -ORT  9.3201 e -08  4.1215 e -08 
+
+PyTorch -ET  9.3201 e -08  4.1215 e -08 
+
+RT -OT  9.1164 e -08  5.8749 e -08 
+
+Execution time (ms) (lower is better) 
+
+Original  358.7010  261.4005 
+
+PyTorch  52.7196  170.5305 
+
+ORT  144.4345  193.8608 
+
+ET  205.3248  254.1831 The final exp eriment results is presented in Table 3. Here 
+
+again, a clear win for PyTorch on PC is seen in line with the 
+
+results of the first experiments.            
+
+> TABLE III. HSB -SV EXECUTION TIME ON THE MACHINES AND 6
+> CONFIGURATIONS .STD :STANDARD DEVIATION ,TIME IN SECONDS .
+
+Configutati on /
+
+Machine 
+
+PC  Pi 5 
+
+Mean  Std  Mean  Std 
+
+Original  0.5656  0.1278  0.5271  0.0678 
+
+PyTorch  0.1030  0.0113  0.3774  0.0816 
+
+ORT  0.2320  0.0268  0.3949  0.0538 
+
+ET  0.3553  0.0866  0.4979  0.0664 
+
+ORT + PyTorch  0.1046  0.0087  0.3663  0.0479 
+
+ET + PyTorch  0.1072  0.0123  0.35 67  0.0677 
+
+The HSB -SV execution was improved by 5.49x marking 
+
+103 ms. The mixed accelerators functions is competitive to 
+
+native PyTorch and the configuration ONNXRuntime (VCA) 
+
++ PyTorch ( SUnSAL ) was the most stable with the least 
+
+standard deviation. On Pi 5, the mixed configurations 
+
+surprisingly surpassed PyTorch. As the SUnSAL execution 
+
+had significant difference. The configuration 
+
+Executorch+XNNPCAK (VCA) + PyTorch (SUnSAL )
+
+showed the fastest execution with 357 ms (1.4x 
+
+improvement) . This configuration t ook the best from each 
+
+accelerator in line with experiment 1 . These results show a 
+
+clear advantage of the proposed optimization approach. 
+
+V. CONCLUSION 
+
+This paper present es an optimized embedded 
+
+implementation of the HSB -SV hyperspectral and 
+
+multispectral ima ge fusion method on the Raspberry Pi 5, 
+
+targeting edge computing deployment scenarios. To address 
+
+the computational limitations identified in the original 
+
+NumPy -based implementation, several optimization 
+
+strategies were proposed and evaluated, based on mig rating 
+
+the most computationally intensive operations to PyTorch 
+
+and inference engines such as ONNX Runtime and 
+
+ExecuTorch with the XNNPACK backend. Experimental 
+
+results demonstrate significant performance gains on the 
+
+Raspberry Pi 5. At the individual comp onent level, the VCA 
+
+algorithm achieved its best acceleration with 
+
+ExecuTorch+XNNPACK, reducing the execution time from 
+
+33.69 ms to 24.05 ms (1.4x speedup). More significantly, the 
+
+SUnSAL algorithm the most computationally demanding 
+
+component of the pipeli ne was accelerated by 1.53x using 
+
+PyTorch, dropping from 261.40 ms to 170.53 ms. At the full 
+
+pipeline level, the hybrid configuration combining 
+
+ExecuTorch + XNNPACK for VCA and PyTorch for 
+
+SUnSAL proved to be the most effective strategy on the 
+
+Raspberry Pi 5, reducing the total execution time from 527.1 
+
+ms to 356.7 ms, representing a 1.48x overall speedup. This 
+
+configuration successfully exploits the strengths of each 
+
+accelerator, leveraging XNNPACK's optimized ARM SIMD 
+
+primitives for VCA and PyTorch's effi cient linear algebra 
+
+kernels for SUnSAL. In all cases, the numerical accuracy of 
+
+the original method was fully preserved, with mean absolute 
+
+errors on the order of 1e -6 or lower, confirming that the 
+
+optimizations introduce no meaningful degradation in fusi on 
+
+quality. These findings confirm that the proposed 
+
+optimization approach successfully bridges the gap between 
+
+the computational demands of hyperspectral image 
+
+processing and the constraints of low -cost embedded 
+
+platforms such as the Raspberry Pi 5. The o ptimized HSB -
+
+SV implementation is thus well -suited for real -time remote 
+
+sensing applications on UAV -based systems, paving the way 
+
+for practical, energy -efficient hyperspectral data processing 
+
+at the edge. Several promising directions can be explored to 
+
+fur ther improve the proposed approach. First, the evaluation 
+
+on larger and more diverse real -world datasets would provide 
+
+a more comprehensive assessment of the method's robustness 
+
+and scalability under practical remote sensing conditions. 
+
+Second, a significa nt computational bottleneck that remains 
+
+to be addressed lies in the spectral response function (SRF) 
+
+estimation step, which contributes considerably to the overall 
+
+processing time. Reducing or approximating this estimation 
+
+for instance by leveraging prior knowledge of the sensor 
+
+characteristics or adopting a lightweight calibration 
+
+procedure could lead to substantial additional speedups, 
+
+bringing the method even closer to true real -time 
+
+performance on embedded platforms such as the Raspberry 
+
+Pi 5. 
+
+REFERENC ES                                                            
+
+> [1] H. K. Kondaveeti, D. Bandi, S. E. Mathe, S. Vappangi, and M.
+> Subramanian, “A Review of Image Processing Applications based
+> on Raspberry -Pi,” in 2022 8th International Conference on
+> Advanced Computing and Communication Systems (ICACCS) ,
+> 2022, pp. 22 –28. doi: 10.1109/ICACCS54159.2022.9784958.
+> [2] A. Joice et al. , “Applications of Raspberry Pi for Precision
+> Agriculture —A Systematic Review,” Agriculture , vol. 15, no. 3,
+> 2025, doi: 10.3390/agriculture15030227.
+> [3] Z. Zhang and L. Zhu, “A Review on Unmann ed Aerial Vehicle
+> Remote Sensing: Platforms, Sensors, Data Processing Methods,
+> and Applications,” Drones ,vol. 7, no. 6, 2023, doi:
+> 10.3390/drones7060398.
+> [4] H. Yao, R. Qin, and X. Chen, “Unmanned Aerial Vehicle for
+> Remote Sensing Applications —A Review,” Remote Sens. , vol. 11,
+> no. 12, 2019, doi: 10.3390/rs11121443.
+> [5] R. P. Sishodia, R. L. Ray, and S. K. Singh, “Applications of
+> Remote Sensing in Precision Agriculture: A Review,” Remote
+> Sens.. , vol. 12, no. 19, 2020, doi: 10.3390/rs12193136.
+> [6] Y. Deville et al. , “Modeling and Unsupervised Unmixing Based
+> on Spectral Variability for Hyperspectral Oceanic Remote Sensing
+> Data with Adjacency Effects,” Remote Sens.. , vol. 15, no. 18,
+> 2023, doi: 10.3390/rs15184583.
+> [7] Y. Deville et al. , “Hyperspectral Oceanic R emote Sensing With
+> Adjacency Effects: From Spectral -Variability -Based Modeling To
+> Performance Of Associated Blind Unmixing Methods,” in IGARSS
+> 2019 -2019 IEEE International Geoscience and Remote Sensing
+> Symposium ,2019, pp. 282 –285. doi:
+> 10.1109/IGARSS.20 19.8898430.
+> [8] M. S. Karoui et al. , “Partial linear NMF -based unmixing methods
+> for detection and area estimation of photovoltaic panels in urban
+> hyperspectral remote sensing data,” Remote Sen ., vol. 11, no. 18,
+> 2019, doi: 10.3390/rs11182164.
+> [9] F. Benh arrats, H. Mahi, N. Benshila, and F. Z. Benhalouche,
+> “Coupling urbanization analyses and seasonal variations for
+> studying urban thermal environment based on Landsat data, case
+> of Oran in Algeria,” in 2025 Joint Urban Remote Sensing Event
+> (JURSE) ,2025, pp. 1–4. doi:
+> 10.1109/JURSE60372.2025.11076007.
+> [10] C. Weber et al. , “Hyperspectral Imagery for Environmental Urban
+> Planning,” in IGARSS 2018 -2018 IEEE International Geoscience
+> and Remote Sensing Symposium , 2018, pp. 1628 –1631. doi:
+> 10.1109/IGARSS.2018.851 9085.
+> [11] S. E. Brezini, M. S. Karoui, F. Z. Benhalouche, Y. Deville, and A.
+> Ouamri, “Hypersharpening by an NMF -Unmixing -Based Method
+> Addressing Spectral Variability,” IEEE Geoscience and Remote
+
+Sensing Letters , vol. 19, pp. 1–5, 2022, doi: 
+
+10.1109/LGRS.2 021.3072405. 
+
+[12] S. E. Brezini, Y. Deville, M. S. Karoui, F. Z. Benhalouche, and A. 
+
+Ouamri, “A Penalization -Based NMF Approach for Hyperspectral 
+
+Unmixing Addressing Spectral Variability with an Additively -
+
+Tuned Mixing Model,” in 2021 IEEE International Ge oscience 
+
+and Remote Sensing Symposium IGARSS , 2021, pp. 3841 –3844. 
+
+doi: 10.1109/IGARSS47720.2021.9553366. 
+
+[13] Brezini, Salah Eddine, M. Kadiri, A. Meche, Dahmani, 
+
+Mohammed, and W. Louchene, “Implementation of a Lightweight 
+
+Hyperspectral and Multispectral Image Fusion Method for Earth 
+
+Observation on Raspberry,” presented at the 2026 International 
+
+Conference on Speech, Multimodal and Advanced 
+
+Communication Systems (ICSMACS), Algiers, Algeria, 2026. 
+
+Proceedings forthcoming. 
+
+[14] S. E. Brezini and Y. Deville, “Hyperspectral and Multispectral 
+
+Image Fusion with Au tomated Extraction of Image -Based 
+
+Endmember Bundles and Sparsity -Based Unmixing to Deal with 
+
+Spectral Variability,” Sensors , vol. 23, no. 4, 2023, doi: 
+
+10.3390/s23042341. 
+
+[15] M. Selva, L. Santurri, and S. Baronti, “Improving 
+
+Hypersharpening for WorldView -3 Data,” IEEE Geoscience and 
+
+Remote Sensing Letters , vol. 16, no. 6, pp. 987 –991, 2019, doi: 
+
+10.1109/LGRS.2018.2884087. 
+
+[16] M. Selva, B. Aiazzi, F. Butera, L. Chiarantini, and S. Baronti, 
+
+“Hyper -sharpening: A first approach on SIM -GA data,” IEEE J. 
+
+Sel. T op. Appl. Earth Obs. Remote Sens. , vol. 8, no. 6, pp. 3008 –
+
+3024, 2015, doi: 10.1109/JSTARS.2015.2440092. 
+
+[17] S. E. Brezini, “Hyperspectral and Mutlispectral Image Fusion 
+
+Based on Spectral Library and Sparse Unmixing to Address 
+
+Spectral Variability,” in 2025 Joint Urban Remote Sensing Event 
+
+(JURSE) , 2025, pp. 1–4. doi: 
+
+10.1109/JURSE60372.2025.11075971. 
+
+[18] R. A. Borsoi et al. , “Spectral Variability in Hyperspectral Data 
+
+Unmixing: A comprehensive review,” IEEE Geosci. Remote Sens. 
+
+Mag. , vol. 9, no. 4, pp. 223 –270, 2021, doi: 
+
+10.1109/MGRS.2021.3071158. 
+
+[19] L. Ren, Z. Han, L. Gao, T. Zhang, R. Wu, and H. Zhang, 
+
+“Advances in hyperspectral image unmixing: From algorithmic 
+
+frameworks to practical applications,” Information Geography ,
+
+vol. 2, no. 1, p. 100035, 2026, doi: 
+
+https://doi.org/10.1016/j.infgeo.2025.100035. 
+
+[20] J. M. P. Nascimento and J. M. Bioucas -Dias, “Vertex component 
+
+analysis: A fast algorithm to unmix hyperspectral data,” IEEE 
+
+Transactions on Geoscience and Remote Sensing , vol. 43, no. 4, 
+
+pp. 898 –910, 2005, doi: 10.1109/TGRS.2005.844293. 
+
+[21] T. Uezato, M. Fauvel, and N. Dobigeon, “Hyperspectral Unmixing 
+
+With Spectral Variability Using Adaptive Bundles and Double 
+
+Sparsity,” IEEE Transactions on Geoscience and Remote Sensing ,
+
+vol. 57, no. 6, pp. 39 80 –3992, 2019, doi: 
+
+10.1109/TGRS.2018.2889256. 
+
+[22] N. Yokoya, T. Yairi, and A. Iwasaki, “Coupled nonnegative matrix 
+
+factorization unmixing for hyperspectral and multispectral data 
+
+fusion,” IEEE Transactions on Geoscience and Remote Sensing ,
+
+vol. 50, no. 2, pp. 528 –537, 2012, doi: 
+
+10.1109/TGRS.2011.2161320. 
+
+[23] J. M. Bioucas -Dias and M. A. T. Figueiredo, “Alternating direction 
+
+algorithms for constrained sparse regression: Application to 
+
+hyperspectral unmixing,” in 2nd Workshop on Hyperspectral 
+
+Image and Si gnal Processing: Evolution in Remote Sensing, 
+
+WHISPERS 2010 - Workshop Program , Reykjavik, Iceland, 2010, 
+
+pp. 1 –4. doi: 10.1109/WHISPERS.2010.5594963. 
+
+[24] “Rasperry Pi 5 Linpack Benchmark.”  https ://www.sci -
+
+pi.org.uk/bench/linpack.html 
+
+[25] A. Paszke et al., “PyTorch: An Imperative Style, High -
+
+Performance Deep Learning Library,” in Advances in Neural 
+
+Information Processing Systems, New York, NY, USA: Curran 
+
+Associates Inc, Dec. 2019. [Online]. Ava ilable: 
+
+http://arxiv.org/abs/1912.01703 
+
+[26] J. Ansel et al., “PyTorch 2: Faster Machine Learning Through 
+
+Dynamic Python Bytecode Transformation and Graph 
+
+Compilation,” in Proceedings of the 29th ACM Internat ional 
+
+Conference on Architectural Support for Programming Languages 
+
+and Operating Systems, Volume 2, New York, NY, USA: ACM, 
+
+Apr. 2024, pp. 929 –947. doi: 10.1145/3620665.3640366. 
+
+[27] A. Podkopaev et al., “ExecuTorch -- A Unified PyTorch Solution 
+
+to Run AI Models On -Device,” arXiv Prepr. arXiv2605.08195, 
+
+2026, doi: 10.48550/arXiv.2605.08195. 
+
+[28] Google, “XNNPACK: High -efficiency floating -point neural 
+
+network inference operators for mobile, server, and Web.” 2019. 
+
+[Online]. Available:  https://github.com/google/XNNPACK 
+
+[29] Microsoft, “ONNX Runtime”, [Online]. Available: 
+
+https://onnxruntime.ai 
+
+[30] O. Bekhelifi and N. -E. Berrached, “On Optimizing Deep Neural 
+
+Networks Infe rence on CPUs for Brain -Computer Interfaces using 
+
+Inference Engines,” in 2024 IEEE International Symposium on 
+
+Circuits and Systems (ISCAS), Singapore: IEEE, May 2024, pp. 
+
+1–5. doi: 10.1109/ISCAS58744.2024.10558617. 
+
+[31] F. Durán, M. Martinez, P. Lago, and S. Martínez -Fernández, 
+
+“Insights into resource utilization of code small language models 
+
+serving with runtime engines and execution providers,” J. Syst. 
+
+Softw., vol. 230, p. 112574, Dec. 2025, doi: 
+
+10.1016/j.jss.2025.112574. 
+
+[32] C. L. Lawson and R. J. Han son, Solving Least Squares Problems. 
+
+Society for Industrial and Applied Mathematics, 1995. doi: 
+
+10.1137/1.9781611971217.

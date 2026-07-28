@@ -1,0 +1,613 @@
+Title: ConFusion: Continuous Fusion Space Learning for Fine-Grained Controllable Infrared and Visible Image Fusion
+
+URL Source: https://arxiv.org/pdf/2607.23600v1
+
+Published Time: Tue, 28 Jul 2026 01:03:41 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# ConFusion: Continuous Fusion Space Learning for Fine-Grained Controllable Infrared and Visible Image Fusion 
+
+# Yurong Guo 
+
+North China Electric Power University Baoding, Hebei, China guoyurong@ncepu.edu.cn 
+
+# Yufei He 
+
+North China Electric Power University Baoding, Hebei, China 220232215006@ncepu.edu.cn 
+
+# Yonghao Li 
+
+North China Electric Power University Baoding, Hebei, China 220252215115@ncepu.edu.cn 
+
+# Dongliang Chang 
+
+Beijing University of Posts and Telecommunications Beijing, China changdongliang@bupt.edu.cn 
+
+# Ke Zhang ∗
+
+North China Electric Power University Baoding, Hebei, China zhangkeit@ncepu.edu.cn 
+
+# Zhanyu Ma 
+
+Beijing University of Posts and Telecommunications Beijing, China mazhanyu@bupt.edu.cn 
+
+## Abstract 
+
+Controllable infrared–visible image fusion aims to integrate com-plementary thermal and structural information with flexible region-aware modulation, producing fused images that adapt to diverse user requirements and downstream tasks. However, existing meth-ods typically rely on predefined discrete control conditions, leading to a sparse space that fails to support fine-grained modulation de-mands. To address this, we propose ConFusion, a novel framework that learns the continuous fusion space via Gaussian-conditioned spatial-aware modulation, enabling instance-level fine-grained con-trollable infrared and visible image fusion. ConFusion employs a dual-branch architecture to disentangle modality-invariant and modality-specific representations under joint reconstruction and text-guided semantic alignment. Gaussian-conditioned instance modulation variables coupled with Grounded SAM-based instance masks guide instance-level fine-grained modulation through the Mask-Guided Specific Feature Modulator, while the Text-Driven Invariant Feature Enhancer improves semantic consistency and enhances fusion. During inference, the multimodal large language model parses user intents into instance-level modulation variables to guide image fusion. Extensive experiments show that ConFu-sion achieves state-of-the-art performance across multiple metrics in both fusion quality and downstream tasks, while supporting fine-grained controllable image fusion. Our code is available at https://github.com/HeyufeiAnto/Confusion 
+
+## Keywords 
+
+Image fusion, Fine-Grained Controllable, Instance-Level Modula-tion, Continuous Fusion Space 
+
+## 1 Introduction 
+
+Image fusion integrates complementary information from multi-ple modalities to generate a fused image with enriched details [ 2 ]. Among various paradigms, infrared–visible image fusion (IVIF) has attracted considerable attention due to its broad applicability in real-world scenarios [ 24 ]. Infrared images capture thermal radiation and remain robust under low-light or nighttime conditions but typ-ically lack fine-grained texture, whereas visible images provide rich 
+
+> ∗Corresponding Author.
+
+structural details yet are sensitive to illumination variations [ 28 ]. Therefore, IVIF aims to preserve salient thermal cues while incor-porating detailed visual information, enabling more informative and reliable fused representations [ 47 ]. It has been widely applied in downstream applications, including assisted driving [ 25 ], remote sensing [36], surveillance [50], and target detection [34]. Recent advances in deep learning have substantially improved IVIF performance. Conventional IVIF methods primarily focus on generating high-quality fused images to improve visual clarity and detail for human perception [ 16 , 17 ], as well as enhance down-stream task performance [ 21 , 23 ]. Due to the absence of physical ground-truth fused images, these approaches rely on carefully de-signed network architectures optimized with mathematically de-fined loss functions [ 27 ] to constrain the fusion process. Despite achieving impressive visual results, they generally learn a determin-istic one-to-one mapping that produces a single fixed fusion output for each input pair, as illustrated in Figure 1(a). Consequently, such a paradigm leads to inherently non-controllable fusion , failing to accommodate diverse user preferences and task-specific require-ments. Multimodal large language models (LLMs) have recently emerged as a promising paradigm for incorporating user intents into controllable fusion. Existing approaches, which we refer to as 
+
+coarse-controllable IVIF fusion , encode user requirements as prede-fined text or visual prompts and map them into a discrete set of control representations, enabling instance-level controllable fusion. However, such discrete conditioning leads to a sparse sampled con-trollable fusion space, limiting its ability to adapt to fine-grained user intents. As illustrated in Figure 1(b), TextFusion, a representa-tive coarse-controllable fusion method, enhances infrared features in semantically specified regions (e.g., “people”) via language in-structions. However, it produces consistent instance-level responses under subtly different intents (Text A 𝑣𝑠. Text B), as evidenced by identical Correlation Coefficient (CC) values, due to their collapse to the same point in the fusion space. In this paper, we propose ConFusion , a novel framework that learns a continuous fusion space via Gaussian-conditioned spatial-aware modulation , enabling instance-level fine-grained controllable infrared–visible image fusion. Specifically, ConFusion adopts a dual-branch architecture to explicitly disentangle modality-invariant and arXiv:2607.23600v1 [cs.CV] 26 Jul 2026 Conference’17, July 2017, Washington, DC, USA Yurong Guo, Yufei He, Yonghao Li, Dongliang Chang, Ke Zhang, and Zhanyu Ma Source Images (a) CddFuse [41]           
+
+> (b) TextFusion [3] (c) Our s
+> Text A Text B
+> Non-controllable
+> IVIF Method
+> Fusion Space
+> No Text
+> CC: 0.769
+> CC: 0.878
+> CC: 0.930
+> CC: 0.768
+> CC: 0.865
+> CC: 0.865
+> Coarse-controllable
+> IVIF Method
+> Text A Text B
+> No Text
+> No Text No Text
+> Text A Text A
+> Text B Text B
+> Text A : People walking on the road with high thermal.
+> Text B : People walking on the road with extreme thermal.
+> (a)
+> (b)
+> Ours (c)
+> No Text
+> CC: 0.921
+
+Figure 1: (a) Non-controllable IVIF: learns a deterministic one-to-one mapping, producing a single fixed fusion out-put. (b) Coarse-controllable IVIF: learns a sparsely sampled fusion space, yielding consistent instance-level responses under subtly different text inputs. (c) Ours: learns a contin-uous fusion space, producing instance-level fusion results that vary with fine-grained text inputs. CC denotes the cor-relation coefficient between fused and infrared images in instance regions, where higher values indicate stronger ther-mal representation. 
+
+modality-specific representations, supervised by joint reconstruc-tion and text-guided invariant semantic alignment. For modality-specific features, we integrate Gaussian-sampled instance-level variables with Grounded-SAM-based instance masks to construct fine-grained spatial-aware modulation masks, and further design a Mask-Guided Specific Feature Modulator (MGSM) to achieve precise feature modulation. For modality-invariant features, we introduce the Text-Driven Invariant Feature Enhancer (TDIE) mod-ule to improve semantic consistency and enhance fusion. During inference, an LLM parses user intents into instance-level modula-tion variables along with corresponding fine-grained spatial-aware modulation masks, which are injected into the learned ConFu-sion to generate intent-aligned fusion images. As illustrated in Fig. 1(c), ConFusion learns a continuous latent fusion manifold, where diverse text inputs correspond to appropriate solutions in the fusion space, generating instance-level fusion results that re-flect fine-grained text-driven modulation. In summary, the main contributions of this paper are threefold: (1) we propose ConFusion, which learns a continuous fusion space via Gaussian-conditioned spatial-aware modulation, enabling instance-level fine-grained controllable infrared and visible image fusion. (2) We design a dual-branch feature disentanglement with text-guided semantic alignment, with a Mask-Guided Specific Feature Modulator for modality-specific features and a Text-Driven Invariant Feature Enhancer for modality-invariant features, achieving precise controllable fusion. (3) Extensive experiments show that ConFusion achieves state-of-the-art performance across multiple metrics in both fusion quality and downstream tasks. 
+
+## 2 Related Works 2.1 Non-controllable IVIF Method 
+
+With the advancement of deep learning [ 3, 6 , 12 , 20 ], data-driven methods have become mainstream in image fusion [ 15 ]. Early works mainly focused on improving visual quality. Li et al. [ 16 ] introduced DenseBlock to extract multimodal features and adopted weighted fusion strategies, supervised by L 2 and SSIM [ 40 ] Losses to preserve information from both modalities. Building upon this foundation, RFN-Nest [ 18 ] replaced hand-crafted fusion rules with learnable ResNet-based [ 10 , 11 , 13 , 42 ] modules, enabling adaptive feature fusion in an end-to-end manner. To achieve more refined fusion, Ma et al. [ 27 ] leveraged salient object detection to separate fore-ground and background regions, and designed region-specific loss functions to emphasize thermal targets and background details, respectively. However, these methods apply global fusion without distinguishing different feature types. In contrast, Zhao et al. [ 49 ]proposed a dual-branch encoder with decoupled loss functions to disentangle multimodal features into shared background informa-tion and modality-specific details, improving both interpretability and fusion performance. Despite achieving visually pleasing results, these methods often suffer from a domain gap between fusion and downstream tasks, leading to suboptimal performance in applications such as object detection and semantic segmentation [ 7]. To mitigate this issue, re-cent works incorporated task supervision into fusion. TarDAL [ 21 ]jointly optimized generative adversarial networks [ 9] and YOLOv5, encouraging fused images to benefit detection. However, directly introducing detection loss provides limited improvement. To fur-ther reduce the gap, Sun et al. [ 34 ] integrated the backbone of Faster R-CNN [ 32 ] into the fusion framework and use task-driven atten-tion maps to guide representation learning. Beyond these methods, recent works explore feature interaction between fusion and task models to enable joint representation learning. Liu et al. [ 48 ] intro-duce a meta-feature embedding module to generate target-aware semantic features, enhancing the alignment between fusion and detection representations. Furthermore, Bai et al. [ 1] adopt a meta-learning framework to dynamically adjust modality weights in the fusion loss based on downstream task losses. However, these meth-ods focus on visual quality or downstream tasks and are inherently non-controllable, failing to satisfy diverse user intents. 
+
+## 2.2 Controllable IVIF Method 
+
+Recent advances in multimodal large language models make text-driven control over image fusion possible. Leveraging CLIP’s [ 31 ]image-text alignment capability, Wang et al. [ 38 ] encoded fused images and textual prompts with CLIP encoders and introduced a language-driven loss to align them, generating fused images that ConFusion: Continuous Fusion Space Learning for Fine-Grained Controllable Infrared and Visible Image Fusion Conference’17, July 2017, Washington, DC, USA 
+
+meet text prompt requirements. Yi et al. [ 44 ] further integrated text into feature learning by interacting CLIP-encoded degradation descriptions with image features, improving adaptation to diverse degradation scenarios. Beyond global control, recent methods ex-plore instance-level guidance. OmniFuse [ 19 ] utilized Grounded SAM to localize text-described instances and enhances them via vi-sual regularization and semantic reverse guidance. Wang et al. [ 41 ]designed Manifold-Based Feature Alignment Module for image–text alignment and Instance Selection Module to enable single-instance enhancement across viewpoints. Li et al. [ 46 ] leverage Diffusion-Transformer (DiT) [ 29 ] for enhanced text-guided fusion, jointly optimizing it on diverse datasets and tasks to generate both task-adaptive fused images and task-specific outputs. These methods improve adaptability to user intent and extend the IVIF paradigm. However, they are inherently limited to coarse controllability, as they rely on discrete conditioning based on prede-fined text or visual prompts, leading to a sparse controllable fusion space that struggles to satisfy fine-grained user demands. In this pa-per, we focus on learning a continuous fusion space for fine-grained controllable infrared and visible image fusion. 
+
+## 3 Methodology 3.1 Problem Formulation 
+
+Let 𝐼 𝑖𝑟 , 𝐼 𝑣𝑖 ∈ R𝐻 ×𝑊 ×𝐶 denote the infrared and visible images. Tra-ditional fusion algorithms learn the predefined fusion function 
+
+F𝑖 𝑓 to produce an immobilized fused image: 𝐼 𝑓 = F𝑖 𝑓 (𝐼 𝑣𝑖 , 𝐼 𝑖𝑟 ).To improve user adaptability, recent works extend this paradigm by learning an instance-level controllable fusion function F ′ 
+
+> 𝑖 𝑓
+
+:
+
+𝐼 𝑓 = F ′ 
+
+> 𝑖 𝑓
+
+(𝐼 𝑣𝑖 , 𝐼 𝑖𝑟 , 𝑝 |Ω), where 𝑝 ∈ Ω. Ω denotes a finite set of con-trol embeddings introduced during training, typically constructed from predefined text or image prompts. Although Ω provides mul-tiple outputs conditioned on 𝑝 , it still remains a coarse controllable fusion. In this paper, we propose the continuous fusion space learning method (ConFusion) for fine-grained controllable infrared and visi-ble image fusion. The instance-level controllable fusion function 
+
+F ′′  
+
+> 𝑖 𝑓
+
+is formulated as: 
+
+𝐼 𝑓 = F ′′  
+
+> 𝑖 𝑓
+
+(𝐼 𝑣𝑖 , 𝐼 𝑖𝑟 , 𝑝 |𝐷 ), (1) where 𝑝 ∼ 𝐷 denotes instance-level modulation variables indepen-dently sampled from a Gaussian distribution. During training, 𝑝 
+
+is mapped to spatial masks and injected into the latent space to modulate modality-specific representations. Training with densely sampled instance-level modulation variables allows the model to learn a continuous and dense fusion space, supporting instance-level fine-grained controllable fusion. 
+
+## 3.2 Disentanglement Representation Learning 
+
+In this section, we introduce Training Stage I of our method. As shown in Figure 2(a), we employ Feature Disentanglement and Reconstruction to effectively decouple modality-invariant and modality-specific features. Meanwhile, we leverage Invariant Se-mantic Alignment to strengthen the modality-agnostic of the in-variant features, thereby reinforcing the disentanglement process. 
+
+3.2.1 Feature Disentanglement and Reconstruction. As illustrated in Figure 2(a), we first employ a shared low-level encoder to extract shallow features, followed by a dual-branch architecture to disen-tangle modality-specific and modality-invariant representations. Specifically, two modality-specific encoders learn domain-specific features 𝐹 𝑠𝑝 𝑖𝑟 and 𝐹 𝑠𝑝 𝑣𝑖 such as thermal radiation and fine-grained tex-tures, while a shared encoder produces modality-invariant features 
+
+𝐹 𝑖𝑛 𝑖𝑟 and 𝐹 𝑖𝑛 𝑣𝑖 in infrared and visible images. A decoder D is then introduced to reconstruct images from the disentangled features via both self-reconstruction and cross-reconstruction: 
+
+𝐼 𝑠𝑟 𝑚 = D  concat  𝐹 𝑖𝑛 𝑚 , 𝐹 𝑠𝑝 𝑚 
+
+ , 𝐼 𝑐𝑟 𝑚 = D  concat  𝐹 𝑖𝑛  
+
+> ¯𝑚
+
+, 𝐹 𝑠𝑝 𝑚 
+
+ , (2) where 𝑚, ¯𝑚 ∈ { 𝑖𝑟, 𝑣𝑖 } and 𝑚 ≠ ¯𝑚 . 𝐼 𝑠𝑟 𝑖𝑟 and 𝐼 𝑐𝑟 𝑖𝑟 represent the self-reconstructed and cross-reconstructed infrared images, respectively. 
+
+𝐼 𝑠𝑟 𝑣𝑖 and 𝐼 𝑐𝑟 𝑣𝑖 are defined in the same manner for visible images. concat 
+
+denotes channel-wise concatenation. To optimize the disentangled representations, we encourage statistical independence between invariant and specific features via a disentanglement loss: 
+
+𝐿 𝑑𝑖𝑠 = 1
+
+𝑟 2 ∥𝑉 𝑣𝑖 ∥2 
+
+> 𝐹
+
++ 1
+
+𝑟 2 ∥𝑉 𝑖𝑟 ∥2 
+
+> 𝐹
+
+, 𝑉 𝑚 = 𝐹 𝑖𝑛 𝑚 (𝐹 𝑠𝑝 𝑚 )𝑇 , (3) where 𝑚 ∈ { 𝑖𝑟, 𝑣𝑖 }. 𝑉 𝑚 denotes the cross-covariance between in-variant and specific features. ∥ · ∥ 𝐹 denotes the Frobenius norm. Minimizing the Frobenius norm suppresses their linear correlations, encouraging the invariant features to be independent of modality-specific variations. In experiments, 𝑉 𝑚 is approximated via random spatial sampling with 𝑟 sampled locations from 𝐹 𝑖𝑛 𝑚 and 𝐹 𝑠𝑝 𝑚 for effi-ciency. We further impose the consistency constraint on invariant features across modalities: 
+
+𝐿 𝑖𝑛𝑣 = 𝑀𝑆𝐸 (𝐹 𝑖𝑛 𝑖𝑟 , 𝐹 𝑖𝑛 𝑣𝑖 ), (4) which encourages the capture of shared scene semantics. 𝑀𝑆𝐸 (·) 
+
+denotes the mean square error operator. To ensure faithful recon-struction, we adopt a self-reconstruction loss: 
+
+𝐿 𝑠𝑟 =∑︁  
+
+> 𝑚 ∈ { 𝑖𝑟,𝑣𝑖 }
+
+𝑀𝑆𝐸 (𝐼 𝑠𝑟 𝑚 , 𝐼 𝑚 ) + 𝜆 ∥∇ 𝐼 𝑠𝑟 𝑣𝑖 − ∇ 𝐼 𝑣𝑖 ∥1, (5) where ∥ · ∥ 1 is the 𝐿 1 norm, and 𝜆 is the hyperparameter. ∇ denotes the spatial gradient operator. Minimizing the distance between self-reconstructed images and the source image encourages the reconstructed image to preserve the detailed features from the source image. In addition, we apply a cross-reconstruction loss: 
+
+𝐿 𝑐𝑟 =∑︁  
+
+> 𝑚 ∈ { 𝑖𝑟,𝑣𝑖 }
+
+𝑀𝑆𝐸 (𝐼 𝑐𝑟 𝑚 , 𝐼 𝑚 ), (6) which enforces consistency under invariant feature swapping. 
+
+3.2.2 Invariant Semantic Alignment. To further facilitate fea-ture disentanglement, we regularize the invariant features with modality-agnostic semantic priors. Specifically, instance texts are encoded to embeddings 𝐸 by the CLIP encoder, which serve as semantic anchors to guide the invariant feature 𝐹 𝑖𝑛 𝑚 in capturing intrinsic instance semantics while remaining invariant to modality-specific variations. 𝐸 = {𝐸 𝑗 }𝐾 𝑗 =1, 𝐹 𝑖𝑛 𝑚 ∈ { 𝐹 𝑖𝑛 𝑖𝑟 , 𝐹 𝑣𝑖 𝑖𝑟 } and 𝐸 ∈ R𝐾 ×𝑑 . 𝐾 
+
+denotes the total number of instances present in the input image. As illustrated in Figure 2(a), we introduce a semantic pooling strategy. Given spatial masks 𝑅 𝑗 generated by Grounded-SAM for Conference’17, July 2017, Washington, DC, USA Yurong Guo, Yufei He, Yonghao Li, Dongliang Chang, Ke Zhang, and Zhanyu Ma (a) Training Stage Ⅰ ： Disentanglement Representation Learning (b) Training Stage Ⅱ ：Feature Modulation and Enhancement Fusing       
+
+> Input Images
+> Encoders
+> Trained
+> in Stage ⅠText-Driven
+> Invariant Enhancer
+> Restormer
+> Blocks
+> Mask-Guided
+> Specific Modulator
+> Restormer
+> Blocks
+> CLIP Text
+> Encoder Text
+> Embeddings E
+> Decoders
+> Trained
+> in Stage Ⅰ
+> Fused Images
+> Gaussian
+> Random
+> Generator
+> Random
+> I-N Pairs
+> Masks M
+> Grounded
+> SAM
+> Loss
+> Functions
+> Fused Images
+> (c) Inference Stage ：User Intent Querying and Fused Image Generating
+> Input Images
+> LLM
+> Grounded
+> SAM
+> CLIP Text
+> Encoder
+> Instance Texts
+> [‘car’], [‘person’], [‘truck’]
+> [‘motor’], [‘lamp’]
+> Instance Texts
+> I-N Pairs
+> Fusion
+> Network
+> M
+> EFused Image
+> Low Level Encoder
+
+𝐀 𝐀𱐀𝐀 
+
+> Specific
+> Encoder
+> Specific
+> Encoder
+> Invariant
+> Encoder
+> Invariant
+> Encoder
+
+𝐀 𱐀𲠀𝐀   
+
+> Decoder
+> Self Reconstruction Source Images Cross Reconstruction
+> Input Images
+
+𝐀 𝐀𵀀 𝐀 𝐀 𵀀  
+
+> Semantic Pooling
+> 𝐀 𱐀𲠀𝐀 𝐀𓀀𝐀𖠀𝐀
+> Sum
+> Sum
+> Div
+> MLP
+> Instance
+> Texts
+> CLIP Text
+> Encoder
+
+𝐀 𝐀𵐀𝐀𝐀 
+
+Figure 2: Overall framework of the proposed ConFusion for instance-level fine-grained controllable IVIF. 
+
+𝑗 -th instances, we perform masked average pooling over 𝐹 𝑖𝑛 𝑚 and project the pooled features into the text embedding space: 
+
+ˆ𝐹 𝑖𝑛 𝑚,𝑗 = MLP 
+
+Í𝑥,𝑦 
+
+ 𝐹 𝑖𝑛 𝑚 (𝑥, 𝑦 ) ⊙ 𝑅 𝑗 (𝑥, 𝑦 )Í𝑥,𝑦 𝑅 𝑗 (𝑥, 𝑦 ) + 𝜖 
+
+!
+
+, (7) where 𝑗 ∈ { 1, 2, . . . , 𝐾 } and 𝑅 𝑗 ∈ R1×𝐻 ×𝑊 . 𝑀𝐿𝑃 denotes Multi-layer Perception. ⊙ denotes the Hadamard product and 𝜖 is a small constant to prevent zero division. We then align the projected visual features ˆ𝐹 𝑖𝑛 𝑚,𝑗 with their corresponding text features 𝐸 𝑗 :
+
+𝐿 𝑡𝑒𝑥𝑡 = 12𝐾 ∑︁ 𝑚 ∈ { 𝑖𝑟,𝑣𝑖 }
+
+> 𝐾
+
+∑︁ 
+
+> 𝑗 =1
+
+1 −
+
+ˆ𝐹 𝑖𝑛 𝑚,𝑗 · 𝐸 𝑗 
+
+∥ ˆ𝐹 𝑖𝑛 𝑚,𝑗 ∥2 ∥𝐸 𝑗 ∥2
+
+!
+
+, (8) which constrains 𝐹 𝑖𝑛 𝑚 to align with semantic priors, thereby reducing ambiguity between invariant and specific features and facilitating more effective disentanglement. The overall objective function for the Training Stage I is: 
+
+𝐿 𝑠𝑡𝑎𝑔𝑒 1 = 𝐿 𝑖𝑛𝑣 + 𝐿 𝑠𝑟 + 𝐿 𝑐𝑟 + 𝛼 1𝐿 𝑡𝑒𝑥𝑡 + 𝛼 2𝐿 𝑑𝑖𝑠 , (9) where 𝛼 1 and 𝛼 2 are hyperparameters balancing the loss terms. 
+
+## 3.3 Feature Modulation and Enhancement Fusing 
+
+In this section, we introduce Training Stage II, as shown in Fig-ure 2(b). We adopt Mask-Guided Feature Modulation to achieve fine-grained instance-level modulation of modality-specific fea-tures, while we employ Text-Driven Invariant Feature Enhancement to improve semantic consistency and enhance fusion. 
+
+3.3.1 Mask-Guided Specific Feature Modulation. For modality-specific features, we propose the Gaussian-conditioned spatial-aware modulation strategy. As illustrated in Figure 2(b), modu-lation intensity variable 𝛼 𝑗 is sampled for each instance 𝑜 𝑗 in the input image from Gaussian distribution, forming instance–intensity pairs { ( 𝑜 𝑗 , 𝛼 𝑗 )} 𝐾 𝑗 =1, where 𝛼 𝑗 ∼ N ( 𝜇, 𝜎 2) serves as the instance-level modulation variable. In experiments, we empirically set it to a trun-cated Gaussian distribution N[0,1] (0.5, 0.22). Grounded-SAM [ 33 ]is then employed to obtain the mask 𝑆 𝑗 for each instance, based on which the spatial-aware modulation mask is constructed as: 
+
+𝑀 (𝑥, 𝑦 ) =
+
+> 𝐾
+
+∑︁ 
+
+> 𝑗 =1
+
+𝛼 𝑗 · 𝑆 𝑗 (𝑥, 𝑦 ) + 𝛼 𝑏𝑔 · 𝑆 𝑏𝑔 (𝑥, 𝑦 ), (10) where 𝑆 𝑏𝑔 represents the mask in background region, and 𝛼 𝑏𝑔 is the default modulation intensity for the background. Furthermore, we propose the Mask-Guided Specific Feature Modulator (MGSM), which projects the modulation mask into the embedding space via the convolution operation to modulate the modality-specific features. Specifically, for the infrared branch, the modulation is formulated as: 
+
+𝑓 𝑖𝑟 𝜔 , 𝑓 𝑖𝑟 𝛽 = 𝐶ℎ𝑢𝑛𝑘 (𝐶𝑜𝑛𝑣 (𝑀 )) , (11) 
+
+ˆ𝐹 𝑠𝑝 𝑖𝑟 = 𝑓 𝑖𝑟 𝜔 ⊙ 𝐿𝑁 (𝐹 𝑠𝑝 𝑖𝑟 ) + 𝑓 𝑖𝑟 𝛽 . (12) For the visible branch, the modulation is performed using the com-plementary mask: 
+
+𝑓 𝑣𝑖 𝜔 , 𝑓 𝑣𝑖 𝛽 = 𝐶ℎ𝑢𝑛𝑘 (𝐶𝑜𝑛𝑣 (1 − 𝑀 )) , (13) 
+
+ˆ𝐹 𝑠𝑝 𝑣𝑖 = 𝑓 𝑣𝑖 𝜔 ⊙ 𝐿𝑁 (𝐹 𝑠𝑝 𝑣𝑖 ) + 𝑓 𝑣𝑖 𝛽 , (14) ConFusion: Continuous Fusion Space Learning for Fine-Grained Controllable Infrared and Visible Image Fusion Conference’17, July 2017, Washington, DC, USA 
+
+where 𝐶ℎ𝑢𝑛𝑘 (·) denotes the feature channel chunking operation. 
+
+𝐶𝑜𝑛𝑣 (·) represents the convolutional layer and 𝐿𝑁 (·) stands for layer normalization. ˆ𝐹 𝑠𝑝 𝑖𝑟 and ˆ𝐹 𝑠𝑝 𝑣𝑖 represent the modulated specific features. The features are then fused via Restormer blocks [ 45 ]
+
+𝑅𝑒𝑠𝑡𝑜𝑟𝑚𝑒𝑟 (·) to generate modulated modality-specific fusion fea-tures: 
+
+𝐹 𝑠𝑝 𝑚𝑜𝑑 = 𝑅𝑒𝑠𝑡𝑜𝑟𝑚𝑒𝑟 (concat (ˆ𝐹 𝑠𝑝 𝑖𝑟 , ˆ𝐹 𝑠𝑝 𝑣𝑖 )) . (15) To further enforce region-aware modulation, we introduce the ROI-constrained loss: 
+
+𝐿 𝑅𝑂𝐼 = 1
+
+|𝑀 𝑜 | (| 𝑀 𝑜 ⊙ 𝑀 ⊙ ( 𝐼 𝑓 𝑢 − 𝐼 𝑖𝑟 )| 22
+
++ | 𝑀 𝑜 ⊙ ( 1 − 𝑀 ) ⊙ ( 𝐼 𝑓 𝑢 − 𝐼 𝑣𝑖 )| 22
+
++ | 𝑀 𝑜 ⊙ (∇ 𝐼 𝑓 𝑢 − max (∇ 𝐼 𝑖𝑟 , ∇𝐼 𝑣𝑖 ))| 1),
+
+(16) where 𝑀 𝑜 denotes the instance-region binary mask. 𝐼 𝑓 𝑢 is the fused image reconstructed by enhanced modality-invariant fusion feature 
+
+𝐹 𝑖𝑛 𝑒𝑛ℎ and modulated modality-specific fusion features 𝐹 𝑠𝑝 𝑚𝑜𝑑 . The enhanced modality-invariant fusion feature 𝐹 𝑖𝑛 𝑒𝑛ℎ will be introduced in 3.3.2. The first and second terms constrain the fused image to present pixel intensities from the infrared and visible images in different instance regions, and the third term forces the fused image to preserve the edges with the larger gradient from two modali-ties within the instance region. This loss encourages the model to modulate the expression of different modality information across instance regions in the generated fused images. 
+
+3.3.2 Text-Driven Invariant Feature Enhancement. To enhance se-mantic consistency and stabilize cross-modal representations, we propose a Text-Driven Invariant Feature Enhancer (TDIE) that injects text priors into invariant features. Building upon the se-mantics alignment between invariant features and text embeddings extracted by the CLIP text encoder learned in Training Stage I, we first fuse modality-invariant feature 𝐹 𝑖𝑛 𝑖𝑟 and 𝐹 𝑖𝑛 𝑣𝑖 via Restormer blocks to obtain the fused invariant feature 𝐹 𝑖𝑛 𝑓 𝑢 as defined in Eq. (15) ,which then interacts with text embeddings through cross-attention to generate enhanced modality-invariant fusion feature. Specifi-cally, 𝐹 𝑖𝑛 𝑓 𝑢 is flattened into querys 𝐹 𝑖𝑛 𝑞𝑢𝑒 ∈ R𝐻𝑊 ×𝐶 , while the text embeddings 𝐸 are projected into keys 𝐸 𝑘𝑒𝑦 ∈ R𝐾 ×𝐶 and values 
+
+𝐸 𝑣𝑎𝑙 ∈ R𝐾 ×𝐶 . The attention map is computed as: 
+
+𝐴 𝑓 𝑢 = 𝑆𝑜 𝑓 𝑡𝑚𝑎𝑥 𝐹 𝑖𝑛 𝑞𝑢𝑒 (𝐸 𝑘𝑒𝑦 )𝑇 
+
+√𝐶 
+
+!
+
+. (17) This map precisely highlights feature points with strong correla-tion between invariant features and text embeddings, which cap-tures modality-agnostic intrinsic instance semantics. The enhanced modality-invariant fusion feature 𝐹 𝑖𝑛 𝑒𝑛ℎ is then obtained by aggre-gating textual values: 
+
+𝐹 𝑖𝑛 𝑒𝑛ℎ = 𝐹 𝑖𝑛 𝑓 𝑢 + 𝐴 𝑓 𝑢 ⊙ 𝐸 𝑣𝑎𝑙 . (18) This enhancement enforces semantically consistent invariant fea-tures across modalities, facilitating more reliable and fine-grained controllable fusion within the continuous fusion space. To pre-serve consistency in non-instance regions, we further impose the background reconstruction constraint: 
+
+𝐿 𝑏𝑔 = 1
+
+|𝑀 𝑏 | (∥ 𝑀 𝑏 ⊙ ( 𝐼 𝑓 𝑢 − 𝐼 𝑖𝑟 )∥ 22 + ∥ 𝑀 𝑏 ⊙ ( 𝐼 𝑓 𝑢 − 𝐼 𝑣𝑖 )∥ 22
+
++ 𝜇 ∥𝑀 𝑏 ⊙ (∇ 𝐼 𝑓 𝑢 − max (∇ 𝐼 𝑖𝑟 , ∇𝐼 𝑣𝑖 ))∥ 1),
+
+(19) where 𝑀 𝑏 denotes the binary background mask. 𝜇 is the hyperpa-rameter. The first and second terms constrain the fused image to preserve pixel content from both modalities in a balanced man-ner in non-instance regions, while the third term encourages the fused image to retain salient edge structures and textures from both modalities as much as possible in these regions. The overall objective in Training Stage II is: 
+
+𝐿 𝑠𝑡𝑎𝑔𝑒 2 = 𝐿 𝑅𝑂𝐼 + 𝐿 𝑏𝑔 . (20) 
+
+## 3.4 User Intent Querying and Fused Image Generating 
+
+During inference, fusion is formulated as the user intent querying and fused image generating process over the learned continuous fusion space. Given user inputs, an LLM parses both source images and user intents into structured instance–intensity (I-N) pairs and instance texts. These are further processed by Grounded-SAM and the CLIP text encoder to obtain the spatial modulation mask 𝑀 and text embeddings 𝐸 , respectively. The mask 𝑀 modulates modality-specific features, while 𝐸 enhances invariant features, enabling spatially and semantically guided fusion. The model then generates the fused image that is well aligned with user intent. 
+
+## 4 Experiments 
+
+In this section, we evaluate ConFusion on multiple fusion datasets through qualitative and quantitative comparisons with state-of-the-art methods. Ablation studies are then performed to validate the effectiveness of the proposed modules and loss functions. Finally, we analyze the performance on object detection and further demon-strate the effectiveness of fine-grained instance-level controllable image fusion through both quantitative metrics and visualizations. 
+
+## 4.1 Implementation Details and Datasets 
+
+Implementation Details. For disentangled representation learn-ing, the network was trained for 50 epochs using the Adam opti-mizer with an initial learning rate of 1e −4 and batch size of 2. Input images were cropped to 224 × 224 . The loss weights were set as 
+
+𝜆 = 5, 𝛼 1 = 0.2 and 𝛼 2 = 5. In the feature modulation and enhance-ment fusion, encoders and decoders were fine-tuned with Adam at a learning rate of 1e −6, while other modules were optimized with a learning rate of 1e −4. Training was performed for 50 epochs with batch size of 2. The hyperparameters were set as 𝛼 𝑏𝑔 = 0.5 and 
+
+𝜇 = 5. Experiments were performed using an NVIDIA RTX 4090 
+
+GPU and an AMD EPYC 7453 28 -core CPU, with PyTorch 2.9.1.
+
+Datasets. The datasets used in our experiments are derived from three widely adopted IVF benchmarks: M 3FD [ 21 ], RoadScene [ 43 ], and TNO [ 35 ], both providing clean and well-aligned visible-infrared image pairs. M 3FD contains 4200 pairs, split into 3900 for training and 300 for testing. RoadScene contains 220 pairs, and TNO contains 37 pairs, which are both utilized for inference. Conference’17, July 2017, Washington, DC, USA Yurong Guo, Yufei He, Yonghao Li, Dongliang Chang, Ke Zhang, and Zhanyu Ma 
+
+Table 1: Quantitative comparison with state-of-the-art meth-ods on M 3FD, RoadScene, and TNO datasets. The best and second-best results are highlighted in red and blue, respec-tively.                                                                                                                                                       
+
+> Method PSNR ↑MSE ↓AG ↑SF ↑CC ↑QAB/F ↑
+> M3FD
+> RFNNest [18] 63 .041 0.036 4.287 11 .575 0.521 0.534
+> TarDAL [21] 61 .816 0.048 4.259 12 .759 0.458 0.409
+> CddFuse [49] 60 .838 0.064 5.446 16 .542 0.430 0.647
+> CoCoNet [22] 62 .864 0.041 4.417 13 .830 0.466 0.557
+> TDFusion [1] 62 .858 0.038 5.382 16 .075 0.521 0.667
+> TextFusion [4] 61 .311 0.060 5.181 15 .331 0.471 0.582
+> RISFuse [41] 61 .767 0.053 5.501 15 .791 0.392 0.696
+> Ours 63 .380 0.034 5.514 17 .124 0.525 0.673
+> RoadScene
+> RFNNest [18] 62 .220 0.043 4.082 10 .774 0.642 0.341
+> TarDAL [21] 62 .743 0.039 4.613 12 .153 0.586 0.430
+> CddFuse [49] 61 .666 0.053 6.001 16 .327 0.594 0.537
+> CoCoNet [22] 61 .623 0.051 5.869 17 .104 0.576 0.371
+> TDFusion [1] 63 .530 0.033 6.380 16 .631 0.643 0.603
+> TextFusion [4] 62 .969 0.044 3.855 10 .538 0.619 0.394
+> RISFuse [41] 62 .463 0.046 5.401 15 .209 0.539 0.527
+> Ours 64 .275 0.029 6.430 16 .732 0.646 0.572
+> TNO
+> RFNNest [18] 63 .367 0.035 3.969 9.822 0.567 0.400
+> TarDAL [21] 63 .126 0.039 3.967 10 .857 0.508 0.401
+> CddFuse [49] 61 .361 0.052 4.985 13 .677 0.511 0.534
+> CoCoNet [22] 63 .791 0.035 3.003 7.996 0.492 0.343
+> TDFusion [1] 63 .635 0.033 4.888 12 .968 0.569 0.548
+> TextFusion [4] 62 .737 0.042 4.307 11 .467 0.513 0.483
+> RISFuse [41] 62 .527 0.044 4.780 12 .974 0.463 0.596
+> Ours 64 .204 0.030 5.557 14 .336 0.578 0.504
+
+Metric. We adopt peak signal to noise ratio (PSNR) [ 14 ], mean squared error (MSE) [ 39 ], average gradient (AG) [ 5], spatial fre-quency (SF) [ 8 ], correlation coefficient (CC) [ 26 ] and Quality of gradient-based fusion (Q AB/F ) [ 30 ] as metrics. Higher values of PSNR, AG, SF, CC, Q AB/F indicate higher quality of fused images. Besides, the lower value of MSE indicate the higher quality. 
+
+## 4.2 Comparison with SOTA 
+
+The comparison methods include RFNNest [ 18 ] (INFUS, 2021), TarDAL [ 21 ] (CVPR, 2022), CddFuse [ 49 ] (CVPR, 2023), Co-CoNet [ 22 ] (IJCV, 2024), TDFusion [ 1 ] (CVPR, 2025), TextFusion [ 4 ](INFUS, 2025), and RISFuse [ 41 ] (ICCV, 2025). Among these, the first five perform conventional non-controllable image fusion, while TextFusion, RISFuse, and ours belong to coarse-controllable fusion. The first five methods only use dual-modal images as input. For TextFusion and RISFuse, we follow their original settings with image-specific text inputs, where texts are manually crafted based on the target instances in each pair of source images. In contrast, our method adopts a unified intent that guides the LLM to parse source images and assign instance-wise modulation intensities. 
+
+Quantitative Evaluation. To validate the competitiveness of our method, quantitative evaluations are conducted on three bench-mark datasets using six widely adopted metrics, as reported in Table 1. It can be observed that the proposed ConFusion achieves superior performance on most metrics. In particular, the best PSNR, MSE, and CC scores indicate that our method effectively preserves pixel-level information from source images. The AG results further demonstrate that our fused images retain richer gradient details compared to existing methods. Moreover, the consistently excellent ir vi (a) RFNNest (b) TarDAL (c) CddFuse                  
+
+> (d) CoCoNet (g) RISFuse (e) TDFusion (f) TextFusion (h) Ours
+> ir vi (a) RFNNest (b) TarDAL (c) CddFuse
+> (d) CoCoNet (g) RISFuse (e) TDFusion (f) TextFusion (h) Ours
+> ir vi (a) RFNNest (b) TarDAL (c) CddFuse
+> (d) CoCoNet (g) RISFuse (e) TDFusion (f) TextFusion (h) Ours
+
+Figure 3: Visualization comparison with seven state-of-the-art methods. 
+
+performance across all datasets highlights the robustness and gener-alization ability of our method. Despite these favorable results, our method does not consistently achieve the best Q AB/F and SF scores on some datasets. This can be attributed to the intent-guided infer-ence mechanism, which emphasizes thermal information within relevant regions specified by user input. Such region-aware en-hancement inevitably weakens visible texture details, leading to reduced global gradient consistency and spatial frequency. Nev-ertheless, ConFusion maintains competitive overall performance while offering improved controllability. 
+
+Qualitative Evaluation. Figure 3 illustrates qualitative compar-isons on three samples from different test sets. Compared with existing methods, the proposed ConFusion produces fused results with clearer textures and better-preserved structural details. For instance, structural elements such as the brick patterns on the night road, as well as the window and door edges of the house, are more distinctly preserved. In addition, our ConFusion method produces more visually natural fusion images across most regions while pre-serving richer scene content. As shown in Figure 3, whether it is the interior lights of the house or the color of the road, they are more consistent with the visible modality, better aligning with hu-man perception. Moreover, ConFusion highlights salient thermal instances (e.g., persons) more prominently, exhibiting higher inten-sity responses than both non-controllable and coarse-controllable baselines. This is attributed to the instance-level fine-grained mod-ulation in ConFusion, which allows more precise enhancement of semantically relevant regions through target-aware modulation intensities derived from LLM. ConFusion: Continuous Fusion Space Learning for Fine-Grained Controllable Infrared and Visible Image Fusion Conference’17, July 2017, Washington, DC, USA Text 1: Make pedestrians with low the rmal intensity.                                        
+
+> Text 2 : Process pedestrians exhibiting moderate thermal
+> intensities.
+> Text 3 : Enhance pedestrians exhibiting high thermal
+> intensities.
+> Text 4 : Highlight pedestrians displaying substantial
+> thermal intensities.
+> ir vi No Text Text 1Text 2Text 3Text4
+> No Text Text 1Text 2Text3 Text4
+> No Text No Text
+> No Text No Text Text 3Text 2
+> Text 3Text 2
+> Text 3Text 1
+> Text 3Text 1
+> Text 4Text 2Text 1Text 4
+> Text 2Text 4Text 4Text 1
+> vi ir
+> TextFusion
+> RISFuse Ours
+> TextFusion
+> RISFuse Ours
+> Text 1:Provide limited thermal information to the car
+> Text 2 :Allocate full thermal information to the
+> pedestrian.
+> Text 3 :Deliver sufficient thermal information to the car
+> and high thermal information to the pedestrian.
+> Text 4 : Assign high thermal information to the car and
+> weak thermal information to the pedestrian.
+
+Figure 4: Visualization of instance-level fine-grained controllable fusion. 
+
+## 4.3 Ablation Studies 
+
+As shown in Table 2, we present ablation studies to assess the contributions of various components and loss functions in our ConFusion approach. 
+
+Ablation on Invariant Semantic Alignment. To evaluate the role of invariant semantic alignment, we remove the 𝐿 𝑡𝑒𝑥𝑡 dur-ing training, which aligns invariant features with CLIP-derived modality-agnostic text semantics. As shown in Table 2 ( 𝑀𝑒𝑡ℎ𝑜𝑑 𝐼 𝑣𝑠. 𝑂𝑢𝑟𝑠 ), removing this constraint leads to performance degrada-tion, highlighting its importance in disentanglement representation learning. Without invariant semantic alignment, the model fails to maintain cross-modal consistency of invariant features, ultimately impairing fusion quality. 
+
+Ablation on Mask-Guided Specific Feature Modulator (MGSM). To evaluate the role of MGSM, we remove the spatial-aware modulation masks, thereby disabling instance-level guided feature modulation. The 𝐿 𝑏𝑔 loss treats all regions uniformly, with-out distinguishing between instance and non-instance areas. As shown in Table 2 ( 𝑀𝑒𝑡ℎ𝑜𝑑 𝐼𝐼 𝑣𝑠. 𝑂𝑢𝑟𝑠 ), removing MGSM slightly improves AG and SF, due to the emphasis on gradient and texture information. However, performance decreases on the remaining metrics, suggesting weaker preservation of semantically relevant regions. In contrast, introducing MGSM leads to more balanced fusion performance and improved semantic consistency. Moreover, MGSM is essential for achieving instance-level controllability, as further validated in Sec. 4.4. 
+
+Ablation on Text-Driven Invariant Feature Enhance (TDIE). 
+
+As shown in Table 2 ( 𝑀𝑒𝑡ℎ𝑜𝑑 𝐼𝐼𝐼 𝑣𝑠. 𝑂𝑢𝑟𝑠 ), removing the TDIE module leads to consistent degradation across all evaluation met-rics. These results highlight the importance of TDIE in improving semantic consistency and overall fusion quality. 
+
+Ablation on Loss Functions. We further evaluate the roles of 𝐿 𝑐𝑟 ,
+
+𝐿 𝑑𝑖𝑠 , and 𝐿 𝑖𝑛𝑣 by removing each term. As shown in Table 2 ( 𝑀𝑒𝑡ℎ𝑜𝑑 𝐼𝑉 , 𝑉 , and 𝑉 𝐼 𝑣𝑠. 𝑂𝑢𝑟𝑠 ), removing any of these losses consistently degrades performance, indicating necessity for effective feature disentanglement. Specifically, 𝐿 𝑐𝑟 enforces cross-reconstruction to 
+
+Table 2: Ablation studies results about components and loss functions on M 3FD. The best results are highlighted in bold. (I): w/o Invariant Semantic Alignment , (II): w/o MGSM , (III): w/o TDIE , (IV): w/o 𝐿 𝑐𝑟 , (V): w/o 𝐿 𝑑𝑖𝑠 , (VI): w/o 𝐿 𝑖𝑛𝑣 .
+
+Methods PSNR ↑ MSE ↓ AG ↑ SF ↑ CC ↑ QAB/F ↑
+
+I 63 .138 0.036 5.403 16 .822 0.521 0.665 
+
+II 61 .678 0.047 7.539 22 .875 0.489 0.528 
+
+III 62 .014 0.044 5.315 17 .002 0.517 0.606 
+
+IV 61 .623 0.049 5.146 16 .451 0.509 0.671 
+
+V 62 .039 0.044 5.410 17 .108 0.517 0.653 
+
+VI 62 .072 0.043 5.496 16 .983 0.514 0.667 
+
+Ours 63 .380 0.034 5.514 17 .124 0.525 0.673 
+
+preserve complementary information, 𝐿 𝑑𝑖𝑠 promotes the decoupling between modality-invariant and modality-specific features, and 
+
+𝐿 𝑖𝑛𝑣 maintains semantic consistency of invariant features. Together, these losses enable more effective disentanglement representation learning, leading to improved fusion performance. 
+
+## 4.4 Analysis of Instance-Level Fine-Grained Controllable Fusion 
+
+We evaluate the fine-grained controllability of ConFusion under di-verse user intents. As illustrated in the first two rows of Figure 4, we modulate the thermal intensity within the pedestrian region accord-ing to text inputs. Although TextFusion and RISFuse can adjust the thermal responses, their behaviors remain coarse and fail to reflect subtle differences in intents. For instance, both methods increase thermal intensity even for “low” and produce nearly indistinguish-able results for “high” and “substantial”. In contrast, ConFusion generates clearly distinguishable thermal responses that align well with the intended semantics, demonstrating fine-grained controlla-bility at the instance-level. For quantitative evaluation, Figure 5(a) reports the CC values between fused and infrared images within the pedestrian region, corresponding to Figure 4. The CC values of Text-Fusion and RISFuse remain nearly unchanged across inputs such as Conference’17, July 2017, Washington, DC, USA Yurong Guo, Yufei He, Yonghao Li, Dongliang Chang, Ke Zhang, and Zhanyu Ma TextFusion RisFuse Ours                                  
+
+> (a) Quantitative study of CC values under
+> single-instance control (pedestrian)
+> (b) Quantitative study of CC values under
+> mult i-instance control (pedestrian & car)
+> 0.9604
+> 0.8393 0.3407
+> 0.3434
+> 0.7881
+> -0.2403
+> 0.3723 0.5102 0.7787
+> 0.3436
+> 0.7884
+> 0.9122
+> Text 1 : Make pedestrians with low
+> thermal intensity.
+> Text 3 : Enhance pedestrians
+> exhibiting high thermal intensities.
+> Text 4 : Highlight pedestrians
+> displaying substantial
+> thermal intensities.
+> Text 2 :Process pedestrians
+> exhibiting moderate thermal
+> intensities.
+> 0.5547
+> 0.3771
+> 0.0672
+> 0.3273 0.8824
+> 0.8918
+> 0.3747
+> 0.8715
+> 0.8739
+> 0.0984 0.3361 0.8794
+> Text 4 : Assign high thermal
+> information to the car and
+> weak thermal information
+> to the pedestrian.
+> Text 2 : Allocate full
+> thermal information to
+> the pedestrian
+> Text 1 : Provided limited thermal
+> information to the car.
+> Text 3 : Deliver sufficient information to the car
+> and high thermal information to the pedestrian.
+> Text 3 : Deliver sufficient information to the car
+> and high thermal information to the pedestrian.
+> Text 1 : Provided limited thermal
+> information to the car.
+> Text 4 : Assign high thermal
+> information to the car and
+> weak thermal information
+> to the pedestrian.
+> Text 2 : Allocate full
+> thermal information to
+> the pedestrian
+> 0.3459
+> 0.0473
+> -0.1394 0.3001
+> 0.3806
+> 0.3301
+> 0.2736
+> 0.3511
+> 0.7555
+> 0.5938 0.3221 0.1507
+
+Figure 5: Quantitative study of Instance-Level Fine-Grained Controllable Fusion, where CC denotes correlation coefficient between fused and infrared images in instance regions under diverse user intents. Table 3: Quantitative comparison of object detection performance on M 3FD. The best and second-best results are highlighted in red and blue, respectively. 
+
+Methods Ap50 precision recall mAP50 mAP50:95 car person bus truck motor lamp RFNNest [18] 0.927 0.833 0.903 0.872 0.770 0.819 0.898 0.784 0.854 0.583 
+
+TarDAL [21] 0.923 0.858 0.912 0.862 0.770 0.779 0.891 0.783 0.851 0.582 
+
+CddFuse [49] 0.929 0.853 0.886 0.844 0.747 0.813 0.890 0.779 0.845 0.583 
+
+CoCoNet [22] 0.928 0.820 0.887 0.857 0.753 0.819 0.899 0.786 0.844 0.580 
+
+TDFusion [1] 0.930 0.852 0.880 0.865 0.776 0.820 0.905 0.792 0.854 0.592 
+
+TextFusion [4] 0.927 0.842 0.897 0.865 0.768 0.806 0.888 0.783 0.851 0.584 
+
+RISFuse [41] 0.933 0.834 0.905 0.845 0.775 0.828 0.900 0.788 0.853 0.583 
+
+Ours 0.932 0.844 0.904 0.882 0.777 0.826 0.906 0.794 0.861 0.593 
+
+“low”, “moderate”, “high”, and “substantial”, indicating limited con-trollability. In comparison, ConFusion shows a clear and consistent correspondence with the input intents. Specifically, “substantial” and “high” correspond to the highest and second-highest CC val-ues, respectively, further demonstrating its fine-grained control capability. Furthermore, the proposed ConFusion effectively handles multi-instance scenarios. As shown in the last two rows of Figure 4, when user intents specify different requirements for multiple instances, TextFusion and RISFuse fail to independently adjust each instance. For example, when Text 2 instructs the pedestrian to exhibit full thermal intensity, TextFusion enhances both car and pedestrian instances. When Text 3 instructs the pedestrian and car to exhibit sufficient and high thermal intensity respectively, RISFuse fails to produce the desired responses for either instance. In contrast, the proposed ConFusion produces results consistent with the specified intents, allowing different instances to be adjusted independently or jointly. For instance, when Text 4 instructs high thermal inten-sity for the pedestrian but low for the car, our method successfully generates the corresponding fusion result. Correspondingly, Fig-ure 5(b) shows that the CC values of our method closely match the specified intents for both instances, while remaining at a moderate level when no explicit instruction is given. These results further demonstrate that our method effectively achieves instance-level fine-grained controllable fusion. 
+
+## 4.5 Performance on Object Detection 
+
+Table 3 reports object detection results on the fused images from M3FD dataset. We resplit the dataset by moving 750 images from the training set to the test set, resulting in the 3 : 1 train-test split. We adopt YOLOv 9 [ 37 ] as the detector and train for 400 epochs. ConFu-sion achieves competitive performance across categories, obtaining the best result on the truck class and the second-best on car, motor, and lamp in mAP 50 . Furthermore, it achieves the best overall per-formance across all categories in mAP 50 , mAP 50 :95 , Precision, and Recall. These results indicate that the proposed instance-level fine-grained controllability improves semantic representation quality, thereby benefiting downstream detection performance. 
+
+## 4.6 Conclusion 
+
+In this paper, we propose the ConFusion framework that learns a continuous fusion space via Gaussian-conditioned spatial-aware ConFusion: Continuous Fusion Space Learning for Fine-Grained Controllable Infrared and Visible Image Fusion Conference’17, July 2017, Washington, DC, USA 
+
+modulation, enabling instance-level fine-grained controllable in-frared–visible image fusion driven by user intent. A dual-branch architecture is first employed to disentangle modality-invariant and modality-specific representations, guided by joint reconstruction and text-guided semantic alignment. Fine-grained instance-level modulation is achieved through the Mask-Guided Specific Feature Modulator, which leverages Gaussian-conditioned instance vari-ables together with instance masks from Grounded SAM, while the Text-Driven Invariant Feature Enhancer improves semantic consistency and fusion quality. By mapping continuously sampled instance-level variables to spatial modulation, the model forms a continuous fusion space, which supports flexible and fine-grained controllable Infrared and Visible Image Fusion. During inference, user intents are parsed by an LLM into instance-level modulation variables to steer the fusion process. Extensive experiments demon-strate that ConFusion achieves superior fusion quality and down-stream task performance compared to state-of-the-art methods, while supporting fine-grained controllable image fusion. Despite the promising results, ConFusion has several limitations. First, the incorporation of an LLM and Grounded SAM introduces additional computational overhead. Second, the performance de-pends on accurate instance segmentation and reliable interpreta-tion of user intent by the LLM. In the future, more efficient and lightweight frameworks can be explored, along with improved ro-bustness to segmentation errors and ambiguous user intent. 
+
+## References 
+
+[1] Haowen Bai, Jiangshe Zhang, Zixiang Zhao, Yichen Wu, Lilun Deng, Yukun Cui, Tao Feng, and Shuang Xu. 2025. Task-driven Image Fusion with Learnable Fusion Loss. In Proceedings of the 2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 7457–7468. [2] Karishma C Bhataria and Bhumika K Shah. 2018. A Review of Image Fusion Tech-niques. In Proceedings of the 2018 Second International Conference on Computing Methodologies and Communication (ICCMC) . 114–123. [3] Dongliang Chang, Kaiyue Pang, Yixiao Zheng, Zhanyu Ma, Yi-Zhe Song, and Jun Guo. 2021. Your" flamingo" is my" bird": Fine-grained, or not. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition . 11476–11485. [4] Chunyang Cheng, Tianyang Xu, Xiao-Jun Wu, Hui Li, Xi Li, Zhangyong Tang, and Josef Kittler. 2025. TextFusion: Unveiling the power of textual semantics for controllable image fusion. Information Fusion 117 (2025), 102790. [5] Guangmang Cui, Huajun Feng, Zhihai Xu, Qi Li, and Yueting Chen. 2015. Detail preserved fusion of visible and infrared images using regional saliency extraction and multi-scale image decomposition. Optics Communications 341 (2015), 199– 209. [6] Yifeng Ding, Zhanyu Ma, Shaoguo Wen, Jiyang Xie, Dongliang Chang, Zhongwei Si, Ming Wu, and Haibin Ling. 2021. AP-CNN: Weakly supervised attention pyramid convolutional neural network for fine-grained visual classification. IEEE Transactions on Image Processing 30 (2021), 2826–2836. [7] Ruoyi Du, Dongliang Chang, Timothy Hospedales, Yi-Zhe Song, and Zhanyu Ma. 2024. Demofusion: Democratising high-resolution image generation with no $$$. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition . 6159–6168. [8] Ahemet M Eskicioglu and Paul S Fisher. 1995. Image quality measures and their performance. IEEE Transactions on Communications 43, 12 (1995), 2959–2965. [9] Ian J Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron Courville, and Yoshua Bengio. 2014. Generative Adversarial Nets. In Proceedings of the 28th International Conference on Neural Information Processing Systems (NIPS ’14) . Montreal, Canada, 2672–2680. [10] Yurong Guo, Ruoyi Du, Yuan Dong, Timothy Hospedales, Yi-Zhe Song, and Zhanyu Ma. 2023. Task-aware adaptive learning for cross-domain few-shot learning. In Proceedings of the IEEE/CVF International Conference on Computer Vision . 1590–1599. [11] Yurong Guo, Ruoyi Du, Xiaoxu Li, Jiyang Xie, Zhanyu Ma, and Yuan Dong. 2022. Learning calibrated class centers for few-shot classification by pair-wise similarity. IEEE Transactions on Image Processing 31 (2022), 4543–4555. [12] Yurong Guo, Ruoyi Du, Aneeshan Sain, Kongming Liang, Yuan Dong, Yi-Zhe Song, and Zhanyu Ma. 2024. Understanding episode hardness in few-shot learn-ing. IEEE transactions on pattern analysis and machine intelligence 47, 1 (2024), 616–633. [13] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. 2016. Deep Residual Learning for Image Recognition. In Proceedings of the 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) . 770–778. [14] Alain Horé and Djemel Ziou. 2010. Image Quality Metrics: PSNR vs. SSIM. In 
+
+Proceedings of the 2010 20th International Conference on Pattern Recognition (ICPR) .2366–2369. [15] Shahid Karim, Geng Tong, Jinyang Li, Akeel Qadir, Umar Farooq, and Yiting Yu. 2023. Current advances and future perspectives of image fusion: A comprehensive review. Information Fusion 90 (2023), 185–217. [16] Hui Li and Xiao-Jun Wu. 2019. DenseFuse: A Fusion Approach to Infrared and Visible Images. IEEE Transactions on Image Processing 28, 5 (2019), 2614–2623. [17] Hui Li, Xiao-Jun Wu, and Tariq Durrani. 2020. NestFuse: An Infrared and Visible Image Fusion Architecture Based on Nest Connection and Spatial/Channel At-tention Models. IEEE Transactions on Instrumentation and Measurement 69, 12 (2020), 9645–9656. [18] Hui Li, Xiao-Jun Wu, and Josef Kittler. 2021. RFN-Nest: An end-to-end residual fusion network for infrared and visible images. Information Fusion 73 (2021), 72–86. [19] Jiayang Li, Chengjie Jiang, Junjun Jiang, Pengwei Liang, Jiayi Ma, and Liqiang Nie. 2026. Towards Unified Semantic and Controllable Image Fusion: A Diffusion Transformer Approach. IEEE Transactions on Pattern Analysis and Machine Intelligence 48, 4 (2026), 3970–3987. [20] Xiaoxu Li, Dongliang Chang, Zhanyu Ma, Zheng-Hua Tan, Jing-Hao Xue, Jie Cao, Jingyi Yu, and Jun Guo. 2020. OSLNet: Deep small-sample classification with an orthogonal softmax layer. IEEE Transactions on Image Processing 29 (2020), 6482–6495. [21] Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and Zhongxuan Luo. 2022. Target-aware Dual Adversarial Learning and a Multi-scenario Multi-Modality Benchmark to Fuse Infrared and Visible for Object Detection. In Proceedings of the 2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 5792–5801. [22] Jinyuan Liu, Runjia Lin, Guanyao Wu, Risheng Liu, Zhongxuan Luo, and Xin Fan. 2024. CoCoNet: Coupled Contrastive Learning Network with Multi-level Feature Ensemble for Multi-modality Image Fusion. International Journal of Computer Vision 132, 5 (Dec. 2024), 1748–1775. [23] Jinyuan Liu, Zhu Liu, Guanyao Wu, Long Ma, Risheng Liu, Wei Zhong, Zhongx-uan Luo, and Xin Fan. 2023. Multi-interactive Feature Learning and a Full-time Multi-modality Benchmark for Image Fusion and Segmentation. In Proceedings of the 2023 IEEE/CVF International Conference on Computer Vision (ICCV) . 8081– 8090. [24] Jinyuan Liu, Guanyao Wu, Zhu Liu, Di Wang, Zhiying Jiang, Long Ma, Wei Zhong, Xin Fan, and Risheng Liu. 2025. Infrared and Visible Image Fusion: From Data Compatibility to Task Adaption. IEEE Transactions on Pattern Analysis and Machine Intelligence 47, 4 (2025), 2349–2369. [25] Jinyuan Liu, Bowei Zhang, Qingyun Mei, Xingyuan Li, Yang Zou, Zhiying Jiang, Long Ma, Risheng Liu, and Xin Fan. 2025. DCEvo: Discriminative Cross-Dimensional Evolutionary Learning for Infrared and Visible Image Fusion. In 
+
+Proceedings of the 2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 2226–2235. [26] Jiayi Ma, Yong Ma, and Chang Li. 2019. Infrared and visible image fusion methods and applications: A survey. Information Fusion 45 (2019), 153–178. [27] Jiayi Ma, Linfeng Tang, Meilong Xu, Hao Zhang, and Guobao Xiao. 2021. STDFu-sionNet: An Infrared and Visible Image Fusion Network Based on Salient Target Detection. IEEE Transactions on Instrumentation and Measurement 70 (2021), 1–13. [28] Jiayi Ma, Wei Yu, Pengwei Liang, Chang Li, and Junjun Jiang. 2019. FusionGAN: A generative adversarial network for infrared and visible image fusion. Information Fusion 48 (2019), 11–26. [29] William Peebles and Saining Xie. 2023. Scalable Diffusion Models with Trans-formers. In Proceedings of the 2023 IEEE/CVF International Conference on Computer Vision (ICCV) . 4195–4205. [30] Veljko Petrovic and Costas Xydeas. 2005. Objective image fusion performance characterisation. In Proceedings of the 10th IEEE International Conference on Com-puter Vision (ICCV ’05) , Vol. 2. 1866–1871. [31] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, and Ilya Sutskever. 2021. Learning Transferable Vi-sual Models From Natural Language Supervision. arXiv preprint (2021). arXiv:2103.00020 [cs.CV] https://arxiv.org/abs/2103.00020 [32] Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. 2017. Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks. IEEE Transactions on Pattern Analysis and Machine Intelligence 39, 6 (June 2017), 1137– 1149. [33] Tianhe Ren, Shilong Liu, Ailing Zeng, Jing Lin, Kunchang Li, He Cao, Jiayu Chen, Xinyu Huang, Yukang Chen, Feng Yan, Zhaoyang Zeng, Hao Zhang, Feng Li, Jie Yang, Hongyang Li, Qing Jiang, and Lei Zhang. 2024. Grounded SAM: Assembling Open-World Models for Diverse Visual Tasks. arXiv preprint abs/2401.14159 Conference’17, July 2017, Washington, DC, USA Yurong Guo, Yufei He, Yonghao Li, Dongliang Chang, Ke Zhang, and Zhanyu Ma 
+
+(2024). arXiv:2401.14159 [cs.CV] [34] Yiming Sun, Bing Cao, Pengfei Zhu, and Qinghua Hu. 2022. DetFusion: A Detection-driven Infrared and Visible Image Fusion Network. In Proceedings of the 30th ACM International Conference on Multimedia (MM ’22) . Lisboa, Portu-gal, 4003–4011. [35] Alexander Toet. 2017. The TNO Multiband Image Data Collection. Data in Brief 
+
+15 (2017), 249–251. [36] Gemine Vivone, Liang-Jian Deng, Shangqi Deng, Danfeng Hong, Menghui Jiang, Chenyu Li, Wei Li, Huanfeng Shen, Xiao Wu, Jin-Liang Xiao, Jing Yao, Mengmeng Zhang, Jocelyn Chanussot, Salvador García, and Antonio Plaza. 2025. Deep Learning in Remote Sensing Image Fusion: Methods, protocols, data, and future perspectives. IEEE Geoscience and Remote Sensing Magazine 13, 1 (2025), 269–310. [37] Chien-Yao Wang, I-Hau Yeh, and Hong-Yuan Mark Liao. 2024. YOLOv9: Learn-ing What You Want to Learn Using Programmable Gradient Information. In 
+
+Proceedings of the European Conference on Computer Vision (ECCV) .[38] Yuhao Wang, Lingjuan Miao, Zhiqiang Zhou, Lei Zhang, and Yajun Qiao. 2025. Infrared and Visible Image Fusion with Language-Driven Loss in CLIP Embedding Space. In Proceedings of the 33rd ACM International Conference on Multimedia (MM ’25) . Dublin, Ireland, 1443–1451. [39] Zhou Wang and Alan C Bovik. 2009. Mean squared error: Love it or leave it? A new look at Signal Fidelity Measures. IEEE Signal Processing Magazine 26, 1 (2009), 98–117. [40] Zhou Wang, Alan C Bovik, Hamid R Sheikh, and Eero P Simoncelli. 2004. Image quality assessment: from error visibility to structural similarity. IEEE Transactions on Image Processing 13, 4 (2004), 600–612. [41] Zeyu Wang, Jizheng Zhang, Haiyu Song, Mingyu Ge, Jiayu Wang, and Hao-ran Duan. 2025. Highlight What You Want: Weakly-Supervised Instance-Level Controllable Infrared-Visible Image Fusion. In Proceedings of the IEEE/CVF Inter-national Conference on Computer Vision (ICCV) . 12637–12647. [42] Jijie Wu, Dongliang Chang, Aneeshan Sain, Xiaoxu Li, Zhanyu Ma, Jie Cao, Jun Guo, and Yi-Zhe Song. 2023. Bi-directional feature reconstruction network for fine-grained few-shot image classification. In Proceedings of the AAAI conference on artificial intelligence , Vol. 37. 2821–2829. [43] Han Xu, Jiayi Ma, Junjun Jiang, Xiaojie Guo, and Haibin Ling. 2022. U2Fusion: A Unified Unsupervised Image Fusion Network. IEEE Transactions on Pattern Analysis and Machine Intelligence 44, 1 (2022), 502–518. [44] Xunpeng Yi, Han Xu, Hao Zhang, Linfeng Tang, and Jiayi Ma. 2024. Text-IF: Leveraging Semantic Text Guidance for Degradation-Aware and Interactive Image Fusion. In Proceedings of the 2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 27026–27035. [45] Syed Waqas Zamir, Aditya Arora, Salman Khan, Munawar Hayat, Fahad Shahbaz Khan, and Ming-Hsuan Yang. 2022. Restormer: Efficient Transformer for High-Resolution Image Restoration. In Proceedings of the 2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 5728–5739. [46] Hao Zhang, Lei Cao, Xuhui Zuo, Zhenfeng Shao, and Jiayi Ma. 2025. OmniFuse: Composite Degradation-Robust Image Fusion With Language-Driven Semantics. 
+
+IEEE Transactions on Pattern Analysis and Machine Intelligence 47, 9 (2025), 7577– 7595. [47] Hao Zhang, Han Xu, Xin Tian, Junjun Jiang, and Jiayi Ma. 2021. Image fusion meets deep learning: A survey and perspective. Information Fusion 76 (2021), 323–336. [48] Wenda Zhao, Shigeng Xie, Fan Zhao, You He, and Huchuan Lu. 2023. MetaFusion: Infrared and Visible Image Fusion via Meta-Feature Embedding from Object Detection. In Proceedings of the 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . Vancouver, BC, Canada, 13955–13965. [49] Zixiang Zhao, Haowen Bai, Jiangshe Zhang, Yulun Zhang, Shuang Xu, Zudi Lin, Radu Timofte, and Luc Van Gool. 2023. CDDFuse: Correlation-Driven Dual-Branch Feature Decomposition for Multi-Modality Image Fusion. In Proceedings of the 2023 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 5906–5916. [50] Yutian Zhong, Shuangyang Zhang, Zhenyang Liu, Xiaoming Zhang, Zongxin Mo, Yizhe Zhang, Haoyu Hu, Wufan Chen, and Qi Li. 2024. Unsupervised Fusion of Misaligned PAT and MRI Images via Mutually Reinforcing Cross-Modality Image Generation and Registration. IEEE Transactions on Medical Imaging 43, 5 (May 2024), 1702–1714.

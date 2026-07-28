@@ -1,0 +1,1027 @@
+Title: ISAC and Vision Fusion for Fine-Grained Low-Altitude Target Recognition
+
+URL Source: https://arxiv.org/pdf/2607.23789v1
+
+Published Time: Tue, 28 Jul 2026 01:16:47 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+> 1
+
+# ISAC and Vision Fusion for Fine-Grained Low-Altitude Target Recognition 
+
+Zhonghua Chu, Hongliang Luo, Boxuan Sun, Shengjie Quan, Chuanbin Zhao, and Feifei Gao, Fellow, IEEE 
+
+Abstract —In this paper, we propose an integrated sensing and communications (ISAC) and vision fusion framework for fine-grained low-altitude target recognition. Specifically, we first utilize ISAC system to estimate the position of the low-altitude target. Then we adjust the working parameters of the Pan-Tilt-Zoom (PTZ) camera based on the estimated target position, such that the camera can capture the image of tiny low-altitude target from several hundred meters away. After obtaining the wireless echo signal and visual image of low-altitude target, we employ the short-time Fourier transform (STFT) to obtain the micro-Doppler (mD) spectrum of the target from wireless echo signal, and design a conditional generative adversarial network (cGAN)-based denoising network to optimize the quality of the mD spectrum. Meanwhile, we employ YOLOv11 to detect the low-altitude target from visual image, and then crop the small-sized feature image of the target from the original image. Next, we design a fine-grained low-altitude target recognition network with MobileViT, which can fuse the optimized mD spectrum and the cropped feature image to distinguish the subcategory of low-altitude target. Moreover, we generate a joint ISAC and vision dataset (JIVD) for low-altitude target monitoring based on AirSim and Wireless InSite, which includes diverse target subcategories, scenarios, and weather conditions. The effectiveness and superiority of the proposed scheme have been demonstrated by simulation results. 
+
+Index Terms —Integrated sensing and communications, ISAC and vision fusion, multi-modal ISAC, fine-grained low-altitude target recognition, low-altitude economy. 
+
+I. I NTRODUCTION 
+
+Recently, low-altitude economy (LAE) has been experienc-ing explosive development, which fosters a lot of novel in-dustry applications, such as low-altitude logistics, low-altitude agriculture, low-altitude tourism, low-altitude firefighting [1]– [5]. The primary low-altitude targets within the airspace en-compass unmanned aerial vehicles (UAVs), electric vertical take-off and landing (eVTOL) aircraft, helicopters, traditional fixed-wing aircraft, and naturally occurring birds [6]. As the density of low-altitude targets surges, severe security threats such as unauthorized intrusions and potential collisions with wildlife inevitably arise [7]. Hence, industry and academia are committed to constructing the low-altitude monitoring network to ensure airspace safety. In the low-altitude monitoring net-work, an important observation is that different subcategories of low-altitude target possess distinct physical characteristics and represent different levels of threats. Therefore, it is nec-                        
+
+> Z. Chu, H. Luo, B. Sun, S. Quan, C. Zhao and F. Gao are with Department of Automation, Tsinghua University, Beijing 100084, China (email: zhu-zh25@mails.tsinghua.edu.cn; luohl23@mails.tsinghua.edu.cn; sunbx26@163.com; quansj23@mails.tsinghua.edu.cn; zcb23@mails.tsinghua.edu.cn; feifeigao@ieee.org).
+
+essary to build a fine-grained low-altitude target recognition system to distinguish the subcategories of the targets. Conventional low-altitude target recognition systems pri-marily rely on radar and visual sensors [8]–[11]. On the one hand, radar-based systems extract the unique micro-motion features and geometrical characteristics of the low-altitude target from radar echo signals, and then utilize machine learning or deep learning to distinguish the low-altitude tar-gets. For example, S. Li et al. capture the subtle micro-Doppler (mD) signatures and high-resolution range profiles of UAVs, and design a Mamba-based network to recognize different subcategories of UAVs [12]. B.-S. Oh et al. extract the statistical and geometrical features of UAVs by empirical-mode decomposition (EMD), and these features are subse-quently fed into a nonlinear support vector machine (SVM) for efficient UAV classification [13]. B. Torvik et al. extract the polarimetric intercorrelation and decomposition features of UAVs and birds, and then employ a nearest-neighbor classifier to realize binary target recognition [14]. On the other hand, visual-based systems capture the rich textural details, color information, and fine-grained semantic features of low-altitude targets from the visual image, thereby realizing target recog-nition. For example, B. Wang et al. combine MobileNetV3 and coordinate attention with YOLOv5s [15] to strengthen the spatial and textural information of low-altitude targets [16]. D. Dosi et al. utilize YOLOv8 [17] to identify thermal contrast and morphological patterns of UAVs, which enables robust recognition and tracking in complex environments [18]. F. Mahdavi et al. utilize fisheye cameras to distinguish UAVs from birds by comparing deep-learned semantic features with traditional histogram of oriented gradients descriptors [19]. Nonetheless, due to the limited target recognition capability of radar-based systems and the susceptibility of visual-based systems to adverse weather conditions [20], the aforemen-tioned single-modality low-altitude target recognition systems [12]–[14], [16], [18], [19] possess inherent limitations. To address these shortcomings, recent research has studied the radar-vision fusion system to realize more reliable target recognition. For example, V. Mehta et al. utilize FMCW radar and Pan-Tilt-Zoom (PTZ) camera to realize UAV detection and recognition within a range of 1 km [21]. V. Mehta et al. also present an edge-deployable UAV recognition system, which utilizes YOLOv8 for electro-optical/infrared (EO/IR) visual detection and applies an interacting multiple model (IMM) filter to extract radar kinematic features [22]. H. Tang et al. 
+
+project radar traces onto camera frames and combine radar distance and azimuth information with visual images to realize target detection and recognition [23]. These works provide pre-arXiv:2607.23789v1 [eess.SP] 26 Jul 2026 2
+
+liminary technical support for multi-modal low-altitude target recognition. However, the large-scale deployment of dedicated radar to realize radar-vision fusion low-altitude monitoring in urban environments faces severe constraints. For instance, the widespread installation of dedicated radar equipment incurs prohibitive hardware and deployment costs [24]. Moreover, it is practically infeasible to find suitable radar installation sites for ubiquitous coverage in dense cityscapes. Fortunately, the sixth generation (6G) mobile information network will construct the integrated sensing and communica-tions (ISAC) system, which enables future base stations (BSs) to sense and monitor various environmental information while simultaneously fulfilling their wireless communications func-tions [25]–[30]. Currently, both the industry and academia are trying to establish the low-altitude target monitoring network centered on ISAC system. For example, J. Tang et al. propose a low-altitude UAV localization and velocity estimation scheme based on spatial smooth tensor decomposition within coopera-tive ISAC network [31]. Y. Huang et al. propose a low-altitude target localization scheme based on compressed sensing and sparse imaging within ISAC network [32]. J. Wei et al. propose a refined micro-Doppler feature extraction method for rotor UAV target [33]. J. Xue et al. propose a UAV and bird recognition scheme based on short-time Fourier transform (STFT) and DC-Former network within ISAC system [34]. However, to the best of the authors’ knowledge, no existing studies have investigated the fusion of ISAC and vision for low-altitude target recognition. In this paper, we propose an ISAC and vision fusion framework for fine-grained low-altitude target recognition. The contributions of this paper are summarized as follows.  
+
+> •
+
+We utilize ISAC system to estimate the position of the low-altitude target. Then we actively adjust the working parameters of the PTZ camera based on the estimated target position, such that the camera can capture the image of tiny low-altitude target from several hundred meters away.  
+
+> •
+
+We employ STFT to obtain the mD spectrum of the target from the wireless echo signal, and design a conditional generative adversarial network (cGAN)-based denoising network to optimize the quality of the mD spectrum. Meanwhile, we employ YOLOv11 to detect the low-altitude target from visual image, and then crop the small-sized feature image of the target from the original image.  
+
+> •
+
+We design a fine-grained low-altitude target recognition network with MobileViT, which can fuse the optimized mD spectrum and the cropped feature image to distin-guish the subcategory of low-altitude target.  
+
+> •
+
+We generate a joint ISAC and vision dataset (JIVD) for low-altitude target monitoring based on AirSim and Wire-less InSite, which includes diverse target subcategories, scenarios, and weather conditions. The effectiveness and superiority of the proposed scheme have been demon-strated by simulation results. The remainder of this paper is organized as follows. In Section II, we propose the ISAC and vision fusion enabled fine-grained low-altitude target recognition framework. In Low-altitude targets  
+
+> Fig. 1. Fine-grained low-altitude target recognition scenario based on ISAC and vision fusion.
+
+Section III, we provide the workflow for obtaining ISAC system echo signals, estimating low-altitude target parameters, adjusting PTZ camera working parameters, and acquiring low-altitude target images. In Section IV, we propose a low-altitude target mD spectrum extraction and denoising enhancement algorithm. In Section V, we utilize YOLOv11 to preprocess the visual image, and then design a fine-grained low-altitude target recognition network with MobileViT. Simulation results and conclusions are given in Section VI and Section VII. 
+
+Notation : Lower-case and upper-case boldface letters a and 
+
+A denote a vector and a matrix; a∗, aT and aH denote the conjugate, transpose and conjugate transpose of a, respec-tively; A(i, j ) denotes the (i, j )-th element of the matrix A;
+
+CM ×N and RM ×N represent the spaces of M × N complex-valued and real-valued matrices, respectively; ⊗, ⊙ and ◦
+
+denote the Kronecker product, Hadamard product and function composition, respectively; ⌊·⌋ denotes the floor operation; E[·]
+
+represents the statistical expectation; F(·) and F−1(·) denote the fast Fourier transform (FFT) and inverse fast Fourier transform (IFFT) operations. II. T HE PROPOSED ISAC AND VISION FUSION 
+
+FRAMEWORK FOR LOW -A LTITUDE TARGET RECOGNITION 
+
+In this section, we propose the ISAC and vision fusion en-abled fine-grained low-altitude target recognition framework. 
+
+A. ISAC and Vision Fusion System Model 
+
+The considered low-altitude monitoring system includes one ISAC BS and one PTZ camera, as depicted in Fig. 1. Generally, the ISAC BS transmits sensing signals and then processes the backscattered echo signals to estimate the posi-tion of the low-altitude target. Simultaneously, the PTZ camera dynamically adjusts its orientation and focal length guided by the estimated target position, and then the PTZ camera can capture the image of tiny low-altitude target from several hundred meters away. The low-altitude targets of interest in this work primarily comprise UAVs and birds. Since the subcategories of UAVs and birds exhibit diversity, we design the ISAC and vision fusion system to recognize fine-grained UAVs and birds by fusing wireless features and visual features. 3Pigeon DJI MAVIC 3 
+
+BS transmits a nd receives 
+
+echo singals of targets. 
+
+BS estimate s parameters of 
+
+targets and yields original 
+
+mD spectrum 
+
+> Position
+
+PTZ camera adjusts its 
+
+parameters based on the 
+
+target's position. 
+
+> PAN/TILT
+> ZOOM
+> IN/OUT
+
+PTZ camera yields the RGB 
+
+image of targets. 
+
+## Stage 2 
+
+YOLOv11 detects target 
+
+and crops the RGB image 
+
+cGAN denoises the mD 
+
+spectrum 
+
+MobileViT-based network 
+
+recognizes the subcategories 
+
+of the targets 
+
+> …
+> Kingfisher
+> Crow
+> Sparrow
+> DJI MAVIC 3
+> DJI mini 2
+> Six Rotor UAV
+
+## Stage 1 Stage 3  
+
+> …
+> Fig. 2. The proposed ISAC and vision fusion framework for fine-grained low-altitude target recognition.
+
+The ISAC BS operates in mmWave frequency bands with orthogonal frequency division multiplexing (OFDM) modula-tion to realize both wireless communications and low-altitude target monitoring. Suppose that ISAC system emits OFDM signals with M subcarriers, where the lowest frequency and the subcarrier interval are f0 and ∆f , respectively. Then the transmission bandwidth is W = M ∆f , and the frequency of the m-th subcarrier is fm = f0 + m∆f , m = 0 , 1, ..., M − 1.We consider that one OFDM frame contains N consecutive OFDM symbols. The full N symbols are utilized for target recognition, while the first N0 symbols are utilized for target position and velocity estimation. The time interval between the adjacent symbols is Ts [35]. The ISAC BS employs massive multiple input multiple out-put (MIMO) arrays with one hybrid unit uniform rectangular array (HU-URA) and one radar unit uniform rectangular array (RU-URA). The HU-URA and RU-URA are responsible for transmitting sensing detection signals and receiving target echo signals, respectively. Both the arrays are vertically mounted on the 2D plane y = 0 . The HU-URA and RU-URA contain 
+
+NH = N xH × N zH and NR = N xR × N zR antenna elements, respectively. The inter-element spacing along the x-axis and 
+
+z-axis is d = λ/ 2, where λ denotes the carrier wavelength. Let us assume that BS is located at the origin of the coordinate system, and PTZ camera is co-located with BS. Moreover, the PTZ camera possesses three controllable de-grees of freedom, i.e., the pan angle ψ, the tilt angle ϑ, and the focal length f . Among these working parameters, pan angle and tilt angle determine the optical axis direction of the camera, while focal length controls the camera’s field of view (FOV). Let ωR and ωL denote the right and left azimuth angular boundaries of the camera at f . Then the FOV can be formulated as 
+
+F OV = ωR − ωL. (1) Let us adopt the spherical coordinate system (r, θ, ϕ ) to describe the 3D spatial relationship. Here, r ≥ 0 denotes the radial distance, while θ ∈ [30 ◦, 150 ◦] and ϕ ∈ [−60 ◦, 60 ◦]
+
+represent the azimuth angle and elevation angle, respectively. With the BS and the PTZ camera co-located at the origin, the effective monitoring region S can be defined as 
+
+S = (r, θ, ϕ ) | rmin ≤ r ≤ rmax , θ min ≤ θ ≤ θmax ,ϕmin ≤ ϕ ≤ ϕmax . (2) We assume that all the low-altitude targets are located within this monitoring area. 4
+
+B. The Proposed ISAC and Vision Fusion Framework for Fine-Grained Low-Altitude Target Recognition 
+
+As illustrated in Fig. 2, the proposed ISAC and vision fu-sion framework for fine-grained low-altitude target recognition includes three stages, which are introduced as follows. 
+
+1) BS Sensing and Image Acquisition. In the first stage, the HU-URA of BS covers the entire sensing space through wide beamforming and emits the sensing detection signals, which will be scattered by low-altitude target and cause echo signals. Then the RU-URA of BS will receive these target echo signals. We utilize 2D-FFT and minimum variance distor-tionless response (MVDR) algorithms to estimate the position and velocity parameters of the low-altitude target from the echo signals as (ˆ r, ˆθ, ˆϕ, ˆvr ). Meanwhile, we also implement STFT on the echo signals to obtain the original mD spectrum of the low-altitude target. Subsequently, we actively adjust the working parameters {ψ, ϑ, f } of the PTZ camera based on the estimated (ˆ r, ˆθ, ˆϕ, ˆvr ). Then the camera can capture the proper RGB image of tiny low-altitude target from several hundred meters away. 
+
+2) Feature Extraction and Enhancement. In the second stage, we design a cGAN-based denoising network to optimize the quality of the original mD spectrum obtained by ISAC BS [36]. Simultaneously, we employ YOLOv11 network to detect the low-altitude target from the captured visual image [37]. Based on the detection results, we crop the small-sized feature image of the target from the original image. The small-sized feature image effectively removes environmental background interference and makes the visual modality more focused on target recognition. 
+
+3) Dual-Modal Feature Fusion and Target Recognition. 
+
+In the third stage, we leverage MobileViT [38] and other deep learning techniques to facilitate interaction and fusion of the preprocessed wireless feature and visual feature. By integrating the micro-motion information embedded in the optimized mD spectrum with the rich texture, color, and shape attributes from the RGB visual image, we extract the critical features essential for fine-grained target recognition. Through iterative training on the generated dataset, we can realize high-precision fine-grained low-altitude target recognition. III. L OW -A LTITUDE TARGET PARAMETER ESTIMATION AND PTZ C AMERA IMAGE ACQUISITION 
+
+In this section, we utilize ISAC BS to estimate the position and velocity information of the low-altitude target. Then we utilize the estimated target position to control the PTZ camera for precise target image acquisition. 
+
+A. Echo Signals of Low-Altitude Target 
+
+Let us consider a low-altitude volumetric target with K scat-tering points. For the k-th scattering point, let (rn,k , θ n,k , ϕ n,k )
+
+denote its position at the n-th OFDM symbol, n =0, 1, ..., N − 1, and k = 0 , ..., K − 1. Then the sensing echo channel of the k-th scattering point on the m-th subcarrier of the n-th OFDM symbol can be represented as [6] 
+
+Hn,m,k = αn,k e−j 4πfmr n,k c aR(Ψ n,k , Ωn,k )aTH (Ψ n,k , Ωn,k ),
+
+(3) where αn,k denotes the complex channel fading factor, Ψn,k =cos ϕn,k cos θn,k and Ωn,k = sin ϕn,k represent the spatial directions. Moreover, aR ∈ CNR×1 and aH ∈ CNH ×1
+
+represent the array steering vectors for the RU-URA and HU-URA, respectively [39]. Based on the URA structure, the array vectors are decomposed by the Kronecker product ⊗ as 
+
+aR(Ψ n,k , Ωn,k ) = axR(Ψ n,k ) ⊗ azR(Ω n,k ), (4) 
+
+aH (Ψ n,k , Ωn,k ) = axH (Ψ n,k ) ⊗ azH (Ω n,k ). (5) The steering vectors along the x-axis and z-axis follow the standard uniform linear array (ULA) format, i.e., 
+
+axR(Ψ) = [1 , e j 2πf 0dΨ 
+
+> c
+
+, ..., e j 2πf 0dΨ  
+
+> c(NxR−1)
+
+]T ∈ CN xR×1, (6) 
+
+azR(Ω) = [1 , e j 2πf 0dΩ 
+
+> c
+
+, ..., e j 2πf 0dΩ  
+
+> c(NzR−1)
+
+]T ∈ CN zR×1, (7) 
+
+axH (Ψ) = [1 , e j 2πf 0dΨ 
+
+> c
+
+, ..., e j 2πf 0dΨ   
+
+> c(NxH−1)
+
+]T ∈ CN xH ×1, (8) 
+
+azH (Ω) = [1 , e j 2πf 0dΩ 
+
+> c
+
+, ..., e j 2πf 0dΩ   
+
+> c(NzH−1)
+
+]T ∈ CN zH ×1. (9) Based on (3), the sensing echo channel of the low-altitude target with K scattering points on the m-th subcarrier of the 
+
+n-th OFDM symbol can be represented as [40] 
+
+Hn,m =
+
+> K−1
+
+X
+
+> k=0
+
+Hn,m,k . (10) We adopt the generalized step-chirp (GSC) sequence design [41] for the transmitting beamforming of HU-URA to real-ize efficient low-altitude wide-area coverage. The wide-area beamforming vector WH ∈ CNH ×1 can be denoted as 
+
+WH = WxH ⊗ WzH . (11) Here WxH and WzH control the azimuth and elevation beamwidths, whose specific expressions can be found in [41]. Based on (11), the transmission signal on the m-th subcar-rier of the n-th OFDM symbol is 
+
+xn,m = pPt/N H WH sn,m , (12) where Pt is the transmission power of BS, and sn,m is the sensing detection signal. Then the sensing echo signals on the m-th subcarrier of the 
+
+n-th symbol received by RU-URA can be represented as 
+
+yn,m = Hn,m x∗ 
+
+> n,m
+
++ nn,m , (13) where nn,m is zero-mean additive Gaussian noise with vari-ance σ2. Then we erase the influence of sn,m and obtain 
+
+ˇyn,m = yn,m /s n,m . (14) Note that ˇyn,m ∈ CNR×1 denotes the received signal vector across all antenna elements. Hence, ˇyn,m can be reshaped into a 2D spatial matrix Yn,m ∈ CN xR×N zR , expressed as 
+
+Yn,m ∈ CN xR×N zR , s.t. vec( Yn,m ) = ˇyn,m . (15) Consequently, the total received echo signals of the RU-URA across all OFDM symbols and all subcarriers can be represented as a 4D tensor, i.e., 
+
+Y = {Yn,m }N −1,M −1 
+
+> n=0 ,m =0
+
+, Y ∈ CN ×M ×N xR×N zR . (16) 5
+
+B. Target Position and Velocity Estimation 
+
+Note that the velocity of the target is implicitly embedded within the sequence of position (rn,k , θ n,k , ϕ n,k ) for n =0, 1, ..., N − 1. Hence, Y contains not only the positional information of the target but also its velocity information. Here, we utilize the ISAC BS to estimate the position and radial velocity of the low-altitude target’s centroid. We first obtain a coarse range and velocity estimation by 2D-FFT. Let 
+
+YRD ∈ CN0×M denote the echo signal extracted from the 
+
+(0 , 0) -th antenna element in Y. The range-Doppler spectrum 
+
+GRD is obtained via 2D-FFT as 
+
+GRD = F(( F−1(YRD , M, 2)) , L v , 1) , (17) where F−1(·, M, 2) represents the M -point IFFT operation along the second dimension, and F (·, L v , 1) represents the 
+
+Lv -point FFT operation along the first dimension. The coarse estimated range ˆrc and velocity ˆvc are obtained by the peak indices (nd, n r ) of the amplitude spectrum |GRD |, i.e., 
+
+ˆrc = nr ∆r, ˆvc = nd∆v, (18) where ∆r = c/ 2W and ∆v = λ/ (2 Lv Ts) represent the range and velocity resolutions, respectively. Then we employ MVDR for range refinement. Let Yr ∈
+
+CM ×NR denote the echo matrix extracted at the 0-th OFDM symbol. The covariance matrix can be computed as 
+
+ˆRr = 1
+
+NR
+
+Yr YHr . (19) Then the range MVDR spectrum can be formulated as 
+
+Pr (r) = 1
+
+aH (r) ˆR−1 
+
+> r
+
+a(r) , (20) where a(r) = [1 , e −j 4π∆f r c , . . . , e −j 4π∆f r c (M −1) ]T is range steering vector. The precise range ˆr can be estimated by searching the peak of Pr within a local window [ˆ rc − δr , ˆrc +
+
+δr ], where δr represents the range window width. Similarly, let Yv ∈ CN0×NR denote the echo matrix extracted at the 0-th subcarrier. The covariance matrix and velocity MVDR spectrum can be computed as 
+
+ˆRv = 1
+
+NR
+
+Yv YHv , (21) 
+
+Pv (v) = 1
+
+aH (v) ˆR−1 
+
+> v
+
+a(v) , (22) where a(v) = [1 , e j 4πvTs λ , . . . , e j 4πvTs λ (N0−1) ]T is velocity steering vector. The precise velocity ˆv is estimated by search-ing for the peak of Pv within a local window [ˆ vc −δv , ˆvc +δv ],where δv represents the velocity window width. Next, we need to obtain a coarse ˆθc by FFT. Let Ya ∈
+
+CN xR×N zR denote the spatial echo matrix extracted on the 0-th subcarrier at the 0-th OFDM symbol. The azimuth profile can be obtained by 
+
+gθ = 1
+
+N zRN zR−1
+
+X
+
+> nzR=0
+
+|F (Ya(: , n zR), L a, 1) | . (23) Then ˆθc is determined by the peak index of gθ , which can be expressed as ˆθc = arcsin 
+
+ arg max gθ −La/2
+
+> La/2
+
+ 180  
+
+> π
+
+.
+
+Let us extract Yθ ∈ CN xR×N zRM at the 0-th OFDM symbol. The azimuth covariance matrix and MVDR spectrum are computed as 
+
+ˆRθ = 1
+
+N zRM Yθ YHθ , (24) 
+
+Pθ (θ) = 1
+
+aH (θ) ˆR−1 
+
+> θ
+
+a(θ) , (25) where the azimuth steering vector is defined as a(θ) =[1 , e jπ sin θ , . . . , e jπ (N xR−1) sin θ ]T . The precise azimuth ˆθ is estimated by searching for the peak of Pθ within a local window [ˆθc −δθ , ˆθc +δθ ], where δθ represents the search scope. Since the RU-URA structure exhibits symmetry between the horizontal and vertical dimensions, the estimation of the elevation angle ϕ could follow the same procedure as that of the azimuth. We obtain the precise elevation estimated ˆϕ
+
+by performing the coarse-FFT and fine-MVDR along the N zR
+
+dimension. Eventually, we have estimated the position and velocity parameters of the low-altitude target as (ˆ r, ˆθ, ˆϕ, ˆvr ).
+
+C. PTZ Camera Active Control and Image Acquisition 
+
+Based on the estimated target parameters (ˆ r, ˆθ, ˆϕ, ˆvr ) from ISAC BS, we can actively control the PTZ camera to obtain the effective RGB visual image of the tiny low-altitude target from hundreds of meters away. Let ω = [ ψ, ϑ, γ ]T denote the desired Euler angles, which includes yaw, pitch, and roll of the camera. Based on estimated 
+
+ˆϕ and ˆθ, the control law is defined as 
+
+ψ = ˆϕ, ϑ = ˆθ, γ = 0 , (26) where the roll angle γ is fixed at zero to maintain a stable horizon. The Euler angles are then converted into a unit quaternion q = [ qw, q x, q y , q z ]T as 
+
+q =
+
+
+
+qw
+
+qx
+
+qy
+
+qz
+
+ =
+
+
+
+cos 
+
+ ψ
+
+> 2
+
+
+
+cos   ϑ
+
+> 2
+
+
+
+cos 
+
+ ψ
+
+> 2
+
+
+
+sin   ϑ
+
+> 2
+
+
+
+sin 
+
+ ψ
+
+> 2
+
+
+
+cos   ϑ
+
+> 2
+
+
+
+− sin 
+
+ ψ
+
+> 2
+
+
+
+sin   ϑ
+
+> 2
+
+
+
+. (27) The generated quaternion q serves as the direct control input for the PTZ camera to ensure precise angular alignment with the low-altitude target. Then we adjust the FOV to realize adaptive zooming for low-altitude targets. Let Lobj denote the physical width of the target in the real world and Lcls denote the required pixel width for the effective recognition. Given the total image width Wimg , the required physical coverage width Wcls can be derived as 
+
+Wcls = Wimg 
+
+Lcls 
+
+· Lobj . (28) Based on the pinhole imaging model, the relationship between the azimuth FOV and the coverage width Wcls at distance ˆr is given by geometrical similarity as 
+
+tan 
+
+ F OV 
+
+2
+
+
+
+= Wcls 
+
+2ˆ r . (29) 6
+
+Substituting (28) into (29), the adaptive FOV control law can be formulated as 
+
+F OV = 2 arctan 
+
+ Wimg · Lobj 
+
+2ˆ r · Lcls 
+
+
+
+. (30) It should be noted that the derived q and F OV is math-ematically equivalent to PTZ camera’s working parameters 
+
+{ψ, ϑ, f }, which implies that to adjiust q and F OV is fundamentally identical to adjusting {ψ, ϑ, f }. Hence, based on q and F OV , we can align the main optical axis of the PTZ camera with the spatial direction of the low-altitude target, and the PTZ camera’s perspective matches the distance and geometric dimensions of the target. Then we can capture the effective RGB image of the tiny low-altitude target from hundreds of meters away. IV. M ICRO -D OPPLER SPECTRUM EXTRACTION AND 
+
+DENOISING ENHANCEMENT FROM ISAC BS In this section, we obtain the mD spectrum observed by the ISAC BS and perform denoising enhancement by cGAN. 
+
+A. Micro-Doppler Spectrum Extraction 
+
+Based on the estimated angles ˆθ and ˆϕ, we construct the received beamforming weight matrix ˆWR ∈ CNR×1 as 
+
+ˆWR = 1
+
+√NR
+
+aR(ˆθ, ˆϕ). (31) The signal after received beamforming can be obtained as 
+
+yBF n,m = ˆWHR ˇyn,m . Then the echo signal matrix after received beamforming can be expressed as 
+
+YBF =
+
+
+
+yBF  
+
+> 0,0
+
+yBF  
+
+> 0,1
+
+· · · yBF  
+
+> 0,M −1
+
+yBF  
+
+> 1,0
+
+yBF  
+
+> 1,1
+
+· · · yBF  
+
+> 1,M −1
+
+... ... . . . ...
+
+yBF N −1,0 yBF N −1,1 · · · yBF N −1,M −1
+
+∈ CN ×M . (32) Next, we apply STFT on YBF to capture the time-varying micro-motion features of low-altitude targets with a sliding window of length Lwin and a step size Astep . Let Y(q)
+
+> BF
+
+denote the q-th signal segment along the symbol dimension, 
+
+q = 0 , 1, ..., Q − 1. The total number of segments Q is 
+
+Q =
+
+ N − Lwin 
+
+Astep 
+
+
+
++ 1 . (33) Then the Y(q) 
+
+> BF
+
+can be extracted as 
+
+Y(q) 
+
+> BF
+
+= YBF (q · Astep : q · Astep + Lwin − 1, :) . (34) The range-Doppler map for the q-th segment is computed as 
+
+G(q) 
+
+> mD
+
+= F
+
+ 
+
+F−1 
+
+Y(q) 
+
+> BF
+
+⊙ Whann , M, 2
+
+ 
+
+, L win , 1
+
+
+
+, (35) where Whann is the Hanning window function. Subsequently, we obtain the q-th column of the raw mD spectrum Sraw ∈
+
+RLwin ×Q by summing the magnitude of G(q) 
+
+> mD
+
+over the range dimension as 
+
+Sraw (l, q ) =  
+
+> M−1
+
+X
+
+> m=0
+
+G(q) 
+
+> mD
+
+(l, m ) , l = 0 , . . . , L win − 1. (36) 0.00 0.01 0.02 0.03 0.04 
+
+> Time (s)
+> 200
+> 100
+> 0
+> 100
+> 200
+> Velocity Cell of mD (m/s)
+
+(a) 0.00 0.01 0.02 0.03 0.04  
+
+> Time (s)
+> 200
+> 100
+> 0
+> 100
+> 200
+> Velocity Cell of mD (m/s)
+
+(b) 0.00 0.01 0.02 0.03 0.04 
+
+> Time (s)
+> 200
+> 100
+> 0
+> 100
+> 200
+> Velocity Cell of mD (m/s)
+
+(c) 0.00 0.01 0.02 0.03 0.04  
+
+> Time (s)
+> 200
+> 100
+> 0
+> 100
+> 200
+> Velocity Cell of mD (m/s)
+
+(d) 
+
+Fig. 3. mD spectrum of four different targets. (a) DJI MAVIC 3. (b) DJI MINI 2. (c) Kingfisher. (d) Crow. 
+
+Define vmin = min( Sraw ) as the minimum value of 
+
+Sraw . Then we could construct the padded spectrum Spad ∈
+
+R3Lwin ×Q as 
+
+Spad (l, q ) = 
+
+(
+
+Sraw ( l − Lwin , q ), Lwin ≤ l < 2Lwin ,vmin , otherwise . (37) The energy center index lc is obtained by maximizing the accumulated energy along the time dimension, i.e., 
+
+lc = arg max 
+
+> lQ−1
+
+X
+
+> q=0
+
+Spad (l, q ). (38) Next, we crop a fixed window centered at lc to extract the aligned mD spectrum Saln ∈ RLwin ×Q, as 
+
+Saln (l, q ) = Spad (lc − ⌊ Lwin /2⌋ + l, q ). (39) For visualization and subsequent denoising, we convert Saln 
+
+into an RGB image XmD ∈ RHr ×Wr ×3. Fig. 3 illustrates that the obtained mD spectrum exhibit distinct micro-motion signatures for different subcategories of low-altitude targets. Specifically, Fig. 3(a) and Fig. 3(b) display consistent and periodic micro-motion patterns of DJI MAVIC 3 and DJI MINI 2, which are attributed to the high-speed rotation of the rotor blades of UAVs. Furthermore, discernable differences are also evident among different subcategories UAV models, which are attributed to distinct rotor rotation frequencies and structural configurations. In contrast, the mD spectrum of the birds in Fig. 3(c) and Fig. 3(d) demonstrate more irregular and fluctuating patterns. The flapping motion of the Kingfisher and Crow produces lower-frequency modulation components with varying time intervals, which are fundamentally different from the rigid rotation of UAVs. Moreover, difference between Kingfisher and Crow also exists because of different flapping frequencies and body shapes. 7L1 Loss 
+
+cGAN 
+
+Loss 
+
+cGAN Loss + (L1 L oss) 
+
+Noisy mD 
+
+Clean mD 
+
+U-N et 
+
+Generator 
+
+(G) 
+
+Denoised mD 
+
+Real Pair 
+
+Noisy mD Clean mD 
+
+Fake Pair 
+
+Noisy mD Denoised mD 
+
+PatchGAN 
+
+Discrimina 
+
+tor(D) 
+
+Real/Fake 
+
+Forward propagation 
+
+Compu ting loss 
+
+Back propagation  
+
+> Fig. 4. cGAN-based denoising network.
+
+B. Micro-Doppler Spectrum Denoising Enhancement 
+
+In practical applications, the received echo signals are inevitably corrupted by noise. Consequently, under low signal-to-noise ratio (SNR) conditions, the mD features become obscured and difficult to distinguish. Let us denote SNR as SNR =
+
+E
+
+h
+
+Hn,m x∗
+
+> n,m
+> 2
+
+i
+
+E
+
+h
+
+∥nn,m ∥2i . (40) We design a cGAN-based denoising network to denoise the noisy mD spectrum. As illustrated in Fig. 4, cGAN consists of a generator G and a discriminator D. The generator G
+
+aims to map the noisy mD spectrum image Xnoisy mD to a clean spectrum image Xclean mD . To preserve low-level features while extracting high-level semantic information, we adopt a U-Net architecture with symmetric encoder-decoder layers [42]. Define Ei and Di as the i-th downsampling block of the encoder and the i-th upsampling block of the decoder, 
+
+i = 1 , . . . , I . The encoder maps the input Xnoisy mD into a latent feature representation through I hierarchical layers. The output of the i-th encoder layer, ei, is expressed as 
+
+ei = σReLU (BN (Conv (ei−1))) , (41) where e0 = Xnoisy mD , Conv denotes the convolution operation, BN is batch normalization, and σReLU is the ReLU activation function. The decoder fuses the features from the previous de-coder layer and the corresponding encoder layer via channel-wise concatenation. The output of the j-th decoder layer is 
+
+dj = σReLU (BN (Deconv ([ dj−1, eI−j ]))) , j = 1 , . . . , I − 1,
+
+(42) where d0 = eI represents the bottleneck feature representation extracted by the encoder, [·, ·] denotes the concatenation op-eration, and Deconv represents transposed convolution. Then the denoised mD spectrum is generated via a Tanh activation as ˆXmD = tanh( Conv (dI−1)) .The discriminator D is designed to distinguish between the real pair (Xnoisy mD , Xclean mD ) and the fake pair (Xnoisy mD , ˆXmD ).To capture local high-frequency details, we adopt a PatchGAN architecture [43] in D, which maps the input pair to a validity matrix. Each element in the matrix represents the authenticity probability of a specific local image patch. Mathematically, the discriminator is modeled as a cascade of LD convolutional blocks. Let fu(·) denote the mapping function of the u-th layer, which typically comprises convolution, normalization, and activation operations. The output validity matrix Mout is thus expressed as 
+
+Mout = ( fLD −1 ◦ fLD −2 ◦ · · · ◦ f0)([ Xnoisy mD , Xcand mD ]) , (43) where Xcand mD ∈ {Xnoisy mD , ˆXmD } represents the candidate image, and ◦ denotes function composition. We design the training objective as a weighted combina-tion of the adversarial loss and the pixel-wise reconstruction loss. Let L denote the loss function and define Mreal out =
+
+D(Xnoisy mD , Xclean mD ) and Mf ake out = D(Xnoisy mD , ˆXmD ). The adversarial loss LcGAN is then formulated as 
+
+LcGAN (G, D ) = EXnoisy mD ,Xclean mD 
+
+mean  log Mreal out 
+
+ 
+
++ EXnoisy mD 
+
+h
+
+mean 
+
+
+
+log( 1 − Mf ake out )
+
+i 
+
+. (44) An L1 distance penalty loss is also imposed to ensure the generated spectrum is structurally close to the ground truth, as 
+
+LL1(G) = EXnoisy mD ,Xclean mD 
+
+h
+
+∥Xclean mD − ˆXmD ∥1
+
+i
+
+. (45) The final optimization problem is a minimax game given by 
+
+G∗ = arg min  
+
+> G
+
+max  
+
+> D
+
+(LcGAN (G, D ) + λloss LL1(G)) , (46) where λloss is the balancing parameter to control the weight of the reconstruction error. It can be observed from Fig. 4 that the noisy mD spectrum is severely corrupted by noise, which results in obscured micro-motion patterns. In contrast, the denoised mD spectrum exhibits a significantly clear micro-motion pattern. Hence, the cGAN-based denoising network successfully suppresses 8MobileVit-S        
+
+> MobileVit-X S
+> Concatenation
+> Classifier Head  DJI MAVIC 3
+> DJI mini 2
+> Six Rotor UAV
+> Kingfisher
+> Crow
+> Sparrow
+> ……
+> Denoised mD
+> Cropped image
+> ℝ𝐀 𝐀 𝐀 𝐀 ℝ𝐀 𝐀 𝐀 𝐀 𝐀
+> High-Dim Feature
+> Original image
+> YOLO v11
+> cGAN
+> Noisy mD ISAC branch
+> Vision branch
+> Fig. 5. Fine-grained low-altitude target recognition network with MobileViT.
+
+the noise while preserving the structural integrity of the mD signatures. V. F INE -G RAINED LOW -A LTITUDE TARGET RECOGNITION 
+
+NETWORK WITH MOBILE VITIn this section, we utilize YOLOv11 to preprocess the visual image, and then design a fine-grained low-altitude target recognition network with MobileViT. 
+
+A. Visual ROI Extraction by YOLOv11 
+
+We employ an ROI extraction module to eliminate back-ground redundancy, which directs the subsequent recognition network to only focus on the target’s features. Specifically, we utilize the YOLOv11 detector to localize the low-altitude targets within the RGB images. Let Xraw vis denote the original image. The detector outputs the bounding box coordinates 
+
+B = [ xc, y c, w b, h b] of the target, where (xc, y c) represents the center coordinates, while wb, h b denote the width and height of the box, respectively. To extract the target, we convert the bounding box into pixel coordinates which correspond to the top-left (u1, v 1) and bottom-right (u2, v 2) corners, i.e., 
+
+u1 = xc − wb/2, v1 = yc − hb/2, (47) 
+
+u2 = xc + wb/2, v2 = yc + hb/2. (48) The small-sized feature image XROI is cropped from the original image based on the indices as 
+
+XROI = Xraw vis (v1 : v2, u 1 : u2, :) . (49) Then we normalize XROI to a standardized dimension Xvis ∈
+
+RHv ×Wv ×3 by bilinear interpolation, which aligns with the input specifications of the following recognition network. 
+
+B. Fine-Grained Low-Altitude Target Recognition Network 
+
+Since the visual images and mD spectrum possess distinct statistical properties, we design a dual-stream architecture to extract latent features individually. As shown in Fig. 5, we adopt MobileViT as the backbone for both ISAC and vision branches. MobileViT effectively combines the spatial inductive biases of convolutional neural network (CNN) with the global processing capabilities of ViT, which makes it highly suitable to capture both the fine-grained features of low-altitude targets in RGB images and the periodic micro-motion patterns in mD spectrum. The vision branch processes the pre-processed RGB tensor 
+
+Xvis . We utilize the MobileViT-XS variant to maintain a lightweight deployment profile. Let Fvis (·) denote the feature mapping function instantiated by the MobileViT-XS backbone. The feature mapping function progressively downsamples the input Xvis while aggregating global context via self-attention mechanisms. To obtain a compact representation, we apply global average pooling (GAP) to the final feature maps, which yields the feature vector fvis ∈ RDvis as 
+
+fvis = GAP (Fvis (Xvis )) , (50) where Dvis represents the channel dimension of the extracted visual features. The ISAC branch takes the aligned mD spectrum XmD as the input. We employ a slightly deeper model, MobileViT-S, to capture the complex time-frequency couplings of micro-motions. Specifically, the convolutional layers capture local spectral textures, such as sharp Doppler shifts. The transformer layers model the long-range temporal correlations inherent in periodic micro-motion signatures that often span across multiple time frames. Let FmD (·) denote the mapping function of the ISAC backbone. The extracted feature vector f raw mD ∈
+
+RDmD is obtained as 
+
+f raw mD = GAP (FmD (XmD )) , (51) where DmD corresponds to the output dimension of MobileViT-S. To enhance the representation capability of the mD branch, we map the raw sensing feature f raw mD to a higher-dimensional space, which can be expressed as 
+
+fmD = σReLU (BN (Wproj f raw mD + bproj )) , (52) where Wproj ∈ RDproj ×DmD and bproj are learnable param-eters. The projection step ensures that the ISAC mD features are explicitly emphasized before fusion. Subsequently, we concatenate visual feature vector fvis and the projected ISAC mD feature vector fmD along the channel dimension to form the unified multi-modal representation as 
+
+ff used = [ fvis , fmD ] ∈ RDtotal ,where Dtotal = Dvis + Dproj .The fused feature is then fed into a multi-layer perceptron (MLP) classifier to predict the fine-grained target category. The network is trained end-to-end by minimizing the cross-entropy loss between the output and the ground truth labels. 9Blender Airsim Wireless I nsite    
+
+> Scene&Target 3D Model Visual Simulation Ray-Tracing Simulation
+> Replay
+> Export Model
+> Export
+> Model
+> Export
+> Position
+> Fig. 6. Generation pipeline of joint ISAC and vision low-altitude target monitoring dataset.
+
+VI. S IMULATION RESULTS 
+
+In this section, we generate a low-altitude targets monitoring dataset named JIVD for joint ISAC and vision recognition, and then evaluate the performance of the proposed fine-grained low-altitude target recognition framework. 
+
+A. RGB Image and Channel State Generation via AirSim and Wireless InSite 
+
+As shown in Fig. 6, we conduct the RGB image generation of low-altitude targets on Microsoft AirSim, a high-fidelity simulator built on Unreal Engine 4 (UE4) [44]. We import 3D mesh models of low-altitude targets and large-scale map assets from Blender into the AirSim [45]. However, a critical challenge in JIVD generation is to ensure the strict temporal alignment between the echo signals and the RGB images. Hence, we utilize a trajectory-replay image generation strategy. We first control the target to execute flight behaviours within the designated monitoring zone S. Meanwhile, we record the ground truth position and velocity at a high sampling frequency by AirSim’s sensor interface. Then we generate the RGB image frame by frame, which uses a replay approach instead of continuous recording. Specifically, AirSim iterates through the recorded positions. For each timestamp, we pause the simulation clock and reposition the target to exact recorded position. Meanwhile, we actively configure the PTZ camera based on the target’s current location, which follows the control logic (27) and (30). Once the configuration is settled, an RGB image is captured and stored. Next, we import the 3D mesh models in Blender and positions recorded in the AirSim into Wireless InSite [46]. The target’s position is configured by the recorded location frame by frame. It ensures that for every RGB image captured in the PTZ camera, there exists a corresponding echo channel state generated in the Wireless InSite. We then utilize X3D ray-tracing solver to extract the echo channel parameters. For each frame of the target’s trajectory, the solver calculates the propagation characteristics of the rays, which include the line-of-sight (LoS) path and non-line-of-sight (NLoS) components. Given the small physical size and relatively long detection distance of low-altitude targets, we focus exclusively on the LoS path and neglect NLoS components in this paper. The simulation output provides a comprehensive set of geometric channel parameters for each propagation path, which includes time of arrival, angles of departure and angles of arrival. Finally, we substitute geometric parameters into the theoretical channel model derived in Section II to synthesize the raw echo signal data by MATLAB. 
+
+B. Composition and Settings of Generated Dataset 
+
+Fig. 7 illustrates the detailed composition of the generated dataset. The dataset includes 10 distinct subcategories of low-altitude targets for fine-grained recognition, which consists of 5 UAV models and 5 bird species. The UAVs include DJI MAVIC 3, DJI AVATA, DJI MINI 2, DJI INSPIRE 2 and Six Rotor UAV. The birds include kingfisher, crow, owl, pigeon and sparrow. Specific details on the modeling process, kinematics, micro-motion parameters, and geometry of these targets can be found in [6]. The simulation scenarios mainly cover open plazas and dense urban building complexes. Moreover, sunny, rainy and snowy weather conditions are included in AirSim. Furthermore, each trajectory sequence created by AirSim has a duration of 5 seconds with a sampling rate of 24 frames per second (FPS). To ensure diversity of the dataset, targets are generated with initial position ranges set at 50 m, 150 m, 300 m, 450 m, and 600 m for every target class. Consequently, the dataset comprises a total of 10 ×5×5×24 = 6,000 RGB images, each with a resolution of 1920 × 1080 
+
+pixels. Hence, the corresponding parameter Lcls for fine-grained target recognition is set at 40 pixels. Subsequently, the positions generated by AirSim are imported into Wireless InSite to perform channel state generation. The results are then exported to MATLAB to generate 6,000 frames of echo signals synchronized with the visual images. We set the operating frequency of BS as f0 = 26 GHz, the subcarrier spacing as ∆f = 100 kHz, the number of subcar-riers as M = 1024 , the antenna spacing as dx = dz = d = 
+
+> λ
+> 2
+
+= c 
+
+> 2f0
+
+, the array size of HU-URA as N xH × N zH = 16 × 16 ,the array size of RU-URA as N xR × N zR = 8 × 8, the number of OFDM symbols contained in one frame as N = 4200 ,and the OFDM symbol interval as Ts = 10 μs. For time-frequency analysis, we set the window length for STFT as 
+
+Lwin = 128 with a step size Astep = 4 . Then we add random noise with SNR belonging to {0, 5, 10, 15, 20, 25, 30 } dB to the noiseless echo signal, which results in 6, 000 ×7 = 42 , 000 
+
+noisy echo signals. Upon generation, the dataset is partitioned into training and testing sets. For sequences shown in Fig. 7, we randomly choose 80% sequences for training and 20% 
+
+sequences for testing. 
+
+C. Performance of mD Spectrum Denoising Enhancement 
+
+During the cGAN-based denoising network training phase, we pair each clean spectrum Xclean mD with its corresponding 10 Sunny Rainy Snowy        
+
+> Fig. 7. Composition of the genetated joint ISAC and vision low-alititude targets monitoring dataset. 0510 15 20 25 30
+> SNR (dB)
+> 10 1
+> 10 2
+> 10 3
+> MSE
+> Denoised mD Noisy mD
+
+(a) 0 5 10 15 20 25 30  
+
+> SNR (dB)
+> 15 20 25 30 35 40 45
+> PSNR (dB)
+> Denoised mD Noisy mD
+
+(b) 0 5 10 15 20 25 30  
+
+> SNR (dB)
+> 0.7 0.75 0.8 0.85 0.9 0.95 1
+> SSIM
+> Denoised mD Noisy mD
+
+(c)  
+
+> Fig. 8. Comparison of reconstruction quality metrics between noisy and denoised mD spectrum under different SNR. (a) MSE. (b) PSNR. (c) SSIM.
+
+0 5 10 15 20 25 30 
+
+SNR (dB) 
+
+50 55 60 65 70 75 80 
+
+> Acc (%)
+
+Denoised mD only Noisy mD only  
+
+> Fig. 9. Testing recognition accuracy of noisy mD and denoised mD.
+
+noisy spectrum Xnoisy mD across all SNR levels as input. In the testing phase, only the unseen noisy Xnoisy mD from the testing set is input. To evaluate the performance of the proposed cGAN-based denoising network, we introduce three standard metrics in image reconstruction: mean squared error (MSE), peak signal-to-noise ratio (PSNR), and structural similarity index measure (SSIM) [47], respectively expressed as MSE = 1
+
+Hr Wr
+
+Xclean mD − ˆXmD  
+
+> 2
+> F
+
+, (53) PSNR = 10 log 10 
+
+ max( Xclean mD )2
+
+MSE 
+
+
+
+, (54) SSIM = (2 μcμr + C1)(2 σcr + C2)(μ2 
+
+> c
+
++ μ2 
+
+> r
+
++ C1)( σ2 
+
+> c
+
++ σ2 
+
+> r
+
++ C2) , (55) 0 0.2 0.4 0.6 0.8 1
+
+Confidence Threshold 
+
+00.2 0.4 0.6 0.8 1
+
+> F1-Score
+
+IoU=0.5 (Max F1: 0.995) IoU=0.6 (Max F1: 0.993) IoU=0.7 (Max F1: 0.949)  
+
+> Fig. 10. F1-score performance under varying confidence threshold at IoU thresholds of 0.5, 0.6, and 0.7.
+
+where ∥ · ∥ F denotes the Frobenius norm, μc and μr denote the mean intensities of Xclean mD and ˆXmD , σ2 
+
+> c
+
+and σ2 
+
+> r
+
+are the corresponding variances, σcr is the covariance, and C1, C 2 are constants included to ensure numerical stability. Fig. 8 presents the comparison between the noisy mD spectrum and the denoised mD spectrum. It can be observed from Fig. 8(a), Fig. 8(b), and Fig. 8(c) that the denoised mD spectrum consistently outperforms the original ones. Specifically, the denoised mD spectrum possesses significantly higher PSNR and SSIM, while possessing lower MSE, which indicates that the proposed cGAN-based denoising network effectively suppresses the noise while preserving the structural integrity of the target’s micro-motion signatures. 11 0 0.2 0.4 0.6 0.8 1
+
+IoU 
+
+00.05 0.1 0.15 0.2 
+
+> Probability
+> Mean IoU: 0.849
+
+Fig. 11. Histogram of IoU on test dataset 0 10 20 30 
+
+SNR (dB) 
+
+60 70 80 90 100 
+
+> Acc (%)
+> Denoised mD only Noisy mD and vision Denoised mD and vision Vision only
+
+Fig. 12. Testing recognition accuracy versus SNRs of different schemes 
+
+Furthermore, to verify the contribution of the cGAN-based denoising network to the recognition performance, we evaluate the recognition accuracy of the ISAC only branch with and without denoising. For clarity, we denote these two schemes as “Denoised mD only” and “Noisy mD only”, respectively. Fig. 9 illustrates the accuracy curves versus SNR. As shown in the figure, the performance of the “Noisy mD only” scheme degrades rapidly as the SNR decreases. In contrast, the “Denoised mD only” scheme maintains a relatively higher accuracy, which shows a significant performance gap. 
+
+D. Performance of Visual ROI Extraction by YOLOv11 
+
+Since the vision branch relies on cropped small-sized fea-ture images for feature extraction, the localization quality of YOLOv11 is important for the overall framework per-formance. Hence, we use class-agnostic metrics to focus on YOLOv11’s ability that could separate low-altitude targets from the background. We introduce the following metrics based on the intersection over union (IoU) threshold. Let NT P 
+
+denote the number of true positives, defined as detections sat-isfying the condition IoU ≥ threshold. Conversely, NF P rep-resents the number of false positives where IoU < threshold. 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00                                                                                  
+
+> 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00
+> 0.00 0.00 1.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00
+> 0.00 0.00 0.00 0.86 0.12 0.00 0.00 0.00 0.02 0.00
+> 0.00 0.00 0.00 0.05 0.95 0.00 0.00 0.00 0.00 0.00
+> 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00 0.00
+> 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00 0.00 0.00
+> 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.98 0.02 0.00
+> 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 1.00 0.00
+> 0.00 0.00 0.00 0.00 0.00 0.00 0.03 0.00 0.00 0.97
+> DJI MAVIC 3
+> DJI AVATA
+> DJI MINI 2
+> DJI INSPIRE 2
+> Six Rotor UAV
+> Kingfisher
+> Crow
+> Owl
+> Pigeon
+> Sparrow
+> DJI MAVIC 3
+> DJI AVATA
+> DJI MINI 2
+> DJI INSPIRE 2 Six Rotor UAV
+> Kingfisher
+> Crow Owl
+> Pigeon
+> Sparrow
+> True
+
+Predicted 
+
+Fig. 13. Confusion matrices of 30 dB test data 
+
+Moreover, NF N indicates the number of false negatives, which corresponds to the targets missed by the detector. The precision (P ) and recall ( R) are formulated as 
+
+P = NT P 
+
+NT P + NF P 
+
+, R = NT P 
+
+NT P + NF N 
+
+. (56) Then the F1-score is calculated as 
+
+F1 = 2 · P · RP + R . (57) Fig. 10 depicts the F1-score curves under 0.5, 0.6, and 0.7 IoU thresholds. It can be observed that YOLOv11 maintains a high F1-score across a wide range of confidence thresholds. Moreover, the F1-score achieves value of 0.995 at the thresh-old of IoU = 0 .5, which implies that there rarely exists false alarms and missed detections within the RGB images. The histogram of IoU is illustrated in Fig. 11. The majority of samples fall within the high-IoU range with a mean IoU of 0.849, which confirms that the YOLOv11 achieves precise localization capabilities for low-altitude targets. The high-precision cropping guarantees that the vision branch receives consistently aligned visual features, which provides a reliable foundation for the ISAC and vision fusion. 
+
+E. Performance of Fine-Grained Low-Altitude Target Recog-nition Network 
+
+Fig. 12 compares the fine-grained recognition accuracy of four experimental settings under varying SNRs. For clarity, we denote the scheme that fuses denoised mD spectrum and RGB images as “Denoised mD and vision”, while the fusion of noisy mD spectrum and RGB images is termed as “Noisy mD and vision”. Additionally, the scheme that only uses RGB images is referred to as “Vision only”. It is evident that the proposed “Denoised mD and vision” scheme achieves the highest accuracy and maintains remarkable stability across the entire SNR range with an average accuracy of 97 .67% .In contrast, the “Noisy mD and vision” scheme degrades 12 UAV  
+
+> Bird
+> Fig. 14. UMAP analysis of 30 dB test data
+
+significantly at low SNRs with an average accuracy of 86 .25% ,which requires a high SNR of 30 dB to eventually match the performance of the proposed method. Meanwhile, the single-modal schemes exhibit significantly inferior performance. The average accuracy of the “Vision only” scheme is limited to 
+
+74 .34% , while the “Denoised mD only” scheme achieves only 
+
+71 .08% . The substantial performance gap verifies the necessity of dual-modal fusion. The integration of features provides critical complementary information that a single sensor cannot offer. In Fig. 13, we illustrate the confusion matrix of the “Denoised mD and vision” scheme for the 10-category recog-nition. As observed from the figure, the diagonal elements are clearly dominant, which indicates high recognition accuracy across all specific classes. To further validate the recognition performance of the proposed dual-stream fusion network, we utilize the uniform manifold approximation and projection (UMAP) algorithm to visualize the high-dimensional feature distribution [48]. Specifically, we extract the fused feature vectors ff used from the layer before MLP. Then the ff used are projected onto a 2D plane for visualization. Fig. 14 illustrates the feature UMAP, where each point represents a test sample, color-coded by its ground truth category. It can be observed from Fig. 14 that the samples corresponding to the 10 target categories form distinct, compact clusters. The visualization demonstrates high inter-class separability and low intra-class variance, which indicates that the network has successfully learned robust and exclusive feature representations for each fine-grained target. To investigate the semantic distinction between the low-altitude targets, we perform a binary classification analysis on the projected 2D manifold. A linear support vector ma-chine (SVM) is employed to determine the decision boundary between the UAV super-class and the bird super-class [49]. As depicted by the dashed line in Fig. 14, a clear linear boundary exists that perfectly separates the UAV clusters from the bird clusters. The margin between the two super-classes verifies that the fused features are highly discriminative, which provides a solid basis for reliable target type identification. VII. C ONCLUSIONS 
+
+In this paper, we have proposed a fine-grained low-altitude target recognition framework based on ISAC and vision fusion system. We first estimated the position of the low-altitude target based on ISAC system. Then, we derived the working parameters of the PTZ camera based on the estimated target position, such that the camera could capture the image of tiny low-altitude target from several hundred meters away. Subsequently, we utilized STFT to obtain the mD spectrum of the target, and designed a cGAN-based denoising network to optimize the quality of the mD spectrum. Meanwhile, we employed YOLOv11 to detect the low-altitude target and crop small-sized feature image. Next, we designed a fine-grained low-altitude target recognition network with MobileViT to dis-tinguish the subcategory of low-altitude target. Moreover, we generated JIVD based on AirSim and Wireless InSite, which includes diverse target categories, scenarios, and weather conditions. The effectiveness and superiority of the proposed scheme have been demonstrated by simulation results. REFERENCES [1] Y. Jiang et al. , “6G non-terrestrial networks enabled low-altitude economy: Opportunities and challenges,” arXiv e-prints , p. arXiv:2311.09047, Nov. 2023. 13 
+
+[2] H. Huang, J. Su, and F.-Y. Wang, “The potential of low-altitude airspace: The future of urban air transportation,” IEEE Trans. Intell. Veh. , vol. 9, no. 8, pp. 5250–5254, Aug. 2024. [3] M. Giordani and M. Zorzi, “Non-terrestrial networks in the 6G era: Challenges and opportunities,” IEEE Network , vol. 35, no. 2, pp. 244– 251, Mar. 2021. [4] M. A. Hoque et al. , “IoTaaS: drone-based internet of things as a service framework for smart cities,” IEEE Internet Things J. , vol. 9, no. 14, pp. 12 425–12 439, Jul. 2022. [5] C. Zhao, Y. Feng, H. Luo, F. Gao, F. Liu, and S. Jin, “Networked ISAC-based UAV tracking and handover toward low-altitude economy,” IEEE Trans. Wireless Commun. , vol. 24, no. 9, pp. 7670–7685, Apr. 2025. [6] H. Luo et al. , “AirGuard: UAV and bird recognition scheme for integrated sensing and communications system,” IEEE J. Sel. Areas Commun. , vol. 44, pp. 835–848, 2026. [7] M. Mozaffari, X. Lin, and S. Hayes, “Toward 6G with connected sky: UAVs and beyond,” IEEE Commun. Mag. , vol. 59, no. 12, pp. 74–80, Jan. 2022. [8] A. N. Sayed et al. , “Enhanced UAV detection and classification using machine learning and MIMO radars,” IEEE Trans. on Microw. Theory and Tech. , vol. 72, no. 11, pp. 6716–6727, Nov. 2024. [9] B. Ma et al. , “A method of photoelectric capture of UAV under rough guidance,” in Proc. Int. Conf. Cloud Comput. Big Data Anal. , Chengdu, China, Apr. 2024, pp. 184–187. [10] S. Chen et al. , “Low-altitude protection technology of anti-UAVs based on multisource detection information fusion,” Int. J. Adv. Robot. Syst. ,vol. 17, no. 5, p. 1729881420962907, 2020. [11] Z. Kaleem and M. H. Rehmani, “Amateur drone monitoring: State-of-the-art architectures, key enabling technologies, and future research directions,” IEEE Wireless Commun. , vol. 25, no. 2, pp. 150–159, May 2018. [12] S. Li et al. , “Domain-adaptive UAV recognition using IR-UWB radar and a lightweight Mamba-based network,” IEEE Sensors J. , vol. 25, no. 18, pp. 34 913–34 926, Aug. 2025. [13] B.-S. Oh et al. , “Micro-Doppler mini-UAV classification using empirical-mode decomposition features,” IEEE Geosci. and Remote Sens. Lett. , vol. 15, no. 2, pp. 227–231, Dec. 2018. [14] B. Torvik, K. E. Olsen, and H. Griffiths, “Classification of birds and UAVs based on radar polarimetry,” IEEE Geosci. and Remote Sens. Lett. , vol. 13, no. 9, pp. 1305–1309, Jul. 2016. [15] R. Khanam and M. Hussain, “What is YOLOv5: A deep look into the internal features of the popular object detector,” arXiv e-prints , p. arXiv:2407.20892, Jul. 2024. [16] B. Wang, J. Li, M. Zhou, and Q. Lu, “Drone detection and tracking: An edge-deployable efficient algorithm based on vision sensor,” IEEE Sensors J. , vol. 25, no. 17, pp. 34 126–34 140, Jul. 2025. [17] M. Sohan, T. Sai Ram, and C. V. Rami Reddy, “A review on YOLOv8 and its advancements,” in Proc. Int. Conf. Data Intell. Cogn. Inform. ,2024, pp. 529–545. [18] D. Dosi, C. E. Abraham, and D. Kumar, “Experiments on vision-based methods to detect, identify and track UAVs using thermal camera,” in 
+
+Proc. Int. Conf. Emerg. Technol. Auton. Aer. Veh. , Bangalore, India, Aug. 2025, pp. 1–6. [19] F. Mahdavi and R. Rajabi, “Drone detection using convolutional neural networks,” in Proc. Iranian Conf. Signal Process. Intell. Syst. , Mashhad, Iran, Dec. 2020, pp. 1–5. [20] B. Taha and A. Shoufan, “Machine learning-based drone detection and classification: State-of-the-art in research,” IEEE Access , vol. 7, pp. 138 669–138 682, Sep. 2019. [21] V. Mehta et al. , “Real-time UAV and payload detection and classification system using radar and camera sensor fusion,” in Proc. IEEE/AIAA Digit. Avion. Syst. Conf. , Barcelona, Spain, 2023, pp. 1–6. [22] V. Mehta et al. , “Edge AI-enabled radar and camera integration for real-time drone detection and classification,” in Proc. IEEE/AIAA Digit. Avion. Syst. Conf. , Montreal, Canada, 2025, pp. 1–7. [23] H. Tang et al. , “Radar-optical fusion detection of UAV based on improved YOLOv7-tiny,” Meas. Sci. Technol. , vol. 35, no. 8, p. 085110, May 2024. [24] A. Zhang et al. , “Perceptive mobile networks: Cellular networks with radio vision via joint communication and radar sensing,” IEEE Veh. Technol. Mag. , vol. 16, no. 2, pp. 20–30, Jun. 2021. [25] F. Liu, Y. Cui, C. Masouros, J. Xu, T. X. Han, Y. C. Eldar, and S. Buzzi, “Integrated sensing and communications: Toward dual-functional wire-less networks for 6G and beyond,” IEEE J. Sel. Areas Commun. , vol. 40, no. 6, pp. 1728–1767, Jun. 2022. [26] M. Giordani, M. Polese, M. Mezzavilla, S. Rangan, and M. Zorzi, “Toward 6G networks: Use cases and technologies,” IEEE Commun. Mag. , vol. 58, no. 3, pp. 55–61, Mar. 2020. [27] H. Luo, T. Zhang, C. Zhao, Y. Wang, B. Lin, Y. Jiang, D. Luo, and F. Gao, “Integrated sensing and communications framework for 6G networks,” IEEE Wireless Commun. , vol. 32, no. 6, pp. 102–109, Dec. 2025. [28] C. De Lima et al. , “Convergent communication, sensing and localiza-tion in 6G systems: An overview of technologies, opportunities and challenges,” IEEE Access , vol. 9, pp. 26 902–26 925, Jan. 2021. [29] C. Chaccour, M. N. Soorki, W. Saad, M. Bennis, P. Popovski, and M. Debbah, “Seven defining features of terahertz (THz) wireless sys-tems: A fellowship of communication and sensing,” IEEE Commun. Surv. Tut. , vol. 24, no. 2, pp. 967–993, Jan. 2022. [30] M. Z. Chowdhury, M. Shahjalal, S. Ahmed, and Y. M. Jang, “6G wire-less communication systems: Applications, requirements, technologies, challenges, and research directions,” IEEE Open J. Commun. Soc. , vol. 1, pp. 957–975, Jul. 2020. [31] J. Tang, Y. Yu, C. Pan, H. Ren, D. Wang, J. Wang, and X. You, “Cooperative ISAC-empowered low-altitude economy,” IEEE Trans. Wireless Commun. , vol. 24, no. 5, pp. 3837–3853, May 2025. [32] Y. Huang, J. Yang, S. Xia, C.-K. Wen, and S. Jin, “Learned off-grid imager for low-altitude economy with cooperative ISAC network,” IEEE Trans. Wireless Commun. , vol. 25, pp. 3333–3348, 2026. [33] J. Wei, D. Ma, F. He, Q. Zhang, Z. Feng, Z. Liu, and T. Liang, “UAV’s rotor micro-doppler feature extraction using integrated sensing and communication signal: Algorithm design and testbed evaluation,” 
+
+IEEE Trans. Wireless Commun. , vol. 24, no. 12, pp. 10 166–10 182, Jul. 2025. [34] J. Xue, Q. Zhang, D. Ma, and J. Wei, “DC-Former network empowered UAV and bird recognition based on integrated sensing and communi-cation system,” in Proc. Int. Conf. Comput. Commun. Syst. , Chengdu, China, Apr. 2025, pp.927-932. [35] J. Chen, Y.-c. Wu, S. Ma, and T.-s. Ng, “Ml joint CFO and channel estimation in OFDM systems with timing ambiguity,” IEEE Trans. Wireless Commun. , vol. 7, no. 7, pp. 2436–2440, Jul. 2008. [36] I. J. Goodfellow et al. , “Generative adversarial nets,” in Adv. Neural Inf. Process. Syst. , vol. 27, 2014. [37] R. Khanam and M. Hussain, “Yolov11: An overview of the key architectural enhancements,” arXiv e-prints , p. arXiv:2410.17725, Oct. 2024. [38] S. Mehta and M. Rastegari, “MobileViT: Light-weight, general-purpose, and mobile-friendly vision transformer,” arXiv e-prints , p. arXiv:2110.02178, Oct. 2021. [39] R. Shafin, L. Liu, J. Zhang, and Y.-C. Wu, “DoA estimation and capacity analysis for 3-D millimeter wave massive-MIMO/FD-MIMO OFDM systems,” IEEE Trans. Wireless Commun. , vol. 15, no. 10, pp. 6963– 6978, Oct. 2016. [40] Z. Du, F. Liu, W. Yuan, C. Masouros, Z. Zhang, S. Xia, and G. Caire, “Integrated sensing and communications for V2I networks: Dynamic predictive beamforming for extended vehicle targets,” IEEE Trans. Wireless Commun. , vol. 22, no. 6, pp. 3612–3627, Jun. 2023. [41] C. Du and Y. Jiang, “Broad beam designs for broadcast channels,” IEEE Trans. Signal Process. , vol. 72, pp. 3819–3833, Aug. 2024. [42] O. Ronneberger, P. Fischer, and T. Brox, “U-net: Convolutional networks for biomedical image segmentation,” in Proc. Int. Conf. Med. Image Comput. Comput.-Assist. Interv. , 2015, pp. 234–241. [43] P. Isola, J.-Y. Zhu, T. Zhou, and A. A. Efros, “Image-to-image translation with conditional adversarial networks,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. , 2017, pp. 5967–5976. [44] S. Shah, D. Dey, C. Lovett, and A. Kapoor, “AirSim: High-fidelity visual and physical simulation for autonomous vehicles,” in Proc. Int. Conf. Field Serv. Robot. , 2017, pp. 621–635. [45] B. O. Community, Blender - a 3D modelling and rendering package ,Blender Foundation, Stichting Blender Foundation, Amsterdam, 2018. [Online]. Available: http://www.blender.org [46] Remcom, “Wireless insite.” [Online]. Available: https://www.remcom. com/wireless-insite-em-propagation-software [47] Z. Wang, A. Bovik, H. Sheikh, and E. Simoncelli, “Image quality assessment: from error visibility to structural similarity,” IEEE Trans. Image Process. , vol. 13, no. 4, pp. 600–612, Apr. 2004. [48] L. McInnes, J. Healy, and J. Melville, “Umap: Uniform manifold approximation and projection for dimension reduction,” arXiv e-prints ,p. arXiv:1802.03426, Sep. 2018. [49] M. Hearst, S. Dumais, E. Osuna, J. Platt, and B. Scholkopf, “Support vector machines,” IEEE Intell. Syst. Their Appl. , vol. 13, no. 4, pp. 18– 28, Aug. 1998.

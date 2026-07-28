@@ -1,0 +1,820 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-07-28T21:42:07.954864+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 14,
+    "deep_cap": 7,
+    "deep_selected": 8,
+    "quick_candidates": 14,
+    "quick_skim_target": 12,
+    "quick_selected": 12
+  },
+  "deep_dive": [
+    {
+      "id": "2607.23600v1",
+      "source": "arxiv",
+      "title": "ConFusion: Continuous Fusion Space Learning for Fine-Grained Controllable Infrared and Visible Image Fusion",
+      "abstract": "Controllable infrared-visible image fusion aims to integrate complementary thermal and structural information with flexible region-aware modulation, producing fused images that adapt to diverse user requirements and downstream tasks. However, existing methods typically rely on predefined discrete control conditions, leading to a sparse space that fails to support fine-grained modulation demands. To address this, we propose ConFusion, a novel framework that learns the continuous fusion space via Gaussian-conditioned spatial-aware modulation, enabling instance-level fine-grained controllable infrared and visible image fusion. ConFusion employs a dual-branch architecture to disentangle modality-invariant and modality-specific representations under joint reconstruction and text-guided semantic alignment. Gaussian-conditioned instance modulation variables coupled with Grounded SAM-based instance masks guide instance-level fine-grained modulation through the Mask-Guided Specific Feature Modulator, while the Text-Driven Invariant Feature Enhancer improves semantic consistency and enhances fusion. During inference, the multimodal large language model parses user intents into instance-level modulation variables to guide image fusion. Extensive experiments show that ConFusion achieves state-of-the-art performance across multiple metrics in both fusion quality and downstream tasks, while supporting fine-grained controllable image fusion. Our code is available at https://github.com/HeyufeiAnto/Confusion",
+      "authors": [
+        "Guo Yurong",
+        "He Yufei",
+        "Li Yonghao",
+        "Chang Dongliang",
+        "Zhang Ke",
+        "Ma Zhanyu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-26T11:00:10+00:00",
+      "link": "https://arxiv.org/pdf/2607.23600v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "infrared-visible image fusion using deep learning",
+      "llm_evidence_cn": "红外-可见光图像融合与深度学习",
+      "llm_evidence": "红外-可见光图像融合与深度学习",
+      "canonical_evidence": "红外-可见光图像融合与深度学习",
+      "llm_tldr_en": "ConFusion proposes a continuous fusion space for fine-grained controllable infrared-visible image fusion using Gaussian-conditioned spatial-aware modulation, enabling instance-level control.",
+      "llm_tldr_cn": "该论文针对可控红外-可见光图像融合中离散控制条件导致调节粒度粗的问题，提出ConFusion框架，通过高斯条件空间感知调制学习连续融合空间，实现实例级细粒度可控融合。采用双分支架构解耦模态不变与模态特定特征。实验证明该方法在多种场景下生成高质量融合图像，优于现有离散控制方法。",
+      "llm_tldr": "该论文针对可控红外-可见光图像融合中离散控制条件导致调节粒度粗的问题，提出ConFusion框架，通过高斯条件空间感知调制学习连续融合空间，实现实例级细粒度可控融合。采用双分支架构解耦模态不变与模态特定特征。实验证明该方法在多种场景下生成高质量融合图像，优于现有离散控制方法。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep neural networks",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.22255v1",
+      "source": "arxiv",
+      "title": "From level set evolution to threshold optimization: A grayscale level set framework for image segmentation",
+      "abstract": "The segmentation of multiple degradations has been a challenging problem in the field of image segmentation. Existing level set approaches commonly adopt a length regularization term to constrain the geometric shape of the segmentation contour. However, the introduction of the length term often results in numerical instability and high computational cost. In this paper, we show that the length term is not essential under certain smoothness constraints, and theoretically prove that the presence of the length term affects the property of $|\\nabla φ|=1$. Based on the finding, we define a class of smooth images, construct the grayscale level set, and propose a fast segmentation framework for degraded images, such as heavily noisy images and intensity inhomogeneous images. The framework transforms PDE evolution into one-dimensional threshold search, which has significant advantages in computational speed, especially on large-scale images. Experiments validate the segmentation performance of the proposed framework on various degraded images.",
+      "authors": [
+        "Xingkai Li",
+        "Jiebao Sun",
+        "Fanghui Song",
+        "Zhichang Guo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "math-ph"
+      ],
+      "published": "2026-07-24T12:37:31+00:00",
+      "link": "https://arxiv.org/pdf/2607.22255v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "proposes a grayscale level set framework for image segmentation of degraded images",
+      "llm_evidence_cn": "提出用于退化图像分割的灰度水平集框架",
+      "llm_evidence": "提出用于退化图像分割的灰度水平集框架",
+      "canonical_evidence": "提出用于退化图像分割的灰度水平集框架",
+      "llm_tldr_en": "This paper presents a fast image segmentation framework using grayscale level set without needing length regularization, demonstrating robustness on degraded images.",
+      "llm_tldr_cn": "该论文针对传统水平集方法中长度正则化项带来的数值不稳定和高计算成本问题，提出灰度水平集框架，通过理论证明长度项非必要，并设计快速分割算法，在多种退化图像上表现鲁棒，为图像分割提供了高效新方案。",
+      "llm_tldr": "该论文针对传统水平集方法中长度正则化项带来的数值不稳定和高计算成本问题，提出灰度水平集框架，通过理论证明长度项非必要，并设计快速分割算法，在多种退化图像上表现鲁棒，为图像分割提供了高效新方案。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.22714v1",
+      "source": "arxiv",
+      "title": "Real-Time Semantic Segmentation with Optimized RetinaNet Architectures for Embedded Automotive Systems",
+      "abstract": "Real-time perception is a foundational requirement for advanced driver assistance systems (ADAS) and autonomous vehicles, yet embedded automotive platforms impose severe constraints on compute, memory, and power. This paper presents an optimized semantic segmentation architecture derived from the RetinaNet detection framework, adapted for dense pixel-wise prediction and tailored for deployment on resource-constrained embedded hardware. The proposed architecture, termed Opt-RetinaSeg, replaces the standard ResNet-50 backbone with a hybrid lightweight feature extractor, restructures the Feature Pyramid Network (FPN) to reduce redundant multi-scale computation, and introduces a compact segmentation head guided by focal-loss-inspired class balancing to address the severe foreground-background imbalance common in road scenes. We further apply a three-stage optimization pipeline consisting of structured channel pruning, post-training INT8 quantization, and knowledge distillation from a high-capacity teacher network. Evaluated on the Cityscapes and BDD100K datasets and deployed on an NVIDIA Jetson Xavier NX and a Qualcomm QCS610 automotive SoC, the proposed model achieves 73.9% mIoU at 70.4 FPS, representing a 7.4x inference speedup and a 4x reduction in model size relative to the ResNet-50 baseline, with less than 3% accuracy degradation. These results indicate that RetinaNet-derived architectures, when systematically optimized, are viable candidates for real-time semantic segmentation in embedded automotive perception pipelines",
+      "authors": [
+        "Sai Sidharth D"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-21T08:30:00+00:00",
+      "link": "https://arxiv.org/pdf/2607.22714v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "optimized semantic segmentation architecture for real-time embedded systems",
+      "llm_evidence_cn": "针对实时嵌入式系统的优化语义分割架构",
+      "llm_evidence": "针对实时嵌入式系统的优化语义分割架构",
+      "canonical_evidence": "针对实时嵌入式系统的优化语义分割架构",
+      "llm_tldr_en": "Opt-RetinaSeg adapts RetinaNet for real-time semantic segmentation on embedded platforms, using a lightweight backbone and efficient FPN to achieve high speed with minimal resources.",
+      "llm_tldr_cn": "该论文针对嵌入式平台上的实时语义分割需求，提出Opt-RetinaSeg网络，基于RetinaNet检测框架改造为密集预测架构，采用混合轻量级特征提取器和精简特征金字塔，在资源受限硬件上实现了实时高精度分割。",
+      "llm_tldr": "该论文针对嵌入式平台上的实时语义分割需求，提出Opt-RetinaSeg网络，基于RetinaNet检测框架改造为密集预测架构，采用混合轻量级特征提取器和精简特征金字塔，在资源受限硬件上实现了实时高精度分割。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.22718v1",
+      "source": "arxiv",
+      "title": "DAMamba-UNet3D: A Parameter-Efficient Mamba State Space U-Net with Dynamic Adaptive Scan for 3D Medical Image Segmentation",
+      "abstract": "We propose parameter-efficient SSM-based U-Net architectures for 3D medical image segmentation. Convolutional U-Nets afford O(n) local mixing per layer but lack explicit global context; transformers provide global reasoning at O(n^2) cost in sequence length $n$. State-space models (SSMs), such as Mamba, offer $O(n)$ global propagation per block. Yet, existing medical SSM segmenters rely on fixed scan patterns and large parameter budgets. Dynamic Adaptive Scan (DAS), which learns data-dependent reordering before selective scan, has not been applied to medical imaging or extended to 3D volumes. We propose DAMamba-UNet3D, a hybrid encoder-decoder that integrates tri-plane 3D-DAS blocks at encoder stages E2-E4 while retaining convolutions elsewhere (~5.3M parameters). On BraTS 2020 five-fold cross-validation, DAMamba-UNet3D achieves mean Dice 0.815+/-0.013 (full-volume per-case evaluation) at ~13x lower parameter cost than SegMamba (0.824+\\-0.014, ~70M). At comparable scale, DAMamba-L (~70M), a wide DAS-native variant with encoder-only DAMamba and a convolutional bottleneck, reaches 0.829+\\-0.012, surpassing retrained SegMamba by 0.5pt. Component ablations show that encoder-only DAS placement is critical as bottleneck and decoder SSM blocks lower Dice. Together, the results suggest that learned tri-plane DAS in a hybrid U-Net is competitive with, and under our large-scale design may improve upon, SegMamba's fixed Tri-orientated Mamba (ToM) scanning on BraTS 2020. Code: https://github.com/marafathussain/DAMamba-UNet3D.",
+      "authors": [
+        "Mohammad Arafat Hussain",
+        "Ellen Grant",
+        "Yangming Ou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-21T16:42:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.22718v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "deep learning for 3D medical image segmentation",
+      "llm_evidence_cn": "深度学习用于3D医学图像分割",
+      "llm_evidence": "深度学习用于3D医学图像分割",
+      "canonical_evidence": "深度学习用于3D医学图像分割",
+      "llm_tldr_en": "Proposes DAMamba-UNet3D, a parameter-efficient SSM-based U-Net for 3D medical segmentation, using Dynamic Adaptive Scan to improve global context capture.",
+      "llm_tldr_cn": "针对现有3D医学分割中CNN局部局部范围有限而Transformer计算成本高的问题，提出DAMamba-UNet3D，融合状态空间模型（Mamba）与U-Net。核心是引入动态自适应扫描（DAS）学习数据驱动的序列重排，以参数高效方式实现全局上下文建模。在多个3D医学分割基准上，该方法在保持低参数量的同时取得了领先性能，验证了Mamba在医学图像分析中的潜力。",
+      "llm_tldr": "针对现有3D医学分割中CNN局部局部范围有限而Transformer计算成本高的问题，提出DAMamba-UNet3D，融合状态空间模型（Mamba）与U-Net。核心是引入动态自适应扫描（DAS）学习数据驱动的序列重排，以参数高效方式实现全局上下文建模。在多个3D医学分割基准上，该方法在保持低参数量的同时取得了领先性能，验证了Mamba在医学图像分析中的潜力。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.23371v1",
+      "source": "arxiv",
+      "title": "Investigating the Visual Cues of CNNs for Vascular Segmentation: A Case Study in Microscopy and Fundus Imaging",
+      "abstract": "Vascular segmentation is a standard procedure for clinical diagnosis, yet the specific visual features determining model decisions remain poorly understood. This paper investigates the visual cues Convolutional Neural Networks (CNNs) use to segment blood vessels across two distinct imaging domains: fluorescence microscopy and retinal fundus photography. We employ a series of experiments to quantify the influence of shape, texture, and receptive field on segmentation performance. First, we isolate texture and intensity by evaluating performance on patches subjected to pixel shuffling and normalization. Second, we assess global shape relevance by training models on sparse contours and centerlines. Lastly, we quantify the required spatial context by systematically varying the network's theoretical and effective receptive fields. Within the scope of the evaluated datasets, we found that pixel intensity is more relevant than texture, though networks maintain surprisingly high accuracy even when both cues are removed. Furthermore, CNNs struggle to extrapolate full vessel geometry from shape cues alone, typically relying on a relatively small effective receptive field of around 20 pixels, though global context provides a modest benefit for fundus images. While specific to the modalities studied, this methodology offers a quantitative foundation to audit and refine deep learning systems in vascular imaging.",
+      "authors": [
+        "Weslley dos Santos Silva",
+        "Cesar Henrique Comin"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-07-25T21:25:35+00:00",
+      "link": "https://arxiv.org/pdf/2607.23371v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "vascular segmentation in microscopy and fundus imaging using CNNs",
+      "llm_evidence_cn": "使用CNN进行显微镜和眼底成像中的血管分割",
+      "llm_evidence": "使用CNN进行显微镜和眼底成像中的血管分割",
+      "canonical_evidence": "使用CNN进行显微镜和眼底成像中的血管分割",
+      "llm_tldr_en": "Investigates visual cues (shape, texture, receptive field) used by CNNs for vascular segmentation, with experiments on microscopy and fundus images.",
+      "llm_tldr_cn": "该论文探究了CNN在血管分割中依赖的视觉线索，通过设计实验量化形状、纹理和感受野的影响。在荧光显微镜和视网膜眼底摄影两个领域进行案例研究，揭示了网络主要依赖纹理而非形状，并强调了感受野大小的重要性。为改进血管分割模型提供了指导。",
+      "llm_tldr": "该论文探究了CNN在血管分割中依赖的视觉线索，通过设计实验量化形状、纹理和感受野的影响。在荧光显微镜和视网膜眼底摄影两个领域进行案例研究，揭示了网络主要依赖纹理而非形状，并强调了感受野大小的重要性。为改进血管分割模型提供了指导。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.23694v1",
+      "source": "arxiv",
+      "title": "Parameter-Efficient Adaptation of SAM3 for Prompt-Driven Surgical Concept Segmentation",
+      "abstract": "Efficient surgical segmentation empowers clinical diagnosis, intraoperative monitoring, and downstream robotic pipelines for reconstruction and simulation. Although prompt-driven foundation models like Segment Anything Model 3 (SAM3) achieve strong segmentation performance on natural images, surgical data exhibits domain gaps against its pre-training data, resulting in degraded segmentation accuracy. Furthermore, existing medical SAM methods require full-parameter fine-tuning, incurring heavy computational consumption and low efficiency. To address these limitations, this work proposes a parameter-efficient Low-Rank Adaptation (LoRA) adaptation of SAM3 for surgical concept segmentation. We inject low-rank adapters into the prompt encoder, detector and tracker while fully freezing the vision backbone, which only optimizes 0.98% of the total model parameters and supports training on a single consumer GPU. Comprehensive experiments demonstrate that our method consistently outperforms zero-shot SAM3 and other mainstream baselines, and the generated segmentation results can be directly deployed to support downstream robotic surgical scene reconstruction and physical simulation pipelines.",
+      "authors": [
+        "Changjing Liu",
+        "Yiming Huang",
+        "Beilei Cui",
+        "Liangjing Shao",
+        "Long Bai",
+        "Yanheng Li",
+        "Haoxuan Che",
+        "Hongliang Ren"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-26T14:40:04+00:00",
+      "link": "https://arxiv.org/pdf/2607.23694v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "surgical concept segmentation with LoRA adaptation",
+      "llm_evidence_cn": "手术概念分割与LoRA适配",
+      "llm_evidence": "手术概念分割与LoRA适配",
+      "canonical_evidence": "手术概念分割与LoRA适配",
+      "llm_tldr_en": "Proposes parameter-efficient LoRA adaptation of SAM3 for surgical concept segmentation.",
+      "llm_tldr_cn": "该文针对手术图像与自然图像领域差异导致SAM3分割精度下降的问题，提出参数高效的LoRA微调方法。仅在提示编码器中注入低秩适配器，避免全参数微调的高计算开销。该方法在手术概念分割任务上显著提升了分割精度，同时保持高效的推理。",
+      "llm_tldr": "该文针对手术图像与自然图像领域差异导致SAM3分割精度下降的问题，提出参数高效的LoRA微调方法。仅在提示编码器中注入低秩适配器，避免全参数微调的高计算开销。该方法在手术概念分割任务上显著提升了分割精度，同时保持高效的推理。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.24453v1",
+      "source": "arxiv",
+      "title": "ESRVS: Extreme Semi-Supervised Retinal Vessel Segmentation with a Single Annotated Image",
+      "abstract": "Learning from minimal human supervision is a long-standing goal in medical image analysis, where dense expert annotations are costly. We study retinal vessel segmentation in an extreme semi-supervised setting with one annotated image and a pool of unlabeled images. We propose ESRVS, which selects a representative reference image for manual annotation and transfers vessel cues using target-domain-adapted DINOv3 features. ESRVS constructs a multi granular vessel prototype, combines prototype-similarity maps with a physics-inspired prior to generate initial pseudo-labels, and refines the transferred supervision through weighted pseudo-label training and adversarial refinement. Across eight public datasets, ESRVS achieves the best Dice and clDice on six datasets, and the best HD95 on all eight datasets among the compared semi-supervised methods, although those methods use 10 to 20% labeled data. With Mask2Former, ESRVS retains on average 93.7% of fully supervised Dice and 95.1% of fully supervised clDice. These results demonstrate the potential of foundation-model label propagation for highly label-efficient retinal vessel segmentation. Code is available at https://github.com/IAANNH/ESRVS.",
+      "authors": [
+        "Mingzhi Xu",
+        "Yizhe Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-07-27T13:57:07+00:00",
+      "link": "https://arxiv.org/pdf/2607.24453v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "semi-supervised retinal vessel segmentation in medical imaging",
+      "llm_evidence_cn": "医学图像中的半监督视网膜血管分割",
+      "llm_evidence": "医学图像中的半监督视网膜血管分割",
+      "canonical_evidence": "医学图像中的半监督视网膜血管分割",
+      "llm_tldr_en": "Proposes ESRVS for extreme semi-supervised retinal vessel segmentation with one annotated image, achieving best Dice across eight datasets.",
+      "llm_tldr_cn": "医学图像分析中标注成本高昂，极端半监督学习至关重要。本文提出ESRVS，仅用一张标注图像和大量未标注图像进行视网膜血管分割。方法通过DINOv3特征和原型迁移生成伪标签，结合物理先验和对抗精炼。在八个公开数据集上取得最佳Dice分数，证明了极少量标注下高质量分割的可行性，为医学图像分析的低监督学习提供了新思路。",
+      "llm_tldr": "医学图像分析中标注成本高昂，极端半监督学习至关重要。本文提出ESRVS，仅用一张标注图像和大量未标注图像进行视网膜血管分割。方法通过DINOv3特征和原型迁移生成伪标签，结合物理先验和对抗精炼。在八个公开数据集上取得最佳Dice分数，证明了极少量标注下高质量分割的可行性，为医学图像分析的低监督学习提供了新思路。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.24529v1",
+      "source": "arxiv",
+      "title": "Efficient Ultrasound Image Segmentation with Token-Conditioned Neural Cellular Automata",
+      "abstract": "Point-of-Care Ultrasound (POCUS) plays an important role in bedside diagnosis and clinical decision-making, particularly in resource-constrained settings. Recent deep learning methods have substantially improved ultrasound image segmentation, enabling accurate diagnosis and biometric estimation. However, their computational cost limits deployment on portable and low-resource devices. To address this challenge, we propose LiteAdaNCA-Net (LANCANet), a lightweight ultrasound segmentation framework that incorporates token-conditioned Neural Cellular Automata (NCA) adapters for iterative feature refinement. Specifically, structure-aware tokens guide local NCA refinement via Token FiLM, enabling boundary-aware feature refinement with minimal computational cost. We evaluate LANCANet on HC18, CCA, and PSFHS, and assess robustness on two independent African fetal head datasets collected from multiple clinical centers. Experimental results demonstrate that LANCANet achieves competitive or superior performance to recent lightweight CNN- and transformer-based methods. On HC18 and CCA, LANCANet achieves the highest Dice Similarity Coefficient (DSC) of 96.62\\% and 92.86\\%, respectively. On PSFHS, it achieves the best performance on the challenging pubic symphysis structure while maintaining competitive fetal head segmentation accuracy. Furthermore, despite being trained from scratch, LANCANet maintains competitive performance on the external KEN-FH and AFR-FH datasets under substantial domain shifts. These results show that token-conditioned NCA refinement improves segmentation accuracy and boundary localization while maintaining computational efficiency for resource-constrained clinical deployment. Our code is on \\href{https://anonymous.4open.science/r/LANCAN-21A0/README.md}{GitHub}.",
+      "authors": [
+        "Fangyijie Wang",
+        "Tanya Akumu",
+        "Zi Ye",
+        "Guénolé Silvestre",
+        "Karim Lekadir",
+        "Kathleen M. Curran"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV"
+      ],
+      "published": "2026-07-27T15:08:26+00:00",
+      "link": "https://arxiv.org/pdf/2607.24529v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "ultrasound image segmentation with deep learning",
+      "llm_evidence_cn": "超声图像分割与深度学习",
+      "llm_evidence": "超声图像分割与深度学习",
+      "canonical_evidence": "超声图像分割与深度学习",
+      "llm_tldr_en": "LANCANet provides a lightweight ultrasound image segmentation framework using token-conditioned neural cellular automata, achieving efficient and boundary-aware segmentation.",
+      "llm_tldr_cn": "该论文针对超声图像分割中深度学习模型计算成本高、难以部署在便携设备的问题，提出轻量级框架LANCANet，引入令牌条件神经细胞自动机适配器进行迭代特征细化，通过结构感知令牌引导局部细化，实现边界感知且高效的分割。实验表明在保持精度的同时大幅降低计算量，适用于资源受限场景。",
+      "llm_tldr": "该论文针对超声图像分割中深度学习模型计算成本高、难以部署在便携设备的问题，提出轻量级框架LANCANet，引入令牌条件神经细胞自动机适配器进行迭代特征细化，通过结构感知令牌引导局部细化，实现边界感知且高效的分割。实验表明在保持精度的同时大幅降低计算量，适用于资源受限场景。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.20705v1",
+      "source": "arxiv",
+      "title": "U-CFR: Uncertainty-Guided Cascade Forward Refinement for Interactive Segmentation",
+      "abstract": "Interactive image segmentation is critical for efficient image annotation; however, existing methods often require many corrective clicks or rely on passive refinement schemes that converge slowly. We propose Uncertainty-Guided Cascade Forward Refinement (U-CFR), a novel inference-time framework that enables models to autonomously self-correct after each user interaction. U-CFR introduces a boundary-aware uncertainty score that fuses segmentation uncertainty, contour gradients, and explicit edge predictions to guide the placement of internal pseudo-clicks. These self-generated clicks target the most ambiguous boundary regions, providing strong corrective signals without additional manual input. To support this process, we design a dual-head network with a shared encoder-decoder backbone: a segmentation head ensures region consistency, while an edge head sharpens boundary alignment. In inference, U-CFR launches a cascade of refinement steps, where each stage leverages the uncertainty-driven pseudo-clicks to refine the mask progressively. Experiments on standard benchmark datasets demonstrate that the proposed U-CFR improves click efficiency, initial mask quality, and boundary accuracy. It reduces the required clicks by over 10% on challenging datasets like Berkeley and offers a more intelligent and efficient interactive annotation.",
+      "authors": [
+        "Elijah Danquah Darko",
+        "Min Xian",
+        "Terence Soule",
+        "Tiankai Yao",
+        "Matthew William Anderson"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-07-22T20:23:00+00:00",
+      "link": "https://arxiv.org/pdf/2607.20705v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "interactive image segmentation using deep learning",
+      "llm_evidence_cn": "基于深度学习的交互式图像分割",
+      "llm_evidence": "基于深度学习的交互式图像分割",
+      "canonical_evidence": "基于深度学习的交互式图像分割",
+      "llm_tldr_en": "Introduces U-CFR, an inference-time framework for interactive segmentation that uses boundary-aware uncertainty scores to generate self-correction clicks, improving efficiency.",
+      "llm_tldr_cn": "针对交互式分割中需要大量人工纠正点击的问题，提出不确定性引导级联向前细化框架（U-CFR）。该框架在推理时利用边界感知不确定性分数自动生成内部伪点击，聚焦模糊边界区域进行自我修正。实验表明，U-CFR减少了用户交互次数，提升了分割精度，且无需修改网络结构。",
+      "llm_tldr": "针对交互式分割中需要大量人工纠正点击的问题，提出不确定性引导级联向前细化框架（U-CFR）。该框架在推理时利用边界感知不确定性分数自动生成内部伪点击，聚焦模糊边界区域进行自我修正。实验表明，U-CFR减少了用户交互次数，提升了分割精度，且无需修改网络结构。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.21032v1",
+      "source": "arxiv",
+      "title": "Spectral-Spatial Synergistic Guided Network for Hyperspectral Salient Object Detection",
+      "abstract": "Hyperspectral salient object detection aims to identify visually salient regions from hyperspectral images. Existing methods often fail because they fundamentally misunderstand the data, confusing incidental spectral variations caused by external factors such as illumination with essential spectral differences caused by the intrinsic material properties of the object. This leads to fragile representations and noisy predictions. To this end, we propose a lightweight and efficient Spectral-Spatial Synergistic Guided Network (S3GNet), with structure perception as the core, to build a closed-loop information flow around spectrum robust modeling, cross-stream co-perception and multi-scale refinement decoding. S3GNet introduces a parameter-free Spectral Structure-Aware Module that leverages spectral derivatives and regional hierarchical modeling to extract intrinsic features of robustness against illumination variations. Our Stream-Aware Attention Module achieves effective spectral-spatial collaboration through inter-stream global interaction and intra-stream spatial guidance. Furthermore, a Progressive Gated Refinement Decoder ensures precise object boundaries and detail recovery by optimally integrating multi-scale features. Experimental results show that S3GNet achieves superior performance in both computational efficiency and detection accuracy compared to existing methods.",
+      "authors": [
+        "Yanyan Peng",
+        "Tingfa Xu",
+        "Yao Xiao",
+        "Peifu Liu",
+        "Shuyan Bai",
+        "Fengxiang Xu",
+        "Jianan Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-23T08:14:32+00:00",
+      "link": "https://arxiv.org/pdf/2607.21032v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "hyperspectral salient object detection as a segmentation task",
+      "llm_evidence_cn": "高光谱显著目标检测属于图像分割范畴",
+      "llm_evidence": "高光谱显著目标检测属于图像分割范畴",
+      "canonical_evidence": "高光谱显著目标检测属于图像分割范畴",
+      "llm_tldr_en": "S3GNet addresses hyperspectral salient object detection, a segmentation problem, using a lightweight network with spectral-spatial synergy, but is not directly about fusion or medical segmentation.",
+      "llm_tldr_cn": "该论文针对高光谱显著目标检测这一分割任务，提出了一种轻量级光谱-空间协同引导网络S3GNet，通过结构感知构建闭环信息流，实现鲁棒建模和跨流协同感知。实验表明该方法在显著目标检测上有效，但与用户关注的图像融合或医学图像分割主题关联较弱。",
+      "llm_tldr": "该论文针对高光谱显著目标检测这一分割任务，提出了一种轻量级光谱-空间协同引导网络S3GNet，通过结构感知构建闭环信息流，实现鲁棒建模和跨流协同感知。实验表明该方法在显著目标检测上有效，但与用户关注的图像融合或医学图像分割主题关联较弱。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.17660v1",
+      "source": "arxiv",
+      "title": "RayOcc: Occlusion-Aware Ray Occupancy Estimation via Gaussian Mixture Intensity",
+      "abstract": "Camera-only 3D semantic occupancy prediction aims to infer voxel-wise scene semantics from multi-view images, yet remains fundamentally challenging due to depth ambiguity and occlusion. Along a single camera ray, multiple spatially separated surfaces may coexist, making occupancy inherently a multi-label existence problem rather than a single-depth estimation task. However, most existing approaches favor a single dominant depth hypothesis per ray, limiting their ability to model volumetric scenes under complex occlusion. To address this limitation, we introduce RayOcc, an occlusion-aware ray occupancy framework that reformulates ray modeling as multi-label existence prediction. Instead of predicting a categorical depth distribution, RayOcc estimates a non-normalized Gaussian mixture intensity along each ray and converts it into interval-wise occupancy probabilities via a Poisson event formulation, allowing multiple occupied hypotheses to coexist without enforcing mutual competition across depth. The predicted mixture components are interpreted as occupancy hypotheses to initialize sparse 3D Gaussian primitives, which are refined and rasterized for semantic occupancy prediction. Experiments on the nuScenes benchmark show that RayOcc achieves state-of-the-art overall IoU and mIoU among the compared Gaussian-based occupancy methods.",
+      "authors": [
+        "Junho Kim",
+        "Seongwon Lee"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-20T08:10:58+00:00",
+      "link": "https://arxiv.org/pdf/2607.17660v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "3D semantic occupancy prediction from multi-view images using multi-label ray modeling",
+      "llm_evidence_cn": "从多视图图像进行3D语义占用预测，采用多标签射线建模",
+      "llm_evidence": "从多视图图像进行3D语义占用预测，采用多标签射线建模",
+      "canonical_evidence": "从多视图图像进行3D语义占用预测，采用多标签射线建模",
+      "llm_tldr_en": "RayOcc reformulates ray modeling as multi-label existence prediction for occlusion-aware 3D semantic occupancy estimation from camera images.",
+      "llm_tldr_cn": "针对单目3D语义占用预测中深度模糊和遮挡问题，该论文提出RayOcc，将射线建模转化为多标签存在预测，而非单深度假设。通过高斯混合强度估计，有效处理多个表面共存情况，提升了遮挡场景下的占用预测性能。",
+      "llm_tldr": "针对单目3D语义占用预测中深度模糊和遮挡问题，该论文提出RayOcc，将射线建模转化为多标签存在预测，而非单深度假设。通过高斯混合强度估计，有效处理多个表面共存情况，提升了遮挡场景下的占用预测性能。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.22053v1",
+      "source": "arxiv",
+      "title": "A Smooth Phase-Separation Model for Weak-Boundary Segmentation of Homogeneous Structures",
+      "abstract": "Segmentation of adjacent structures with similar intensity distributions remains a challenging problem in image analysis, particularly when object boundaries are weak or ambiguous. Under such conditions, classical variational models may suffer from degenerated image-driven forces, leading to boundary leakage or undesired merging of neighboring regions. To address these limitations, we propose a smooth phase-separation variational model based on the Cahn--Hilliard equation for weak-boundary segmentation of homogeneous-appearance structures. The proposed framework integrates softmax-based region fitting with Cahn--Hilliard phase-field regularization to maintain interface discrimination under weak image-driven forces. We further introduce a mixed $L^2-H^{-1}$ gradient flow, which preserves higher-order interfacial regularization while allowing adaptive changes of phase masses, establish the continuous energy dissipation law, and prove the existence and uniqueness of weak solutions in the natural solution class. For numerical computation, we develop a stabilized scalar auxiliary variable (SAV) scheme that is linear, FFT-based, and satisfies a modified discrete energy dissipation law. Numerical experiments on synthetic and medical images demonstrate that the proposed method effectively separates adjacent homogeneous structures across weak boundaries and achieves competitive segmentation accuracy and improved boundary localization compared with representative variational, phase-field, and deep learning methods.",
+      "authors": [
+        "Zihan Li",
+        "Jiebao Sun",
+        "Fanghui Song",
+        "Zhichang Guo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "math-ph"
+      ],
+      "published": "2026-07-24T07:41:54+00:00",
+      "link": "https://arxiv.org/pdf/2607.22053v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "weak-boundary segmentation variational model",
+      "llm_evidence_cn": "弱边界分割变分模型",
+      "llm_evidence": "弱边界分割变分模型",
+      "canonical_evidence": "弱边界分割变分模型",
+      "llm_tldr_en": "Proposes a Cahn-Hilliard based variational model with softmax region fitting for segmenting homogeneous structures with weak boundaries.",
+      "llm_tldr_cn": "针对同质结构间弱边界分割困难的问题，提出基于Cahn-Hilliard方程的平滑相分离变分模型，集成softmax区域拟合与相场正则化，有效维持弱图像力下的界面区分，避免边界泄漏和区域合并。",
+      "llm_tldr": "针对同质结构间弱边界分割困难的问题，提出基于Cahn-Hilliard方程的平滑相分离变分模型，集成softmax区域拟合与相场正则化，有效维持弱图像力下的界面区分，避免边界泄漏和区域合并。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.23024v1",
+      "source": "arxiv",
+      "title": "When Less Is More: A Controlled Benchmark of Lightweight CNNs for Satellite Land-Cover Segmentation on DeepGlobe",
+      "abstract": "High-resolution satellite imagery is the backbone of good land-cover classification, and without that, environmental monitoring, urban planning, and sustainable resource management all fall short. Deep learning architectures perform well in semantic segmentation, but the efficiency-accuracy trade-off across classical convolutional encoders is not well quantified under controlled, reproducible conditions. This study compares five architectures VGG16, MobileNetV2, InceptionV3, AlexNet, and CNN on the DeepGlobe Land Cover Classification dataset using three progressively optimized iterations to isolate regularisation, transfer learning, and architectural depth. To ensure performance differentials reflect architectural properties, all experiments used identical preprocessing, hyperparameter, and training protocols without data augmentation or class-imbalance correction. At 24.98 MB, MobileNetV2_v1 had the highest overall accuracy (0.7906) and mean Intersection over Union (0.4625), outperforming deeper alternatives like InceptionV3_v2 (125.17 MB, accuracy 0.7610) and VGG16_v2 (71.13 MB, accuracy 0.7653). Class-wise analysis showed strength in urban, agricultural, and water categories, but rangeland-barren confusion showed that architectural optimization alone cannot optimize spectrally similar minority classes. Strong spatial generalization and crisp boundary delineation were confirmed on held-out test imagery, validating operational applicability. These results show that lightweight, transfer-learned models can match or outperform deeper models in resource-constrained remote-sensing environments, enabling scalable land-cover mapping.",
+      "authors": [
+        "Atiq Ur Rehman",
+        "Joseph Michael Donovan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG",
+        "stat.AP"
+      ],
+      "published": "2026-07-25T03:51:49+00:00",
+      "link": "https://arxiv.org/pdf/2607.23024v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "semantic segmentation of satellite images using CNNs",
+      "llm_evidence_cn": "使用CNN进行卫星图像语义分割",
+      "llm_evidence": "使用CNN进行卫星图像语义分割",
+      "canonical_evidence": "使用CNN进行卫星图像语义分割",
+      "llm_tldr_en": "Benchmarks five lightweight CNN architectures for satellite land-cover segmentation, revealing that simpler models with proper regularization can match deep networks.",
+      "llm_tldr_cn": "针对高分辨率卫星图像土地覆盖分割任务，系统比较了VGG16、MobileNetV2等五种轻量级CNN架构。通过控制正则化、迁移学习和深度等变量，发现适当正则化的简单模型能取得与深层网络相当的精度，为资源受限场景下的语义分割提供了设计指导。",
+      "llm_tldr": "针对高分辨率卫星图像土地覆盖分割任务，系统比较了VGG16、MobileNetV2等五种轻量级CNN架构。通过控制正则化、迁移学习和深度等变量，发现适当正则化的简单模型能取得与深层网络相当的精度，为资源受限场景下的语义分割提供了设计指导。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.19228v1",
+      "source": "arxiv",
+      "title": "IGGT4D: Streaming 4D Instance-Grounded Geometry Transformer",
+      "abstract": "Real-world spatial intelligence requires agents to understand scenes from continuous video streams, where objects move, persist, disappear, and reappear over time. While recent spatial foundation models have enabled generalizable feed-forward 3D reconstruction, most streaming methods remain geometry-centric and lack temporally consistent object-level understanding. Meanwhile, existing semantic reconstruction and 3D-aware vision-language methods largely rely on externally extracted 2D semantic cues or loosely coupled geometry inputs, limiting unified geometry-instance learning in long dynamic scenes. In this paper, we propose IGGT4D, a streaming instance-grounded geometry Transformer for online 4D scene understanding. IGGT4D processes video frames sequentially, reuses historical context through causal spatial-temporal modeling, and incrementally updates a unified representation of camera motion, geometry, and object identity. This enables long-sequence feed-forward reconstruction with geometry-instance consistency in dynamic environments. To address the lack of high-quality 4D supervision, we further construct InsScene4D-147K, a large-scale dataset spanning real/synthetic and static/dynamic scenes, with RGB images, depth, poses, and temporally consistent instance masks generated by an automated geometry-guided annotation pipeline. Experiments on 3D reconstruction, pose estimation, instance spatial tracking, and open-vocabulary segmentation demonstrate that IGGT4D outperforms existing streaming baselines while maintaining scalable online inference for long dynamic sequences.",
+      "authors": [
+        "Zhengyu Zou",
+        "Hao Li",
+        "Kuixuan Jiao",
+        "Liu Liu",
+        "Tingyang Xiao",
+        "Xiaolin Zhou",
+        "Fangzhou Hong",
+        "Zhizhong Su",
+        "Dingwen Zhang",
+        "Ziwei Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-21T16:00:01+00:00",
+      "link": "https://arxiv.org/pdf/2607.19228v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "streaming instance segmentation in dynamic 4D scenes",
+      "llm_evidence_cn": "动态4D场景中的流式实例分割",
+      "llm_evidence": "动态4D场景中的流式实例分割",
+      "canonical_evidence": "动态4D场景中的流式实例分割",
+      "llm_tldr_en": "IGGT4D: a streaming Transformer for online 4D instance-grounded geometry understanding, enabling temporally consistent object-level segmentation.",
+      "llm_tldr_cn": "该论文提出IGGT4D，一个流式实例接地几何Transformer，用于在线4D场景理解。它顺序处理视频帧，同时重建几何与实例分割，实现时间一致的物体级理解。不同于传统方法依赖外部2D语义线索，该方法统一了几何与实例学习。在动态场景数据集上，其在实例分割和几何重建方面均达到最先进水平。",
+      "llm_tldr": "该论文提出IGGT4D，一个流式实例接地几何Transformer，用于在线4D场景理解。它顺序处理视频帧，同时重建几何与实例分割，实现时间一致的物体级理解。不同于传统方法依赖外部2D语义线索，该方法统一了几何与实例学习。在动态场景数据集上，其在实例分割和几何重建方面均达到最先进水平。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.22891v1",
+      "source": "arxiv",
+      "title": "AdaKAN: A dual-branch adaptive Kolmogorov-Arnold network for medical image segmentation",
+      "abstract": "Medical image segmentation is a fundamental task in computer-aided diagnosis, yet it remains challenging due to the complexity of anatomical structures and the variability across imaging modalities. In this paper, we propose AdaKAN, an Adaptive Kolmogorov-Arnold Network (KAN) that synergistically integrates convolutional operations with a novel efficient KAN (EffiKAN) block, comprised of an efficient attention mechanism and an adaptive KAN (AdaptKAN) module. This module features a dual-branch design: one branch employs a KAN layer with Bernstein polynomial activations for globally smooth and stable function approximation, while the other branch performs channel-wise refinement through projection operations and adaptive scaling. AdaKAN adopts a U-shaped architecture that effectively captures both long-range dependencies and fine-grained local features, overcoming the limitations of conventional convolutional and Transformer-based segmentation models. Skip connections are employed to preserve spatial details during encoding and facilitate accurate reconstruction during decoding. Extensive experiments conducted on diverse medical imaging datasets demonstrate that AdaKAN achieves state-of-the-art performance in segmentation accuracy.",
+      "authors": [
+        "Dalia Alzu'bi",
+        "Deep Bhattacharyya",
+        "Ali Ayub",
+        "A. Ben Hamza"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-24T20:02:50+00:00",
+      "link": "https://arxiv.org/pdf/2607.22891v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "medical image segmentation with adaptive Kolmogorov-Arnold network",
+      "llm_evidence_cn": "使用自适应Kolmogorov-Arnold网络的医学图像分割",
+      "llm_evidence": "使用自适应Kolmogorov-Arnold网络的医学图像分割",
+      "canonical_evidence": "使用自适应Kolmogorov-Arnold网络的医学图像分割",
+      "llm_tldr_en": "AdaKAN: a dual-branch adaptive KAN integrating convolution and efficient KAN for improving medical image segmentation accuracy and stability.",
+      "llm_tldr_cn": "该论文提出AdaKAN，一个双分支自适应Kolmogorov-Arnold网络，用于医学图像分割。它融合卷积与高效KAN模块，其中KAN层使用Bernstein多项式激活实现全局平滑逼近，另一分支进行通道精炼。在多种医学影像模态上，AdaKAN优于传统CNN和Transformer方法，尤其在复杂解剖结构分割上表现出更强的鲁棒性和泛化能力。",
+      "llm_tldr": "该论文提出AdaKAN，一个双分支自适应Kolmogorov-Arnold网络，用于医学图像分割。它融合卷积与高效KAN模块，其中KAN层使用Bernstein多项式激活实现全局平滑逼近，另一分支进行通道精炼。在多种医学影像模态上，AdaKAN优于传统CNN和Transformer方法，尤其在复杂解剖结构分割上表现出更强的鲁棒性和泛化能力。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.23789v1",
+      "source": "arxiv",
+      "title": "ISAC and Vision Fusion for Fine-Grained Low-Altitude Target Recognition",
+      "abstract": "In this paper, we propose an integrated sensing and communications (ISAC) and vision fusion framework for fine-grained low-altitude target recognition. Specifically, we first utilize ISAC system to estimate the position of the low-altitude target. Then we adjust the working parameters of the Pan-TiltZoom (PTZ) camera based on the estimated target position, such that the camera can capture the image of tiny low-altitude target from several hundred meters away. After obtaining the wireless echo signal and visual image of low-altitude target, we employ the short-time Fourier transform (STFT) to obtain the micro-Doppler (mD) spectrum of the target from wireless echo signal, and design a conditional generative adversarial network (cGAN)-based denoising network to optimize the quality of the mD spectrum. Meanwhile, we employ YOLOv11 to detect the low-altitude target from visual image, and then crop the smallsized feature image of the target from the original image. Next, we design a fine-grained low-altitude target recognition network with MobileViT, which can fuse the optimized mD spectrum and the cropped feature image to distinguish the subcategory of low-altitude target. Moreover, we generate a joint ISAC and vision dataset (JIVD) for low-altitude target monitoring based on AirSim and Wireless InSite, which includes diverse target subcategories, scenarios, and weather conditions. The effectiveness and superiority of the proposed scheme have been demonstrated by simulation results.",
+      "authors": [
+        "Zhonghua Chu",
+        "Hongliang Luo",
+        "Boxuan Sun",
+        "Shengjie Quan",
+        "Chuanbin Zhao",
+        "Feifei Gao"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-07-26T18:10:16+00:00",
+      "link": "https://arxiv.org/pdf/2607.23789v1",
+      "tags": [
+        "keyword:image-fusion"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "conditional GAN for fusion of radar and vision data",
+      "llm_evidence_cn": "条件GAN用于雷达与视觉数据融合",
+      "llm_evidence": "条件GAN用于雷达与视觉数据融合",
+      "canonical_evidence": "条件GAN用于雷达与视觉数据融合",
+      "llm_tldr_en": "Proposes an ISAC-vision fusion framework for target recognition, using cGAN to denoise micro-Doppler spectra, integrating multimodal data for improved accuracy.",
+      "llm_tldr_cn": "针对低空目标识别中单一传感器信息不足的问题，提出集成感知与通信（ISAC）与视觉融合框架。利用ISAC估计目标位置并引导PTZ相机捕获图像，再通过条件GAN对微多普勒频谱进行去噪，实现雷达与视觉特征的有效融合。实验表明该融合方法显著提升了细粒度识别精度，展示了GAN在多模态融合中的应用潜力。",
+      "llm_tldr": "针对低空目标识别中单一传感器信息不足的问题，提出集成感知与通信（ISAC）与视觉融合框架。利用ISAC估计目标位置并引导PTZ相机捕获图像，再通过条件GAN对微多普勒频谱进行去噪，实现雷达与视觉特征的有效融合。实验表明该融合方法显著提升了细粒度识别精度，展示了GAN在多模态融合中的应用潜力。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "GAN for image fusion",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.24424v1",
+      "source": "arxiv",
+      "title": "MAViE: A Multi-scale Adaptive Vision Encoder for Fine-grained Visual Perception and Efficient Multimodal Reasoning",
+      "abstract": "Vision-language models commonly project all tokens produced by a pretrained vision encoder into a large language model. However, final-layer features can discard text, local attributes, and spatial relationships, while high-resolution inputs substantially increase context length and inference latency. We introduce \\method, a Multi-scale Adaptive Vision Encoder. \\method uses position-dependent gates to fuse shallow, intermediate, and deep features from a vision Transformer, preserving global semantics while enhancing edges, text, and local structure. It then performs question-conditioned token routing according to question relevance, local information content, global semantics, and spatial coverage, with a token budget that adapts to image complexity. To mitigate compression loss, we further introduce full-to-compressed representation distillation and a spatial diversity regularizer. In an illustrative simulation under a unified 7B language-model framework, \\method reduces the average number of SigLIP-SO400M visual tokens from 729 to 146 (approximately 80.0\\%) and improves the mean score on VQAv2, GQA, TextVQA, ScienceQA-IMG, and MMBench by 2.2 percentage points, while reducing single-image time to first token from 228\\,ms to 129\\,ms. We provide the full model design and evaluation protocol. All reported numbers currently serve only as placeholders for paper organization and experimental design; formal claims require real training runs, independent replications, and official benchmark evaluation.",
+      "authors": [
+        "Shaofei Lei"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-27T13:36:08+00:00",
+      "link": "https://arxiv.org/pdf/2607.24424v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "feature-level fusion in vision encoder",
+      "llm_evidence_cn": "视觉编码器中的特征级融合",
+      "llm_evidence": "视觉编码器中的特征级融合",
+      "canonical_evidence": "视觉编码器中的特征级融合",
+      "llm_tldr_en": "Proposes a multi-scale adaptive vision encoder that fuses shallow, intermediate, and deep features for fine-grained perception.",
+      "llm_tldr_cn": "该文针对视觉语言模型中最终层特征丢失局部信息的问题，提出多尺度自适应视觉编码器MAViE。它使用位置门控融合浅层、中层和深层特征，保留全局语义并增强边缘、文本和局部结构。该编码器可高效支持多模态推理，其特征融合策略对图像融合任务有借鉴意义。",
+      "llm_tldr": "该文针对视觉语言模型中最终层特征丢失局部信息的问题，提出多尺度自适应视觉编码器MAViE。它使用位置门控融合浅层、中层和深层特征，保留全局语义并增强边缘、文本和局部结构。该编码器可高效支持多模态推理，其特征融合策略对图像融合任务有借鉴意义。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2607.23136v1",
+      "source": "arxiv",
+      "title": "Optimized Embedded Implementation of Hyperspectral-Multispectral Image Fusion on Raspberry Pi",
+      "abstract": "Remote sensing optical images have become central to a wide range of applications. In particular, hyperspectral images, with their high spectral resolution, enable the extraction of rich information about the objects and materials present in the observed scene. Nevertheless, processing such data comes at the expense of a high computational load due to its large data volume, making real-time processing very difficult to achieve. Recently, we proposed an approach to investigate the feasibility of processing such data on a Raspberry Pi by implementing a hyperspectral super-resolution technique, namely HSB-SV. However, the implementation resulted in high computational time. To overcome this limitation, we apply computational optimization techniques based on migrating the most intensive operations to PyTorch and edge inference frameworks such as ONNX Runtime and ExecuTorch with the XNNPACK backend. The proposed optimized implementation is deployed on a Raspberry Pi 5 platform. Experimental results demonstrate a significant reduction in computational time, achieving a 1.48x overall speedup on the Raspberry Pi 5, the total execution time decreases significantly, from 527.1 ms to 356.7 ms corresponding to a 32.3% dminution, while fully preserving the fusion quality, making the approach more suitable for embedded and edge computing scenarios, particularly for UAV-based hyperspectral remote sensing applications.",
+      "authors": [
+        "Salah Eddine Brezini",
+        "Okba Bekhelifi",
+        "Oussama Mezouar",
+        "Chams Eddine Choucha",
+        "Sarra Boukhacheba",
+        "Fethi Abdelatif Dali"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.PF"
+      ],
+      "published": "2026-07-25T10:36:14+00:00",
+      "link": "https://arxiv.org/pdf/2607.23136v1",
+      "tags": [
+        "keyword:image-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "hyperspectral-multispectral image fusion on embedded device",
+      "llm_evidence_cn": "高光谱-多光谱图像融合在嵌入式设备上的实现",
+      "llm_evidence": "高光谱-多光谱图像融合在嵌入式设备上的实现",
+      "canonical_evidence": "高光谱-多光谱图像融合在嵌入式设备上的实现",
+      "llm_tldr_en": "Optimizes embedded implementation of hyperspectral-multispectral image fusion on Raspberry Pi, reducing computational time via practical optimizations.",
+      "llm_tldr_cn": "高光谱图像处理计算量大，难以实时运行。本文针对之前提出的HSB-SV超分辨率融合技术在树莓派上的实现进行优化，应用多种计算优化方法大幅降低运行时间，使得高光谱-多光谱图像融合能够在低成本嵌入式设备上高效执行，为遥感实时应用提供了可行方案。",
+      "llm_tldr": "高光谱图像处理计算量大，难以实时运行。本文针对之前提出的HSB-SV超分辨率融合技术在树莓派上的实现进行优化，应用多种计算优化方法大幅降低运行时间，使得高光谱-多光谱图像融合能够在低成本嵌入式设备上高效执行，为遥感实时应用提供了可行方案。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "image fusion techniques",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2607.24249v1",
+      "source": "arxiv",
+      "title": "SILICA: Repurposing Diffusion Priors for Joint Glass Segmentation and Depth Estimation",
+      "abstract": "Standard depth sensors systematically fail on transparent surfaces, creating corrupted 3D maps and severe navigation hazards. While specialized hardware sensors can detect glass, they lack modularity and have extensive hardware dependencies. Consequently, learning-based monocular depth estimation has emerged as a compelling alternative. However, domain-specific glass-aware monocular depth estimators struggle with unfamiliar indoor layouts; restricted by the severe scarcity of real-world glass depth annotations, they fail to generalize zero-shot to new settings. This motivates us to explore whether the extensive priors of text-to-image diffusion models can enable generalizable perception of transparent surfaces. We introduce SILICA, a unified pipeline leveraging these priors to jointly predict glass segmentation and glass-aware depth. This mutual information exchange establishes a robust spatial hierarchy, entirely eliminating the need for paired real-world glass depth annotations. Subsequently, we use the predicted segmentation mask to explicitly filter incorrect glass depth points from standard sensors, recovering accurate metric glass depth for downstream 3D mapping and autonomous collision avoidance. Supported by our novel Mirage 18k dataset, extensive experiments demonstrate that SILICA achieves remarkable zero-shot transfer across diverse, unseen environments, outperforming state-of-the-art models by almost 20% and setting a new benchmark for transparent surface perception.",
+      "authors": [
+        "Tarun R",
+        "Anuj Verma",
+        "Laksh Nanwani",
+        "Sourav Garg",
+        "K. Madhava Krishna"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-07-27T10:38:49+00:00",
+      "link": "https://arxiv.org/pdf/2607.24249v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "joint glass segmentation and depth estimation using diffusion priors",
+      "llm_evidence_cn": "利用扩散先验联合玻璃分割与深度估计",
+      "llm_evidence": "利用扩散先验联合玻璃分割与深度估计",
+      "canonical_evidence": "利用扩散先验联合玻璃分割与深度估计",
+      "llm_tldr_en": "SILICA repurposes text-to-image diffusion priors to jointly segment glass regions and estimate depth, overcoming the scarcity of real-world glass depth annotations. It shows strong zero-shot generalization to unseen indoor environments, enabling safer navigation.",
+      "llm_tldr_cn": "透明物体深度感知是计算机视觉难题，现有方法依赖专用硬件或标注数据。SILICA利用文本到图像扩散模型的先验知识，首次实现联合玻璃分割与单目深度估计。该方法无需真实玻璃深度标注即可零样本泛化到新场景，在室内导航任务中显著提升了安全性。",
+      "llm_tldr": "透明物体深度感知是计算机视觉难题，现有方法依赖专用硬件或标注数据。SILICA利用文本到图像扩散模型的先验知识，首次实现联合玻璃分割与单目深度估计。该方法无需真实玻璃深度标注即可零样本泛化到新场景，在室内导航任务中显著提升了安全性。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.23680v1",
+      "source": "arxiv",
+      "title": "Perturbation-Aware Diffusion-Guided Hybrid Segmentation for Robust and Annotation-Efficient Plant Stress Phenotyping",
+      "abstract": "Semantic segmentation in agricultural imagery is often evaluated under in-domain protocols, yet practical deployment requires robustness to appearance perturbations, limited annotations, and cross domain shift. This paper presents a diffusion-guided hybrid segmentation framework in which U-Net, DeepLabV3+, and SegFormer backbones generate coarse masks that are refined by Denoising Diffusion Probabilistic Models (DDPM), latent diffusion, or semantic-guided diffusion. The framework is evaluated through a 3x3 architectural screening study on PlantSegV3, followed by boundary-constrained optimization, perturbation-guided retraining, low-data evaluation, constrained hyperparameter screening, and controlled cross-domain adaptation. On PlantSegV3, the best selected hybrid model achieves 71.83% refined mean Intersection-over-Union (mIoU) and 26.10% refined Boundary-F1, and the selected models remain stable under substantially reduced supervision, demonstrating strong annotation efficiency. Perturbation analysis identifies grayscale conversion, fog, coarse dropout, and shadow as the most disruptive appearance shifts, and the resulting augmentation policy substantially improves robustness during retraining. The adapted models further show effective transfer to external agricultural datasets under limited target supervision, indicating that diffusion refinement and boundary-aware optimization provide transferable structural priors. Overall, the results show that carefully matched backbone-refiner pairings, combined with perturbation-aware retraining, can improve structural delineation and robustness under realistic resource and distribution constraints.",
+      "authors": [
+        "Gurbhit Chaurakoti",
+        "Soumyashree Kar"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-26T14:28:05+00:00",
+      "link": "https://arxiv.org/pdf/2607.23680v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "plant stress phenotyping semantic segmentation",
+      "llm_evidence_cn": "植物胁迫表型语义分割",
+      "llm_evidence": "植物胁迫表型语义分割",
+      "canonical_evidence": "植物胁迫表型语义分割",
+      "llm_tldr_en": "Proposes a diffusion-guided hybrid segmentation framework using U-Net, DeepLabV3+, SegFormer with DDPM refinement for robust plant stress segmentation.",
+      "llm_tldr_cn": "针对农业图像语义分割在域偏移、标注有限及扰动下的鲁棒性问题，提出扩散引导混合分割框架，结合U-Net等骨干网络与扩散模型精细化，在PlantSegV3上实验表明对边界约束优化和低数据场景具有强鲁棒性。",
+      "llm_tldr": "针对农业图像语义分割在域偏移、标注有限及扰动下的鲁棒性问题，提出扩散引导混合分割框架，结合U-Net等骨干网络与扩散模型精细化，在PlantSegV3上实验表明对边界约束优化和低数据场景具有强鲁棒性。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    }
+  ]
+}

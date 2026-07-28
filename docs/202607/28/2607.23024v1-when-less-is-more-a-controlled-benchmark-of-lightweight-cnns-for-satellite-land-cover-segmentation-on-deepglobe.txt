@@ -1,0 +1,1388 @@
+Title: 2607.23024v1.pdf
+
+URL Source: https://arxiv.org/pdf/2607.23024v1
+
+Published Time: Tue, 28 Jul 2026 00:24:13 GMT
+
+Number of Pages: 33
+
+Markdown Content:
+1
+
+Corresponding Author: Atiq ( atiq ur.rehman @usd.edu /atiq .ur.rehman.shafeeq@gmail.com ). Affiliation: Department 
+
+of Economics & Decision S ciences , University of South Dakota, Vermillion, SD, USA .
+
+https://github.com/AtiqML/DeepGlobe 
+
+# When Less Is More: A Controlled Benchmark of 
+
+# Lightweight CNNs for Satellite Land -Cover 
+
+# Segmentation on DeepGlobe 
+
+# Atiq Ur Rehman 1, Joseph Michael Donovan 1
+
+1University of South Dakota , Vermill ion, USA 
+
+# Abstract 
+
+High -resolution satellite imagery is the backbone of good land -cover classification, and without that, environmental 
+
+monitoring, urban planning, and sustainable resource management all fall short . Deep learning architectures perform 
+
+well in semantic segmentation, but the efficiency -accuracy trade -off across classical convolutional encoders is not 
+
+well quantified under controlled, reproducible conditions. This study compares five architectures VGG16, 
+
+MobileNetV2, InceptionV 3, AlexNet , and CNN on the DeepGlobe Land Cover Classification dataset using three 
+
+progressively optimized iterations to isolate regularisation , transfer learning, and architectural depth. To ensure 
+
+performance differentials reflect architectural properties, all experiments used identical preprocessing, 
+
+hyperparameter, and training protocols without data augmentation or class -imbalance correction . At 24.98 MB, 
+
+MobileNetV2_v1 had the highest overall accuracy (0.7906) and mean Intersection over Union (0.4625), 
+
+outperforming deeper alternatives like InceptionV3_v2 (125.17 MB, accuracy 0.7610) and VGG16_v2 (71.13 MB, 
+
+accuracy 0.7653). Class -wise analy sis showed strength in urban, agricultural, and water categories, but rangeland –
+
+barren confusion showed that architectural optimization alone cannot optimize spectrally similar minority classes. 
+
+Strong spatial generalization and crisp boundary delineation were confirmed on held -out test imagery, validating 
+
+operational applicability. These results show that lightweight, transfer -learned models can match or outperform deeper 
+
+models in resource -constrained remote -sensing environments, enabling scalable land -co ver mapping. 2
+
+Keywords: Semantic segmentation, DeepGlobe, MobileNetV2, transfer learning, remote sensing 
+
+# Introduction 
+
+Land -use and land -cover (LULC) classification captures how human activity shapes the environment, and getting 
+
+remote sensing images classified correctly is fundamental to any serious land -use and land -cover change research (Jin 
+
+et al., 2019) . When land -cover classification is done precisely, we gain much clearer insight into environmental 
+
+change, urbanisation, agricultural output, and resource management especially now that high -resolution satellite 
+
+imagery lets us observe Earth's surface in considerable detail (Ullah et al., 2025). That said, traditional statistical and 
+
+pixel -based methods such as Maximum Likelihood Estimation and Support Vector Machines (SVMs) often struggle 
+
+to handle the complex spatial -spectral relationships found in modern remote -sensing data (Mohanty et al. , 2025; Das 
+
+& Goswami, 2025). Conventional machine learning algorithms also tend to generalise poorly across intricate spatial -
+
+spectral patterns, and the problem only gets worse as intra -class diversity grows and inter -class similarity increases 
+
+because of spectral confusion in high -resolution images (Bhatt et al., 2021). 
+
+Recent progress in deep learning and Convolutional Neural Networks (CNNs) has made it possible to automate 
+
+hierarchical feature extraction and achieve better semantic segmentation (Acuña -Alonso et al., 2024; Rangel et al., 
+
+2024). Researchers have tested U -Net models with ResNet34, InceptionV3, and VGG16 encoders for high -resolution 
+
+land -cover categorisation, with ResNet34 reaching a validation accuracy of 0.85 and InceptionV3 showing stronger 
+
+generalisability (Kumar et al., 2024) . InceptionV3 hit 94.36% accuracy on the UC Merced dataset through a multi -
+
+branch convolutional design combined with dropout and early stopping (Alem & Kumar, 2022), while a U -Net with 
+
+a pre -trained VGG16 encoder averaged an IoU of 59.23% and 69.27% on the D eepGlobe dataset (Dey et al., 2024). 
+
+More recently, IRUNet built on InceptionResNetV2 and U -Net for Sentinel -2 imagery achieved 98.21% accuracy and 
+
+an 88.96% Dice score (Jagannathan, Vadivel, & Divya, 2025). Transfer learning and adaptive optimisation have also 
+
+helped improve how well features generalise and how stable convergence becomes (Fayaz et al., 2024; Marzougui et 
+
+al., 2025). The catch is that these deeper transfer -learning models tend to overfit and demand heavy computation, 
+
+which makes them hard to deploy in operational settings with limited resources (Bhatt et al., 2021; Qin et al., 2022). 
+
+Lighter deep learning architectures have started to change remote sensing analysis by delivering accurate classification 
+
+without the same computational burden. MobileNetV2, for instance, scored an F -beta of 0.9275 on the Planet Amazon 3
+
+dataset beating Vision Transformer, ResNet -50, DenseNet -121, and InceptionV3 while staying computationally 
+
+efficient (Barman & Susan, 2024). Comparative work shows MobileNetV2 reaches 93.58% accuracy against 
+
+EfficientNet's 94.36%, yet it is markedly more efficient for mobile and embedded use (Thapliyal et al ., 2024). Hybrid 
+
+ensembles combining MobileNetV2 and EfficientNetB0 have pushed land -use and land -cover classification accuracy 
+
+even further (Pekala et al., 2025), and MobileNetV2 -U-Net has proven useful for picking out urban open areas and 
+
+green spaces (Dabra & Kumar, 2023). Self -attention -based variants of MobileNetV2 have sharpened feature 
+
+localisation (Anjali et al., 2024), and U -Net with selective feature extraction using lightweight backbones has shown 
+
+solid results for land cover classification (Ramos & Sappa, 2025). Taking together, these findings suggest that well -
+
+optimised lightweight architectures can provide s calable, efficient classification even when computational resources 
+
+are tight. 
+
+Despite these advances, current research often lacks a uniform experimental framework for comparing models under 
+
+identical conditions (Qin et al., 2022) . Existing comparative research in remote sensing have focused on modern 
+
+encoder -decoder pipelines such as U -Net and DeepLabV3+, or on hyperspectral patch classification, leaving the 
+
+efficiency -performance frontier of classical CNN encoders, including basic CNN, AlexNet, VGG16, and Ince ptionV3 
+
+when adapted with minimal decoder heads for semantic segmentation on the DeepGlobe dataset, largely 
+
+underexplored. Furthermore, the effect of progressive regularisation strategies, including transfer learning, partial fine -
+
+tuning, and adaptive dropout, across these architectures under controlled training conditions has not been 
+
+systematically quantified. 
+
+This study addresses this gap by establishing a controlled, reproducible benchmark that prioritises deployability over 
+
+absolute accuracy. Five architectures, CNN, AlexNet, InceptionV3, MobileNetV2, and VGG16, are systematically 
+
+compared under a unified exp erimental framework on the DeepGlobe Land Cover Classification dataset (Demir et al., 
+
+2018) . Each architecture is evaluated through three progressively optimised versions to isolate the marginal gain of 
+
+regularisation and fine -tuning depth. Performance is assessed using Overall Accuracy, mean IoU , Precision, Recall, 
+
+and F1 -score to identify the optimal efficiency -accuracy frontier for resource -constrained land cover mapping. The 
+
+remainder of this paper is organized as follows: the dataset and preprocessing pipeline are described next, followed 
+
+by the model architecture , training strategy, and evaluation metrics. The results and analysis are then presented, before 
+
+the paper concludes with limitations and future directions. 4
+
+# Methodology 
+
+# Dataset 
+
+We chose the DeepGlobe Land Cover Classification dataset as our main data source because it offers high -resolution 
+
+satellite imagery, annotations across multiple land -cover classes, and has been widely used to benchmark semantic 
+
+segmentation models (Demir et al., 2018) . The dataset contains 803 training images, 171 validation images, and 172 
+
+test images. Each RGB satellite image measures 2448 × 2448 pixels at 50 cm resolution and is paired with a pixel -
+
+level annotation mask. Seven land -cover classes are encoded via RGB values defined in a class dictionary file: urban, 
+
+agricultural, rangeland, forest, water, barren, and unknown. The dataset supports large -scale, diverse terrain analysis 
+
+and enables systematic comparison of architectures for efficiency and generalisability . CNNs pick up hierarchical 
+
+features directly from the data on their own, which sharpens segmentation accuracy and makes it straightforward to 
+
+validate results against standard metrics and compare models empirically (Minaee, et al., 2022) . The data is publicly 
+
+available and contains no personally identifiable information. 
+
+We ran all experiments on Google Colab Pro, using NVIDIA T4 GPUs for acceleration. Our software setup included 
+
+Python 3.10, TensorFlow 2.x with Keras , plus OpenCV, NumPy, scikit -learn, Matplotlib, and Seaborn for processing, 
+
+analysis, and visualisation . The DeepGlobe dataset was acquired via the Kaggle API. 
+
+# Data Preprocessing 
+
+Data preprocessing followed standard practice: inputs were normalised, RGB masks were converted to categorical 
+
+indices, and all images were brought to uniform dimensions (Dehbozorgi, Ryabchykov, & Bocklitz, 2024). Both 
+
+satellite images and masks were resiz ed to 256 × 256 pixels bilinear interpolation for the images, nearest -neighbour 
+
+for the masks so the labels would not get distorted. Pixel values in the RGB images were scaled to [0, 1] by dividing 
+
+by 255. RGB -encoded mask pixels were converted to categorical class indices using the dataset’s class dictionary. We 
+
+then split the data into training, validation, and test sets. The validation set guided parameter optimisation and 
+
+hyperparameter tuning, while the test set was held back entirely to measure final accuracy on data the model had never 
+
+seen. Keeping these sets, separate is what lets us compare different architectures fairly and ensures the evaluation is 
+
+both honest and reproducible .5
+
+Fig.1 Percentage breakdown of land -cover classes within the DeepGlobe dataset 
+
+The dataset exhibits significant class imbalance at the pixel level: agriculture dominates (~52.8% of labeled pixels), 
+
+while urban, forest, and rangeland account for 13.2%, 12.6%, and 10.3%, respectively. Water, barren, and unknown 
+
+classes are minority categories ( Fig. 1). Class imbalance was deliberately left uncorrected via reweighting, focal loss, 
+
+or resampling to ensure the study evaluated raw architectural discrimination capabilities under natural dataset 
+
+distributions. Artificially forcing uniform class distributions d uring model training can severely compromise 
+
+calibration metrics and distort authentic baseline boundaries (Tian et al., 2020) . Furthermore, no data augmentation 
+
+such as rotation, flipping, or color jitter was applied beyond baseline resizing and normalization. This restriction is 
+
+supported by recent findings indicating that generic visual transformations can "substantially alter scale or spatial 
+
+structure," which in turn "can introduce semantically inconsistent representations and degrade model performance" 
+
+(Habrat & Młynarczuk, 2026) . By omitting these artificial modifications, all recorded performance variances strictly 
+
+reflect intrinsic architectural and regularization effects rather than external, augmentation -induced variability .
+
+# Model Architectures 
+
+Five convolutional architectures were developed and compared: a custom CNN, AlexNet, InceptionV3, MobileNetV2, 
+
+and VGG16. Each architecture was examined through three progressively optimised iterations: baseline (v1), 
+
+enhanced (v2), and optimised (v3) to i solate the effects of regularisation, architectural depth, and transfer learning on 6
+
+segmentation accuracy. The baseline configurations employed shallow custom networks or frozen pretrained encoders. 
+
+Enhanced versions incorporated structural modifications such as skip connections, bottleneck layers, and partial fine -
+
+tuning. Optimised versi ons integrated advanced regularisation, dynamic learning -rate scheduling, and progressive 
+
+dropout to improve robustness and generalizability Previous work has made a strong case for structured 
+
+experimentation across model variants as a way to ground evaluation in remote -sensing applications, especially where 
+
+accuracy and scalability both matter (Thapliyal et al., 2024; Fayaz et al., 2024) . This study sought to produce a 
+
+segmentation framework for land -cover classification that was lightweight enough to be practical yet robust enough 
+
+to generalise, pursued primarily through successive iterations of model refinement. 
+
+To ensure a fair comparison, each encoder was paired with a lightweight decoder progressively restoring spatial 
+
+resolution to 256 × 256 pixels and terminating in a 1 × 1 convolution with SoftMax activation for seven -class 
+
+prediction. Decoder complexity ran ged from simple upsampling (CNN_v1, CNN_v2) to multi -layer transposed 
+
+convolution stacks with batch normalisation and ReLU (InceptionV3, VGG16, MobileNetV2), scaled proportionally 
+
+to encoder complexity (Table 1).   
+
+> Table 1Model configurations and parameter count
+
+Architecture  Version  Key Modification  Total 
+
+Parameters 
+
+CNN  v1  3 conv blocks, 1×1 
+
++ upsampling 
+
+decoder 
+
+2.96 MB 
+
+CNN  v2  Encoder –decoder 
+
+with skip 
+
+connections 
+
+62.80 MB 
+
+CNN  v3  +
+
+SpatialDropout2D, 
+
+AdamW, cosine 
+
+decay 
+
+26.45 MB 7
+
+AlexNet  v1  5 conv layers, 512 -
+
+filter bottleneck 
+
+24.81 MB 
+
+AlexNet  v2  + Residual skip 
+
+connections, 
+
+LeakyReLU 
+
+24.81 MB 
+
+AlexNet  v3  + Progressive 
+
+dropout (0.1→0.3) 
+
+24.81 MB 
+
+InceptionV3  v1  Frozen ImageNet 
+
+encoder 
+
+125.10 MB 
+
+InceptionV3  v2  Partial fine -tuning 
+
+(first 150 layers 
+
+frozen) 
+
+125.17 MB 
+
+InceptionV3  v3  + Hierarchical 
+
+dropout, 1024 -
+
+filter bottleneck 
+
+179.19 MB 
+
+MobileNetV2  v1  Frozen encoder, 
+
+skip connections 
+
+24.98 MB 
+
+MobileNetV2  v2  Extended decoder, 
+
+512 -filter 
+
+bottleneck 
+
+21.92 MB 
+
+MobileNetV2  v3  + Separable 
+
+convolutions, L2 
+
+regularisation 
+
+18.24 MB 
+
+VGG16  v1  Frozen ImageNet 
+
+encoder 
+
+71.13 MB 
+
+VGG16  v2  Partial fine -tuning 
+
+(blocks 4–5
+
+unfrozen) 
+
+71.13 MB 8
+
+VGG16  v3  + Progressive 
+
+dropout (0.1→0.5) 
+
+74.68 MB 
+
+Transfer learning models (InceptionV3, MobileNetV2, and VGG16) were initialised with ImageNet -pretrained 
+
+weights; the custom CNN and AlexNet were trained from random initialisation. 
+
+# Training and Validation Strategy 
+
+All experiments were conducted under controlled conditions with identical preprocessing and standardised 
+
+hyperparameters across every model. A fixed random seed (42) was used for the train/validation/test split to ensure 
+
+consistent data partitioning; however, seeds were not fixed for batch shuffling or model weight initialisation, so exact 
+
+numerical reproduc tion of the reported metrics may vary slightly between runs. Training was performed for a 
+
+maximum of 50 epochs with sparse categorical cross -entropy loss, a batch size of 8, and the Adam optimiser at an 
+
+initial learning rate of 1 × 10⁻⁴. To prevent overfitting and guarantee stable convergence, early stopping with a patience 
+
+of 10 epochs (monitored on validation loss) was utilised alongside model checkpointing to preserve optimal weights 
+
+(Rajabi et al., 2025) . Batch normalisation was applied to stabilise activations, while adaptive learning rate scheduling 
+
+(ReduceLROnPlateau) refined optimisation when validation loss plateaued. Dropout and L2 regularisation were 
+
+incorporated in optimised configurations to suppress overfitting. Minor deviations were introduced for specific 
+
+variants: CNN_v2 used a reduced learning rate of 5 × 10⁻⁵; CNN_v3 used the AdamW optimiser with a cosine -decay 
+
+schedule (initial rate 5 × 10⁻⁴, weight decay 1 × 10⁻⁴); and InceptionV3_v3 used a shorter early -stopping patience of 
+
+8 epochs. This systematic and reproducible training process ensured that model improvements reflected architectural 
+
+robustness rather than training -related fluctuations.   
+
+> Table 2Overview of training techniques and optimisation strategies implemented across model architectures
+
+Technique  Description  Applied In 
+
+Dropout  Randomly 
+
+masks neurons 
+
+during forward 
+
+passes to curb 
+
+overfitting 
+
+CNN_v3, 
+
+AlexNet_v3, 
+
+VGG16_v3 9
+
+(Omar & El -
+
+Hafeez, 2024). 
+
+Batch Normalisation  Recentres and 
+
+rescales layer 
+
+inputs to speed 
+
+up training and 
+
+stabilise 
+
+gradients 
+
+(Sagar et al., 
+
+2025). 
+
+All architectures 
+
+Freezing Layers  Locks 
+
+pretrained 
+
+encoder 
+
+weights to 
+
+retain generic 
+
+low -level 
+
+representations 
+
+(Dobrzycki et 
+
+al., 2025). 
+
+InceptionV3_v1, 
+
+VGG16_v1, 
+
+MobileNetV2_v1 
+
+Partial Fine -Tuning  Thaws deeper 
+
+backbone 
+
+layers for task -
+
+specific 
+
+feature 
+
+recalibration 
+
+(Benamara et 
+
+al., 2025). 
+
+VGG16_v2, 
+
+InceptionV3_v2 10 
+
+Cosine Decay  Anneals the 
+
+learning rate 
+
+along a cosine 
+
+curve for 
+
+steadier 
+
+convergence 
+
+(Airen &
+
+Agrawal, 
+
+2025). 
+
+CNN \_v3 
+
+ReduceLROnPlateau  Triggers 
+
+stepwise 
+
+learning rate 
+
+reduction upon 
+
+validation 
+
+stagnation (R 
+
+et al., 2024). 
+
+All architectures 
+
+Adam / AdamW 
+
+Optimiser 
+
+Leverages 
+
+first - and 
+
+second -
+
+moment 
+
+estimates with 
+
+decoupled 
+
+weight decay 
+
+(Liu et al., 
+
+2025). 
+
+CNN_v3, 
+
+InceptionV3_v3 
+
+Early Stopping  Terminates 
+
+training when 
+
+validation 
+
+All architectures 11 
+
+metrics cease 
+
+improving 
+
+(Rajabi et al., 
+
+2025). 
+
+Model 
+
+Checkpointing 
+
+Preserves the 
+
+top -
+
+performing 
+
+weights across 
+
+epochs for 
+
+downstream 
+
+reuse (Huang 
+
+et al., 2025). 
+
+CNN_v3, 
+
+InceptionV3_v3 
+
+SpatialDropout2D  Nullifies 
+
+complete 
+
+feature maps 
+
+rather than 
+
+scattered units 
+
+for stronger 
+
+regularisation 
+
+(Ninama &
+
+Raikwal, 
+
+2025). 
+
+CNN \_v3 
+
+L2 Regularisation  Adds a
+
+squared -norm 
+
+penalty to the 
+
+loss surface to 
+
+discourage 
+
+extreme 
+
+VGG16_v2, 
+
+MobileNetV2_v3 12 
+
+weights 
+
+(Koishiyeva et 
+
+al., 2025). 
+
+# Evaluation Metrics 
+
+Segmentation performance was evaluated using Overall Accuracy, Precision, Recall, F1 -score, and mean Intersection 
+
+over Union (mIoU ). Overall Accuracy captures the share of pixels classified correctly. Precision reflects how complete 
+
+the predicted classes are, whereas Recall indicates what fraction of actual positive instances were picked up. The F1 -
+
+score brings Precision and Recall t ogether through their harmonic mean, which proves especially useful when dealing 
+
+with imbalanced classes (Cho, 2024; Naidu, Zuva, & Sibanda, 2023). Mean IoU , meanwhile, gauges the spatial 
+
+overlap between predicted and ground -truth masks, making it a dependable choice for multi -class segmentation tasks. 
+
+Taken together, these metrics offer clear, reproducible benchmarks for refining models, improving how well t hey 
+
+generalise, and pinpointing the architecture that performs best .
+
+# Results and Analysis 
+
+# Comparative Performance Overview 
+
+Table 3 summarises the best -performing version for each architecture. MobileNetV2_v1 achieved the highest overall 
+
+accuracy (0.7906) and mean IoU (0.4625). CNN_v3 attained the second -highest accuracy (0.7899) and mean IoU 
+
+(0.4480). VGG16_v2 recorded the highest mean IoU amon g VGG16 variants (0.4244), while VGG16_v3 achieved 
+
+marginally higher accuracy (0.7690) but lower mean IoU (0.4214). AlexNet_v2 and InceptionV3_v2 emerged as the 
+
+top configurations for their respective architectures.   
+
+> Table 3Summary of best -performing configurations per architecture
+
+Architecture  Best 
+
+Version 
+
+Overall 
+
+Accuracy 
+
+Mean 
+
+IoU 
+
+Precision 
+
+(macro) 
+
+Recall 
+
+(macro) 
+
+F1 -
+
+score 
+
+(macro) 
+
+Model 
+
+Size 13 
+
+CNN  v3  0.7899  0.448  0.6134  0.5475  0.5533  26.45 
+
+MB 
+
+AlexNet  v2  0.7649  0.4064  0.5824  0.4937  0.5183  24.81 
+
+MB 
+
+InceptionV3  v2  0.761  0.4118  0.5885  0.4996  0.532  125.17 
+
+MB 
+
+MobileNetV2  v1  0.7906  0.4625  0.6069  0.5641  0.5786  24.98 
+
+MB 
+
+VGG16  v2  0.7653  0.4244  0.6357  0.4996  0.5411  71.13 
+
+MB 
+
+# CNN Results 
+
+Table 4 reports the quantitative performance of the three CNN iterations. CNN_v3 achieved the highest overall 
+
+accuracy (0.7899) and mean IoU (0.4480), followed by CNN_v1 (accuracy 0.7669, mean IoU 0.4127). CNN_v2 
+
+recorded the lowest metrics across all cate gories.   
+
+> Table 4Performance metrics for CNN variants
+
+Model  Overall 
+
+Accuracy 
+
+Mean 
+
+IoU 
+
+Precision 
+
+(macro) 
+
+Recall 
+
+(macro) 
+
+F1 -
+
+score 
+
+(macro) 
+
+CNN_v1  0.7669  0.4127  0.5851  0.4975  0.517 
+
+CNN_v2  0.6019  0.1862  0.4516  0.2561  0.2615 
+
+CNN_v3  0.7899  0.448  0.6134  0.5475  0.5533 14 
+
+Fig . 2 Training and validation accuracy and loss curves for the three CNN configurations (v1, v2, v3) over 50 epochs 
+
+Fig . 3 Normalised confusion matrices for CNN_v1, CNN_v2, and CNN_v3 on the DeepGlobe test set 15   
+
+> Fig .4Per -class and mean Intersection over Union (IoU) scores for CNN_v1, CNN_v2, and CNN_v3 across the seven DeepGlobe land -cover
+> classes. The horizontal dashed line indicates the mean IoU for each variant.
+
+CNN_v2 performed unpredictably and saw its validation accuracy drop, whereas CNN_v1 and CNN_v3 both showed 
+
+steady gains in training and validation accuracy across epochs ( Fig. 2). For CNN_v3, the close match between training 
+
+and validation curves points to less overfitting and stronger generalisation. Architectural tweaks particularly the use 
+
+of SpatialDropout2D and an adaptive learning -rate schedule, helped keep hyperparameter tuning in check, which in 
+
+turn supported more stable convergence and more reliable predictions (Tarafdar et al., 2025). 
+
+CNN_v3 also delivered more consistent classification of urban, agricultural, and forest classes than its predecessors, 
+
+reflected in the higher diagonal values in the confusion matrices shown in Fig. 3. CNN_v2, by contrast, mixed up 
+
+rangeland and barren land more frequently an issue tied to its weaker feature representation while CNN_v1 sat in the 
+
+middle with somewhat lower overall accuracy. Pushpalatha et al., (2025) have argued that fine -tuning network depth 
+
+and filter size can sharpen spatial pattern discrimination, and they attribute much of the remaining misclassification 
+
+to class imbalance, specifically the overrepresentation of certain categories. 
+
+Fig. 4 shows that CNN_v3 had the highest IoU for agricultural (0.79), urban (0.66), and water (0.68) land -covers. 
+
+CNN_v2 struggled with rangeland and woodland minority classes due to limited generalisability. Akeboshi et al. 
+
+(2022) and Marzougui et al. (2025) state that multi -scale convolutional architectures with regularisation improve per -
+
+class segmentation. CNN_v3, with higher mean IoU and stable convergence, showed that optimized architecture, 16 
+
+adaptive learning rates, and LULC feature regularisation improve segmentation accuracy (Tarafdar et al., 2025; 
+
+Pushpalatha, 2025). 
+
+# AlexNet Results 
+
+Table 5 summarises the performance of the AlexNet variants. AlexNet_v2 achieved the highest overall accuracy 
+
+(0.7649) and mean IoU (0.4064). AlexNet_v1 recorded an accuracy of 0.7335 and mean IoU of 0.3436. AlexNet_v3 
+
+attained an accuracy of 0.7493 and a m ean IoU of 0.3755.   
+
+> Table 5Performance metrics for AlexNet variants
+
+Model  Overall 
+
+Accuracy 
+
+Mean 
+
+IoU 
+
+Precision 
+
+(macro) 
+
+Recall 
+
+(macro) 
+
+F1 -score 
+
+(macro) 
+
+AlexNet_v1  0.7335  0.3436  0.5142  0.4322  0.4535 
+
+AlexNet_v2  0.7649  0.4064  0.5824  0.4937  0.5183 
+
+AlexNet_v3  0.7493  0.3755  0.5384  0.4622  0.4859 17 
+
+Fig . 5 Epoch -wise training and validation accuracy and loss trajectories for AlexNet_v1, AlexNet_v2, and AlexNet_v3. 
+
+Fig . 6 Confusion matrices for the three AlexNet variants, illustrating the distribution of predicted labels against ground -truth annotations for each 
+
+land -cover category on the held -out test set. 18   
+
+> Fig .7Bar chart of per -class IoU and mean IoU values for AlexNet_v1, AlexNet_v2, and AlexNet_v3. Colours correspond to individual land -cover
+> classes, with the final bar in each group representing the mean IoU
+
+With continuous accuracy curves and aligned training and validation behaviors, AlexNet v2 converged more reliably 
+
+and smoothly ( Fig. 5). In AlexNet v1, validation spikes occurred occasionally, but v3’s improved regularisation made 
+
+loss patterns more unstable. Vinaykumar, Babu, and Frnda (2023) showed that AlexNet remains viable for satellite 
+
+imagery provided the parameters are tuned carefully and regularisation is kept in balance with model complexity. 
+
+Fig. 6 presents the confusion matrices. AlexNet_v2 improved diagonal alignment for agriculture, urban, and forest 
+
+classes compared with v1 and v3. Off -diagonal confusion was most pronounced between rangeland and barren land 
+
+across all three variants. 
+
+AlexNet_v2 had higher IoU values per class for most major categories except water (0.57), forests (0.58), and 
+
+agricultural (0.76), as shown in Fig. 7. Even though the mean IoU improved slightly from baseline, the three 
+
+configurations reached a similar representational limit with negligible differences. Reddy and Vimal (2024) found that 
+
+AlexNet can discriminate well with fine -tuning and regularisation. 19 
+
+# InceptionV3 Results 
+
+Table 6 presents the InceptionV3 results. InceptionV3_v2 achieved the highest accuracy (0.7610) and mean IoU 
+
+(0.4118) among the three variants. InceptionV3_v1 recorded the lowest metrics (accuracy 0.6935, mean IoU 0.2964). 
+
+InceptionV3_v3 attained an accuracy of 0.7540 and a mean IoU of 0.3907. 
+
+Table 6 Comparative performance metrics across InceptionV3 model variants 
+
+Model  Overall 
+
+Accuracy 
+
+Mean 
+
+IoU 
+
+Precision 
+
+(macro) 
+
+Recall 
+
+(macro) 
+
+F1 -
+
+score 
+
+(macro) 
+
+InceptionV3_v1  0.6935  0.2964  0.4766  0.3819  0.4108 
+
+InceptionV3_v2  0.761  0.4118  0.5885  0.4996  0.532 
+
+InceptionV3_v3  0.754  0.3907  0.5629  0.4833  0.5111 
+
+Fig . 8 Convergence profiles of InceptionV3_v1, InceptionV3_v2, and InceptionV3_v3, showing training and validation accuracy and loss as a 
+
+function of epoch. Solid and dashed lines distinguish training from validation performance 20 
+
+Fig . 9 Test -set confusion matrices for InceptionV3_v1, InceptionV3_v2, and InceptionV3_v3. Each matrix displays the frequency 
+
+of predicted class labels relative to the ground -truth reference    
+
+> Fig .10Per -class and mean IoU comparison for the three InceptionV3 configurations. Individual bars denote IoU for urban, agricultural, rangeland,
+> forest, water, barren, and unknown classes, with the rightmost bar in each group indicating the mean
+
+InceptionV3_v2 and v3 have sustained convergence with aligned training and validation curves across epochs ( Fig. 
+
+8). The validation curve for InceptionV3_v1 flattened out early, a pattern that points to frozen weights constraining 
+
+the learning process. Marzougui et al. (2025) note that adaptive fine -tuning at deeper Inception modules helps mitigate 
+
+underfitting, stabilise convergence, and enhance differentiation between classes. 
+
+Fig. 9's confusion matrices show InceptionV3_v2 improved urban, forest, and agriculture predictions and reduced 
+
+barren and rangeland misclassifications. The model represents the spatial -spectral hierarchy well. As expected given 21 
+
+its limited feature learning, InceptionV3_v1 confused land -type boundaries more than InceptionV3_v3, which had 
+
+slightly better accuracy but worse recall. According to Alem and Kumar (2022), deep inception networks sharpen 
+
+discrimination among visually overlapping land classes when regularisation is tuned appropriately. 
+
+Fig. 10 shows that InceptionV3_v2 was the most stable solution across all classes, with intersection -over -union values 
+
+of 0.77 for agricultural, 0.56 for forest, and 0.57 for water. Fine -tuned layers have adapted to DeepGlobe’s spatial 
+
+variety, as IoU outperfo rms InceptionV3_v1. Fayaz et al. (2024) showed that Inception -based architectures outperform 
+
+CNNs in contextual complexity and multi -scale pattern extraction. 
+
+# MobileNetV2 Results 
+
+Table 7 reports on MobileNetV2 performance. MobileNetV2_v1 achieved the highest overall accuracy (0.7906) and 
+
+mean IoU (0.4625) across the entire study. MobileNetV2_v2 recorded an accuracy of 0.7666 and mean IoU of 0.4089. 
+
+MobileNetV2_v3 attained an accuracy of 0.7589 and a mean IoU of 0.4069.   
+
+> Table 7Performance metrics for MobileNetV2 variants
+
+Model  Overall 
+
+Accuracy 
+
+Mean 
+
+IoU 
+
+Precision 
+
+(macro) 
+
+Recall 
+
+(macro) 
+
+F1 -score 
+
+(macro) 
+
+MobileNetV2_v1  0.7906  0.4625  0.6069  0.5641  0.5786 
+
+MobileNetV2_v2  0.7666  0.4089  0.5958  0.4918  0.5197 
+
+MobileNetV2_v3  0.7589  0.4069  0.5815  0.491  0.5253 22 
+
+Fig . 11 Accuracy and loss curves during training for MobileNetV2_v1, MobileNetV2_v2, and MobileNetV2_v3. Training trajectories are pl otted 
+
+as solid lines and validation trajectories as dashed lines over the course of optimisation 
+
+Fig . 12 Confusion matrices comparing predicted and true class distributions for MobileNetV2_v1, MobileNetV2_v2, and MobileNetV2_v3 on the 
+
+DeepGlobe test imagery 23   
+
+> Fig .13Per -class IoU and mean IoU values for the three MobileNetV2 variants. The grouped bars show segmentation accuracy for each land -cover
+> category, with the mean IoU highlighted in the final column of each group
+
+Fig. 11 shows smooth convergence with little overfitting for all three layouts. Regularisation and gradient propagation 
+
+kept MobileNetV2_v1 accurate during training and validation. MobileNetV2_v2 came closer but plateaued earlier 
+
+than MobileNetV2_v3, which had validation loss oscillations due to dropout. Thapliyal et al. (2024) say depthwise 
+
+separa ble convolutions and adaptive layer scaling achieve training stability and performance across MobileNet 
+
+versions. 
+
+Fig. 12 shows confusion matrices showing classification accuracy across important land -cover categories, especially 
+
+urban, forest, and agricultural. MobileNetV2_v1 distinguished urban and barren better than v2. According to Anjali et 
+
+al. (2024), lightweight CN Ns may have trouble distinguishing spectrally similar areas without attention mechanisms. 
+
+Most misclassifications occurred between visually identical textures like rangeland and barren land. 
+
+Fig. 13 indicates that MobileNetV2_v1 achieved a higher IoU across most land -cover categories, though it fell short 
+
+for water (0.63), forests (0.62), and agricultural land (0.79). The narrow gap in class -wise IoU between 
+
+MobileNetV2_v2 and MobileNetV2_v3 points to consistent performance and reliability across t hese architecture 
+
+variants. Barman and Susan (2024) have shown that MobileNetV2, alongside other lightweight transfer learning 
+
+models, can still deliver accurate predictions even when computational resources are limited .24 
+
+# VGG16 Results 
+
+Table 8 summarises the VGG16 results. VGG16_v2 achieved the highest mean IoU (0.4244) and F1 -score (0.5411). 
+
+VGG16_v3 attained the highest overall accuracy (0.7690) and precision (0.6319). VGG16_v1 recorded the lowest 
+
+metrics (accuracy 0.7274, mean IoU 0.3512).   
+
+> Table 8Performance metrics for VGG16 variants
+
+Model  Overall 
+
+Accuracy 
+
+Mean 
+
+IoU 
+
+Precision 
+
+(macro) 
+
+Recall 
+
+(macro) 
+
+F1 -score 
+
+(macro) 
+
+VGG16_v1  0.7274  0.3512  0.5282  0.431  0.4598 
+
+VGG16_v2  0.7653  0.4244  0.6357  0.4996  0.5411 
+
+VGG16_v3  0.769  0.4214  0.6319  0.4887  0.5374   
+
+> Fig .14Training and validation accuracy and loss evolution for VGG16_v1, VGG16_v2, and VGG16_v3. Solid lines correspond to training data
+> and dashed lines to validation data
+
+## 25      
+
+> Fig .15Confusion matrices for VGG16_v1, VGG16_v2, and VGG16_v3, depicting the alignment between model predictions and ground -truth
+> labels across all seven land -cover classes
+> Fig .16Per -class IoU scores and mean IoU for the three VGG16 configurations. Each cluster of bars represents one variant, with individual land -
+> cover classes color -coded and the mean IoU shown as the final bar
+
+Fig. 14 shows that all three configurations converged steadily across training epochs, with VGG16_v2 and VGG16_v3 
+
+pulling ahead on validation accuracy. The optimisation appeared to work well: the gap between training and validation 
+
+losses stayed narrow, and th e loss curves traced a smooth, consistent downward path. Kumar et al. (2024) argue that 
+
+VGG -based encoders preserve hierarchical spatial representations, which help anchor feature convergence when 
+
+working with high -dimensional remote -sensing data. 
+
+The confusion matrices in Fig. 15 show that forest, urban, and farmland types are accurately classified. VGG16_v1 
+
+confused rangeland and urban land, but VGG16_v2 better classified water and barren areas. Adaptive feature 26 
+
+extraction and refined weight modification improve classification accuracy in fine -tuned VGG16 architectures 
+
+(Ahangarha et al., 2024) .
+
+Most terrain types improve per -class IoU as architecture versions improve ( Fig. 16). In the agricultural (0.78) and 
+
+forest (0.53) datasets, VGG16_v3 segmented well with balanced IoU across all classes. (Dey et al., 2024) The model's 
+
+hierarchical convolutional layers and pre -trained filters are praised, and the model's land type versatility supports this. 
+
+# Model Deployment and Predictive Demonstration 
+
+Final MobileNetV2_v1 was deployed on unseen DeepGlobe test imagery to test real -world generalization. The trained 
+
+segmentation network created pixel -wise class prediction masks from 256x256 satellite images after normalization. 
+
+Per -class pixel counts and the dominant land -cover category were quantified and i dentified for operational land 
+
+management workflows.    
+
+> Fig .17Pixel -wise land -cover segmentation output from MobileNetV2_v1 on an unseen DeepGlobe satellite image. The input RGB scene (left)
+> contains barren and agricultural terrain adjacent to a water body; the corresponding predicted mask (right) assigns each pixe l to one of seven land -
+> cover categories according to the class colour legend
+
+## 27     
+
+> Fig .18Pixel -wise land -cover segmentation output from MobileNetV2_v1 on a second unseen DeepGlobe satellite image. The input RGB scene
+> (left) is dominated by rangeland with interspersed forest patches; the corresponding predicted mask (right) shows the spatial distribution of predicted
+> classes across the scene
+
+Fig. s 17 and 18 illustrate the model's deployment performance on two held -out test images. In Fig. 17, the model 
+
+accurately segments expansive barren and agricultural regions bordering a water body, with crisp boundary delineation 
+
+between land and water. Fig. 18 reveals strong spatial coherence in rangeland classification, with forest patches cleanly 
+
+separated despite spectral similarity between the two classes. The minimal class overlap and consistent color -coded 
+
+segmentation across both scenes confirm robust generalization beyond the training distribution, aligning with the 
+
+quantitative mean IoU of 0.4625. These results demonstrate that MobileNetV2_v1 achieves an effective accuracy –
+
+efficiency trade -off, positioning it as a viable solution for scalable, resource -constrained land -cover mapping 
+
+applications. 28 
+
+# Conclusion 
+
+This benchmark compares five architectures CNN, AlexNet, InceptionV3, MobileNetV2, and VGG16 for semantic 
+
+segmentation on the DeepGlobe dataset, with each evaluated through three progressively optimized iterations under 
+
+identical conditions. MobileNetV2_v1 achieved the optimal efficiency –accuracy frontier, attaining the highest overall 
+
+accuracy (0.7906) and mean IoU (0.4625) at merely 24. 98 MB , outperforming substantially deeper alternatives 
+
+including InceptionV3_v2 (125.17 MB, accuracy 0.7610) and VGG16_v2 (71.13 MB, accuracy 0.7653). Three key 
+
+insights emerge: first, MobileNetV2's depthwise separable convolutions enable efficient multi -scale feature extraction 
+
+suited to resource -constrained deployment; second, aggressive regularisation yields diminishing returns, with 
+
+InceptionV3_v3 and VGG16_v3 exhibiting marginal or negative gains relative to partially fine -tuned variants, 
+
+indicating overfitting risk in deeper networks on moderate -sized datasets; third, persistent rangeland –barren confusion 
+
+across all architectures reflects spectral similarity and minority -class underrepresentation unresolvable through 
+
+architectural choice alone. Deployment on held -out imagery confirms robust generalization, with spatially coherent 
+
+masks validating operationa l applicability for agricultural monitoring, urban expansion tracking, and water resource 
+
+assessment. 
+
+There are some limitations. First, deliberate exclusion of data augmentation and class -imbalance correction, while 
+
+ensuring controlled comparison, caps achievable accuracy and may understate architectures benefiting from 
+
+augmented training. Second, the 256 × 256 resolution sacrifices sub -meter detail critical for fine -grained delineation, 
+
+potentially contributing to persistent rangeland –barren confusion via texture loss. Third, ImageNet pretraining 
+
+introduces a domain gap between natural -scene and overhead satellite feature spaces, limiting transfer efficacy for 
+
+spectrally distinctive classes. Fourth, single -dataset evaluation on DeepGlobe constrains geographic generalisability. 
+
+Finally, computational benchmarking on cloud GPUs leaves edge -deployment latency and energy consumption 
+
+unquantified. Future work should integrate attention mechanisms, multispectral inputs, and embedded ha rdware 
+
+validation to address these boundaries. 29 
+
+# References 
+
+Acuña -Alonso, C., García -Ontiyuelo, M., Barba -Barragáns, D., & Álvarez, X. (2024). Development of a
+
+convolutional neural network to accurately detect land use and land cover. MethodsX, 12 .
+
+https://doi.org/10.1016/j.mex.2024.102719 
+
+Ahangarha, M., Rezvan, H., Zoej, M. J., & Youssefi, F. (2024). Employing Transfer Learning in Land -use Land -cover 
+
+for Risk Management. The International Archives of the Photogrammetry Remote Sensing and Spatial 
+
+Information Sciences , 1 -7. https://10.5194/isprs -archives -XLVIII -3-W3 -2024 -1-2024 
+
+Akeboshi, W. W., Ducut, J. D., Valenzuela, I., Billones, R. K., & Vicerra, R. R. (2022). Application of Different CNN 
+
+Models for Land -Use and Land -Cover Classification. 2022 IEEE 14th International Conference on 
+
+Humanoid, Nanotechnology, Information Technology, Communication and Control, Environment, and 
+
+Management (HNICEM) , 1 -5. https://10.1109/HNICEM57413.2022.10109602 
+
+Alem, A., & Kumar, S. (2022). Transfer Learning Models for Land Cover and Land Use Classification in Remote 
+
+Sensing Image. Applied Artificial Intelligence: An International Journal, 36 (1). 
+
+https://doi.org/10.1080/08839514.2021.2014192 
+
+Anjali, K., Singh, R. P., Panda, M. K., & Palaniappan, K. (2024). An Ensemble Approach using Self -attention based 
+
+MobileNetV2 for SAR classification. International Conference on Machine Learning and Data Engineering ,
+
+3207 –3216. 
+
+Barman, T., & Susan, S. (2024). Multi -Label Remote Sensing Image Classification using MobileNetV2. 15th 
+
+International Conference on Computing Communication and Networking Technologies (ICCCNT) , 1 -4. 
+
+https://10.1109/ICCCNT61001.2024.10725506 
+
+Bhatt, D., Patel, C., Talsania, H., Patel, J., Vaghela, R., Pandya, S., . . . Ghayvat, H. (2021). CNN Variants for Computer 
+
+Vision: History, Architecture, Application, Challenges and Future Scope. Electronics, 10 (20). 
+
+https://doi.org/10.3390/electronics10202470 
+
+Cho, Y. -J. (2024). Weighted Intersection over Union (wIoU) for evaluating image segmentation. Pattern Recognition 
+
+Letters, 185 , 101 -107. https://doi.org/10.1016/j.patrec.2024.07.011 30 
+
+Dabra, A., & Kumar, V. (2023). Evaluating green cover and open spaces in informal settlements of Mumbai using 
+
+deep learning. Neural Computing and Applications, 35 , 11773 –11788. https://doi.org/10.1007/s00521 -023 -
+
+08320 -7
+
+Das, S., & Goswami, R. S. (2025). Advancements in brain tumor analysis: a comprehensive review of machine 
+
+learning, hybrid deep learning, and transfer learning approaches for MRI -based classification and 
+
+segmentation. Multimedia Tools and Applications , 84 , 26645 –26682. 
+
+Dehbozorgi, P., Ryabchykov, O., & Bocklitz, T. (2024). A Systematic Investigation of Image Pre -Processing on Image 
+
+Classification. IEEE Access, 12 , 64913 -64926. https://10.1109/ACCESS.2024.3395063 
+
+Demir, I., Koperski, K., Lindenbaum, D., Pang, G., Huang, J., & Basu, S. (2018). DeepGlobe 2018: A Challenge to 
+
+Parse the Earth through Satellite Images. 2018 IEEE/CVF Conference on Computer Vision and Pattern 
+
+Recognition Workshops (CVPRW) , 172 -181. https://10.1109/CVPRW.2018.00031 
+
+Dey, T., Hossen, R., Adnan, M. A., Sonosi, M. H., & Sohan, M. F. (2024). Adaptive U -Net with VGG -16 Encoder: 
+
+Enhancing Land Cover Segmentation for Environmental Sustainability and Urban Insights. Proceedings of 
+
+the International Conference on Industrial Engineering and Operations Management , 626 -638. 
+
+https://doi.org/10.46254/BA07.20240075 
+
+Fayaz, M., Nam, J., Dang, L. M., Song, H. -K., & Moon, H. (2024). Land -Cover Classification Using Deep Learning 
+
+with High -Resolution Remote -Sensing Imagery. Applied Sciences, 14 (5), 1-15. 
+
+https://doi.org/10.3390/app14051844 
+
+Habrat, M., & Młynarczuk, M. (2026). Impact of data space augmentation strategy on model accuracy and 
+
+generalization in thin -section rock classification. Scientific Reports, 16 .
+
+Jagannathan, J., Vadivel, M. T., & Divya, C. (2025). Land use classification using multi -year Sentinel -2 images with 
+
+deep learning ensemble network. Scientific Reports, 15 (1), 1 -26. https://10.1038/s41598 -025 -12512 -7
+
+Jin, B., Ye, P., Zhang, X., Song, W., & Li, S. (2019). Object -Oriented Method Combined with Deep Convolutional 
+
+Neural Networks for Land -Use -Type Classification of Remote Sensing Images. Journal of the Indian Society 
+
+of Remote Sensing, 47 (6), 951 -965. https://doi.org/10.1007/s12524 -019 -00945 -331 
+
+Kumar, S., Yadav, A., Varshney, A., Sharma, A., & Shivani, S. (2024). Comparative Analysis of U -Net Models Using 
+
+ResNet34, InceptionV3, and VGG16 for the Processing of Satellite Images. 2024 IEEE International 
+
+Conference on Interdisciplinary Approaches in Technology and Management for Social Innovation (IATMSI) ,
+
+1-6. https://10.1109/IATMSI60426.2024.10503008 
+
+Marzougui, M., Sampedro, G. A., Almadhor, A., Alsubai, S., Hejaili, A. A., & Abbas, S. (2025). Deep Learning -Based 
+
+Spatial Pattern Modeling for Land Use and Land Cover Classification Using Satellite Imagery. 
+
+Meteorological Applications, 32 (5), 1 -15. https://doi.org/10.1002/met.70064 
+
+Minaee, S., Boykov, Y., Porikli, F., Plaza, A., Kehtarnavaz, N., & Terzopoulos, D. (2022). Image Segmentation Using 
+
+Deep Learning: A Survey. IEEE Transactions on Pattern Analysis and Machine Intelligence , 3523 -3542. 
+
+https://10.1109/TPAMI.2021.3059968 
+
+Mohanty, V., Behera, D. K., Panda, A. R., & Swetanisha, S. (2025). Comparative Analysis of Machine Learning and 
+
+Deep Learning Models for LULC Classification using Remote Sensing Data. Indian Journal of Science and 
+
+Technology, 18 (18), 1397 –1409. https://doi.org/10.17485/IJST/v18i18.104 
+
+Naidu, G., Zuva, T., & Sibanda, E. M. (2023). A Review of Evaluation Metrics in Machine Learning Algorithms. 
+
+Artificial Intelligence Application in Networks and Systems, 724 , 15 -25. https://doi.org/10.1007/978 -3-031 -
+
+35314 -7_2 
+
+Pekala, L., Gunnam, S., Kuttuboina, S. K., & Anagani, M. Y. (2025). Hybrid Ensemble of MobileNetV2 and 
+
+EfficientNetB0 for Enhanced Land Use and Land Cover Classification. 2025 IEEE International Students’ 
+
+Conference on Electrical, Electronics, and Computer Science , 1-6. 
+
+http://10.1109/SCEECS64059.2025.10940111 
+
+Pushpalatha, V., Mallikarjuna, P., Mahendra, H., Subramoniam, S. R., & Mallikarjunaswamy, S. (2025). Land use and 
+
+land cover classification for change detection studies using convolutional neural network. Applied Computing 
+
+and Geosciences, 25 , 2 -17. https://doi.org/10.1016/j.acags.2025.100227 
+
+Qin, X., Dai, H., Hu, X., Fan, D. -P., Shao, L., & Gool, L. V. (2022). Highly Accurate Dichotomous Image 
+
+Segmentation. Computer Vision – ECCV 2022, 13678 , 38 -56. https://doi.org/10.1007/978 -3-031 -19797 -0_3 32 
+
+Rajabi, N., Ribeiro, A. H., Vasco, M., & Kragic, D. (2025). Deep Learning Amplified Early Stopping Bias: 
+
+Overestimating Performance on Small Datasets. ICASSP 2025 - 2025 IEEE International Conference on 
+
+Acoustics, Speech and Signal Processing (ICASSP) , 1 -5. https://10.1109/ICASSP49660.2025.10890439 
+
+Ramos, L. T., & Sappa, A. D. (2025). Leveraging U -Net and selective feature extraction for land cover classification 
+
+using remote sensing imagery. Scientific Reports, 15 (784). https://doi.org/10.1038/s41598 -024 -84795 -1
+
+Rangel, A., Terven, J., Cordova -Esparza, D. M., & Chavez -Urbiola, E. (2024). Land Cover Image Classification. 
+
+Computer Vision and Pattern Recognition . https://doi.org/10.48550/arXiv.2401.09607 
+
+Reddy, K. V., & Vimal, V. (2024). A Novel Approach on Improved Segmentation and Classification of Remote Sensing 
+
+Images using AlexNet Compared over Linear Discriminant Analysis with Improved Accuracy. 2024 Second 
+
+International Conference on Advances in Information Technology (ICAIT) , 1-6. 
+
+https://10.1109/ICAIT61638.2024.10690378 
+
+Tarafdar, A., Middya, A. I., Banerjee, S., Khatua, S., & Roy, S. (2025). A CNN -based framework for land use land 
+
+cover classification of heterogeneous terrain using satellite images. Neural Computing and Applications, 37 ,
+
+16381 –16408. https://doi.org/10.1007/s00521 -025 -11314 -2
+
+Thapliyal, N., Aeri, M., Kukreja, V., & Sharma, R. (2024). Navigating Landscapes through AI: A Comparative Study 
+
+of EfficientNet and MobileNetV2 in Image Classification. 2024 International Conference on Emerging 
+
+Technologies in Computer Science for Interdisciplinary Applications (ICETCS) , 1-4. 
+
+https://10.1109/ICETCS61022.2024.10543922 
+
+Tian, J., Liu, Y. -C., Glaser, N., Hsu, Y. -C., & Kira, Z. (2020). Posterior Re -calibration for Imbalanced Datasets. 34th 
+
+Conference on Neural Information Processing Systems (NeurIPS 2020), Vancouver, Canada. 
+
+Ullah, S., Ullah, N., Tariq, A., Kasi, B. A., Tahir, P., Khan, B., & Kucher, D. E. (2025). Monitoring effects of LULC 
+
+change dynamics on the environment using time series remote sensing data with Google Earth Engine. 
+
+Theoretical and Applied Climatology, 156 (345). https://doi.org/10.1007/s00704 -025 -05590 -033 
+
+Vinaykumar, V. N., Babu, J. A., & Frnda, J. (2023). Optimal guidance whale optimization algorithm and hybrid deep 
+
+learning networks for land use land cover classification. EURASIP Journal on Advances in Signal Processing, 
+
+13 , 1 -21. https://doi.org/10.1186/s13634 -023 -00980 -w
