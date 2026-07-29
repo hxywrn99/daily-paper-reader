@@ -1,0 +1,349 @@
+Title: A Modern ConvNet for Solar Filament Detection
+
+URL Source: https://arxiv.org/pdf/2607.24525v1
+
+Published Time: Tue, 28 Jul 2026 02:08:23 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+Research in Astronomy and Astrophysics manuscript no. (L ATEX: main.tex; printed on July 28, 2026; 2:08) 
+
+# A Modern ConvNet for Solar Filament Detection 
+
+## J.R. Hu 1, Q. Hao 1,2,∗, Z. Zheng 1,2, P. F. Chen 1,2, C. Li 1,2,3 and Y. Meng 1 
+
+> 1
+
+School of Astronomy and Space Science, Nanjing University, Nanjing 210023, China; 
+
+haoqi@nju.edu.cn  
+
+> 2
+
+Key Laboratory of Modern Astronomy and Astrophysics, Ministry of Education, Nanjing 210023, China  
+
+> 3
+
+Institute of Science and Technology for Deep Space Exploration, Suzhou Campus, Nanjing University, Suzhou 215163, China 
+
+Received 202x month day; accepted 202x month day 
+
+Abstract Automated solar filament detection using deep learning faces several challenges. Semantic segmentation of solar filaments is a complicated multiscale feature extraction task with long-tail distribution. Furthermore, a large-scale, highly complete, and finely detailed dataset has become mandatory for providing abundant information. To address these chal-lenges, we present a series of machine learning approaches to develop a solar filament detec-tion workflow that performs superbly. First, we manually annotated a small-scale solar fila-ment dataset based on H α spectra called MHAS. Next, we developed the Multiscale ORiented DENdritic (MORDEN) model, a semantic segmentation model focusing on multiscale fea-ture extraction. We also introduced the Dense Conditional Random Field (DenseCRF) and Density-Based Spatial Clustering of Applications with Noise (DBSCAN) methods for post-processing. Using the proposed workflow, we generated a large-scale, high-quality dataset called AHAS. Experimental results demonstrate that MORDEN outperforms several existing solar filament semantic segmentation models with open access. DenseCRF has been demon-strated to effectively capture fine edge details. We also evaluated the effects of data scaling and the reliability of DBSCAN and found that both approaches yield satisfactory perfor-mance. Multiple visualization results substantiate our quantitative findings. Our work pro-vides a foundation for maximizing the potential of deep learning models for solar filament detection. 
+
+Key words: sun: filaments, prominences — techniques: image processing — methods: data analysis  
+
+> ∗Corresponding Author arXiv:2607.24525v1 [astro-ph.SR] 27 Jul 2026 2J.R. Hu et al.
+
+1 INTRODUCTION 
+
+Solar filaments, also called prominences when observed above the solar limb, are intriguing magnetized structures composed of cool, dense plasma suspended within the hot tenuous corona (Tandberg-Hanssen 1995). Typically, filaments are 100 times cooler and denser than surrounding corona (Parenti 2014; Vial & Engvold 2015). They are particularly visible in H α observations on the solar disk, typically manifesting as elongated dark structures with multiple barbs (Martin 1998). Filaments usually appear along the magnetic polarity inversion line and extend in the solar atmosphere from the chromosphere to the corona (Vial & Engvold 2015), and these features allow us to track and analyze the solar magnetic field by studying the long-term evolution of a large number of filaments (Li 2010; Hao et al. 2015; Gopalswamy et al. 2016; Zhang et al. 2024). In addition, filaments occasionally undergo large-scale instabilities that break their equilibrium and result in eruptions. This suggests a correlation with solar flares and coronal mass ejections (CMEs), which are considered the key drivers of hazardous space weather. (Chen 2011; Gopalswamy et al. 2015; Chen et al. 2020). Therefore, it is of great importance and significance to carry out statistical analyses of filaments as well as case studies. In recent years, there have been rapid advancements of observational capabilities, resulting in a signif-icant increase in data quality and quantity. A huge volume of high cadence and resolution data has been collected, posing a challenge for efficient processing. To overcome the limitations of human resources and time cost, automated detection has taken the mainstream to derive the features of interest in the observa-tions for further solar filament analysis. Additionally, the quality of observations from different observa-tories over the past decades varies, which also emphasizes the importance of robust analytic procedures. Achieving ideal performance for future observations while reliably adapting to historical data remains a major challenge. Filament detection methods applying classical image processing focus on the intensity of solar fila-ments. In full-disk H α images, filaments are characterized as dark structures with high contrast against their surroundings. Consequently, the typical way is to extract filaments by setting an appropriate threshold, either a global threshold (Gao et al. 2002) or a local threshold (Shih & Kowalski 2003; Fuller et al. 2005; Bernasconi et al. 2005) combined with the region-growing method. However, it is impractical to rely on a universal threshold because the intensity of filaments varies significantly due to several factors such as exposure time and seeing conditions. In order to solve this problem, intensity normalization and adaptive threshold methods were adopted (Qu et al. 2005; Yuan et al. 2011; Hao et al. 2015). Still, these methods lack robustness sometimes due to complex scenarios associated with the variations of instruments and observing conditions. Deep learning methods are given preference in recent years, and three types of workflow have been de-veloped. Solar filament detection can be decomposed into two subtasks: morphological extraction and frag-ment integration. Which subtask to begin with determines the type of the workflow. (1) Some researchers concentrated on the morphology characteristics of solar filaments (Zhu et al. 2019; Liu et al. 2021; Zheng et al. 2024; Jiang & Li 2024; Zhu et al. 2025), and therefore proposed semantic segmentation models based on U-Net (Ronneberger et al. 2015), a kind of hierarchical convolutional neural networks (CNNs). Semantic segmentation models are well designed for morphological recognition, but will not distinguish different fil-A Modern ConvNet for Solar Filament Detection 3
+
+aments. As a follow-up, a clustering algorithm is also utilized as post-processing for fragment integration (Zheng et al. 2024). (2) Diercke et al. (2024) proposed another two-step workflow which identifies each filament first. They applied YOLOv5 (Jocher et al. 2020) which detect the bounding boxes of filaments, fol-lowed by a U-Net for downstream semantic segmentation. (3) In contrast, Guo et al. (2022) finished the two subtasks with only one instance segmentation model CondInst (Tian et al. 2020, 2023) that directly allocates identifier for every filament at the pixel level. These three workflows are all demonstrated to be effective. Nevertheless, fragment integration based on solitary H α images is regarded as semantically ambiguous, which relies exclusively on morphological characteristics, such as the distance, slope, and similarity among the fragments (Hao et al. 2018). This indicates that neither humans nor deep learning models can accurately identify which fragments belong to a single filament without referring to other bands, such as photospheric magnetic polarity inversion lines (PILs) in magnetograms or filament channels in 304 ˚ A filtergrams, where filaments are always aligned (Tandberg-Hanssen 1995; Martin 1998; Chen 2025). We are concerned that the annotated data for fragment integration may introduce individual bias and confuse the deep learning models, consequently causing influences on morphological extraction difficult to quantify. Therefore, the first type of workflow, which decouples the two subtasks to ensure reliable morphological information, is preferred from our perspective. Additionally, solar filament semantic segmentation is a typical multiscale feature extraction task with a long-tail distribution. Filament size can vary greatly. Active region filaments are relatively small with the length less than 10 4 km, while the quiescent filament can be relatively large with typical length around 10 5
+
+km (Vial & Engvold 2015; Hao et al. 2015; Zhang et al. 2024). Furthermore, quiescent filaments exhibit more complex morphological features on small scales, such as filament barbs (Tandberg-Hanssen 1995). Filaments also commonly occupy less than ten percent of the solar disk, resulting in an uneven distribution between the target and the background, known as a long-tail distribution (Hao et al. 2015). Many innova-tions have been adopted to address these two problems. Liu et al. (2021) enhanced the receptive field of U-Net by applying Atrous Spatial Pyramid Pooling (ASPP, Chen et al. 2018) and appending extra skip con-nections. Jiang & Li (2024) and Zhu et al. (2025) mainly introduced Channel Attention Mechanism (CAM) and Spatial Attention Mechanism (SAM) (Woo et al. 2018) for multiscale feature extraction. Zheng et al. (2024) mitigated the long-tail distribution with focal loss (Lin et al. 2017). While these innovations remain valid, they have been somewhat overshadowed by the recent rapid development in computer vision. As a result, we propose Multiscale ORiented DENdritic model (MORDEN), which combines the advantages of these methods and makes relevant “modern” refinements to achieve ideal segmentation performance in complex observational environments. Specifically, we enlarge the kernel size of the convolutional layers and replace the Batch Normalization (BN, Ioffe & Szegedy 2015) in the downsampling stage with Instance Normalization (IN, Ulyanov et al. 2017). We also develop several multiscale oriented modules including Adaptive Pyramid Pooling (APP), Patch Attention Gate (PAG), branch block, and multihead structure. High-quality datasets are as essential as well-designed models. A well-annotated dataset provides deep learning models with abundant valid semantic information (Deng et al. 2009). Existing methods have sug-gested some approaches for data annotation. For example, manual selection and automated correction of results from traditional methods facilitate the creation of large-scale datasets (Zhu et al. 2025; Jiang & Li 4 J.R. Hu et al. 
+
+Fig. 1: Overall architecture and primary modules of MORDEN. 2024). Manual selection incorporates a certain amount of prior knowledge, enabling more precise seman-tic information in the datasets. However, some tiny filaments not extracted by traditional methods are still excluded from the training set. Deep learning models will fail to extract these finer filaments since they are not informed during training. Conversely, although manual annotation ensures that all visible filaments are included, the shortage of professional manpower makes it difficult to obtain large-scale datasets. To address this dilemma, we expect the filament detection method to do more than just distill a dataset annotated by humans or computers. We need a model that performs well under the current conditions and a workflow that further allows us to construct large-scale, highly complete, and finely detailed datasets for future appli-cations. This is crucial for deploying Transformer-based models (Alexey Dosovitskiy et al. 2021; Liu et al. 2021), as large-scale datasets with abundant information will be a mandatory requirement for these models. Consequently, we employ Dense Conditional Random Field (DenseCRF, Kr¨ ahenb¨ uhl & Koltun 2011) for post-processing, which optimizes edge details with a high degree of credibility. In this paper, we propose a filament detection workflow that consists of the semantic segmentation model MORDEN and two post-processing approaches, DenseCRF and Density-Based Spatial Clustering of Applications with Noise (DBSCAN, Schubert et al. 2017). MORDEN is designed for multiscale fea-ture extraction with several structural innovations. DenseCRF optimizes edge details, and DBSCAN inte-grates filament fragments. Section 2 introduces the comprehensive methodology of the workflow. Section 3 demonstrates the results of experiments designed to validate the workflow. In Section 4, we discuss the phe-nomena in each experiment and their underlying mechanisms. Finally, a succinct conclusion is presented in Section 5. 
+
+2 METHOD 2.1 MORDEN: Multiscale Oriented Dendritic Semantic Segmentation Model 
+
+2.1.1 Modern Refinements 
+
+The kernel size is considered a critical factor in the receptive field of CNNs. However, expanding the kernel size also increases training difficulty, parameter counts, and computational demands (Liu et al. 2022). Considering computational resources, we increase the kernel size of U-Net from 3 to 5. Furthermore, A Modern ConvNet for Solar Filament Detection 5
+
+Instance Normalization (IN) is considered to be more sensitive to texture features and relative color in-formation than Batch Normalization (BN) (Huang & Belongie 2017). In other words, IN focuses more on local contrast variations, while BN retains the global intensity statistics. This property is particularly suitable for solar filament segmentation because local intensity variations are critical, and even decisive, indicators on H α images. We also apply some common optimizations, such as leaky ReLU (Maas et al. 2013) and Dropout (Srivastava et al. 2014). Specifically, a dropout layer follows every module in Figure 1. 
+
+2.1.2 Adaptive Pyramid Pooling 
+
+Most of the pyramid-shaped modules designed for multiscale feature extraction, such as ASPP and Pyramid Pooling Module (PPM, Zhao et al. 2017), are intended for high-dimensional representations in neu-ral networks. However, they cannot be applied to every block in a hierarchical model due to their fixed tar-get pooling size. To mitigate information loss in each downsampling block, we modify PPM into Adaptive Pyramid Pooling (APP) to accommodate feature maps of any size. Figure 1(c) shows the modified pyramid pooling structure, where the skip connection in PPM is removed to allow adaption to different output sizes. Furthermore, the output sizes of the adaptive pooling layers are no longer static, but are determined by the final output size of APP module as follows: 
+
+S = {(hi, w i) | hi = max( ⌊ H · i
+
+L ⌋, 1) ,wi = max( ⌊ W · i
+
+L ⌋, 1) , i = 1 , 2, . . . , L},
+
+(1) where H and W denote the height and width of the output size respectively, L stands for the number of adaptive pooling layers in APP module, and hi and wi are the target height and width of each pooling layer. APP inherits the advantages of PPM in terms of few training parameters, and the arithmetic progression format broadens the applicability of PPM. Unlike PPM and ASPP, which are only useful for integrating high-level information, APP can be used at any stage of a hierarchical model. This allows for better repre-sentation of low-level information and benefits the information pathway in the skip connections of U-Net based models. It functions by scaling diverse pooling sizes for multiscale feature fusion when dealing with large low-level feature maps, and it shares similar structure with PPM when processing small high-level representations. Notably, the skip connection in PPM is a special case equivalent to APP when the output size equals to the input size. As shown in Figure 1(a), APP replaces the plain pooling layer of the light yel-low ”trunk” block which comes from the original downsampling block, and also contributes to the output module. 
+
+2.1.3 Patch Attention Gate 
+
+Channel attention mechanism (CAM) controls the information interaction between different feature channels. Spatial attention mechanism (SAM) highlights the most relevant locations by generating spatial weights. However, neither of them possesses the capability of global attention, mainly constrained by the finite receptive field of the global pooling and the convolutional layer. Conversely, the rearrangement of image patches in Vision Transformer (ViT, Alexey Dosovitskiy et al. 2021) has been verified to be an effective method for global attention. This inspired the development of our proposed Patch Attention Gate (PAG). 6 J.R. Hu et al. 
+
+As is shown in Figure 1(d), the feature map is split into multiple small patches. Then, each patch is compressed into one value using two pooling strategies. This facilitates the generation of channel weights with a linear layer. This structure recognizes both channel features and global spatial information at a relatively finer scale. Additionally, to optimize the gating mechanism, PAG supplements extra information flow as illustrated in Figure 1(a). In other words, PAG can be formulated as G(x1, x 2) = g(x1) ∗ x2,where the low-level context x1 serves as an additional information source, and provides general regulation of high-level feature maps x2. To balance information abundance and computational complexity, given the input size Sx1 for function g characterized by height and width within powers of 2, the patch size is specified by the following formula: 
+
+Spatch = 2 ⌊log 2
+
+√Sx1 ⌋. (2) 
+
+2.1.4 Branch Block 
+
+Hierarchical skip connections are highly effective at reintroducing pixel-wise semantic detail from downsampling stage to upsampling stage. This reflects the information bottleneck in plain CNNs. Inspired by this, we introduce hierarchical skip connections from the embedded information to the downsampling stage, named branch blocks. Unlike sequential trunk blocks which contribute to the primary information flow, branch blocks are shortcuts that embed information into different scales, reminding the model of lost information during progressive encoding. The light green frame illustrated in Figure 1(a) shows the compo-sition of one branch block, which consists of an adaptive pooling layer, a double convolution module and a PAG. Through these layers, structural semantic features are transformed into arbitrary sizes. 
+
+2.1.5 Multihead Structure and Output Module 
+
+Multihead structure is widely recognized for its high training efficiency and strong robustness (Vaswani et al. 2017). It divides one task into multiple subspaces, each of which shares the equivalent potential to achieve optimal convergence as a standalone model. These heads are also theoretically fully parallelizable. Meanwhile, the gating mechanism is considered significant for filtering redundant context and broadening the information pathway (Qiu et al. 2025). As Figure 1(a) shows, MORDEN consists of multiple iden-tical U-shaped backbones and a unified output module. The output module employs additive gating and multiplicative gating to consolidate semantic representations from different backbones. Then, an APP inte-grates multiscale features and produces the semantic mask. The additive gating is equivalent to a residual connection with a double convolution module, while the multiplicative gating uses PAG. 
+
+2.2 DenseCRF: Post-processing for Finer Detail 
+
+DenseCRF is well adapted for post-processing in semantic segmentation tasks (Kr¨ ahenb¨ uhl & Koltun 2011; Chen et al. 2018). It constructs a conditional random field (I, X) where I ranges over possible input images and X ranges over possible labelings at pixel-level. Kr¨ ahenb¨ uhl & Koltun (2011) simplified the conditional probability model P (X|I) with Gibbs distribution as follows: 
+
+P (X|I) = 1
+
+Z(I) exp  −E(x|I), (3) A Modern ConvNet for Solar Filament Detection 7
+
+where the Gibbs energy E(x) is defined with a unary potential and a pairwise potentials: 
+
+E(x) = X
+
+> i
+
+ψu(xi) + X
+
+> i<j
+
+ψp(xi, x j ). (4) 
+
+ψu(xi) denotes the distribution over the label assignment xi given corresponding pixel features, which can be provided by the semantic segmentation model. ψp(xi, x j ) represents the relationship of xi and xj
+
+under their pixel feature correlations, mainly decided by their positions and intensities: 
+
+ψp(xi, x j ) = μ(xi, x j ) k(fi, fj ), (5) 
+
+μ(xi, x j ) = [ xi̸ = xj ], (6) 
+
+k(fi, fj ) = ω(1) exp 
+
+
+
+− |pi − pj |2
+
+2θ2
+
+> α
+
+− |Ii − Ij |2
+
+2θ2
+
+> β
+
+
+
++ ω(2) exp 
+
+
+
+− |pi − pj |2
+
+2θ2
+
+> γ
+
+
+
+, (7) where μ(xi, x j ) is a label compatibility function that introduces a penalty on nearby similar pixels assigned with different labels, and p and I are the position and intensity of each pixel respectively. In other words, the likelihood of arbitrary two pixels being assigned the same label increases with their spatial proximity and intensity similarity. This matches the characteristics of solar filament perfectly and meets the need for refining edge details. While MORDEN is reinforced for structural multiscale feature extraction at a global scale, DenseCRF further focuses on the local intensity features of each identified filament fragment. Beyond finer detail, DenseCRF resolves the limitation of CNNs that one model cannot perform su-perbly under arbitrary spatial resolution. Additionally, the cost of training resources and model size will increase with the pixel resolution of the image. Due to the pairwise potentials based on the original image, high resolution intensity information can also be incorporated into the post-processing stage. Furthermore, DenseCRF mitigates the ”black box model” problem and data distillation. Since MORDEN only contributes to the unary potential, introducing original information and the probabilistic modeling which are indepen-dent of the model’s predictions also plays a crucial role in the final reasoning process. This indicates that the final output is not merely an approximation of the manually annotated training data but rather a pos-terior probability derived from multiple reliable sources, especially the intensity and spatial information in the original image. This paves the way for constructing large-scale and finely detailed datasets because integrating model-based location and image-driven detail refinement addresses the risk of self-referential annotation to some extent. In addition to DenseCRF, we also perform hole filling with the Open Source Computer Vision Library (OpenCV, Bradski 2000) to ensure that every extracted fragment is a simply connected domain. 
+
+2.3 DBSCAN: Fragment Integration 
+
+We employ the density-based spatial clustering of applications with noise (DBSCAN, Schubert et al. 2017) for fragments integration. In addition to distinguishing every solar filament, this clustering algorithm reduces the noise on the semantic mask caused by AI hallucinations, resulting in more robust and reliable detection. 8 J.R. Hu et al. 
+
+3 RESULT AND ANALYSIS 3.1 Training Settings 
+
+3.1.1 Data Preparation and Expansion 
+
+To evaluate the performance of our semantic segmentation model, we collected several open-access datasets from recent studies that primarily focused on semantic segmentation, and created a manually anno-tated dataset. Limited by the accessibility and differences in metrics used, the two-step detection workflow (Diercke et al. 2024) and the instance segmentation approach (Guo et al. 2022) were not included. We used our model, trained on the manually annotated dataset along with DenseCRF and hole filling, to generate a large-scale dataset. Detailed information about each dataset and its organization is provided below. 
+
+Jiang & Li (2024) : The paper claims that this dataset contains 600 solar images, 100 of which are publicly available. First, the filaments were labeled using an automated clustering algorithm, k-means (Macqueen 1967). Then, automated methods, including particle erosion, multi-closing operation, and hole filling, corrected the labels. Since the distribution of these 100 images is not specified, they were simply split into three sets: a training set of 90 images, a validation set of five images, and a test set of five images, ordered by observation time. 
+
+Zhu et al. (2025) : This dataset primarily consists of a training set of 1,007 images and a test set of 98 images. The filaments were manually selected from annotated images using traditional methods. Due to the lack of a validation set, the last 100 images sorted by observation time from the training set were selected as the validation set. 
+
+Hα spectra based dataset (HAS, Zheng et al. 2024) : This dataset contains 120 labeled images manu-ally selected from the k-means results. The images are divided into the training, the validation, and the test sets in a ratio of 4:1:1. 
+
+Manual HAS dataset (MHAS) : This dataset consists of 120 manually annotated images with the same ratio as HAS dataset. Based on the initial k-mean annotations, manual corrections were made to eliminate incorrect labels and provide more specific semantic information. Specifically, some dark filaments located above active regions were supplemented and the fragmented filaments within the same filament channel were manually connected. Additionally, the subtle boundary structures of low-contrast filaments that ap-pear faint and are difficult to reliably identify through spectral-based classification alone, were also refined through manual annotation. 
+
+Automated HAS dataset (AHAS) : After training MORDEN on MHAS, we produced an automatically annotated large-scale dataset using our workflow. Specifically, we applied DenseCRF and hole filling on the output of the model, resizing it to the size of the original image size to integrate more original intensity and spatial information. We gathered the observations from Chinese H α Solar Explorer (CHASE; Li et al. 2019, 2022), ranging from 2024 to 2025, at a cadence of one image per day. After manually screening the processed results, 695 annotations were retained. In addition, the 120 images from MHAS dataset were re-annotated using our workflow. This resulted in a final dataset totaling 775 images in the training set, 20 images in the validation set and 20 images in the test set. To be specific, the original images in the validation and the test set are identical to those in MHAS dataset. A Modern ConvNet for Solar Filament Detection 9
+
+We trained our model on a single RTX H100 and constructed a data augmentation pipeline that in-cludes several transformations aligned with real-world scenarios. The corresponding augmentations and their probabilities and ranges are described in Table 1 Table 1: Data augmentation pipeline.               
+
+> Augmentation Probability Variable Range
+> vertical flipping 50% rotation 90% angle [-45 ◦, 45 ◦]gamma 90% gamma [0.5, 1.5] transformation scaling 50% ratio [0.5, 1.0) min-max 100% normalization
+
+3.1.2 Hyperparameters 
+
+The datasets differ with each other in scale and image resolution, incurring different sets of hyper-paramters for achieving optimal performance and metrics. Table 2 shows the hyperparameters of MORDEN, where base channels and mid channels refer to the number of embedding channels and output channels of each head, respectively. Branch channels refer to the output channels of each branch block. Leaky ReLU introduces an additional hyperparameter which is the negative slope. Additionally, we used focal loss to address the long-tail distribution, which introduces two hyperparameters: α and γ. AdamW (Loshchilov & Hutter 2019) was utilized as the optimizer. DenseCRF depends mainly on the parameters described in Formula 7 and on iterations, which are adjusted to fit different image sizes, as shown in Table 3. DBSCAN also introduces two hyperparameters, ϵ and minPts. ϵ indicates the distance threshold be-tween different clusters, and minPts indicates the minimum number of points that each cluster should con-tain. Through manual judgment on the validation set, we set ϵ to 45, and minPts to 140. Considering that the typical spatial resolution of CHASE data is 1.04 ′′ per pixel, the upper bound of the distance between filament fragments is approximately 33,930 km, and the lower bound of the area of a filament should be about 8 × 10 7 km 2. For actual deployment, these two hyperparameters should be adjusted according to the spatial resolution of the input data. 
+
+3.2 Comparative Experiment 
+
+We quantify the semantic segmentation performance using the intersection over union (IoU, Rezatofighi et al. 2019) and F1-score (Powers 2011), both of which are derived from the confusion matrices. All the metrics of MORDEN are calculated on the test set corresponding to its training dataset. We conducted three independent trainings with MHAS and AHAS and calculated their error bars. To facilitate comparison, we collected the corresponding metrics of the proposed method on each dataset, and trained our model once. As shown in Table 4, our model outperforms these methods on their respective datasets. We made 10 J.R. Hu et al. 
+
+Table 2: Hyperparameters for each dataset. 
+
+Parameter Value Dataset xHAS * Zhu et al. Jiang & Li 
+
+base channels 40 40 8mid channels 40 40 8branch channels 20 20 8pooling depth 5 4 5number of heads 2 2 3dropout 0.1 0.1 0.1 negative slope 0.01 0.01 0.01 alpha 0.66 0.66 0.66 gamma 2 2 2batch size 3 3 2learning rate 2e-4 2e-4 2e-4 image height 1024 512 512 image width 1024 512 512  
+
+> *xHAS denotes the three datasets with names ending with HAS.
+
+Table 3: Hyperparameters of DenseCRF. 
+
+Parameter Value Image Size 1024 ×1024 2048 ×2048 
+
+ω(1) 40 40 
+
+ω(2) 3 3
+
+θ2 
+
+> α
+
+3 8
+
+θ2 
+
+> β
+
+8 12 
+
+θ2 
+
+> γ
+
+3 3iterations 10 10 
+
+significant progress compared to U-Net (Zheng et al. 2024) and Flat U-Net (Zhu et al. 2025), though not as much compared to Attention U 2-Net (Jiang & Li 2024). It is important to note that we trained our model with only one-sixth of the dataset used for Attention U 2-Net. Therefore, the results should be considered a relative reference rather than a controlled architectural comparison. Nevertheless, the overall increase demonstrates the effectiveness of our model. 
+
+3.3 Ablation Study 
+
+To verify the effectiveness of all individual components we proposed, a series of ablation studies were conducted. Table 5 summarizes the impact of each innovation. Most of the innovations provide an impres-sive progress in metrics, offering an insight into their effectiveness. However, after three times of training, the influence of multihead appears relatively weak. We have two explanations for this: First, due to the A Modern ConvNet for Solar Filament Detection 11 
+
+Table 4: Metrics of semantic segmentation.                         
+
+> Dataset Model IoU F1-Score
+> HAS U-Net 0.670 0.809 MORDEN 0.732 0.844
+> Zhu et al. Flat U-Net 0.68 0.81 MORDEN 0.789 0.879
+> Jiang & Li Attention U 2-Net 0.714 0.832 MORDEN 0.723 0.839
+> MHAS MORDEN 0.696 ±0.005 0.819 ±0.004 AHAS MORDEN 0.812 ±0.007 0.895 ±0.004
+
+limited computational resources, MORDEN only contains two heads, which may not be sufficient for a sig-nificant improvement in metrics. Second, although it is not obvious in the metrics under current conditions, we also report an enhancement in training efficiency. The average number of epochs required to achieve best metrics with multihead is 469, whereas that without multihead is 668. In addition, we removed all APP in MORDEN and add PPM or ASPP after the downsampling stage to further verify the effectiveness of the hierarchical deployment of APP. The results demonstrate that our hierarchical design outperforms those which simply apply multiscale information fusion on high-level features. Table 5: Ablation results on MHAS dataset.                      
+
+> Models IoU F1-Score
+> MORDEN 0.696 ±0.005 0.819 ±0.004 w/o IN *0.678 0.805 w/o large kernel 0.663 0.795 w/o APP 0.678 0.806 w/o PAG 0.688 0.813 w/o branch block 0.688 0.812 w/o multihead 0.695 ±0.003 0.818 ±0.002 PPM 0.683 0.809 ASPP 0.678 0.805
+> *w/o denotes without.
+
+3.4 Validation on Dataset Expansion 
+
+There are two major concerns regarding the expanded AHAS dataset. One is that does DenseCRF really optimize the edge details, and the other is that can the expansion of dataset truly imply more semantic information and facilitate deep learning models. 
+
+3.4.1 Quantitative Assessment of Edge Details 
+
+We used the gradient magnitude and orientation to evaluate the effectiveness of DenseCRF. Considering each extracted fragment as a simply connected domain D whose boundary is represented as ∂D , with the 12 J.R. Hu et al. 
+
+unit tangent vector ⃗ t of every pixel belonging to ∂D , the average edge gradient magnitude and orientation are formulated as follows: 
+
+μmag = 1
+
+|∂D |
+
+X
+
+> (i,j )∈∂D
+
+∥∇ I(i, j )∥n, (8) 
+
+μori = 1
+
+|∂D |
+
+X
+
+> (i,j )∈∂D
+
+arccos 
+
+ |∇ I(i, j ) ·⃗ t(i, j )|∥∇ I(i, j )∥
+
+
+
+, (9) where I denotes the intensity of the original image, and n specifies the distance norm, either L1 norm or L2 norm. For the convenience of comparison, the angle range is standardized to [0 ◦, 90 ◦]. These two values offer an intuitive measurement of the contrast on either side of the fragment boundaries: the higher they are, the finer the edge details should be. We calculated the metrics of the ground truth, the semantic segmentation masks and the post-processing results under image sizes of 1024 ×1024 and 2048 ×2048. We uniformly adopted the intensity of original 2K resolution images for consistency. As for extracting D, we applied the “findcontours” function in OpenCV which comes from Suzuki & Abe (1985). The unit tangent vector ⃗ t is obtained through calculating the slope of each pixel and its eight neighboring pixels belonging to D. Although there exist fitting errors, this method is effective for statistical comparison because it is a standardized processing procedure. As shown in Table 6, DenseCRF performs superbly at refining edge details. First, the improvement from the segmentation masks to the post-processed results under 1K resolution indicates the effectiveness of DenseCRF. Second, the 2K resolution results obtained by DenseCRF surpass the manually labeled ground truth, underscoring its solid efficacy. Third, the increase in metrics from 1K to 2K resolution suggests an information gap between different pixel resolutions and highlights the necessity of DenseCRF for creating a well-annotated dataset. Finally, the large-scale evaluation on the AHAS training set enhances the credibility of the insights. Table 6: Average edge gradient magnitude and orientation of multiple masks.                            
+
+> Dataset Mask μmag (L1) μmag (L2) μori
+> MHAS test set ground truth 250.6 198.0 69.6 segmentation 217.7 171.6 60.9 DenseCRF(1K) 222.2 175.3 62.7 DenseCRF(2K) 259.0 204.5 72.9
+> AHAS training set segmentation 179.1 140.7 58.8 DenseCRF(1K) 180.9 142.1 59.6 DenseCRF(2K) 208.1 163.8 66.8
+
+3.4.2 Analysis of Data Scaling 
+
+We re-trained MORDEN with two specially designed dataset settings to estimate the effect of dataset expansion. Both settings use the validation and the test set of MHAS but differ in their training sets. One uses the AHAS training set, and the other uses the semantic segmentation masks without post-processing of the same 775 images in AHAS. A Modern ConvNet for Solar Filament Detection 13 
+
+Compared to MORDEN trained on the MHAS training set, both of the two large-scale dataset set-tings demonstrate relative advancement, as shown in Table 7. The raise in metrics under either settings is satisfactory and is expected to result from the expansion of the dataset and the inclusion of more seman-tic information, such as difficult samples. However, it is noteworthy that the metrics under AHAS with DenseCRF are lower than those under AHAS without DenseCRF. As discussed above in Section 3.4.1, DenseCRF results are more reliable, and the distribution of AHAS should differ from MHAS, cautioning us against the illusion of model bias expansion. More specifically, models trained on the small-scale MHAS dataset may overfit some biased patterns, and expanding the data scale also magnifies such bias, resulting in high metrics on the test set with similar bias. Therefore, we tend to regard the metrics under AHAS with DenseCRF as a more conservative estimate, or as more aligned with the actual benefits of data scaling. For rigor, the true influence of dataset expansion should fall within the interval between the two results, with one serving as the lower bound, and the other as the upper bound. Table 7: Metrics under different dataset settings.             
+
+> Training set Validation and test set IoU F1-Score
+> MHAS MHAS 0.696 ±0.005 0.819 ±0.004 AHAS MHAS 0.699 ±0.002 0.820 ±0.001 AHAS(w/o DenseCRF) MHAS 0.702 ±0.002 0.822 ±0.002
+
+3.5 Expert Judgment for Fragment Integration 
+
+Integrating filament fragments on an H α image can be challenging and may lead to conflicting judg-ments among different individuals (Hao et al. 2018). Rather than evaluating the performance of DBSCAN using a ground truth, we invited three relevant researchers to evaluate the clustering results on the MHAS test set independently and then averaged their scores. We only counted a cluster that perfectly corresponded to a single filament as a hit. Cluster consisting of more than one filament or two clusters belonging to the same filament were both considered as failed clustering. Of all the 510 clusters, the number of correct clus-ters judged by the researchers are 409, 449, and 434 respectively, for an average ratio of 0.844. This is a relatively satisfactory result given our stringent criteria for correctness. 
+
+3.6 Workflow Visualization 
+
+Figure 2 shows an example of the workflow for detecting solar filaments. Figure 2(a) shows the original observed image selected from the MHAS test set. The corresponding ground truth is shown in Figure 2(b). Figure 2(c) shows the results detected directly by our MORDEN model. The post-processed mask shows the results derived from 2K resolution, as shown in Figure 2(d). The semantic segmentation results demonstrate the high completeness of filaments, and the post-processed mask reflects the efficacy of DenseCRF in refining the filament boundaries. Notably, the polar crown filament near the north pole, marked as No. 2 in Figure 2(e), is effectively refined when comparing to the detected result in Figure 2(c) and the ground truth in Figure 2(b). Figure 2(e) shows the clustering results, where fragments of filaments belonging to a 14 J.R. Hu et al. 
+
+single filament are clustered together and marked by a light blue boundary box with a unique ID number. To provide a clear and intuitive view, the final results in Figure 2(e) overlap the original image. Filaments and filament fragments are marked with yellow contours. 
+
+Fig. 2: Visualization of the results of our workflow. (a) Original image. (b) Ground truth. (c) Semantic segmentation mask. (d) Post-processed mask under 2K resolution. (e) Cluster result. (f) Contour detail. The cycles in (b) – (e) represent the solar limb for a clearer demonstration. In order to show the details of the results after post-processing, Figure 3 gives several filament examples cropped from the full disk images. Compared to the semantic mask generated directly by MORDEN, the filament masks processed by DensCRF are smoother and the barb structures are more distinguishable. 
+
+3.7 Visualization Examples for Robustness 
+
+To estimate the robustness of our methods, we collected observations from multiple different observa-tories and ran our workflow on them without any additional training. The images all possess several typical observational defects, varying in brightness, contrast, signal-to-noise ratio, and blurring. Figure 4 shows that our methods adapt to different selected image qualities without encountering any obstacles. For example, the image selected from the Mauna Loa Solar Observatory (MLSO) shows a relatively low pixel resolution; A Modern ConvNet for Solar Filament Detection 15 
+
+Fig. 3: Enlarged detail of multiple examples for showing performance of post-processing stage. the image selected from the Kanzelh¨ ohe Observatory (KSO) is distorted by atmospheric clouds; the image selected from Global Oscillation Network Group (GONG) has a relatively low resolution; and the image selected from Big Bear Solar Observatory (BBSO) has a relatively low contrast. The segmentation model succeeded to extract most of the filaments with few misjudgment, and a majority of the clustering results are reasonable. This suggests a relatively high robustness in complex observational environments. Additionally, MORDEN trained on AHAS performs significantly better than MORDEN trained on MHAS, which is encouraging. For example, MORDEN trained on AHAS detects the filament in the central region of the northern hemisphere of the MLSO image, the quiescent filament in the southwest of the KSO image, the filament running north-south near the eastern hemisphere of the GONG image, and the rela-tively large filament with a north-east direction in the northern hemisphere of the BBSO image, as shown in Figure 4. These results favorably compare with the corresponding filament in the MHAS data and fur-ther corroborate previous quantitative findings on data scaling. More visualization results are available at 
+
+https://github.com/irisaltHu/MORDEN .
+
+4 DISCUSSION OF LIMITATIONS 4.1 Failure of Segmentation 
+
+Although our manually annotated dataset and multiscale feature extraction model ensure complete fil-ament detection, the semantic segmentation model still fails to recognize some small filaments in active regions or near the edge of solar disk, where the projection effects are significant. We have identified several underlying causes of this issue. First, these two types of filaments are inherently semantically ambiguous, 16 J.R. Hu et al. 
+
+Fig. 4: Transfer performance. The original images from top to bottom is observed at 17:05:57 UT on 17 September 2002 by MLSO, 07:42:45 UT on 26 May 2015 by KSO, 10:02:02 UT on 25 June 2025 by GONG, and 18:13:54 UT on 13 March 2013 by BBSO, respectively. which makes it easy to introduce individual bias during annotation. For example, as instruments continue to advance and resolution improves, increasingly fine filament structures would become visible. However, we have also observed more fibrils, which makes it difficult to determine whether they are filaments, especially in active regions. Some edge filaments are difficult to label due to their small inclination angle (i.e., nearly parallel to the latitude lines), which causes their true dimensions to appear very small due to projection ef-fect. This may also be because parts of the structures lie near the solar limb, such as prominences. Second, despite continuous architectural innovations (Liu et al. 2022), the current entirely CNN-based architecture remains outperformed by prominent state-of-the-art architectures in computer vision where Transformer is nearly indispensable. This also reveals the third issue that the essential requirement for training transformer-based models, i.e., a large-scale, high-quality dataset, remains unattainable in this domain. As demonstrated in our dataset construction methodology, creating such datasets through manual annotation is both resource-intensive and inherently imprecise, resulting in limitations in the ground truth. Therefore, while our work does not represent a definitive solution to these complex problem of automated solar filament detection, it establishes a methodological foundation for advancing deep learning approaches through rigorous data quality assessment and architecture innovation. A Modern ConvNet for Solar Filament Detection 17 
+
+4.2 Applicability of AHAS 
+
+The occasional failure of the segmentation model raises another question about the applicability of AHAS. Our multiple experiments have demonstrated the validity of the training set of AHAS, and the drawbacks of segmentation are unlikely to substantially impact the training set, as a considerable portion of hard samples will still be included. However, the validation and test sets must be able to provide unbi-ased assessments of model performance, which is a much higher requirement. We are concerned that the construction of the AHAS validation and test set is not capable of revealing the efficacy of models under actual observational environments. Consequently, when employing AHAS, we recommend incorporating more credible data into the validation and the test sets. For example, manually annotating several images with hard samples and refining the details with DenseCRF would reinforce credibility. To further verify the impact of this limitation, we conducted a simple experiment with our trained models. First, we applied DBSCAN to the MHAS test set to identify all filaments. Second, we counted the number of filaments with at least 10% of their area recognized. The results in Table 8 reveal that MORDEN, when trained on and chosen by MHAS, recognized 430 filaments out of 475 in the MHAS test set. When trained on the AHAS training set and chosen by the MHAS validation set, MORDEN recognized 435 filaments. However, when trained on and chosen by AHAS, it recognized only 421 filaments. This indicates that the missed detections in the AHAS training set will not severely weaken the performance of the model as long as the validation set is solid, possibly due to the large sample size. However, it is also clear that the AHAS validation set is not ideal for selecting a model during training. Table 8: Experiment on the applicability of AHAS                 
+
+> Training set Validation set Filament number Hit number Hit rate
+> MHAS MHAS 475 430 0.905 AHAS MHAS 475 435 0.916 AHAS AHAS 475 421 0.887
+
+4.3 Drawbacks of DenseCRF 
+
+Despite its excellent performance, DenseCRF has two notable drawbacks. First, its efficiency is rela-tively lower than that of CNNs. Rough statistical calculations show that MORDEN takes 0.17 seconds to process one image at 1K resolution, whereas MORDEN with DenseCRF takes 2 (6.5) seconds to process one image at 1K (2K) resolution, making it not preferred for real-time deployment. Second, DenseCRF requires solid intensity information, indicating a low robustness to poor image quality and noise. Therefore, DenseCRF may not be applicable for low quality historical images. Thus, the realistic employment of DenseCRF will encounter more foreseeable difficulties than laboratory validation, which is precisely why we use it for dataset generation. Due to the superior efficiency and robustness of deep learning models, AHAS dataset inherits the compelling efficacy of DenseCRF while avoiding its shortcomings. 18 J.R. Hu et al. 
+
+4.4 Suboptimal Fragment Integration 
+
+The integrity of filament fragments remains not fully addressed in this work. Due to the projection effects, determining whether the fragments belong to a single filament using the the H α image alone is difficult because of the three-dimensional configuration of the filament. This may require incorporating ad-ditional data, such as multi-wavelength or stereoscopic observations. However, acquiring such observations from historical data is limited, which hinders the feasibility for long-term statistical analysis. Accordingly, DBSCAN was deployed as a suboptimal compromise to strike a balance between usability and effective-ness. 
+
+5 CONCLUSION 
+
+We presented a solar filament detection workflow designed for superior performance and robustness. Our workflow focuses on two primary challenges: the multiscale feature extraction task with long-tail dis-tribution and the absence of large-scale, highly complete, and finely detailed dataset. To address the first challenge, we proposed the semantic segmentation model MORDEN, which is primarily reinforced for multiscale receptive field inspired by several modern innovations in computer vision. Next, we employed and validated DenseCRF to refine the edge details of segmentation results and pave the way for construct-ing a large-scale, high-quality dataset. As a result, we successfully built a fully automated annotated dataset AHAS. Finally, we applied DBSCAN for fragment integration to complete the solar filament detection workflow. Through detailed experiments and analyses of each stage and critical issue in the workflow, we estimated the efficacy and limitations of each process and their production, deduced the cause of the imperfections, and suggested the solutions. The contribution of our methods is summarized as follows. First, MORDEN is an effective semantic segmentation model for solar filament within current datasets. It ensures the complete extraction of solar filaments and can be used for actual observations in various observational environments. Second, the post-processed results of DenseCRF are satisfactory for finer filament boundaries because it uti-lizes the intensity features of high-resolution original images to the maximum extent. However, MORDEN with DenseCRF is not the ultimate solution for solar filament segmentation since MORDEN is not ideal enough for perfect completeness in filament recognition, and the construction of AHAS may pave the way for the use of Transformer-based deep learning models. Furthermore, we expect that deep learning models with AHAS will overcome the inefficiencies of DenseCRF. Finally, we reiterate that using DBSCAN for fragment integration is suboptimal, primarily due to the semantic ambiguity of solitary H α image. The advantages and the shortcomings of our methods provides pathways for our future work. With our current workflow, it is feasible to conduct a long-term statistical analysis of solar filaments with high robustness and credibility. In this case, depending on historical H α image is reasonable. On the other hand, we can integrate stereoscopic observations to achieve the best possible solar filament detection results with the current observational capabilities. 
+
+DATA ACCESSIBILITY 
+
+The corresponding access to the collected observations are provided below. A Modern ConvNet for Solar Filament Detection 19 
+
+MLSO : Data downloaded from https://www2.hao.ucar.edu/mlso .
+
+KSO : Data downloaded from http://cesar.kso.ac.at .
+
+GONG : Data downloaded from https://gong.nso.edu .
+
+BBSO : Data downloaded from http://www.bbso.njit.edu .
+
+CHASE : Data downloaded from https://ssdc.nju.edu.cn/NdchaseSatellite .The codes of the whole workflow and more visualization results are available at https://github. com/irisaltHu/MORDEN , and the datasets can be accessed through https://zenodo.org/ records/21582245 .
+
+Acknowledgements We are grateful to the CHASE, BBSO, KSO, GONG, and MLSO teams for provid-ing the observational data. The present work was supported by NSFC under grants 12173019, 12333009, 12127901, the CNSA project D050101, the Fundamental Research Funds for the Central Universities 14380065, KG202506, and the Young Data Scientist Program of the China National Astronomical Data Center, as well as the AI & AI for Science Project of Nanjing University. 
+
+References 
+
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, et al. 2021, in 2021 International Conference on Learning Representations (ICLR) 4, 5 Bernasconi, P. N., Rust, D. M., & Hakim, D. 2005, Solar Phys, 228, 97 2 Bradski, G. 2000, Dr. Dobb’s Journal of Software Tools 7 Chen, L.-C., Papandreou, G., Kokkinos, I., Murphy, K., & Yuille, A. L. 2018, IEEE Transactions on Pattern Analysis and Machine Intelligence, 40, 834 3, 6 Chen, P. F. 2011, Living Reviews in Solar Physics, 8, 1 2 Chen, P. F. 2025, Sol. Phys., 300, 172 3 Chen, P.-F., Xu, A.-A., & Ding, M.-D. 2020, Research in Astronomy and Astrophysics, 20, 166 2 Deng, J., Dong, W., Socher, R., et al. 2009, in 2009 IEEE Conference on Computer Vision and Pattern Recognition, 248 3 Diercke, A., Jarolim, R., Kuckein, C., et al. 2024, A&A, 686, A213 3, 8 Fuller, N., Aboudarham, J., & Bentley, R. D. 2005, Solar Phys, 227, 61 2 Gao, J., Wang, H., & Zhou, M. 2002, Solar Phys, 205, 93 2 Gopalswamy, N., Yashiro, S., & Akiyama, S. 2015, ApJ, 809, 106 2 Gopalswamy, N., Yashiro, S., & Akiyama, S. 2016, ApJ, 823, L15 2 Guo, X., Yang, Y., Feng, S., et al. 2022, Sol. Phys., 297, 104 3, 8 Hao, Q., Chen, P. F., & Fang, C. 2018, IAU Symposium, 340, 101 3, 13 Hao, Q., Fang, C., Cao, W., & Chen, P. F. 2015, ApJS, 221, 33 2, 3 Huang, X., & Belongie, S. 2017, in 2017 IEEE International Conference on Computer Vision (ICCV), 1510 5Ioffe, S., & Szegedy, C. 2015, in Proceedings of the 32nd International Conference on Machine Learning -Volume 37, ICML’15 (JMLR.org), 448–456 3 Jiang, W., & Li, Z. 2024, Universe, 10 2, 3, 8, 10, 11 20 J.R. Hu et al. 
+
+Jocher, G., Stoken, A., Borovec, J., et al. 2020, ultralytics/yolov5: v3.1 - Bug Fixes and Performance Improvements 3 Kr¨ ahenb¨ uhl, P., & Koltun, V. 2011, in Proceedings of the 25th International Conference on Neural Information Processing Systems, NIPS’11 (Red Hook, NY, USA: Curran Associates Inc.), 109–117 4, 6 Li, C., Fang, C., Li, Z., et al. 2019, Research in Astronomy and Astrophysics, 19, 165 8 Li, C., Fang, C., Li, Z., et al. 2022, SCPMA, 65, 289602 8 Li, K. J. 2010, MNRAS, 405, 1040 2 Lin, T.-Y., Goyal, P., Girshick, R., He, K., & Doll´ ar, P. 2017, in 2017 IEEE International Conference on Computer Vision (ICCV), 2999 3 Liu, D., Song, W., Lin, G., & Wang, H. 2021, Sol. Phys., 296, 176 2, 3 Liu, Z., Lin, Y., Cao, Y., et al. 2021, in 2021 IEEE/CVF International Conference on Computer Vision (ICCV), 9992 4 Liu, Z., Mao, H., Wu, C.-Y., et al. 2022, in 2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 11966 4, 16 Loshchilov, I., & Hutter, F. 2019, in 7th International Conference on Learning Representations, ICLR 2019, New Orleans, LA, United states 9 Maas, A. L., Hannun, A. Y., Ng, A. Y., et al. 2013, in ICML, Vol. 30, Atlanta, GA, 3 5 Macqueen, J. 1967, Proc. Symp. Math. Statist. and Probability, 5th, 1 8 Martin, S. F. 1998, Sol. Phys., 182, 107 2, 3 Parenti, S. 2014, Living Reviews in Solar Physics, 11, 1 2 Powers, D. 2011, Journal of Machine Learning Technologies, 2, 37 9 Qiu, Z., Wang, Z., Zheng, B., et al. 2025, in The Thirty-ninth Annual Conference on Neural Information Processing Systems 6 Qu, M., Shih, F. Y., Jing, J., & Wang, H. 2005, Solar Phys, 228, 119 2 Rezatofighi, H., Tsoi, N., Gwak, J., et al. 2019, in 2019 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 658 9 Ronneberger, O., Fischer, P., & Brox, T. 2015, in Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015, ed. N. Navab, J. Hornegger, W. M. Wells, & A. F. Frangi (Cham: Springer International Publishing), 234 2 Schubert, E., Sander, J., Ester, M., Kriegel, H. P., & Xu, X. 2017, ACM Trans. Database Syst., 42 4, 7 Shih, F. Y., & Kowalski, A. J. 2003, Sol. Phys., 218, 99 2 Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. 2014, Journal of Machine Learning Research, 15, 1929 5 Suzuki, S., & Abe, K. 1985, Computer Vision, Graphics, and Image Processing, 30, 32 12 Tandberg-Hanssen, E., ed. 1995, Astrophysics and Space Science Library, Vol. 199, The nature of solar prominences 2, 3 Tian, Z., Shen, C., & Chen, H. 2020, in Computer Vision – ECCV 2020, ed. A. Vedaldi, H. Bischof, T. Brox, & J.-M. Frahm (Cham: Springer International Publishing), 282 3 A Modern ConvNet for Solar Filament Detection 21 
+
+Tian, Z., Zhang, B., Chen, H., & Shen, C. 2023, IEEE Transactions on Pattern Analysis and Machine Intelligence, 45, 669 3 Ulyanov, D., Vedaldi, A., & Lempitsky, V. 2017, in 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 4105 3 Vaswani, A., Shazeer, N., Parmar, N., et al. 2017, in Proceedings of the 31st International Conference on Neural Information Processing Systems, NIPS’17 (Red Hook, NY, USA: Curran Associates Inc.), 6000–6010 6 Vial, J. C., & Engvold, O., eds. 2015, Astrophysics and Space Science Library, Vol. 415, Solar Prominences 2, 3 Woo, S., Park, J., Lee, J.-Y., & Kweon, I. S. 2018, in Computer Vision – ECCV 2018, ed. V. Ferrari, M. Hebert, C. Sminchisescu, & Y. Weiss (Cham: Springer International Publishing), 3 3 Yuan, Y., Shih, F. Y., Jing, J., Wang, H., & Chae, J. 2011, Solar Phys, 272, 101 2 Zhang, T., Hao, Q., & Chen, P. F. 2024, ApJS, 272, 5 2, 3 Zhao, H., Shi, J., Qi, X., Wang, X., & Jia, J. 2017, in 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 6230 5 Zheng, Z., Hao, Q., Qiu, Y., et al. 2024, ApJ, 965, 150 2, 3, 8, 10 Zhu, G., Lin, G., Wang, D., Liu, S., & Yang, X. 2019, Sol. Phys., 294, 117 2 Zhu, G., Lin, G., Yang, X., & Zeng, C. 2025, ApJ, 980, 176 2, 3, 8, 10, 11
