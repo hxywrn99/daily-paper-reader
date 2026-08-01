@@ -1,0 +1,252 @@
+Title: SAFViT: Spatial Attention Fusion Gating for Vision Transformer-Based Nucleus Segmentation and Classification
+
+URL Source: https://arxiv.org/pdf/2607.27835v1
+
+Published Time: Fri, 31 Jul 2026 00:47:44 GMT
+
+Number of Pages: 23
+
+Markdown Content:
+# Graphical Abstract 
+
+SAFViT: Spatial Attention Fusion Gating for Vision Transformer-Based Nucleus Segmentation and Classification 
+
+Harshit Mittal, Arash Rabbani arXiv:2607.27835v1 [cs.CV] 30 Jul 2026 Highlights 
+
+SAFViT: Spatial Attention Fusion Gating for Vision Transformer-Based Nucleus Segmentation and Classification 
+
+Harshit Mittal, Arash Rabbani 
+
+• Proposes Spatial Attention Fusion Gating to build a CellViT-based model SAFViT. 
+
+• Generates “heatmap of trust” to learn most trustworthy source for each pixel. 
+
+• Achieves highest F1 score for minority class “Dead” among all gating methods. 
+
+• Achieves highest mPQ of 0.471 among all compared models including the baseline. SAFViT: Spatial Attention Fusion Gating for Vision Transformer-Based Nucleus Segmentation and Classification 
+
+Harshit Mittal a, Arash Rabbani a, ∗
+
+> aSchool of Computer Science, University of Leeds, Woodhouse, Leeds, LS2 9JT, United Kingdom
+
+Abstract 
+
+Accurate cell segmentation and classification are foundational to digital pathol-ogy, enabling quantitative tissue analysis for diagnosis and treatment plan-ning. Encoder–decoder architectures that fuse multi-scale features through skip connections have become the dominant paradigm for this task, yet stan-dard direct skip connections treat every spatial location equally, which leads to redundant and potentially conflicting information reaching the decoder. To overcome this problem, various gating mechanisms have been introduced, but most of them operate solely on filtering encoder information, neglecting the benefit of global contextual information from the decoder. This study proposes replacing conventional skip connections in a CellViT-based model with a novel Spatial Attention Fusion (SAF) Gating module. Each SAF gate concatenates the encoder skip and upsampled decoder features, compresses them through two pointwise convolutions with an intermediate ReLU, and applies a channel-wise softmax to produce a per-pixel “heatmap of trust” that sums to unity at every spatial location, allowing the network to learn where each source is most trustworthy. The resulting fused features improve the model’s ability to detect the minority “Dead” class, which in turn enhances the multi-class panoptic quality (mPQ) on the PanNuke dataset. SAF Gat-ing is compared against six gating alternatives including no gating, attention gates, squeeze-and-excitation, CBAM, cross-attention, and attentional fea-ture fusion on PanNuke and MoNuSeg datasets. SAF Gating achieves the   
+
+> ∗Corresponding author
+> Email address: a.rabbani@leeds.ac.uk (Arash Rabbani)
+
+highest mPQ (0.471), a gain driven primarily by a 14.5-point improvement in Dead-class F1 score compared to ungated CellViT baseline. 
+
+Keywords: Cell Segmentation, Encoder–decoder architectures, Spatial Attention Fusion (SAF) Gating, Heatmap of Trust, multi-class panoptic quality (mPQ) 
+
+1. Introduction 
+
+Cancer is the second-leading cause of mortality after cardiovascular dis-eases, with millions of new cases registered each year (Bray et al., 2024). The disease manifests differently across organs, producing distinct patterns of cellular deformation that must be identified for accurate diagnosis. Even with new and effective non-invasive radiological imaging techniques, using tissue samples for examining them under a microscope is still a common practice for efficient diagnosis. By identifying types of anomalies in the tis-sue, a pathologist can decide the stage for possible treatment strategies and also utilise them for additional research. However, manual histopathology is highly time-consuming and may cause variability in observations across different viewers. Advancement in computational histopathology, driven by high-level research in deep learning (Voulodimos et al., 2018), has enabled automated analysis of whole-slide images (WSIs) at a scale and consistency that led to digitised cell segmentation and classification (Meijering, 2012; Vicar et al., 2019). Digital cell segmentation and classification accurately outlines individual cell nuclei and identifies the class they belong to, helping in tumour grading, prognosis, and treatment planning. The morphological and spatial distribution of nuclei such as neoplastic, inflammatory, connec-tive, dead, and epithelial cells provides critical diagnostic information that can augment and accelerate clinical decision-making if made reliably (Gam-per et al., 2019). Early nuclei segmentation methods relied on classical morphological process-ing, with Watershed-based approaches treating image intensity as a topo-graphic surface to delineate boundaries (Levner and Zhang, 2007). While computationally efficient, these methods proved sensitive to staining vari-ation and noise, often leading to over-segmentation. The introduction of U-Net (Ronneberger et al., 2015; Schmidt et al., 2018; Graham et al., 2019) marked a turning point, establishing the encoder–decoder architecture with skip connections as the dominant paradigm for biomedical image segmen-2tation (Doan et al., 2022; Baumann et al., 2024). The introduction of the Vision Transformer (ViT) showed that pure self-attention mechanisms could match or exceed convolutional neural networks (CNNs) on image recognition tasks (Dosovitskiy et al., 2021; Vaswani et al., 2017). By treating an image as a sequence of patches, ViT captures long-range dependencies across the entire input, rather than the local receptive fields typical of convolutional lay-ers (Chen et al., 2021; Cao et al., 2023). CellViT extended this idea to nuclei segmentation by leveraging large-scale pretrained ViT encoders, achieving strong performance on the PanNuke dataset (Hörst et al., 2024, 2026). Despite their architectural differences, all these encoder–decoder models de-pend on skip connections to fuse multi-scale features. Standard skip con-nections employ direct concatenation or addition, treating all spatial regions and channels as equally informative, which often propagates redundant noise from early encoder layers. Several gating mechanisms have been proposed to address this (Oktay et al., 2018; Hu et al., 2018; Khanh et al., 2020). While these methods improve feature selection, most operate only on the encoder stream. They treat the decoder features merely as a fixed gating signal, rather than as a source that could itself benefit from selective modulation. This one-sided filtering neglects the potential of jointly learning where local boundary detail from the encoder and global contextual information from the decoder are each most reliable. This paper addresses this limitation by proposing SAFViT (Spatial Attention Fusion Vision Transformer), a CellViT-based architecture that replaces con-ventional skip connections with a novel Spatial Attention Fusion (SAF) Gat-ing module. Unlike existing approaches that gate only the encoder stream, each SAF gate treats both the encoder skip and the upsampled decoder fea-ture as equal candidates for fusion. The two streams are concatenated and compressed through two pointwise convolutions with an intermediate ReLU, followed by a channel-wise softmax that produces a two-channel, per-pixel “heatmap of trust” summing to unity at every spatial location. This heatmap adaptively weights local detail from the encoder against global context from the decoder before a refinement convolution, allowing the network to learn where each source is most trustworthy. 
+
+Contributions: We propose Spatial Attention Fusion (SAF) Gating, a novel per-pixel dual-stream gating mechanism that applies a softmax-based heatmap of trust to jointly modulate encoder and decoder features, rather than filtering only one stream. We implement SAFViT by integrating SAF Gating into a CellViT-based architecture with a Swin-Tiny encoder and spe-3cialised segmentation, horizontal–vertical (HoVer) distance, and cell-type classification heads (Graham et al., 2019). We conduct a controlled com-parison study of SAF Gating against six alternative gating mechanisms, namely standard skip connections, attention gates, squeeze-and-excitation, the Convolutional Block Attention Module, cross-attention and attentional feature fusion, under identical training conditions on the PanNuke pan-cancer dataset using 3-fold cross-validation. We demonstrate that SAF Gat-ing achieves the highest mPQ ( 0.471 ) among all compared methods, with the improvement attributable specifically to minority Dead-class detection (F1 = 0 .518 ), and show that on class-agnostic metrics (Dice, Aggregated Jaccard Index [AJI], and binary Panoptic Quality [bPQ]) all gating variants perform comparably, confirming that the choice of fusion strategy does not af-fect majority-class segmentation but has decisive impact on underrepresented classes. We also validate out-of-domain generalisation on the MoNuSeg test dataset (Kumar et al., 2020). 
+
+2. Proposed Network Architecture 
+
+The proposed SAFViT architecture builds upon the CellViT framework, retaining its core encoder–decoder topology while introducing a fundamen-tally different feature fusion strategy at the skip connections. The encoder employs a Swin-Tiny transformer backbone (Liu et al., 2021) pretrained on ImageNet (Deng et al., 2009), which processes a 224 × 224 × 3 haema-toxylin and eosin (H&E) input patch through four hierarchical stages, pro-ducing multi-scale feature maps {E1, E 2, E 3, E 4} with channel dimensions 
+
+{96 , 192 , 384 , 768 } at spatial resolutions {56 2, 28 2, 14 2, 72}, respectively. The decoder follows a bottom-up pathway: the deepest encoder output E4 is progressively upsampled through three transposed convolution stages, each doubling the spatial resolution. At each decoder level i ∈ { 1, 2, 3}, the up-sampled decoder feature and the corresponding encoder skip connection Ei
+
+are fused through the proposed SAF Gating module, described in Section 2.1, rather than through direct concatenation or addition as in the original Cel-lViT. After three stages of gated fusion, the decoder produces a feature tensor 
+
+x1 ∈ R96 ×56 ×56 at the highest resolution. This shared representation is then fed into three independent, task-specific prediction heads. The Nuclei Presence (NP) head outputs a single-channel binary map ˆYnp ∈ [0 , 1] H×W indicating whether each pixel belongs to any nucleus. The Horizontal–Vertical (HV) head produces a two-channel map 4Figure 1: The Step Diagram for the Architecture of SAFViT Model from initial H&E patches to various stages which includes 4 encoder stages downsampling the images in blue boxes, SAF gating of each skip connection in pink, Decoder upsampling in violet, further leading to different heads in green, post procesing and finally instance maps as outputs in orange. 
+
+ˆYhv ∈ R2×H×W encoding the horizontal and vertical distances of each nu-clear pixel to its instance centroid, following the formulation introduced in HoVer-Net (Graham et al., 2019). The Nucleus Type (NT) head outputs a 
+
+(K +1) channel classification map ˆYnt ∈ R(K+1) ×H×W , where K is the number of cell classes and the additional channel represents the background. Each head comprises two 3 × 3 convolutional layers with batch normalisation and ReLU activation, followed by a final 1 × 1 convolution that projects to the respective output dimensionality. At inference time, the NP map provides a binary nuclear mask, the HV maps are used to compute gradient-based markers for watershed-based instance separation, and the NT map assigns a cell-type label to each segmented instance via majority voting within each predicted region. The architecture is visually defined in Figure 1. 
+
+2.1. Spatial Attention Fusion (SAF) Gating 
+
+The central contribution of SAFViT is the SAF Gating module, which replaces the conventional direct skip connection at each decoder level. Un-like standard attention gates that produce a single scalar weight per spatial location to filter only the encoder stream, SAF Gating treats the encoder 5Figure 2: Spatial Attention Fusion (SAF) Gating module. Encoder skip Flocal and up-sampled decoder Fglobal are concatenated, compressed through two 1×1 convolutions, and normalised by channel-wise softmax to produce a two-channel per-pixel heatmap of trust  
+
+> [wlocal ;wglobal ].
+
+and decoder features as dual information streams and learns a per-pixel reli-ability map, a “heatmap of trust” that jointly modulates both before fusion. The gate pursues a single goal: at every spatial location (h, w ), decide how much to trust local boundary detail from the encoder versus global contex-tual information from the decoder, and blend the two streams in proportion to that learned decision. The complete mechanism is illustrated in Figure 2and formalised below. Let Flocal ∈ RC×H×W denote the encoder skip-connection features carrying local boundary detail, and Fglobal ∈ RC×H×W denote the upsampled de-coder features carrying global contextual information, where both have been aligned to the same spatial resolution and channel dimensionality C. The two streams are first concatenated along the channel axis to form a joint representation: 
+
+Fconcat = concat [Flocal : Fglobal ] ∈ R2C×H×W (1) This concatenated tensor is then passed through a lightweight gate network comprising two successive 1 × 1 convolutional layers with a bottleneck struc-ture. The first convolution compresses the channel dimension by a factor of four, followed by a ReLU non-linearity to introduce a representational bottleneck: 
+
+G = ReLU (W1 ∗ Fconcat + b1) ∈ R(C/ 2) ×H×W (2) 6where W1 ∈ R(C/ 2) ×2C×1×1 and b1 ∈ RC/ 2 are learnable parameters. The sec-ond convolution projects the bottleneck representation to exactly two chan-nels: 
+
+A = W2 ∗ G + b2 ∈ R2×H×W (3) where W2 ∈ R2×(C/ 2) ×1×1 and b2 ∈ R2. A softmax is then applied along the channel dimension to obtain normalised trust weights: 
+
+[wlocal ; wglobal ] = Softmax (A, dim = channel ) ∈ R2×H×W (4) where for every spatial position (h, w ):
+
+w(h,w ) 
+
+> local
+
++ w(h,w ) 
+
+> global
+
+= 1 , w(h,w ) 
+
+> local
+
+, w (h,w ) 
+
+> global
+
+∈ (0 , 1) (5) The resulting weight maps wlocal and wglobal constitute the heatmap of trust :at spatial locations where the gate network determines that local encoder de-tail is more informative (e.g. at nuclear boundaries), wlocal approaches unity. Conversely, in homogeneous tissue regions where global decoder context is more reliable, wglobal dominates. These weights are broadcast across all C
+
+channels and applied through element-wise multiplication to their respective feature streams, followed by summation: 
+
+Fblend = wlocal ⊙ Flocal + wglobal ⊙ Fglobal (6) where ⊙ denotes element-wise multiplication with channel-wise broadcasting. Finally, a refinement layer consisting of a 3 × 3 convolution followed by batch normalisation and ReLU activation is applied to smooth the blended features and allow local spatial mixing: 
+
+Ffused = ReLU (BN (Wr ∗ Fblend + br)) ∈ RC×H×W (7) This fused tensor Ffused replaces the conventional skip-connected output at the corresponding decoder level and proceeds to the next upsampling stage or, at the shallowest level, to the three prediction heads. The softmax normalisation in Eq. (4) guarantees that the two trust weights are complementary at every pixel, enforcing a zero-sum trade-off between lo-cal and global reliance. Attention gates (Oktay et al., 2018) instead produce an independent scalar attention coefficient for the encoder alone, and SE blocks (Hu et al., 2018) recalibrate channels globally without spatial speci-ficity. SAF Gating does not discard information: it redistributes it between the two sources based on learned spatial reliability, so the gating is both selective and information-preserving. 73. Experimental Setup 
+
+3.1. PanNuke Dataset 
+
+PanNuke (Gamper et al., 2019) is a large-scale, semi-automatically gen-erated pan-cancer nuclei dataset comprising 7,901 image patches of size 
+
+256 × 256 pixels extracted from 19 distinct tissue types. Each patch con-tains pixel-level instance segmentation masks annotated across five clinically relevant cell classes: neoplastic, inflammatory, connective, dead, and epithe-lial. The dataset exhibits substantial class imbalance, with neoplastic nuclei dominating and the dead class being severely underrepresented, making it a challenging benchmark for multi-class segmentation. All input patches are centre-cropped to 224 × 224 pixels to match the Swin-Tiny encoder’s expected input resolution. During training, standard data augmentation is applied, including random horizontal and vertical flips, ran-dom rotation, colour jitter, Gaussian blur, and elastic deformation. All mod-els, SAFViT and the six gating baselines, are trained under identical con-ditions: the same fold splits, augmentation pipeline, learning rate schedule (cosine annealing with warm restarts (Loshchilov and Hutter, 2017)), opti-miser (AdamW (Loshchilov and Hutter, 2019)), and number of epochs, so that observed performance differences are attributable solely to the gating mechanism. 
+
+3.2. MoNuSeg Dataset 
+
+The MoNuSeg dataset (Kumar et al., 2020) is used to evaluate out-of-domain generalisation. It consists of H&E-stained tissue images from seven organs, with the official test set containing 14 images of size 1000 × 1000 
+
+pixels accompanied by XML-format instance annotations. Unlike PanNuke, MoNuSeg provides only binary instance masks without cell-type labels, mak-ing it a class-agnostic segmentation benchmark. Models trained on PanNuke are applied directly to MoNuSeg without any fine-tuning, testing whether the learned feature representations and gating behaviour transfer to unseen tissue types and staining conditions. 
+
+3.3. Evaluation Metrics 
+
+We evaluate all models using four complementary metrics. The Dice Score 
+
+measures pixel-level overlap between the predicted binary nuclear mask and the ground truth. The Aggregated Jaccard Index (AJI) extends the standard 8Table 1: Segmentation performance on PanNuke (3-fold cross-validation) and MoNuSeg datasets. PanNuke values are reported as mean ± std across five folds. Best results per metric are shown in bold . Inference time (I. Time) is reported in milliseconds per image. 
+
+Model Dice AJI bPQ mPQ 
+
+PanNuke Dataset 
+
+CellViT 0.832 ±.003 0.672 ±.004 0.625 ±.003 0.453 ±.030 
+
+SAFViT 0.834 ±.003 0.674 ±.006 0.627 ±.007 0.471 ±.032 
+
+AG 0.834 ±.002 0.670 ±.005 0.620 ±.005 0.430 ±.007 
+
+SE 0.833 ±.002 0.674 ±.003 0.628 ±.001 0.457 ±.029 
+
+CBAM 0.834 ±.004 0.674 ±.005 0.627 ±.003 0.453 ±.026 
+
+CrossAttn 0.827 ±.002 0.663 ±.005 0.608 ±.005 0.449 ±.026 
+
+AFF 0.833 ±.003 0.670 ±.003 0.622 ±.000 0.429 ±.001 
+
+MoNuSeg Dataset 
+
+Model Dice AJI I. Time(ms)(Colab T4) 
+
+CellViT 0.738 ±.033 0.539 ±.035 5.8 SAFViT 0.737 ±.033 0.540 ±.035 5.7 AG 0.745 ±.028 0.544 ±.031 5.6 SE 0.740 ±.033 0.542 ±.035 5.6 CBAM 0.739 ±.032 0.542 ±.034 5.6 CrossAttn 0.741 ±.030 0.541 ±.034 5.6 AFF 0.740 ±.031 0.542 ±.034 5.7 
+
+Jaccard index to the instance level by computing a one-to-one matching be-tween predicted and ground-truth instances and aggregating the intersection-over-union across all matched pairs, penalising both missed and spurious detections. The Binary Panoptic Quality (bPQ) evaluates class-agnostic in-stance segmentation by combining detection ( F1 at IoU ≥ 0.5) with segmen-tation quality (mean IoU of matched pairs). The Multi-class Panoptic Qual-ity (mPQ) extends bPQ to the multi-class setting by computing panoptic quality independently for each cell class and averaging across classes. Since mPQ weights all classes equally regardless of prevalence, it is particularly sensitive to performance on rare classes such as the Dead class, making it the most discriminative metric for evaluating the impact of gating mecha-nisms on underrepresented cell types. For MoNuSeg, which lacks cell-type annotations, only Dice and AJI are reported. Inference time per image is also recorded to confirm negligible computational overhead. 94. Results and Discussion 
+
+4.1. Model Nomenclature 
+
+All seven compared models share the same Swin-Tiny encoder, decoder topology, three prediction heads, composite loss function, and training proto-col. The only architectural difference is the skip-connection fusion strategy. 
+
+CellViT is the ungated baseline (Hörst et al., 2024), SAFViT (proposed) employs SAF Gating, and the five remaining gating variants are attention gates ( AG ) (Oktay et al., 2018), squeeze-and-excitation ( SE ) (Hu et al., 2018), the Convolutional Block Attention Module ( CBAM ) (Woo et al., 2018), gated cross-attention ( CrossAttn ) (Jia et al., 2024), and attentional feature fusion ( AFF ) (Dai et al., 2021).        
+
+> Figure 3: SAF Gate “Heatmap of Trust” for a representative PanNuke patch. From left: H&E patch, ground-truth mask coloured by class, and wlocal overlaid at Gate 3 (deepest,
+> 14 ×14 ), Gate 2 ( 28 ×28 ), and Gate 1 (shallowest, 56 ×56 ). Red indicates high encoder trust, blue indicates high decoder trust. At nuclear boundaries especially Dead cells (blue in GT) wlocal approaches 1.0, confirming that the gate amplifies fine-scale encoder detail precisely where rare-class discrimination is needed.
+
+10 Figure 4: Visual comparison of selected models with ground truth including proposed SAFViT. Where Red: Neoplastic, Green: Inflammatory, Yellow: Connective, Blue: Dead and Orange: Epithelial. This image proves the superiority of SAFViT in recognizing mi-nority cells such as "Dead Cells" much more efficiently than compared to other benchmark models. 
+
+11 Table 2: Class-wise F1-scores on the PanNuke dataset (out-of-fold). Best per class in 
+
+> bold .
+
+Model Neop. Infl. Conn. Dead Epit. 
+
+CellViT 0.902 0.801 0.781 0.373 0.898 SAFViT 0.903 0.790 0.782 0.518 0.898 AG 0.898 0.790 0.778 0.000 0.895 SE 0.903 0.800 0.781 0.295 0.903 
+
+CBAM 0.898 0.792 0.777 0.364 0.900 CrossAttn 0.892 0.773 0.756 0.462 0.885 AFF 0.893 0.785 0.778 0.000 0.881  
+
+> Table 3: Wilcoxon signed-rank test results comparing the proposed SAFViT against al-ternative models on per-image AJI and Dice scores ( N= 7 ,901 ).
+
+Metric Comparison Model Mean Diff. p-value 
+
+AJI CellViT +0 .0013 2.16 × 10 −2
+
+AG +0 .0033 5.47 × 10 −18 
+
+SE +0 .0002 8.80 × 10 −1
+
+CBAM −0.0005 2.19 × 10 −1
+
+CrossAttn +0 .0105 2.08 × 10 −94 
+
+AFF +0 .0033 3.39 × 10 −5
+
+DICE CellViT +0 .0013 5.53 × 10 −3
+
+AG −0.0002 4.91 × 10 −2
+
+SE +0 .0008 8.91 × 10 −1
+
+CBAM −0.0002 2.06 × 10 −1
+
+CrossAttn +0 .0065 1.94 × 10 −132 
+
+AFF +0 .0010 7.51 × 10 −2
+
+4.2. PanNuke Results 
+
+Table 1 presents the quantitative results of all seven models on the Pan-Nuke dataset, evaluated using 3-fold cross-validation with metrics reported as mean ± standard deviation. Table 2 provides the corresponding per-class 
+
+F1-scores computed from out-of-fold predictions, where each image is scored exactly once by the checkpoint that did not train on it. SAFViT achieves the highest multi-class panoptic quality (mPQ = 0 .471 ), 12 outperforming the ungated CellViT baseline ( 0.453 ) by 1.8 percentage points. This gain is notable because mPQ weights all five cell classes equally regard-less of prevalence, making it the metric most sensitive to performance on rare categories. Among the gating alternatives, SE ( 0.457 ) and CBAM ( 0.453 )follow as the next strongest on mPQ, while AG ( 0.430 ) and AFF ( 0.429 ) fall below even the ungated baseline, indicating that purely encoder-side gating can be counterproductive when it lacks the capacity to preserve informative encoder activations for underrepresented classes. On binary metrics, all models cluster tightly: Dice 0.827 –0.834 , AJI 0.663 –
+
+0.674 (SAFViT, SE, and CBAM tie for the highest AJI at 0.674 ), bPQ 0.608 –
+
+0.628 (SE leads marginally at 0.628 , SAFViT at 0.627 ). These narrow ranges confirm that the comparison is controlled and that gating strategy does not affect majority-class foreground segmentation. The per-class F1-scores in Table 2 reveal the mechanism behind SAFViT’s mPQ advantage. SAFViT achieves the highest Dead-class F1-score ( 0.518 ), representing a 14.5-point lead over the ungated CellViT baseline ( 0.373 ) and a 5.6-point lead over the next best gating variant, CrossAttn ( 0.462 ). Two gating methods, AG and AFF, score exactly 0.000 on the Dead class, mean-ing they completely fail to detect this minority category. AG gates only the encoder stream through a single sigmoid coefficient, which tends to suppress weak encoder activations associated with rare cell types. AFF, although it does fuse encoder and decoder streams via a learned channel-attention weight, derives that weight from a squeeze-and-excitation-style global con-text vector rather than a per-pixel softmax; this coarser, channel-wise (rather than spatial) weighting appears insufficient to preserve the sparse, spatially localised activations that signal Dead-class nuclei. On the four majority classes (Neoplastic, Inflammatory, Connective, Epithe-lial), SAFViT remains competitive with the best-performing variants: it ties SE for the highest Neoplastic F1-score ( 0.903 ), leads on Connective ( 0.782 ), and falls within 1.1 points of CellViT on Inflammatory ( 0.790 vs. 0.801 ). The slight Inflammatory trade-off is more than offset by the substantial Dead-class gain when averaged into mPQ. To assess whether the observed metric differences reflect systematic variation rather than noise, we applied a Wilcoxon signed-rank test to the per-image Dice and AJI scores across the full out-of-fold evaluation set ( N = 7 ,901 ). Results are reported in Table 3. SAFViT significantly outperforms AG, AFF, and CrossAttn on AJI, and shows a significant but modest advantage over CellViT. SAFViT is statistically indistinguishable from SE and CBAM on 13 both metrics, consistent with the narrow numeric gaps in Table 1. As mPQ is a fold-level quantity ( N = 3 folds), formal significance testing is not appli-cable. The numerical mPQ lead over SE and CellViT should be interpreted alongside the fold-level standard deviations in Table 1 and Figures 5, 6a, 6b, 6c, 6d. Figure 3 visualises the per-pixel trust weight wlocal at each of the three SAF gates for a representative patch containing Dead and Neoplastic nuclei. At nuclear boundaries particularly the thin, irregular membranes of Dead cells 
+
+wlocal approaches 1.0, indicating that the gate relies predominantly on lo-cal encoder detail in these regions. In homogeneous stromal regions, wglobal 
+
+dominates, reflecting that global decoder context is more reliable where fine-grained boundary information is absent. This spatial pattern provides a mechanistic explanation for the Dead-class F1 gain: SAF Gating preferen-tially amplifies encoder skip features at exactly the fine-scale loci where Dead cells are most distinguishable from background which is proved in Figure 4.  
+
+> Figure 5: The difference between different models with respect to their f1-score for each class of cells including Neoplastic, Inflammatory, Connective, Dead and Epithelial. The CellViT is pink color, SAFViT is yellow, AG is green, AFF is pink, CrossAttention is purple, SE is blue and CBAM is violet.
+
+4.3. MoNuSeg Results 
+
+To assess out-of-domain generalisation, all models trained on PanNuke are evaluated on the MoNuSeg test set without any fine-tuning. Since MoNuSeg provides only binary instance annotations without cell-type labels, only Dice and AJI are reported. As shown in the MoNuSeg columns of Table 1, all seven models cluster tightly (Dice 0.737 –0.745 , AJI 0.539 –0.544 ), with AG 14 leading marginally (Dice 0.745 , AJI 0.544 ). SAFViT (Dice 0.737 , AJI 0.540 )performs on par with the ungated CellViT baseline and the remaining gating variants. This convergence is expected: MoNuSeg’s binary evaluation cannot capture multi-class discrimination, which is precisely where SAFViT’s advantage lies. AG’s slight MoNuSeg lead contrasts sharply with its poor PanNuke mPQ (0.430 ) and zero Dead-class F1-score, illustrating that strong class-agnostic boundary detection does not imply strong cell-type classification. The con-sistent MoNuSeg performance across all variants confirms that SAF Gating does not overfit to PanNuke-specific class distributions and that the learned spatial weighting strategy generalises to unseen tissue types and staining conditions. 
+
+4.4. Computational Overhead 
+
+Inference times in Table 1 confirm that all seven models operate within 
+
+5.6–5.8 ms per image, with SAFViT ( 5.7 ms) introducing no measurable la-tency increase relative to CellViT ( 5.8 ms). The two pointwise convolutions and softmax operation in each SAF gate add a negligible number of parame-ters relative to the Swin-Tiny encoder and prediction heads. SAFViT’s mPQ improvement therefore comes at effectively zero computational cost, which is important for clinical digital pathology workflows. 
+
+5. Conclusion 
+
+This study introduced SAFViT, a CellViT-based architecture that re-places conventional skip connections with Spatial Attention Fusion (SAF) Gating for nucleus instance segmentation and classification in H&E-stained histopathology images. The core contribution is a per-pixel, softmax-normalised “heatmap of trust” that jointly modulates encoder and decoder feature streams before fusion, rather than filtering only one stream as in existing gating mechanisms. Through a controlled comparison against six alternative gat-ing strategies under identical training conditions on the PanNuke dataset, we demonstrated that SAF Gating achieves the highest mPQ ( 0.471 ) while remaining competitive across Dice, AJI, and bPQ. The per-class analysis revealed that this improvement is driven primarily by SAFViT’s superior detection of the minority Dead class ( F1 = 0 .518 ), where two competing gating mechanisms (AG and AFF) failed entirely ( F1 =
+
+15 (a) Dice Score comparison. (b) AJI comparison.  
+
+> (c) mPQ comparison. (d) bPQ comparison.
+
+Figure 6: Quantitative metric performance comparisons on the PanNuke validation split (3-fold cross-validation, mean ± std) where (a) evaluates the pixel-level overlap accuracy via Dice Score, (b) measures multi-nucleus boundary matches using the Aggregated Jac-card Index (AJI), (c) captures instance detection performance through mean Panoptic Quality (mPQ), and (d) assesses tissue-wide panoptic segmentation boundaries via binary Panoptic Quality (bPQ). Red accent borders identify our proposed SAFViT network. 
+
+0.000 ). By learning where local boundary detail and global contextual in-formation are each most trustworthy at every spatial position, dual-stream gating preserves subtle morphological cues that single-stream approaches systematically suppress. Evaluation on the MoNuSeg dataset without fine-tuning confirmed that the learned gating behaviour generalises to unseen tissue types, and inference time analysis showed that SAF Gating introduces negligible computational overhead ( 5.7 ms per patch), which supports its use for whole-slide image processing in clinical settings. A limitation of the Dead-class result warrants explicit acknowledgement: the 16 Dead class comprises fewer than 2% of all annotated instances in PanNuke, meaning that a small number of correctly classified instances can produce large relative changes in F1 when the class is this rare. The 14.5-point F1
+
+improvement is consistent across all five cross-validation folds, but evaluation on a dataset with higher Dead-class prevalence would further strengthen this finding. Several directions remain for future investigation. First, the current SAF Gating module uses a fixed bottleneck ratio ( 2C → C/ 2 → 2) at all de-coder levels, an adaptive or level-specific compression strategy could allow the gate network to allocate more capacity at decoder stages where the en-coder–decoder feature gap is largest. Second, while SAFViT employs a Swin-Tiny backbone, the SAF Gating module is architecture-agnostic and could be integrated into larger pretrained encoders, potentially yielding further gains from richer encoder representations. 
+
+CRediT authorship contribution statement Harshit Mittal: Conceptualization, Methodology, Software, Validation, Investigation, Writing - original draft, Visualization. 
+
+Arash Rabbani: Supervision, Writing - review & editing, Resources, Project administration. 
+
+Declaration of competing interest 
+
+The authors declare that they have no known competing financial inter-ests or personal relationships that could have appeared to influence the work reported in this paper. 
+
+Data and Code availability 
+
+The Pannuke Data and MonuSeg Data are publicly available on their respective institutes’ website and the authors of the same have been cited. The complete source code for SAFViT are publicly available in our GitHub repository at https://github.com/itsmittalharshit/SAFViT .
+
+References 
+
+Baumann, E., Dislich, B., Rumberger, J.L., Nagtegaal, I.D., Martínez, M.R., Zlobec, I., 2024. Hover-next: A fast nuclei segmentation and classification 17 pipeline for next generation histopathology, in: Proceedings of Machine Learning Research, PMLR. pp. 61–86. Bray, F., Laversanne, M., Sung, H., Ferlay, J., Siegel, R.L., Soerjomataram, I., Jemal, A., 2024. Global cancer statistics 2022: Globocan estimates of incidence and mortality worldwide for 36 cancers in 185 countries. CA: A Cancer Journal for Clinicians 74, 229–263. doi: 10.3322/caac.21834 .Cao, H., Wang, Y., Chen, J., Jiang, D., Zhang, X., Tian, Q., Wang, M., 2023. Swin-unet: Unet-like pure transformer for medical image segmentation, in: Lecture Notes in Computer Science, Springer, Germany. pp. 205–218. doi: 10.1007/978-3-031-25066-8_9 .Chen, J., Lu, Y., Yu, Q., Luo, X., Adeli, E., Wang, Y., Lu, L., Yuille, A.L., Zhou, Y., 2021. Transunet: Transformers make strong encoders for medical image segmentation. URL: https://github.com/Beckschen/TransUNet .Dai, Y., Gieseke, F., Oehmcke, S., Wu, Y., Barnard, K., 2021. Attentional feature fusion, in: Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV), pp. 3560–3569. doi: 10.1109/ WACV48630.2021.00360 .Deng, J., Dong, W., Socher, R., Li, L.J., Li, K., Fei-Fei, L., 2009. Imagenet: A large-scale hierarchical image database, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), IEEE. pp. 248–255. doi: 10.1109/CVPR.2009.5206848 .Doan, T.N.N., Song, B., Vuong, T.T.L., Kim, K., Kwak, J.T., 2022. Sonnet: A self-guided ordinal regression neural network for segmenta-tion and classification of nuclei in large-scale multi-tissue histology im-ages. IEEE Journal of Biomedical and Health Informatics 26, 3218–3228. doi: 10.1109/JBHI.2022.3149936 .Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Un-terthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., Uszkor-eit, J., Houlsby, N., 2021. An image is worth 16x16 words: Transformers for image recognition at scale. Gamper, J., Koohbanani, N.A., Benet, K., Khuram, A., Rajpoot, N., 2019. Pannuke: An open pan-cancer histology dataset for nuclei in-stance segmentation and classification, in: Lecture Notes in Computer 18 Science (including Subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics), Springer, United Kingdom. pp. 11–19. doi: 10.1007/978-3-030-23937-4_2 .Graham, S., Vu, Q.D., Raza, S.E.A., Azam, A., Tsang, Y.W., Kwak, J.T., Rajpoot, N., 2019. Hover-net: Simultaneous segmentation and classifica-tion of nuclei in multi-tissue histology images. Medical Image Analysis 58, 101563. doi: 10.1016/j.media.2019.101563 .Hörst, F., Rempe, M., Becker, H., Heine, L., Keyl, J., Kleesiek, J., 2026. Cellvit++: Energy-efficient and adaptive cell segmentation and classi-fication using foundation models. Computer Methods and Programs in Biomedicine 277, 109206. doi: 10.1016/j.cmpb.2025.109206 .Hörst, F., Rempe, M., Heine, L., Seibold, C., Keyl, J., Baldini, G., Ugurel, S., Siveke, J., Grünwald, B., Egger, J., Kleesiek, J., 2024. Cellvit: Vision transformers for precise cell segmentation and classification. Medical Image Analysis 94, 103143. doi: 10.1016/j.media.2024.103143 .Hu, J., Shen, L., Sun, G., 2018. Squeeze-and-excitation networks, in: Pro-ceedings of the IEEE Computer Society Conference on Computer Vision and Pattern Recognition, IEEE Computer Society, USA. pp. 7132–7141. doi: 10.1109/CVPR.2018.00745 .Jia, X., Jian, S., Tan, Y., Che, Y., Chen, W., Liang, Z., 2024. Gated cross-attention network for depth completion. URL: http://arxiv.org/abs/ 2309.16301 .Khanh, T.L.B., Dao, D.P., Ho, N.H., Yang, H.J., Baek, E.T., Lee, G., Kim, S.H., Yoo, S.B., 2020. Enhancing u-net with spatial-channel attention gate for abnormal tissue segmentation in medical imaging. Applied Sciences (Switzerland) 10. doi: 10.3390/APP10175729 .Kumar, N., Verma, R., Anand, D., Zhou, Y., Onder, O.F., Tsougenis, E., Chen, H., Heng, P.A., Li, J., Hu, Z., Wang, Y., Koohbanani, N.A., Jahani-far, M., Tajeddin, N.Z., Gooya, A., Rajpoot, N., Ren, X., Zhou, S., Wang, Q., Shen, D., Yang, C.K., Weng, C.H., Yu, W.H., Yeh, C.Y., Yang, S., Xu, S., Yeung, P.H., Sun, P., Mahbod, A., Schaefer, G., Ellinger, I., Ecker, R., Smedby, O., Wang, C., Chidester, B., Ton, T.V., Tran, M.T., Ma, J., Do, M.N., Graham, S., Vu, Q.D., Kwak, J.T., Gunda, A., Chunduri, R., Hu, 19 C., Zhou, X., Lotfi, D., Safdari, R., Kascenas, A., O’Neil, A., Eschweiler, D., Stegmaier, J., Cui, Y., Yin, B., Chen, K., Tian, X., Gruening, P., Barth, E., Arbel, E., Remer, I., Ben-Dor, A., Sirazitdinova, E., Kohl, M., Braunewell, S., Li, Y., Xie, X., Shen, L., Ma, J., Baksi, K.D., Khan, M.A., Choo, J., Colomer, A., Naranjo, V., Pei, L., Iftekharuddin, K.M., Roy, K., Bhattacharjee, D., Pedraza, A., Bueno, M.G., Devanathan, S., Radhakr-ishnan, S., Koduganty, P., Wu, Z., Cai, G., Liu, X., Wang, Y., Sethi, A., 2020. A multi-organ nucleus segmentation challenge. IEEE Transactions on Medical Imaging 39, 1380–1391. doi: 10.1109/TMI.2019.2947628 .Levner, I., Zhang, H., 2007. Classification-driven watershed segmentation. IEEE Transactions on Image Processing 16, 1437–1445. doi: 10.1109/TIP. 2007.894239 .Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., Guo, B., 2021. Swin transformer: Hierarchical vision transformer using shifted windows, in: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV), IEEE. pp. 9992–10002. doi: 10.1109/ICCV48922.2021. 00986 .Loshchilov, I., Hutter, F., 2017. Sgdr: Stochastic gradient descent with warm restarts. URL: https://arxiv.org/abs/1608.03983 .Loshchilov, I., Hutter, F., 2019. Decoupled weight decay regularization. URL: 
+
+https://arxiv.org/abs/1711.05101 .Meijering, E., 2012. Cell segmentation: 50 years down the road [life sciences]. IEEE Signal Processing Magazine 29, 140–145. doi: 10.1109/MSP.2012. 2204190 .Oktay, O., Schlemper, J., Folgoc, L.L., Lee, M., Heinrich, M., Misawa, K., Mori, K., McDonagh, S., Hammerla, N.Y., Kainz, B., Glocker, B., Rueck-ert, D., 2018. Attention u-net: Learning where to look for the pancreas. Ronneberger, O., Fischer, P., Brox, T., 2015. U-net: Convolutional networks for biomedical image segmentation, in: Lecture Notes in Computer Science (including Subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics), Springer, Germany. pp. 234–241. doi: 10.1007/ 978-3-319-24574-4_28 .20 Schmidt, U., Weigert, M., Broaddus, C., Myers, G., 2018. Cell detec-tion with star-convex polygons, in: Lecture Notes in Computer Science (including Subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics), Springer, Spain. pp. 265–273. doi: 10.1007/ 978-3-030-00934-2_30 .Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, L., Polosukhin, I., 2017. Attention is all you need. Vicar, T., Balvan, J., Jaros, J., Jug, F., Kolar, R., Masarik, M., Gumulec, J., 2019. Cell segmentation methods for label-free contrast microscopy: Review and comprehensive comparison. BMC Bioinformatics 20. doi: 10. 1186/s12859-019-2880-8 .Voulodimos, A., Doulamis, N., Doulamis, A., Protopapadakis, E., 2018. Deep learning for computer vision: A brief review. Computational Intelligence and Neuroscience doi: 10.1155/2018/7068349 .Woo, S., Park, J., Lee, J.Y., Kweon, I.S., 2018. Cbam: Convolutional block attention module, in: Proceedings of the European Conference on Computer Vision (ECCV), Springer, Munich, Germany. pp. 3–19. doi: 10.1007/978-3-030-01234-2_1 .21

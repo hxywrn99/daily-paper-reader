@@ -1,0 +1,680 @@
+Title: MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion
+
+URL Source: https://arxiv.org/pdf/2607.28565v1
+
+Published Time: Fri, 31 Jul 2026 01:25:05 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion 
+
+## Yunzhan Fu 1 Xiangyu Shen 4 Yifei Sun 2,3 Yuhan Chen 5
+
+## Jian Wu 2† Hongxia Xu 6†
+
+1Transvascular Implantation Devices Research Institute, Zhejiang University, Hangzhou, China 
+
+2Zhejiang University, Hangzhou, China 
+
+3Liangzhu Laboratory, Hangzhou, China 
+
+4Hangzhou Institute of Technology, Xidian University, Hangzhou, China 
+
+5Hangzhou Dianzi University, Hangzhou, China 
+
+6Zhejiang Key Laboratory of Medical Imaging Artificial Intelligence, Hangzhou, China ResBlock 
+
+> Multi-scale Latent
+> Adapter
+
+Phi-3 Embedding Patchify 
+
+Input Images     
+
+> Flattening
+> Adapter Tokens
+> Fusion
+> Texts
+> Tokenizer Image Latents
+> Training P rocess
+> Output Image
+> Intent-D riven
+> Prompts
+> Image Pairs Clinician
+> BioMedGPT Dataset
+> Trainable Frozen Channel Concat enation Element-wise Addition Multi-Scale Average Pooling
+> Noise
+> …
+> …
+> LayerNorm
+> Self-Attention
+> Drop out
+> Drop out
+> LayerNorm
+> MLP
+
+Transformer Layer Injection 
+
+> Predicted
+> Vector Field
+> ODE Solver
+
+Training Loss 
+
+Fusion Texts Generation 
+
+> Noise
+> Fusion Texts
+
+Fusion T exts 
+
+> LayerN orm
+> Down sampl ing
+> Con v Layer
+> ResBlock
+> LoRA Finetune
+
+Transformer Layers LoRA   
+
+> Timesteps Input Image Tokens Text Tokens
+> Fusion Texts
+> Noise
+
+Figure 1: The overall architecture of MIND. Guided by pathology-aware fusion texts, MIND performs multimodal medical image fusion within a Diffusion Transformers framework. 
+
+Abstract 
+
+Medical image fusion aims to integrate complementary informa-tion from diverse imaging modalities to support clinical diagnosis. Existing methods typically apply uniform fusion rules globally, lack-ing a deep understanding of diagnostic intents and pathological structures. To address these limitations, we propose MIND, a Multi-modal Intent-Driven Network via Diffusion Transformers (DiTs) for medical image fusion. Specifically, we utilize BioMedGPT to generate intent-driven fusion texts from source images, guiding the fusion process with pathology-aware diagnostic intents. To combat the loss of 2D spatial continuity caused by 1D sequence flatten-ing in DiTs, we design a Multi-scale Latent Adapter. This module explicitly extracts source image features before serialization, in-jecting them into the network via strict dimensional alignment to effectively supplement image features. To resolve the semantic shift caused by decoupling image outputs from diagnostic intents, we design a medical semantic consistency loss. This loss ensures deep semantic locking between fused images and fusion texts while maintaining the stability of the underlying physical manifold re-construction. Comprehensive experiments on the Harvard, BraTS, 
+
+> †
+
+Corresponding authors. 
+
+and GFP datasets reveal that MIND delivers superior fusion qual-ity, significantly improves downstream brain tumor segmentation accuracy, and enables flexible interactive fusion, holding signifi-cant promise for intent-driven intelligent clinical decision support systems. 
+
+Keywords 
+
+Multimodal Image Fusion; Diffusion Transformers; Medical Image Processing 
+
+1 Introduction 
+
+Medical imaging plays a pivotal role in modern healthcare, disease diagnosis, and treatment planning [ 10 ]. Due to their distinct physi-cal principles, diverse imaging modalities capture complementary physiological and anatomical information. With the continued ad-vancement of medical imaging technologies, modalities such as magnetic resonance imaging (MRI), computed tomography (CT), and positron emission tomography (PET) provide rich information for clinical diagnosis. However, due to differences in their under-lying physics and imaging targets, single-modality images cannot fully represent critical physiological signals and pathological find-ings [ 35 ]. For instance, MRI offers excellent soft-tissue contrast arXiv:2607.28565v1 [cs.CV] 30 Jul 2026 Preprint, August, 2025 Yunzhan Fu et al. MRI\SPECT FLAIR/T1CE Fusion Texts 
+
+> Fusion Result (b)
+
+EN : 6.179 
+
+MedCLIP-S : 56.2% 
+
+EN : 6.179 
+
+MedCLIP-S : 56.2%                    
+
+> Text (b)
+> Prefix
+> [PREFIX] “Combine the high-frequency grayscale
+> brain edges from the <img><|image_1|></img> and
+> colorful luminance layer from the <img> <|image_2|>
+> </img> ,adjusting opacity to output a high-contrast
+> composite .”
+> [FUSION] [MRI-SPECT] “This is the first image
+> <img><|image_1|></img>, and this is the second
+> image <img><|image_2|></img>.”
+> Text (a)
+> Text (b)
+> Prefix
+> [PREFIX ]“Generate a fused image pinpointing focal
+> abnormal perfusion from the <img><|image_2|></img>
+> while preserving cerebral parenchyma boundaries
+> from the <img><|image_1|></img> with brain sulcus
+> highlighted .”
+> Fusion Result (a)
+
+Figure 2: Fusion Result (a): Intent-driven pathology-aware fusion texts with our MIND framework. Fusion Result (b): Process-driven unified fusion texts with DiTFuse [ 19 ]. Our method produces a fused image containing richer gradient information and semantic consistency. 
+
+and clearly delineates the anatomical structures of parenchymal organs [ 43 ], yet it struggles to detect cortical bone or calcified foci. In contrast, CT excels at delineating osseous structures and cal-cified lesions with its superior spatial resolution [ 29 ], though its soft-tissue discrimination remains limited. These complementary characteristics underscore the necessity of medical image fusion, which integrates multimodal images to generate a composite im-age that encompasses both structural and functional information, thereby significantly enhancing diagnostic accuracy [15]. The rapid development of deep learning has driven significant progress in image fusion. CNN-based methods [ 49 ] leverage their powerful feature extraction capabilities to capture fine-grained tex-tures at multiple scales, yet their limited local receptive fields con-strain performance. Subsequent research introduced GAN-based approaches [ 25 ], which explicitly enhance fused image quality through the adversarial game between a generator and a discrimi-nator. However, such generative methods often suffer from train-ing instability and a lack of interpretability [ 54 ]. Moreover, these methods inevitably falter in degraded scenarios. In essence, prior approaches prioritize multimodal information integration with-out considering effective degradation-aware information recovery [51 ]. Recently, diffusion-based paradigms have demonstrated strong potential in visual restoration tasks within this domain. Existing diffusion-based fusion methods [ 52 ] typically generate complete images by progressively denoising from noise in an unconstrained latent space [ 45 ]. Lacking rigid physical constraints, they tend to fabricate textures in smooth tissues or distort lesion boundaries [ 9], thereby undermining the pixel-level spatial correspondence essential for downstream clinical diagnosis and high-precision le-sion segmentation. Recent studies attempt to explicitly capture complex cross-modal dependencies through multi-scale feature in-teraction by designing various dedicated image fusion methods [ 20 ]. These customized models are often constrained by specific modality combinations and fixed fusion rules, making it difficult to achieve robust generalization in diverse scenarios. To break the representation bottlenecks of traditional architectures, Diffusion Transformers (DiTs) [ 34 ] gradually become the new standard for unified generative paradigms due to their excellent scalability and global context modeling capabilities [ 13 ]. Although the DiT-based paradigms [ 3] demonstrate immense potential in vision tasks, their core mechanism of flattening two-dimensional latent variables into 1D sequences for self-attention modeling fundamentally disrupts the local physical continuity required by medical imaging [38]. In real diagnostic scenarios, applying a uniform fusion strat-egy may weaken the focus on specific pathological targets. The research community has begun to explore semantic-driven image fusion methods, aiming to guide networks to dynamically focus on specific anatomical structures or abnormal metabolic regions by introducing text prompts or prior knowledge [ 22 ]. Recent methods [ 5, 44 , 46 ] explore the use of user instructions to flexibly control the fusion output for different inputs. These methods achieve re-markable results due to the strong representation and generation capabilities of the underlying models. Compared to single-modality image editing tasks, achieving fine-grained and flexible control in image fusion based on semantic priors is highly challenging. DiTFuse [ 19 ] proposes a promising unified framework that lever-ages the strong image reconstruction and semantic understanding capabilities of Omnigen [ 40 ] to unify various image tasks into a flow matching framework. However, weighting down less relevant content by computing text queries against image keys is an implicit soft re-weighting at the feature level. This lacks explicit constraints on the pixel domain of the final generated image, which easily leads to severe semantic drift and clinical feature loss during highly complex medical feature interactions. To address these challenges, we propose MIND, a Multimodal Intent-Driven Network via Dits for medical image fusion. As shown in Fig. 2, our approach achieves higher fusion quality and precise clinical semantic control. The main contributions of this paper are summarized as follows: 
+
+• We propose a novel medical image fusion network by inte-grating text-image interaction and visual feature injection within a unified framework. We construct intent-driven fu-sion texts containing pathological structural elements and descriptions of desired fusion outcomes to guide the train-ing process, thereby significantly enhancing its semantic understanding capability. 
+
+• We design a Multi-scale Latent Adapter (MLA) that explic-itly extracts anatomical structure features from input im-ages in latent space and injects them into the DiTs network through dimension alignment, effectively bridging the repre-sentational gap between sequence modeling and anatomical topology. 
+
+• We revisit the semantic alignment rules under the DiTs ar-chitecture and the flow matching objective, and propose a multimodal medical semantic consistency loss based on a timestep truncation mechanism. This loss ensures deep se-mantic alignment between the fused image and fusion texts MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion Preprint, August, 2025 
+
+while maintaining absolute stability in the reconstruction of underlying physical structures. 
+
+• Comprehensive experiments demonstrate that our MIND achieves superior fusion quality across various datasets, pro-viding solid visual foundation for downstream task. More-over, its interactive ability holds promise for future intent-driven intelligent clinical decision support systems. 
+
+2 Related Work 2.1 Deep Learning-based Medical Image Fusion 
+
+Deep learning-based medical image fusion methods can be cat-egorized into CNN-based, Transformer-based, GAN-based, and Diffusion-based methods. Liu et al. pioneered CNNs in this field, generating fused images that better align with human visual per-ception [ 23 ]. Zhang et al. proposed IFCNN [ 49 ], a general convolu-tional framework adapting to multimodal medical, infrared-visible, and multi-focus fusion scenarios. However, limited local receptive fields inherently restrict these architectures from effectively cap-turing global context and long-range dependencies. To address this limitation, MACTFusion [ 41 ] utilizes cross-attention and trans-former modules to model complementary inter-modality relation-ships. While this yields clearer textures and improved visual qual-ity, substantial computational complexity limits its performance across diverse scenarios. To enhance visual realism, MedFusion-GAN [ 31 ] refines modality perception and feature selection through generator-discriminator adversarial mechanisms. Nevertheless, typ-ical GAN training instability often causes semantic inconsistency in cross-modal interactions. Diffusion models provide a new gener-ative paradigm for image fusion. DDFM [ 52 ] first applied them to this task, but its pixel-level similarity objective inherently favors average fusion. Existing uniform fusion rules struggle to balance rigid physical fidelity with complex semantic alignment, thus neces-sitating a model with fine-grained intent understanding and spatial structural constraints to achieve intent-driven and faithful fusion. [PREFIX] “Combine the high-frequency grayscale                   
+
+> brain edges from the <img><|image_1|></img> and
+> colorful luminance layer from the <img> <|image_2|>
+> </img> ,adjusting opacity to output a high-contrast
+> composite .”
+> You are an expert clinical radiologist specializing in
+> multimodal image fusion. Your task is to define the
+> diagnostic intent for fusing an anatomical modality
+> (Modality A) and a functional modality (Modality B).
+> You must strictly describe the *ideal characteristics *of
+> the target fused image. Explicitly detail what features
+> are preserved from Modality A, and what specific
+> metabolic signals are highlighted from Modality B.
+> Maintain a rigorous, academic medical tone. Limit your
+> description to 2-3 sentences.
+> You are an expert clinical radiologist specializing in multimodal
+> image fusion. Your task is to define the diagnostic intent for
+> fusing an anatomical Modality A and a functional Modality B . You
+> must strictly describe the *ideal characteristics *of the target
+> fused image.
+> Explicitly detail what high-resolution structural features are
+> preserved from the anatomical scan, and what specific metabolic
+> signals are highlighted from the functional scan. Maintain a
+> rigorous, academic medical tone. Limit your description to
+> exactly 2-3 sentences.
+> You MUST NOT use the specific names of the modalities .
+> Instead, you MUST refer to them strictly using the following
+> image tokens:
+> For Modality A: <img><|image_1|></img> ；
+> For Modality B: <img><|image_2|></img>.
+
+(b) Intent-D riven Prompts (a) Fusion T exts Generation 
+
+(c) User Prompts                
+
+> Modality A : {MRI} Modality B :{SPECT}
+> Task: Describe the ideal fused image for
+> the above modalities.
+> [Intent-Driven Prompts] + [Image Pairs]
+> [Prefix] + [Intent Description]
+> [The fused image clearly delineates high-resolution
+> anatomical structures ,fine tissue boundaries , and
+> sharp brain sulcus from the <img><|image_1|></img> .
+> These structural details are highly aligned with salient
+> functional overlays demonstrating specific metabolic
+> u p ta k e a n d f o c a l in te n sity p a tte r n s f r o m t h e
+> <img><|image_2|></img> modality, ensuring precise
+> clinico-anatomical correlation .][Intent Description]
+> Fusion Texts
+
+Figure 3: Detailed prompts for fusion texts generation. 
+
+2.2 Text-Driven Medical Image Fusion 
+
+Text-driven image fusion continuously evolves from general guid-ance to domain-specific frameworks. As pioneering efforts, Textfu-sion [ 5 ] achieves feature-level modality integration via affine fusion units, while Text-IF [ 44 ] realizes text-adaptive fusion by combining CLIP embeddings with adaptive instance normalization. Further-more, FILM [ 53 ] employs cross-modal attention mechanisms guided by large vision-language models. To enable deeper cross-modal interaction, recent studies explore multi-text collaborative guid-ance. Specifically, MTG-Fusion [ 37 ] leverages multi-dimensional descriptions to precisely screen shared features and adaptively fuse modality-specific ones. Concurrently, DiTFuse [ 19 ] adopts a DiTs backbone to process text instructions and images in parallel, thereby achieving end-to-end control through iterative denoising. Despite these advancements, existing methods predominantly utilize text to describe source features or the fusion process, termed Process-driven, which limits their ability to foresee specific diagnostic goals. 
+
+3 Methodology 3.1 Overview 
+
+As illustrated in Fig. 1, MIND adopts a solid foundation that uti-lizes the powerful reconstruction ability from OmniGen [ 40 ]. Given a pair of co-registered anatomical 𝐼 𝐴 ∈ R1×𝐻 ×𝑊 and functional 
+
+𝐼 𝐵 ∈ R3×𝐻 ×𝑊 medical images, we first leverage BioMedGPT [ 47 ]to formulate explicit diagnostic guidance. Unlike [ 39 ] that passively describes source inputs, our prompt engineering is strictly Intent-Driven. As shown in Fig. 3 (b), we instruct the model to foresee the ideal characteristics of the target fused image. This generated intent description is concatenated with a standard prefix in Fig. 2 to form the fusion texts 𝑇 . Our general objective is to learn a condi-tional probability flow model to ensure that 𝐼 𝑓 𝑢𝑠𝑒𝑑 strictly preserves anatomical topologies while accurately aligning with high-level clinical intentions. The generation process can be formulated as: 
+
+𝐼 𝑓 𝑢𝑠𝑒𝑑 = F𝜃 (𝑥 0 | 𝐼 𝐴 , 𝐼 𝐵 ,𝑇 ), 𝑥 0 ∼ N ( 0, I) (1) where F𝜃 denotes the continuous flow transformation that maps an initial Gaussian noise distribution 𝑥 0 to the target data distribution, and I represents the identity matrix matching the latent dimensions. 
+
+3.2 Model Architecture and Data Input 
+
+Unlike traditional convolutional networks operating in the compu-tationally expensive pixel space, our core fusion network comprises 32 stacked Phi-3 Transformer blocks. Specifically, we utilize a pre-trained frozen Variational Autoencoder (VAE) E𝑣𝑎𝑒 from SDXL [ 28 ] to encode the heterogeneous source images 𝐼 ∈ { 𝐼 𝐴 , 𝐼 𝐵 } into compact latent representations: 
+
+𝑥 𝐴 = E𝑣𝑎𝑒 (𝐼 𝐴 ) ∈ R𝐶 × 𝐻 
+
+8 × 𝑊 
+
+8 (2) 
+
+𝑥 𝐵 = E𝑣𝑎𝑒 (𝐼 𝐵 ) ∈ R𝐶 × 𝐻 
+
+8 × 𝑊 
+
+8 (3) where 𝐶 denotes the latent channel dimension. For fusion texts 
+
+𝑇 , we leverage the Phi-3 tokenizer [ 1 ] and its embedding layer to transform 𝑇 into a contextualized semantic sequence E𝑇 .To construct the joint input sequence, the image latents 𝑥 𝐴 and 
+
+𝑥 𝐵 are patchified, flattened, and linearly projected into visual tokens 
+
+X𝐴 and X𝐵 . As shown in Fig. 3, we follow the operation in [ 19 ]to encapsulate these visual tokens with special <img> and </img> 
+
+tokens and subsequently concatenate them with the text embedding 
+
+E𝑇 to generate text-image condition context embedding E𝑐 . At the input layer of the Phi3 Transformer [ 1 ] backbone, the text-image condition context embedding E𝑐 , the timestep embedding E𝑡 , and the noisy target image tokens X𝑡 are concatenated into an initial joint input sequence 𝐻 (0) = [E𝑐 , E𝑡 , X𝑡 ].
+
+3.3 Multi-scale Latent Adapter 
+
+Inspired by T2I-Adapter [ 27 ], which seamlessly integrates external spatial guidance into frozen pre-trained diffusion models, we de-signed MLA. Image latents 𝑥 𝐴 and 𝑥 𝐵 are processed with channel Preprint, August, 2025 Yunzhan Fu et al. 
+
+concatenation to form the input adapter latent 𝑥 𝑖𝑛 . The MLA net-work Φ𝑎𝑑𝑎𝑝𝑡 utilizes multi-scale residual blocks in the 2D domain to explicitly extract continuous anatomical edges before serialization. These locally encoded 2D spatial priors are subsequently downsam-pled via different pooling strides to construct a hierarchical feature pyramid. After aligning with the target sequence dimension, the flattened anatomical prior sequence for the 𝑠 -th scale is denoted as: 
+
+𝐹 (𝑠 ) 
+
+> 𝑎𝑑𝑎𝑝𝑡
+
+= Flatten 
+
+
+
+LN  Conv 𝑃 ×𝑃 
+
+ Φ(𝑠 ) 
+
+> 𝑎𝑑𝑎𝑝𝑡
+
+(𝑥 𝑖𝑛 ) 
+
+∈ R𝐿 𝑠 ×𝐷 (4) where LN (·) denotes Layer Normalization. 𝐿 𝑠 is the sequence length of the 𝑠 -th scale, and 𝐷 = 3072 is the hidden dimension of the Transformer. To robustly inject the multi-scale features into the 𝑁 = 32 layers of the Transformer without disrupting the pre-trained knowledge, we pad 𝐹 (𝑠 ) 
+
+> 𝑎𝑑𝑎𝑝𝑡
+
+to the exact sequence length of E𝑐 , obtaining ˜𝐹 (𝑠 ) 
+
+> 𝑎𝑑𝑎𝑝𝑡
+
+.Then, we construct aligned adapter sequences A𝑠 = [ ˜𝐹 (𝑠 ) 
+
+> 𝑎𝑑𝑎𝑝𝑡
+
+, 0𝑡 , 0𝑥 ]
+
+that match the length and positional indices of 𝐻 (0) . Following Transformer dynamics [ 30 ], where shallow layers capture high-frequency details and deep layers aggregate global semantics, we adopt a linear allocation strategy that maps the scale index 𝑠 ∈{0, . . . , 𝑆 − 1} to the transformer layer index 𝑙 ∈ { 0, . . . , 𝑁 − 1}:
+
+𝑠 (𝑙 ) = min 
+
+  𝑙 · 𝑆 𝑁 
+
+
+
+, 𝑆 − 1
+
+
+
+(5) For 𝑆 = 3 and 𝑁 = 32 , the specific allocation is: 𝑙 = 0 ∼ 10 for scale-0, 𝑙 = 11 ∼ 21 for scale-1, and 𝑙 = 22 ∼ 31 for scale-2. We conducted detailed analysis of this machanism in the Supplementary Material. During the forward pass within the 𝑙 -th hidden layer, the corre-sponding anatomical prior A𝑠 (𝑙 ) is seamlessly injected as a residual term: 
+
+𝐻 (𝑙 ) 
+
+> 𝑆𝐴
+
+= SelfAttention  LN (𝐻 (𝑙 −1) ) + 𝐻 (𝑙 −1) + 𝛼 · A𝑠 (𝑙 ) (6) 
+
+𝐻 (𝑙 ) = MLP  LN (𝐻 (𝑙 ) 
+
+> 𝑆𝐴
+
+) + 𝐻 (𝑙 ) 
+
+> 𝑆𝐴
+
++ 𝛼 · A𝑠 (𝑙 ) (7) where 𝛼 is a hyperparameter for scaling. 
+
+3.4 Loss Function and Training Strategy 
+
+To enable efficient conditional generation, we adopt Continuous Flow Matching (CFM) [ 21 ] as the foundational generative dynamics. The generation process is defined as an Ordinary Differential Equa-tion (ODE) trajectory from a Gaussian noise prior 𝑥 0 ∼ N ( 0, I) to the target latent distribution 𝑥 1 ∼ 𝑞 (𝑥 1). We construct an optimal transport path where the intermediate state 𝑥 𝑡 at any continuous timestep 𝑡 ∈ [ 0, 1] is defined as: 
+
+𝑥 𝑡 = 𝑡𝑥 1 + ( 1 − 𝑡 )𝑥 0 (8) The corresponding target vector field is a constant 𝑢 𝑡 = 𝑥 1 −𝑥 0. The unified generative backbone 𝜃 receives the fusion texts embedding 
+
+E𝑇 , the timestep embedding E𝑡 , and the noisy image tokens X𝑡 .Its optimization objective is to minimize the mean squared error between the predicted vector field 𝑣 𝜃 and the target field 𝑢 𝑡 :
+
+L𝐹 𝑀 = E𝑡,𝑥 0,𝑥 1,𝑇 
+
+∥𝑣 𝜃 (𝑥 𝑡 ,𝑇 , 𝑡 ) − ( 𝑥 1 − 𝑥 0)∥ 22
+
+ (9) While L𝐹 𝑀 constrains the global manifold reconstruction, it cannot guarantee fine-grained alignment between the generated medical details and the fusion texts 𝑇 . To address this optimization dilemma, we propose a Multimodal Medical Semantic Consistency Loss based on a timestep-truncation mechanism to avoid gradient conflicts. At any given timestep 𝑡 , we estimate the current clean target latent ˆ𝑥 1 using first-order Euler integration: 
+
+ˆ𝑥 1 = 𝑥 𝑡 + ( 1 − 𝑡 ) · 𝑣 𝜃 (𝑥 𝑡 ,𝑇 , 𝑡 ) (10) Subsequently, ˆ𝑥 1 is mapped back to the pixel domain via the VAE decoder D𝑣𝑎𝑒 , yielding the estimated image ˆ𝐼 1 = D𝑣𝑎𝑒 ( ˆ𝑥 1). We introduce a Timestep-Truncation Mechanism I(𝑡 > 𝜏 ) and a thresh-old 𝜃 , which strictly restricts the activation of semantic penalties. We first define the cosine similarity between the generated image and the textual instruction as: 
+
+S𝑐𝑜𝑠 ( ˆ𝐼 1,𝑇 ) = E𝐶𝐿𝐼 𝑃 −𝐼 ( ˆ𝐼 1) · E 𝐶𝐿𝐼 𝑃 −𝑇 (𝑇 )∥E 𝐶𝐿𝐼 𝑃 −𝐼 ( ˆ𝐼 1)∥∥E 𝐶𝐿𝐼 𝑃 −𝑇 (𝑇 )∥ (11) where E𝐶𝐿𝐼 𝑃 −𝐼 and E𝐶𝐿𝐼 𝑃 −𝑇 denote the frozen image and text encoders of BioMedCLIP [ 48 ]. Based on this, the overall semantic consistency loss is calculated as: 
+
+ℓ𝑠𝑒𝑚 ( ˆ𝐼 1,𝑇 ) =
+
+(
+
+0, 𝑖 𝑓 S𝑐𝑜𝑠 ( ˆ𝐼 1,𝑇 ) ≥ 𝜃 
+
+1 − S 𝑐𝑜𝑠 ( ˆ𝐼 1,𝑇 ), 𝑜𝑡ℎ𝑒𝑟𝑤𝑖𝑠𝑒 (12) 
+
+L𝑠𝑒𝑚 = E𝑡 ∼U ( 0,1)
+
+h
+
+I(𝑡 > 𝜏 ) · 𝑡 · ℓ𝑠𝑒𝑚 ( ˆ𝐼 1,𝑇 )
+
+i
+
+(13) To strictly guarantee the clinical reference value of the fused image at the high-frequency level, we superimpose physical re-construction constraints. Concretely, we apply the 𝐿 1 norm in the latent space and the Structural Similarity Index Measure (SSIM) [50] in the decoded pixel space: 
+
+L𝑟𝑒𝑐 = E𝑡 
+
+h
+
+𝑡 ·  𝜆 𝐿 1 ∥ ˆ𝑥 1 − 𝑥 𝐴 ∥1 + 𝜆 𝑆𝑆𝐼 𝑀 (1 − SSIM ( ˆ𝐼 1, 𝐼 𝐴 )) i
+
+(14) As formulated in Eqs. (13) and (14), both L𝑠𝑒𝑚 and L𝑟𝑒𝑐 are ex-plicitly scaled by timestep 𝑡 . This time-aware dynamic weighting mechanism suppresses unstable gradients at early, high-noise stages to preserve the underlying physical skeleton [ 8]. Conversely, it am-plifies penalties during late stages to enforce strict alignment of high-frequency textures and semantics. The overall multi-objective optimization function is formulated as: 
+
+L𝑡𝑜𝑡𝑎𝑙 = L𝐹 𝑀 + L 𝑟𝑒𝑐 + 𝜆 𝑠𝑒𝑚 L𝑠𝑒𝑚 (15) where 𝜆 𝐿 1, 𝜆 𝑆𝑆𝐼 𝑀 , and 𝜆 𝑠𝑒𝑚 are wights balancing the respective loss terms. The network is fine-tuned by introducing Low-Rank Adaptation (LoRA) [ 12 ] into the linear layers of the transformer blocks, alongside the full-parameter updating of MLA. 
+
+4 Experiments 4.1 Dataset and Evaluation Metrics 
+
+Data Preparation. To comprehensively evaluate the effectiveness of our framework, we curated a diverse and highly representative experimental dataset from three publicly available sources. All image pairs are rigidly co-registered prior to the experiments. 
+
+Harvard Whole Brain Atlas (Harvard) constitutes a compre-hensive medical imaging resource. Specifically, we extracted 160 CT-MRI pairs, 245 PET-MRI pairs, and 333 SPECT-MRI pairs for training set. We selected 24 pairs from each category for testing. 
+
+The Brain Tumor Segmentation Dataset (BraTS) [ 26 ] is an authoritative public resource for multimodal magnetic resonance imaging analysis. It contains brain imaging data across scanning sequences including T1, T1ce, T2, and FLAIR. We used BraTS 2017, MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion Preprint, August, 2025 DDFM MACTFusion BSAFusion SAFusion Text-DiFuse TextFusion DiTFuse Ours MRI PET 
+
+Figure 4: PET-MRI fusion results on Harvard. Red and orange boxes highlight fine-grained local details. DDFM SPECT MRI MACTFusion BSAFusion SAFusion Text-DiFuse TextFusion DiTFuse Ours 
+
+Figure 5: SPECT-MRI fusion results on Harvard. Red and orange boxes highlight fine-grained local details. DDFM MACTFusion MRI CT BSAFusion Text-DiFuse TextFusion SAFusion DiTFuse Ours 
+
+> FILM
+
+Figure 6: CT-MRI fusion results on Harvard. Red boxes highlight fine-grained local details. 
+
+which comprises 484 clinical cases. Each case contains 155 slices with a 240 × 240 pixel resolution and includes corresponding la-bel masks delineating peritumoral Edema (ED), Enhancing Tumor (ET), and Non-Enhancing Tumor regions (NET). T1ce emphasizes the active tumor core via contrast enhancement, whereas FLAIR suppresses cerebrospinal fluid to better delineate edema and non-enhancing tumor regions. We assign 387 T1-FLAIR pairs to the training set and the remaining 97 pairs to the test set. 
+
+GFP Dataset (GFP) [16 ] is a multimodal cellular imaging collec-tion comprising 155 pairs of Green Fluorescent Protein and Phase Contrast (GFP-PC) microscopy images. The fluorescence images deliver detectable signals, while the phase contrast images supply the structural background of the cells. We selected 148 GFP-PC pairs for external validation to assess the generalization capacity. 
+
+Data Pre-processing. The BraTS dataset consists of 3D volumetric scans. To adapt it to the input structure of 2D vision models, we utilized an information-guided dimensionality reduction method. For each 3D sample, we traversed a specific axis and computed the tumor area in the corresponding mask 𝑀 𝑖 for each slice 𝑆 𝑖 .The optimal 2D slice 𝑆 ∗ was selected as 𝑆 ∗ = arg max 𝑆 𝑖 Area (𝑀 𝑖 ).Through this process, we extracted the core slice with the maximum tumor spatial occupancy and richest semantic information, along with its label, constructing a 2D multimodal dataset. Furthermore, to ensure dimensional consistency, we uniformly resized the above datasets to a resolution of 256 × 256 pixels. 
+
+Evaluation Metrics. To quantitatively evaluate the fusion results, we employ eight widely used metrics: Spatial Frequency (SF) [ 32 ], Entropy (EN) [ 2 ], Average Gradient (AG) [ 4], Mutual Informa-tion(MI) [ 17 ], Visual Information Fidelity (VIF) [ 7], Standard Devi-ation (SD) [ 42 ], Quality assessment based on fusion (Qab/f) [ 24 ], and Multi-Scale Structural Similarity Index Measure (MS-SSIM) [ 36 ]. Following the wide-adopted CLIP-Score [ 11 ], we computed the cosine similarity between the fused images and fusion texts using BioMedCLIP [ 48 ] to quantify their semantic alignment. The selected metrics comprehensively quantify fusion performance by providing an in-depth evaluation of medical image fusion methods. Preprint, August, 2025 Yunzhan Fu et al. 
+
+Table 1: Quantitative comparison of MIND with eight state-of-the-art methods on Harvard. Best results are highlighted as first , second and third . 
+
+Dataset Method Source EN AG MI VIF SF SD Qabf MS_SSIM CT-MRI 
+
+DDFM [52] ICCV 23 4.195 ±0.196 5.461 ±0.855 2.675 ±0.292 0.402 ±0.039 22.165 ±3.019 62.305 ±4.101 0.442 ±0.041 0.543 ±0.041 Text-DiFuse [46] NeurIPS 24 5.577 ±0.255 8.433 ±1.244 3.247 ±0.292 0.484 ±0.041 34.606 ±3.839 87.012 ±3.490 0.570 ±0.024 0.401 ±0.075 FILM [53] ICML 24 3.907 ±0.241 9.593 ±1.504 2.986 ±0.202 0.403 ±0.036 42.957 ±6.171 83.367 ±4.030 0.644 ±0.032 0.368 ±0.013 MACTFusion [41] JBHI 25 4.543 ±0.241 8.066 ±1.316 2.854 ±0.155 0.501 ±0.048 34.442 ±4.526 86.456 ±5.119 0.612 ±0.041 0.550 ±0.048 BSAFusion [18] AAAI 25 4.638 ±0.255 7.276 ±1.220 2.829 ±0.263 0.392 ±0.067 27.964 ±3.453 80.277 ±5.046 0.427 ±0.056 0.469 ±0.086 TextFusion [5] INFFUS 25 4.775 ±0.248 5.020 ±0.960 2.944 ±0.197 0.436 ±0.038 22.424 ±2.936 81.132 ±6.260 0.380 ±0.032 0.500 ±0.037 DiTFuse [19] TPAMI 25 3.884 ±0.284 8.979 ±1.353 2.319 ±0.309 0.412 ±0.864 32.050 ±4.044 87.438 ±13.169 0.471 ±0.061 0.348 ±0.102 SAFusion [20] JBHI 26 4.533 ±0.236 9.119 ±1.443 2.832 ±0.230 0.581 ±0.0095 38.610 ±5.084 82.766 ±4.991 0.348 ±0.043 0.573 ±0.0122 MIND Ours 5.802 ±0.149 10.111 ±2.243 3.274 ±0.201 0.569 ±0.06 41.250 ±7.704 92.291 ±6.454 0.672 ±0.0176 0.488 ±0.092 
+
+PET-MRI 
+
+DDFM [52] ICCV 23 4.922 ±0.600 7.411 ±0.930 2.455 ±0.416 0.614 ±0.05 23.376 ±2.120 78.061 ±4.970 0.571 ±0.032 0.621 ±0.021 FILM [53] ICML 24 3.437 ±0.835 8.121 ±3.050 3.746 ±0.305 0.793 ±0.074 31.297 ±8.839 72.937 ±10.140 0.784 ±0.025 0.618 ±0.085 Text-DiFuse [46] NeurIPS 24 6.224 ±0.534 10.889 ±1.373 3.127 ±0.202 0.526 ±0.045 35.672 ±3.362 97.248 ±3.095 0.613 ±0.039 0.698 ±0.028 
+
+MACTFusion [41] JBHI 25 5.430 ±0.646 10.306 ±1.192 3.498 ±0.274 0.779 ±0.068 35.705 ±3.668 91.352 ±3.304 0.756 ±0.036 0.637 ±0.016 BSAFusion [18] AAAI 25 5.196 ±0.659 11.551 ±1.591 3.498 ±0.304 0.663 ±0.052 37.399 ±4.049 90.080 ±2.526 0.699 ±0.0364 0.626 ±0.022 TextFusion [5] INFFUS 25 5.770 ±0.641 9.983 ±1.345 3.345 ±0.244 0.633 ±0.023 32.018 ±3.335 83.078 ±3.279 0.696 ±0.029 0.603 ±0.016 DiTFuse [19] TPAMI 25 4.868 ±0.669 12.423 ±1.838 2.752 ±0.248 0.557 ±0.239 33.819 ±2.929 94.810 ±8.598 0.640 ±0.052 0.557 ±0.033 SAFusion [20] JBHI 26 5.298 ±0.605 11.719 ±1.482 2.495 ±0.132 0.661 ±0.041 35.907 ±5.084 87.109 ±2.727 0.759 ±0.037 0.619 ±0.018 
+
+MIND Ours 6.238 ±0.526 11.893 ±1.539 4.063 ±0.359 0.749 ±0.118 42.302 ±6.473 97.716 ±2.907 0.750 ±0.096 0.642 ±0.028 
+
+SPECT-MRI 
+
+DDFM [52] ICCV 23 4.392 ±0.473 5.198 ±1.014 3.262 ±0.217 0.477 ±0.04 17.399 ±2.378 64.194 ±5.449 0.569 ±0.044 0.589 ±0.090 FILM [53] ICML 24 3.776 ±0.493 5.728 ±1.227 2.807 ±0.289 0.754 ±0.124 22.687 ±4.865 66.038 ±10.784 0.671 ±0.036 0.648 ±0.105 TextFusion [5] INFFUS 25 5.032 ±0.631 6.103 ±1.167 3.444 ±0.280 0.672 ±0.050 20.240 ±2.626 60.185 ±5.237 0.677 ±0.044 0.585 ±0.074 MACTFusion [41] JBHI 25 4.994 ±0.707 6.969 ±1.248 3.129 ±0.273 0.690 ±0.045 22.018 ±2.927 60.287 ±5.380 0.730 ±0.035 0.621 ±0.050 BSAFusion [18] AAAI 25 4.643 ±0.539 6.927 ±1.402 3.169 ±0.255 0.625 ±0.046 23.623 ±3.393 64.067 ±5.367 0.678 ±0.050 0.609 ±0.065 Text-DiFuse [46] NeurIPS 24 5.895 ±0.390 7.196 ±1.583 3.074 ±0.161 0.547 ±0.033 26.081 ±4.273 77.622 ±5.043 0.584 ±0.046 0.486 ±0.030 DiTFuse [19] TPAMI 25 4.275 ±0.470 6.947 ±1.252 2.616 ±0.202 0.570 ±0.049 24.304 ±2.754 63.123 ±7.982 0.553 ±0.045 0.515 ±0.083 SAFusion [20] JBHI 26 4.815 ±0.614 7.145 ±1.231 2.986 ±0.144 0.835 ±0.082 22.576 ±2.825 61.754 ±4.600 0.756 ±0.037 0.614 ±0.063 
+
+MIND Ours 6.236 ±0.419 6.974 ±1.333 4.142 ±0.587 0.877 ±0.035 23.316 ±3.029 79.905 ±4.388 0.792 ±0.052 0.659 ±0.026 DDFM MACTFusion PC GFP BSAFusion Text-DiFuse TextFusion SAFusion DiTFuse Ours 
+
+Figure 7: GFP-PC fusion results on GFP. Prompts are adapted to biological contexts to evaluate cross-domain robustness. 
+
+4.2 Implementation Details 
+
+We trained our model on an NVIDIA RTX 5090 GPU and the Py-Torch 2.12.0 framework. The network optimization was carried out with AdamW, where 𝛽 1 and 𝛽 2 were set to 0.9 and 0.999, respec-tively. The initial learning rate was set to 1×10 −7, and the scheduler was cosine with 1,000 warmup steps. We used a batch size of 2 per GPU and 4 data loader workers. The training ran for 20 epochs with gradient accumulation set to 1. We used LoRA with the rank of 64 for efficient parameter tuning and set conditional dropout probability to 0.01 for modality robustness. Furthermore, the hyper-parameters 𝛼 and 𝜏 were cautiously set to 1.0 and 0.50, respectively. For reconstruction loss, we used 𝜆 𝐿 1 = 0.15 and 𝜆 𝑆𝑆𝐼 𝑀 = 0.05 . For semantic loss, 𝜆 𝑠𝑒𝑚 and 𝜃 were set to 0.1 and 0.85. We provide care-ful analysis of these parameters in section 4.5.2 and Supplementary Material. We conducted both qualitative and quantitative analyses to compare 8 different fusion approaches, including DDFM [ 52 ], MACTFusion [ 41 ], BSAFusion [ 18 ], SAFusion [ 20 ], Text-DiFuse [ 46 ], TextFusion [ 5] , DiTFuse [ 19 ] and FILM [ 53 ]. For text-driven methods [ 5 , 19 , 46 , 53 ], we use their officially optimized prompts to ensure their peak performance. We tested different prompts to verify robustness in Supplementary Material. For downstream vali-dation, we conduct brain tumor segmentation experiments on the BraTS 2017 [ 26 ] using the nnUNet backbone [ 14 ]. We set the initial learning rate to 0.01 with a Polynomial Learning Rate Scheduler, and train the models for 1000 epochs with a batch size of 18. 
+
+4.3 Comparative Experiment 
+
+4.3.1 Qualitative Comparisons. Fig. 4, 5, and 6 present qualita-tive comparisons of MIND against state-of-the-art methods across three subsets of Harvard. Fig. 7 evaluates cross-dataset general-ization on GFP. Fine-grained details within the regions of interest are highlighted with red and orange boxes. In the PET-MRI Fu-sion, MACTFusion [ 41 ] and TextFusion [ 5 ] suffer from severe tex-ture degradation in magnified regions. For the SPECT-MRI Fusion, Text-DiFuse [ 46 ] and DiTFuse [ 19 ] undergo significant contrast attenuation, indicating an inability to reliably map functional in-tensities. MIND safely bypasses these bottlenecks, ensuring high spatial fidelity and fine texture structure. For fusing task of CT MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion Preprint, August, 2025 
+
+Table 2: Diffusion-based Model Efficiency Comparison on Harvard. Best results are highlighted as first , second and third . ★: using LoRA. Time: inference time per image. FLOPs: single-step flops. Methods Params (M, ↓) Time (s, ↓) FLOPs (G, ↓)
+
+DDFM [52] 552.814 11.818 2293.76 
+
+Text-DiFuse [46] 119.460 2.135 18180.07 DiTFuse ★ [19] 37.750 13.370 6469.60 
+
+MIND ★ 39.930 7.851 6860.69 and MRI, DDFM [ 52 ] introduces noticeable blurring and reduced contrast. While MACTFusion [ 41 ], BSAFusion [ 18 ], and SAFusion [20 ] effectively retain MRI soft tissues, they tend to suppress promi-nent CT features. MIND yields a much more favorable balance, efficiently fusing dense anatomical details from both modalities without introducing visual artifacts or semantic degradation. As for the external GFP, DDFM [ 52 ], MACTFusion [ 41 ], BSAFusion [ 18 ], and DiTFuse [ 19 ] preserve color information but suffer from severe structural degradation. Compared with SAFusion [ 20 ] and TextFusion [ 5], MIND achieves a better visual balance, effectively maintaining both functional color maps and fine-grained textures. These results demonstrate MIND’s robust cross-modal alignment and strong generalization across diverse data distributions. 
+
+4.3.2 Quantitative Comparisons. To objectively evaluate MIND’s performance, we conducted experiments on the Harvard Whole Brain dataset across three fusion tasks: CT-MRI, PET-MRI, and SPECT-MRI. As reported in Table 1, MIND demonstrates compre-hensive superiority against eight state-of-the-art methods. Notably, it consistently achieves the highest scores in EN, MI, and SD across all modality pairs, proving its effectiveness in maximizing source information retention and maintaining high overall image contrast. When compared to state-of-the-art baselines, MIND yields substan-tial percentage improvements in metrics with significant gaps. For instance, it improves MI by 20.3% over TextFusion [ 5] in the SPECT-MRI task, enhances SF by 13.1% over BSAFusion [ 18 ] in PET-MRI, and increases AG by 5.4% over FILM [ 53 ] in CT-MRI. Furthermore, MIND significantly minimizes performance variance, notably re-ducing the standard deviation of the SD metric in PET-MRI to just 2.907, a remarkable 71.3% lower than FILM [ 53 ], ensuring highly robust and reliable fusion outcomes for clinical applications. 
+
+4.3.3 Downstream Segmentation Task Validation. Table 3 and Fig. 8 present the downstream segmentation results. Quantitative metrics reveal that single modalities exhibit inherent biases, such as MR-FLAIR excelling in ED but struggling with ET, and existing fusion methods like DDFM [ 52 ] and TextFusion [ 5 ] bridge this gap but of-ten compromise on specific sub-regions. In contrast, MIND achieves the most balanced and comprehensive performance, securing the highest Dice scores for ED and ET, alongside a highly competitive NET score. Consequently, our method attains the optimal Mean Rank of 2.000 across all three sub-regions. Furthermore, visual com-parisons with the top four performing baselines demonstrate that masks generated from competing methods like MACTFusion [ 41 ]and TextFusion [ 5 ] often lack precision in complex internal bound-aries. In contrast, our method produces masks with superior visual consistency to the Ground Truth, accurately delineating tumor 
+
+Table 3: Dice for brain tumor segmentation on BraTS. Best results are highlighted as first , second and third . Mean Rank: the mean ranking across three metrics. Methods ED ↑ NET ↑ ET ↑ Mean Rank ↓
+
+MR-FLAIR only 0.785 0.482 0.450 7.333 MR-T1CE only 0.701 0.728 0.588 4.333 DDFM [52] 0.760 0.712 0.552 4.000 Text-DiFuse [46] 0.735 0.625 0.528 6.333 MACTFusion [41] 0.757 0.705 0.568 4.333 BSAFusion [18] 0.718 0.567 0.491 7.667 TextFusion [5] 0.715 0.731 0.579 4.000 DiTFuse [19] 0.734 0.498 0.464 8.000 SAFusion [20] 0.687 0.646 0.559 7.000 
+
+MIND 0.786 0.706 0.616 2.000 
+
+sub-regions. This demonstrates the significant clinical value of our fused images for enhancing the accuracy of downstream medical image analysis. 
+
+4.4 Computational Efficiency Analysis. 
+
+We compare the computational efficiency of MIND against other diffusion-based methods. Table 2 reports three key metrics: model parameters (Params), inference time per image (Time), and single-step denoising floating-point operations (FLOPs). Both MIND and DiTFuse [ 19 ] use pre-trained DiT networks and are fine-tuned with LoRA. MIND requires only 39.930 M parameters and achieves an in-ference time of 7.851 s, making it the second most efficient method evaluated. While Text-DiFuse [ 46 ] and DiTFuse [ 19 ] are slightly more efficient in certain metrics, they perform noticeably worse in downstream modality fusion and segmentation tasks, which high-lights the challenge of reducing computational overhead without sacrificing image quality. However, MIND maintains a competitive parameter count and inference speed while achieving state-of-the-art results in modality fusion and segmentation, offering a stronger trade-off between multimodal representation and computational cost. 
+
+4.5 Ablation and Parameter Study. 
+
+4.5.1 Component Ablation. To validate the effectiveness of MIND ,we conducted extensive ablation studies on Harvard. Both qualita-tive and quantitative results demonstrate that our complete MIND framework achieves optimal performance across most metrics. As illustrated in Fig. 9 (b) and (c), the incorporation of the MLA sig-nificantly enhances the preservation of source image information within the fused images. Quantitatively, Table 4 demonstrates that compared to the baseline without MLA, our method achieves an EN improvement of 46.76% and 40.04% on PET-MRI and SPECT-MRI subsets, respectively. Furthermore, as depicted in Fig. 9 (c) and (d), the Medical Semantic Consistency Loss effectively reinforces brain textures guided by the fusion intention, yielding results that are more semantically aligned with the target intention. Specifically, the CLIP score improves by 15.49%, 8.86%, and 23.88% across the three subsets. However, this is accompanied by a degradation in VIF for PET-MRI and AG/SF for SPECT-MRI. This reveals an inher-ent conflict between semantic alignment and image fidelity: while Preprint, August, 2025 Yunzhan Fu et al. ED (E dema) NET(Non-Enhancing Tumor) ET(Enhancing Tumor)         
+
+> MR-T1CE MR-Flair
+> Input Images Segmentation Results
+> GT DDFM MACTFusion MR-Flair MR-T1CE TextFusion Ours
+> Fused Images
+> DDFM MACTFusion TextFusion Ours
+
+Figure 8: Brain tumor segmentation results using nnUNet [14] on BraTS 2017 [26]. Table 4: Ablation study of our key contributions. Best results are highlighted as first , second and third . 𝚽 : MLA, L𝑠𝑒𝑚 :Medical Semantic Consistency Loss, 𝜸 : Timestep-Truncation Mechanism. CLIP: the cosine similarity between the fused images and fusion texts. Method Harvard CT-MRI Harvard PET-MRI Harvard SPECT-MRI 
+
+𝚽 L𝑠𝑒𝑚 𝜸 EN AG SF VIF Qabf CLIP EN AG SF VIF Qabf CLIP EN AG SF VIF Qabf CLIP 
+
+3.267 7.233 26.253 0.362 0.348 0.232 4.323 7.237 32.763 0.618 0.34 0.367 4.312 6.823 21.173 0.631 0.321 0.343 
+
+✓ 4.128 7.317 25.472 0.403 0.462 0.226 5.028 7.653 33.012 0.732 0.481 0.361 5.138 7.012 22.601 0.732 0.477 0.335 
+
+✓ ✓ 3.232 7.963 25.431 0.398 0.374 0.321 4.281 6.974 35.136 0.683 0.362 0.389 4.453 6.732 20.139 0.695 0.332 0.472 
+
+✓ ✓ 5.032 8.98 32.05 0.571 0.412 0.261 4.972 10.306 33.819 0.713 0.663 0.393 5.895 6.97 21.938 0.886 0.615 0.415 
+
+✓ ✓ ✓ 5.802 10.111 41.25 0.569 0.672 0.311 6.238 11.893 42.302 0.749 0.75 0.387 6.236 6.974 23.316 0.877 0.792 0.473 (d) w/o γ     
+
+> Ours
+> (b) w/o Φ，，γ
+> w/o β，γ
+> (e) Ours (a) SPECT/PET-MRI (c) w/o ，γ
+
+Figure 9: Ablation results on Harvard. Our complete MIND achieves the best visual quality, striking an optimal balance between pathological textures and metabolic hotspots. 
+
+the global semantic loss improves CLIP scores, it degrades visual quality. Thus, a well-tuned timestep-truncation threshold is essen-tial to balance them. Notably, comparing the results in Fig. 9 (d) and (e) reveals that imposing this loss throughout the entire global reconstruction process leads to the loss of crucial texture details. In-troducing the Timestep-Truncation Mechanism on PET-MRI yields a 20.39% increase in SF, firmly validating the effectiveness of this mechanism in protecting early manifold generation. We thoroughly discuss the specific details of this mechanism in section 4.5.2 and Supplementary Material. 
+
+4.5.2 Hyperparameters Analysis. We evaluate the adapter scale 𝛼 
+
+and timestep-truncation threshold 𝜏 using normalized radar charts. Results indicate that the configuration of 𝛼 = 1.0 and 𝜏 = 0.5
+
+achieves a promising balance between visual quality and semantic alignment. As shown in Fig. 10, 𝛼 modulates the injection inten-sity of source image features. Setting 𝛼 = 1.0 yields the maximal (a) CT-MRI (b) PET-MRI (c) SPECT-MRI 
+
+> α=0.0
+> α=0.5
+> α=1.5
+> α=1.0
+> α=2.0
+> τ=0.1
+> τ=0.3
+> τ=0.7
+> τ=0.5
+> τ=0.9
+
+Figure 10: Hyperparameter analysis on Harvard. The metrics are normalized to [0,1] to show differences. 
+
+and most balanced polygon area. A smaller scale of 0.5 provides insufficient prior compensation, causing a decline in MI and AG. Conversely, a larger scale ( 𝛼 = 1.5) over-amplifies the adapter fea-ture, which disrupts the generative distribution of the pre-trained model and weaken visual quality. Furthermore, 𝜏 determines the in-tervention timing of semantic guidance. Lower thresholds ( 𝜏 = 0.1)force premature semantic intervention, which severely degrades im-age fidelity metrics SF and VIF. Higher thresholds ( 𝜏 = 0.9) preserve physical structures but fail to inject semantics effectively, leading to a significant drop in CLIP scores. Establishing 𝜏 = 0.5 success-fully protects the physical skeleton during the early high-noise stage without semantic interference, and precisely leads diagnostic semantics during the later low-noise stage. MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion Preprint, August, 2025 
+
+5 Conclusion 
+
+In this paper, we present MIND, a pioneering Multimodal Intent-Driven Network via DiTs that advances medical image fusion from rigid pixel-level rules to intelligent, clinical intent-driven gener-ation. To overcome the spatial limitations of sequence modeling, our MLA explicitly injects 2D spatial features to preserve source features. Furthermore, our medical semantic consistency loss har-monizes physical fidelity with diagnostic intent by strictly iso-lating early-stage manifold generation from late-stage semantic injection. Extensive experiments demonstrate that MIND achieves state-of-the-art visual quality and significantly boosts downstream brain tumor segmentation accuracy. Although reliance on large vision-language models introduces computational overhead and rare-modality generalization requires further validation, future research on lightweight architectures will accelerate inference, ulti-mately advancing intent-driven clinical decision support systems. 
+
+6 Acknowledgement 
+
+This research was partially supported by National Natural Sci-ence Foundation of China under Grant No. U25D902, "Pioneer" and "Leading Goose" R&D Program of Zhejiang under Grant No. 2024SSYS0026, and the Transvascular Implantation Devices Re-search Institute (TIDRI) under Grant No. KY052025003. Preprint, August, 2025 Yunzhan Fu et al. 
+
+Appendix A Details of our Training Dataset 
+
+Our primary training dataset is sourced from Harvard and BraTS 2017 [ 26 ]. It consists of 160 CT-MRI pairs, 245 SPECT-MRI pairs, 333 SPECT-MRI pairs and 387 FLAIR-T1CE pairs. We utilize prompts enriched with medical prior knowledge to guide BioMedGPT in generating intent-driven fusion text descriptions for different mul-timodal image pairs. Specifically, for CT-MRI pairs, we direct the model to focus on the anatomical structures of high-density tissues in CT and the rich soft-tissue details and high-contrast features in MRI. For PET-MRI pairs, we guide the model to extract the meta-bolic and functional activity features from PET and integrate them with the precise anatomical localization of MRI. For SPECT-MRI pairs, we employ prompts to fuse the blood perfusion information captured by SPECT with the morphological references provided by MRI. Furthermore, the distinct tags within the fusion prefixes strengthen the model’s ability to discriminate between various modalities. Notably, to mitigate the challenges of data scarcity and the lack of absolute Ground Truth (GT) for multimodal fusion, we extend the complementary degradation training paradigm [ 19 ] to medical imaging scenarios. Specifically, given a high-quality, single-modality MRI image ( 𝐼 𝑐𝑙𝑒𝑎𝑛 ), we generate two distinct degraded versions ( 𝐼 𝑑𝑒𝑔 1 and 𝐼 𝑑𝑒𝑔 2) by injecting independent noise profiles and artifacts consistent with medical imaging distributions. Cru-cially, these degradations are designed to be spatially and semanti-cally complementary. By inputting the degraded pair {𝐼 𝑑𝑒𝑔 1, 𝐼 𝑑𝑒𝑔 2},we construct a self-supervised training configuration where the original 𝐼 𝑐𝑙𝑒𝑎𝑛 serves as the genuine, natural GT. This enables the model to explicitly learn how to extract and organically fuse com-plementary features from corrupted modalities. 0.13 0.14 0.15 0.16 0.17                                                                          
+
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed ssim = 0.05, sem = 0.1
+> CT-MRI
+> 0.13 0.14 0.15 0.16 0.17
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed ssim = 0.05, sem = 0.1
+> PET-MRI
+> 0.13 0.14 0.15 0.16 0.17
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed ssim = 0.05, sem = 0.1
+> SPECT-MRI
+> 0.03 0.04 0.05 0.06 0.07
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed L1= 0.15, sem = 0.1
+> 0.03 0.04 0.05 0.06 0.07
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed L1= 0.15, sem = 0.1
+> 0.03 0.04 0.05 0.06 0.07
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed L1= 0.15, sem = 0.1
+> 0.06 0.08 0.10 0.12 0.14
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed L1= 0.15, ssim = 0.05
+> 0.06 0.08 0.10 0.12 0.14
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed L1= 0.15, ssim = 0.05
+> 0.06 0.08 0.10 0.12 0.14
+> 60
+> 70
+> 80
+> 90
+> 100
+> 110
+> 120
+> Fixed L1= 0.15, ssim = 0.05
+> EN AG SF VIF Qabf CLIP
+
+Figure 11: Sensitivity analysis of loss weights on Harvard. Metrics are normalized with the optimal configuration set to 100%. The star highlights the optimal weight combination adopted in our model. 
+
+B Hyperparamter Analysis 
+
+We conducted a detailed sensitivity analysis on the weights of the loss functions. As shown in Fig. 11, we froze two of the weights to investigate the optimal value of the remaining one. When freezing 
+
+𝜆 𝑠𝑠𝑖𝑚 = 0.05 and 𝜆 𝑠𝑒𝑚 = 0.10 , increasing the 𝜆 𝐿 1 weight from 0.13 to 0.15 achieves significant gains in image quality. Specifically, on the CT-MRI dataset, the visual information fidelity VIF increases by 14.3% and the entropy EN improves by 6.0%. Furthermore, increas-ing the 𝜆 𝑠𝑠𝑖𝑚 weight from 0.03 to 0.05 significantly improves the structural preservation and spatial frequency of the fused images, where VIF and SF on the SPECT-MRI substantially increase by 20.0% and 16.6% respectively. However, further increasing this weight to 0.07 causes a significant drop in edge information retention Qabf, marking a decrease of 6.9% on the SPECT-MRI, which leads to an imbalance in overall image quality. Additionally, setting the 𝜆 𝑠𝑒𝑚 
+
+weight as low as 0.06 degrades the model’s performance in semantic consistency, resulting in an average drop of 5% in the CLIP score across all datasets. Regarding the threshold 𝜃 in L𝑠𝑒𝑚 , when the image-text cosine similarity exceeds this threshold, we set this loss term to 0, preventing texture distortion caused by over-alignment when correct texts are provided. Inspired by existing advanced multimodal alignment methods [ 39 ] and combined with empirical settings, we set the threshold to 0.85 to ensure sufficient semantic alignment while effectively preventing model overfitting. To balance the visual quality of the fused images and the inter-active performance of the model, we ultimately selected 𝜆 𝐿 1 = 0.15 ,
+
+𝜆 𝑠𝑠𝑖𝑚 = 0.05 , and 𝜆 𝑠𝑒𝑚 = 0.10 as the optimal weights for the loss terms. 
+
+C Extra Details of Comparative Experiment 
+
+Fig. 12 and 13 show qualitative fusion results across different modali-ties. On the BraTS dataset [ 26 ], methods such as DDFM [ 52 ], MACT-Fusion [ 41 ], and TextFusion [ 5 ] mainly preserve the core tumor from the T1CE modality but often fail to retain the surrounding edema, whereas Text-DiFuse [ 46 ] and DiTFuse [ 19 ] show the op-posite behavior. In comparison, MIND achieves a more balanced integration, preserving both clear tumor boundaries and edema regions from the FLAIR modality. This ability to capture comple-mentary features is also observed in the external GFP-PC validation, where MIND consistently combines the structural information of the PC modality with the fluorescence patterns of the GFP modality, yielding stable visual results across different imaging scenarios. Table 5 reports the quantitative results, where MIND performs competitively on both datasets. On FLAIR-T1CE, MIND achieves the highest scores in EN, AG, SF, and SD, surpassing DiTFuse [ 19 ]by 52.3% in EN and improving SD by 1.16% over Text-DiFuse [ 46 ]. A similar pattern is observed in the GFP-PC validation, where MIND leads in EN, AG, SD, and Qabf. While MACTFusion [ 41 ]presents an anomalously high SF score in this task, it suffers a severe degradation in MS_SSIM. In contrast, MIND maintains a more balanced performance, avoiding severe structural degradation on unseen data while providing steady improvements in overall fusion quality. 
+
+D Model Rubustness Test 
+
+The core of intent-driven fusion texts lies in utilizing specialized medical terminology to describe the pathological features of ex-pected fused images. In contrast, prior fusion methods predom-inantly rely on general photographic descriptions to articulate source image features or the fusion process, termed process-driven. We compare the impact of different fusion texts on image quality across text-driven methods. Notably, we introduce mismatched texts that clearly contradict the source images to test model robust-ness. For example, in a SPECT-MRI fusion scene exhibiting promi-nent focal abnormal perfusion and brain lesions, we deliberately MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion Preprint, August, 2025 MR-T1CE DDFM MACTFusion BSAFusion SAFusion Text-DiFuse TextFusion Ours MR-Flair DiTFuse 
+
+Figure 12: Extra FLAIR-T1CE fusion results on BraTS 2017 [26]. Red boxes highlight fine-grained local details of tumors. DDFM MACTFusion PC GFP BSAFusion Text-DiFuse TextFusion SAFusion DiTFuse Ours 
+
+Figure 13: Extra GFP-PC fusion results on GFP [16]. Red boxes highlight fine-grained local details. Table 5: Quantitative comparison of MIND with eight state-of-the-art methods on BraTS 2017 [ 26 ] and GFP [ 16 ]. Best results are highlighted as first , second and third . 
+
+Dataset Method Source EN AG MI VIF SF SD Qabf MS_SSIM FLAIR-T1CE 
+
+DDFM [52] ICCV 23 2.772 ±0.273 2.258 ±0.378 2.775 ±0.218 0.807 ±0.105 12.156 ±1.949 68.529 ±9.097 0.539 ±0.069 0.832 ±0.049 Text-DiFuse [46] NeurIPS 24 2.586 ±0.338 3.221 ±0.567 2.612 ±0.227 0.719 ±0.084 18.418 ±2.432 89.519 ±7.812 0.488 ±0.055 0.516 ±0.043 FILM [53] ICML 24 2.792 ±0.427 3.023 ±0.371 2.813 ±0.219 0.712 ±0.129 14.525 ±2.584 76.752 ±9.117 0.512 ±0.071 0.798 ±0.062 MACTFusion [41] JBHI 25 2.833 ±0.283 3.410 ±0.579 2.713 ±0.213 0.795 ±0.099 16.722 ±2.349 76.567 ±8.901 0.628 ±0.044 0.891 ±0.042 BSAFusion [18] AAAI 25 2.872 ±0.282 2.805 ±0.498 2.668 ±0.224 0.653 ±0.113 13.755 ±2.044 75.770 ±8.880 0.482 ±0.076 0.896 ±0.043 
+
+TextFusion [5] INFFUS 25 2.841 ±0.284 2.658 ±0.497 3.139 ±0.278 0.967 ±0.112 14.356 ±2.163 77.729 ±10.569 0.617 ±0.046 0.875 ±0.048 DiTFuse [19] TPAMI 25 2.926 ±0.342 2.915 ±0.647 2.655 ±0.239 0.609 ±0.070 15.499 ±3.939 72.530 ±12.624 0.581 ±0.055 0.805 ±0.096 SAFusion [20] JBHI 26 2.851 ±0.288 3.362 ±0.586 3.077 ±0.307 0.871 ±0.101 17.124 ±2.438 79.703 ±9.608 0.637 ±0.032 0.868 ±0.047 
+
+MIND Ours 4.457 ±0.332 3.424 ±0.501 2.522 ±0.213 0.887 ±0.063 18.506 ±2.506 90.557 ±9.871 0.597 ±0.043 0.876 ±0.049 
+
+GFP-PC 
+
+DDFM [52] ICCV 23 6.764 ±0.306 4.265 ±0.898 3.068 ±0.692 0.882 ±0.141 10.385 ±2.311 31.658 ±4.058 0.575 ±0.126 0.485 ±0.021 FILM [53] ICML 24 6.562 ±0.374 4.528 ±1.077 3.108 ±0.467 0.721 ±0.137 10.792 ±3.292 35.485 ±8.231 0.439 ±0.153 0.429 ±0.051 Text-DiFuse [46] NeurIPS 24 6.965 ±0.329 4.123 ±0.934 2.735 ±0.279 0.805 ±0.102 9.075 ±2.722 32.751 ±5.680 0.533 ±0.070 0.461 ±0.028 MACTFusion [41] JBHI 25 7.196 ±0.263 5.676 ±3.495 1.847 ±0.278 0.679 ±0.161 28.842 ±10.601 56.414 ±6.607 0.412 ±0.061 0.236 ±0.085 BSAFusion [18] AAAI 25 5.472 ±1.133 4.325 ±1.882 1.214 ±0.425 0.242 ±0.149 20.684 ±6.502 29.259 ±8.651 0.531 ±0.167 0.206 ±0.130 TextFusion [5] INFFUS 25 6.350 ±0.484 3.367 ±1.273 4.453 ±0.393 0.940 ±0.057 7.793 ±3.097 22.078 ±6.651 0.708 ±0.125 0.496 ±0.006 
+
+DiTFuse [19] TPAMI 25 7.094 ±0.468 5.849 ±2.061 2.561 ±0.367 0.699 ±0.097 12.881 ±4.687 38.778 ±11.283 0.349 ±0.070 0.417 ±0.033 SAFusion [20] JBHI 26 7.017 ±0.273 5.197 ±0.948 3.906 ±0.363 0.942 ±0.102 10.855 ±2.107 34.698 ±6.336 0.604 ±0.105 0.447 ±0.036 
+
+MIND Ours 7.296 ±0.722 5.926 ±2.261 4.239 ±0.784 0.928 ±0.283 18.842 ±10.601 58.221 ±12.143 0.769 ±0.125 0.453 ±0.129 
+
+Table 6: Model robustness study on different instructions. Best results are highlighted as first , second and third . CLIP: the cosine similarity between the fused images and fusion texts. Original: using their original style or process-driven fusion texts for each methods. Wrong: using wrong fusion texts. Intent-Driven: using Intent-Driven fusion texts to describe details of the desired fusion results. Method Instruction CT-MRI PET-MRI SPECT-MRI EN AG SF VIF Qabf CLIP EN AG SF VIF Qabf CLIP EN AG SF VIF Qabf CLIP 
+
+FILM Original 3.907 9.593 42.957 0.403 0.644 0.328 3.437 8.121 31.297 0.793 0.784 0.361 3.776 5.728 22.687 0.754 0.671 0.412 Wrong 3.671 8.472 34.831 0.389 0.583 0.331 2.971 6.915 27.773 0.501 0.618 0.237 3.314 5.337 19.873 0.631 0.543 0.337 Intent-Driven 3.913 9.438 43.489 0.412 0.547 0.337 3.871 8.193 29.984 0.778 0.647 0.313 3.137 5.810 25.779 0.773 0.634 0.437 
+
+TextFusion Original 4.775 5.020 22.424 0.436 0.380 0.301 5.770 9.983 32.018 0.633 0.696 0.283 5.032 6.103 20.240 0.672 0.677 0.399 Wrong 4.765 4.547 20.704 0.384 0.338 0.215 5.764 9.565 29.856 0.599 0.605 0.251 5.025 6.088 20.111 0.665 0.675 0.369 Intent-Driven 4.858 5.205 22.107 0.445 0.384 0.342 5.803 9.740 32.156 0.644 0.714 0.298 5.059 6.401 20.566 0.684 0.693 0.404 
+
+DiTFuse Original 3.884 8.979 32.050 0.412 0.471 0.293 4.868 12.423 33.819 0.557 0.640 0.371 4.275 6.947 24.304 0.570 0.553 0.441 
+
+Wrong 3.623 6.747 25.473 0.307 0.414 0.271 3.237 10.881 31.429 0.423 0.521 0.274 3.833 5.764 24.312 0.413 0.474 0.365 Intent-Driven 3.898 8.988 24.793 0.331 0.427 0.303 4.734 11.730 34.187 0.631 0.544 0.383 5.031 6.798 22.518 0.584 0.648 0.397 
+
+MIND 
+
+Original 5.475 9.739 35.008 0.423 0.588 0.293 5.973 11.978 43.095 0.703 0.637 0.379 6.118 6.331 21.832 0.835 0.693 0.371 Wrong 4.352 7.014 26.423 0.371 0.324 0.327 5.475 8.674 29.994 0.413 0.552 0.332 4.136 5.024 19.774 0.752 0.529 0.401 Intent-Driven 5.802 10.111 41.250 0.569 0.672 0.311 6.238 11.893 42.302 0.749 0.750 0.387 6.236 6.974 23.316 0.877 0.792 0.473 Preprint, August, 2025 Yunzhan Fu et al. 
+
+input a text describing "a completely healthy cerebral hemisphere with uniform metabolic distribution and no pathological structural deformities", directly conflicting with the actual visual evidence. As shown in Table 6, our intent-driven prompts yield competi-tive performance gains across all evaluated methods. Specifically, for DiTFuse, the VIF on the PET-MRI dataset increases by 13.3%. FILM and TextFusion also exhibit marginal improvements; for in-stance, FILM shows a slight increase in VIF on CT-MRI, while the EN of TextFusion on CT-MRI improves by 1.7%. For the proposed MIND, intent-driven texts significantly boost the VIF by 34.5% and 6.5% on the CT-MRI and PET-MRI datasets respectively compared to original texts. Furthermore, MIND demonstrates exceptional robustness, suffering minimal performance degradation when per-turbed by incorrect fusion texts. For example, regarding VIF on the SPECT-MRI dataset, DiTFuse and FILM experience steep de-clines of 27.5% and 16.3% respectively. Crucially, even when driven by incorrect texts, the EN of MIND on CT-MRI remains at 4.352, which still outperforms FILM and DiTFuse equipped with original texts by 11.4% and 12.0% respectively. MIND maintains high qual-ity across core metrics such as EN and AG under erroneous text interference. This resilience stems from the delicate balance within our multi-objective loss function. The underlying flow matching and reconstruction losses establish a strict lower bound for visual quality. They act as robust anchors to prevent erroneous semantic guidance from catastrophically disrupting critical anatomical struc-tures, thereby enabling the model to preserve fundamental medical characteristics from the source images as a reliable baseline. 
+
+E Allocation Strategy Analysis 
+
+To fully investigate the effectiveness of linearly allocation strategy in MLA, Table 7 compares the differences in image quality and the corresponding downstream brain tumor segmentation performance under three alternative allocation strategies. For Strategy A (Re-versed Allocation), we inject the low-resolution Scale-2 into the shallow layers (0-10) and the high-resolution Scale-0 into the deep layers (22-31). Since this reversed allocation contradicts the natural progression of Transformers in extracting features from spatial de-tails to high-level semantics, it causes severe difficulties in feature integration. Consequently, its EN is only 2.863, and the VIF drops to 0.851, which directly hinders the fused images from presenting clear structural contrast between the lesions and normal brain tis-sues. For Strategy B (Uniform Injection), we make no hierarchical distinctions, concatenating features from all three scales (Scale-0, 1, and 2) and injecting them simultaneously into all Transformer layers. Although this approach achieves the second-best EN (2.888) and VIF (0.885) through aggressive feature stacking, severe scale confusion and feature redundancy result in the lowest Qabf and SF (0.512 and 17.074 respectively). Such degradation inevitably blurs lesion boundaries and texture details, significantly diminishing the diagnostic value of the medical images. For Strategy C (Single Scale), we extract only the highest-resolution Scale-0 and inject it across all 32 layers. Lacking multi-scale contextual guidance, this strategy re-tains some high-frequency details with a second-best Qabf of 0.541 but suffers from insufficient global information extraction, yielding an EN of merely 2.862. In contrast, our linear allocation strategy successfully demonstrates perfect adaptability to the network depth 
+
+Table 7: Quantitative comparison on BraTS 2017 [ 26 ] of differ-ent allocation strategies in MLA. Best results are highlighted as first , second and third . DICE (Mean): Mean dice score on 3 kinds of tumor segmentations.                               
+
+> Allocation Strategy EN AG SF VIF Qabf DICE (Mean)
+> Variant A (Reversed) 2.863 3.361 17.765 0.851 0.533 0.671 Variant B (Uniform Injection) 2.888 3.418 17.074 0.885 0.512 0.667 Variant C (Single Scale) 2.862 3.404 17.471 0.865 0.541 0.669
+> Ours (Linear Allocation) 4.457 3.424 18.506 0.887 0.597 0.703
+
+by aligning high-to-low resolution scales with the shallow-to-deep layers. It achieves the best performance across all core image fusion quality metrics, notably peaking at 4.457 for EN and 0.597 for Qabf. Building upon these superior fusion metrics, the downstream segmentation results further illuminate the critical link between image quality and practical clinical value. The enhanced visual fidelity achieved by our linear allocation strategy directly translates into robust diagnostic utility, yielding the highest mean DICE of 0.703 for brain tumor segmentation. Compared with the strategies A, B, and C, our method effectively preserves structural coherence and clear lesion boundaries. Ultimately, this distinct performance gap confirms that aligning multi-scale feature injection with the natural depth progression of the network is fundamental for reliable and accurate medical image analysis. 
+
+F Dive into Timestep-Truncation Mechanism 
+
+In the main manuscript, we introduced a Timestep-Truncation Mechanism ( 𝜏 = 0.5) within the semantic loss L𝑠𝑒𝑚 to decouple semantic alignment from physical manifold reconstruction. While this mechanism effectively decouples the training objectives, it im-poses an explicit hard boundary at 𝑡 = 𝜏 where the loss function undergoes an abrupt transition. This structural shift inherently risks inducing discontinuities in the learned vector field 𝑣 𝜃 (𝑥 𝑡 ,𝑇 , 𝑡 ).Such potential discontinuities could drastically amplify discretiza-tion errors and jeopardize the numerical stability of the Ordinary Differential Equation (ODE) solvers. Theoretically, the continuous generative process is governed by the probability flow ODE: 
+
+d𝑥 𝑡 = 𝑣 𝜃 (𝑥 𝑡 ,𝑇 , 𝑡 )d𝑡, 𝑡 ∈ [ 0, 1] (16) According to the Picard-Lindelöf theorem [ 33 ], ensuring the exis-tence and stability of the ODE trajectory necessitates that the vector field 𝑣 𝜃 be Lipschitz continuous [ 6] with respect to 𝑥 𝑡 and contin-uous with respect to 𝑡 . Although our training loss incorporates a hard truncation I(𝑡 > 𝜏 ), the neural network 𝑣 𝜃 inherently acts as a continuous prior. The continuous timestep embeddings and the smooth activation functions implicitly prevent step-changes in the output manifold. Furthermore, the global expectation optimiza-tion over shared parameters enables the network to internalize the dual piecewise constraints into a unified, smooth global flow. To validate this continuity, we conducted a rigorous stability analysis. Specifically, we periodically monitor the inference trajectory during training by performing explicit Euler integration over 𝑡 ∈ [ 0, 1]. At each timestep, we record the numerical behavior of the vector field to ensure its integration reliability, focusing on two critical stability metrics: Vector Field Magnitude ( || 𝑣 𝜃 || 2) measures the "velocity" of the transformation. A smooth magnitude curve indicates the absence of sudden acceleration or gradient explosions in the latent MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion Preprint, August, 2025 
+
+Figure 14: ODE Stability Validation. The top 2 rows: early-stage trajectories monitored every 200 training steps with a coarse integration resolution of 80 steps. The bottom 2 rows: late-stage trajectories evaluated every 2000 training steps using a fine-grained integration resolution of 400 steps. In both settings, the vector field magnitude (blue) and trajectory curvature (orange) remain highly stable across the truncation boundary 𝜏 = 0.5 (dashed line), validating the absence of abrupt discontinuities. 
+
+space. Trajectory Curvature ( cos (𝑣 𝑡 , 𝑣 𝑡 −Δ𝑡 )) computes the cosine similarity between consecutive velocity vectors. A value approach-ing 1.0 signifies a highly linear and stable integration path without abrupt directional shifts. As illustrated in Fig. 14, both metrics ex-hibit exceptionally stable behavior around the threshold 𝜏 = 0.5.The magnitude curve shows no violent spikes, and the cosine simi-larity remains consistently high throughout the entire process. This empirical evidence confirms that the truncation mechanism solely alters the weight allocation during training, without introducing vector field discontinuities. Consequently, it guarantees that ODE solvers can integrate the path precisely without discretization error explosion, thereby preserving the stringent structural integrity of the fused medical images. 
+
+References 
+
+[1] Marah Abdin, Jyoti Aneja, Hany Awadalla, Ahmed Awadallah, Ammar Ahmad Awan, Nguyen Bach, Amit Bahree, Arash Bakhtiari, Jianmin Bao, Harkirat Behl, Alon Benhaim, Misha Bilenko, and et al. 2024. Phi-3 Technical Report: A Highly Capable Language Model Locally on Your Phone. arXiv:2404.14219 [cs.CL] [2] Berthold Bein. 2006. Entropy. Best Practice & Research Clinical Anaesthesiology 
+
+20, 1 (2006), 101–109. [3] Zihan Cao, Yu Zhong, Ziqi Wang, and Liang-Jian Deng. 2025. MMAIF: Multi-task and Multi-degradation All-in-One for Image Fusion with Language Guidance. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) .11744–11754. [4] CC Chaithra, NL Taranath, LM Darshan, and CK Subbaraya. 2018. A survey on image fusion techniques and performance metrics. In 2018 Second International Conference on Electronics, Communication and Aerospace Technology (ICECA) .IEEE, 995–999. [5] Chunyang Cheng, Tianyang Xu, Xiao-Jun Wu, Hui Li, Xi Li, Zhangyong Tang, and Josef Kittler. 2025. TextFusion: Unveiling the power of textual semantics for controllable image fusion. Information Fusion 117 (2025), 102790. [6] Allen A Goldstein. 1977. Optimization of Lipschitz continuous functions. Mathe-matical Programming 13, 1 (1977), 14–22. [7] Yu Han, Yunze Cai, Yin Cao, and Xiaoming Xu. 2013. A new image fusion performance metric based on visual information fidelity. Information Fusion 14 (2013), 127–135. [8] Tiankai Hang, Shuyang Gu, Chen Li, Jianmin Bao, Dong Chen, Han Hu, Xin Geng, and Baining Guo. 2023. Efficient Diffusion Training via Min-SNR Weighting Strategy. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) . 7441–7451. [9] Dan He, Weisheng Li, Guofen Wang, Yuping Huang, and Shiqiang Liu. 2025. DM-FNet: Unified Multimodal Medical Image Fusion via Diffusion Process-Trained Encoder-Decoder. IEEE Transactions on Multimedia 27 (2025), 9415–9428. [10] Haithem Hermessi, Olfa Mourali, and Ezzeddine Zagrouba. 2021. Multimodal medical image fusion review: Theoretical background and recent advances. Signal Processing 183 (2021), 108036. [11] Jack Hessel, Ari Holtzman, Maxwell Forbes, Ronan Le Bras, and Yejin Choi. 2021. CLIPScore: A Reference-free Evaluation Metric for Image Captioning. In 
+
+Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing (EMNLP) . 7514–7528. [12] Edward J Hu, yelong shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2022. LoRA: Low-Rank Adaptation of Large Language Models. In International Conference on Learning Representations (ICLR) .[13] Junjia Huang, Pengxiang Yan, Jiyang Liu, Jie Wu, Zhao Wang, Yitong Wang, Liang Lin, and Guanbin Li. 2025. DreamFuse: Adaptive Image Fusion with Diffusion Transformer. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) . 17292–17301. [14] Fabian Isensee, Paul F Jaeger, Simon AA Kohl, Jens Petersen, and Klaus H Maier-Hein. 2021. nnU-Net: a self-configuring method for deep learning-based biomed-ical image segmentation. Nature Methods 18, 2 (2021), 203–211. [15] Alex Pappachen James and Belur V. Dasarathy. 2014. Medical image fusion: A survey of the state of the art. Information Fusion 19 (2014), 4–19. Special Issue on Information Fusion in Medical Image Computing and Systems. [16] Olga A Koroleva, Matthew L Tomlinson, David Leader, Peter Shaw, and John H Doonan. 2005. High-throughput protein localization in Arabidopsis using Agrobacterium-mediated transient expression of GFP-ORF fusions. The Plant Journal 41, 1 (2005), 162–174. [17] Alexander Kraskov, Harald Stögbauer, and Peter Grassberger. 2004. Estimating mutual information. Phys. Rev. E 69, 6 (2004), 066138. [18] Huafeng Li, Dayong Su, Qing Cai, and Yafei Zhang. 2025. BSAFusion: A Bidirec-tional Stepwise Feature Alignment Network for Unaligned Medical Image Fusion. In Proceedings of the AAAI Conference on Artificial Intelligence (AAAI) , Vol. 39. 4725–4733. Preprint, August, 2025 Yunzhan Fu et al. 
+
+[19] Jiayang Li, Chengjie Jiang, Junjun Jiang, Pengwei Liang, Jiayi Ma, and Liqiang Nie. 2025. Towards Unified Semantic and Controllable Image Fusion: A Diffusion Transformer Approach. IEEE Transactions on Pattern Analysis and Machine Intelligence (2025), 1–18. [20] Weisheng Li, Pengtao Jia, Dan He, Shiqiang Liu, Guofen Wang, and Yuping Huang. 2026. SAFusion: Scenario-Adaptive Network for Multimodal Medical Image Fusion. IEEE Journal of Biomedical and Health Informatics (2026), 1–14. [21] Yaron Lipman, Ricky T. Q. Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le. 2023. Flow Matching for Generative Modeling. arXiv:2210.02747 [cs.LG] [22] Jinyuan Liu, Xingyuan Li, Zirui Wang, Zhiying Jiang, Wei Zhong, Wei Fan, and Bin Xu. 2025. PromptFusion: Harmonized Semantic Prompt Learning for Infrared and Visible Image Fusion. IEEE/CAA Journal of Automatica Sinica 12, 3 (2025), 502–515. [23] Yu Liu, Xun Chen, Juan Cheng, and Hu Peng. 2017. A medical image fusion method based on convolutional neural networks. In 2017 20th International Con-ference on Information Fusion (FUSION) . 1–7. [24] Jiayi Ma, Yong Ma, and Chang Li. 2019. Infrared and visible image fusion methods and applications: A survey. Information Fusion 45 (2019), 153–178. [25] Jiayi Ma, Wei Yu, Pengwei Liang, Chang Li, and Junjun Jiang. 2019. FusionGAN: A generative adversarial network for infrared and visible image fusion. Information Fusion 48 (2019), 11–26. [26] Bjoern H. Menze, Andras Jakab, Stefan Bauer, and et al. 2015. The Multimodal Brain Tumor Image Segmentation Benchmark (BRATS). IEEE Transactions on Medical Imaging 34, 10 (2015), 1993–2024. [27] Chong Mou, Xintao Wang, Liangbin Xie, Yanze Wu, Jian Zhang, Zhongang Qi, and Ying Shan. 2024. T2I-Adapter: Learning Adapters to Dig Out More Controllable Ability for Text-to-Image Diffusion Models. In Proceedings of the AAAI Conference on Artificial Intelligence (AAAI) , Vol. 38. 4296–4304. [28] Dustin Podell, Zion English, Kyle Lacey, Andreas Blattmann, Tim Dockhorn, Jonas Müller, Joe Penna, and Robin Rombach. 2023. SDXL: Improving Latent Diffusion Models for High-Resolution Image Synthesis. arXiv:2307.01952 [cs.CV] [29] G Poornima and L Anand. 2025. Medical image fusion model using CT and MRI images based on dual scale weighted fusion based residual attention network with encoder-decoder architecture. Biomedical Signal Processing and Control 108 (2025), 107932. [30] Maithra Raghu, Thomas Unterthiner, Simon Kornblith, Chiyuan Zhang, and Alexey Dosovitskiy. 2021. Do vision transformers see like convolutional neural networks? Advances in Neural Information Processing Systems 34 (2021), 12116– 12128. [31] Mojtaba Safari, Ali Fatemi, and Louis Archambault. 2023. MedFusionGAN: mul-timodal medical image fusion using an unsupervised deep generative adversarial network. BMC Medical Imaging 23, 1 (2023), 203. [32] Robert Shapley, Peter Lennie, et al . 1985. Spatial frequency analysis in the visual system. Annual Review of Neuroscience 8, 1 (1985), 547–581. [33] Stefan Siegmund, Christine Nowak, and Josef Diblík. 2016. A generalized Picard-Lindelöf theorem. Electronic Journal of Qualitative Theory of Differential Equations 
+
+2016, 28 (2016), 1–8. [34] Yifei Sun, Yuzhi He, Junhao Jia, Jinhong Wang, Ruiquan Ge, Changmiao Wang, and Hongxia Xu. 2026. WDT-MD: Wavelet Diffusion Transformers for Microa-neurysm Detection in Fundus Images. In Proceedings of the AAAI Conference on Artificial Intelligence , Vol. 40. 9242–9250. [35] Wei Tan, Prayag Tiwari, Hari Mohan Pandey, Catarina Moreira, and Amit Kumar Jaiswal. 2025. Multimodal medical image fusion algorithm in the era of big data. 
+
+Neural Computing and Applications 37, 28 (2025), 22995–23015. [36] Z. Wang, E.P. Simoncelli, and A.C. Bovik. 2003. Multiscale structural similarity for image quality assessment. In The Thrity-Seventh Asilomar Conference on Signals, Systems & Computers , Vol. 2. 1398–1402 Vol.2. [37] Zeyu Wang, Libo Zhao, Jizheng Zhang, Rui Song, Haiyu Song, Jiana Meng, and Shidong Wang. 2025. Multi-text guidance is important: Multi-modality image fusion via large generative vision-language model. International Journal of Computer Vision 133, 7 (2025), 4646–4668. [38] Caifeng Xia, Hongwei Gao, Wei Yang, and Jiahui Yu. 2025. MSDT: Multiscale Diffusion Transformer for Multimodality Image Fusion. IEEE Transactions on Emerging Topics in Computational Intelligence 9, 3 (2025), 2269–2283. [39] Haozhe Xiang, Han Zhang, Yu Cheng, Xiongwen Quan, and Wanwan Huang. 2025. SMFusion: Semantic-Preserving Fusion of Multimodal Medical Images for Enhanced Clinical Diagnosis. IEEE Journal of Biomedical and Health Informatics 
+
+(2025), 1–14. [40] Shitao Xiao, Yueze Wang, Junjie Zhou, Huaying Yuan, Xingrun Xing, Ruiran Yan, Chaofan Li, Shuting Wang, Tiejun Huang, and Zheng Liu. 2025. Omnigen: Unified image generation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 13294–13304. [41] Xinyu Xie, Xiaozhi Zhang, Xinglong Tang, Jiaxi Zhao, Dongping Xiong, Lijun Ouyang, Bin Yang, Hong Zhou, Bingo Wing-Kuen Ling, and Kok Lay Teo. 2025. MACTFusion: Lightweight Cross Transformer for Adaptive Multimodal Medical Image Fusion. IEEE Journal of Biomedical and Health Informatics 29, 5 (2025), 3317–3328. [42] C.S. Xydeas and V. Petrović. 2000. Objective image fusion performance measure. 
+
+Electronics Letters 36, 4 (2000), 308–309. [43] Huaishui Yang, Shaojun Liu, Yilong Liu, Lingyan Zhang, Shoujin Huang, Jiayu Zheng, Jingzhe Liu, Hua Guo, Ed X. Wu, and Mengye Lyu. 2025. An Unsupervised Learning Approach for Reconstructing 3T-Like Images From 0.3T MRI Without Paired Training Data. IEEE Transactions on Medical Imaging 44, 12 (2025), 5358– 5371. [44] Xunpeng Yi, Han Xu, Hao Zhang, Linfeng Tang, and Jiayi Ma. 2024. Text-IF: Leveraging Semantic Text Guidance for Degradation-Aware and Interactive Image Fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) . 27026–27035. [45] Jun Yue, Leyuan Fang, Shaobo Xia, Yue Deng, and Jiayi Ma. 2023. Dif-Fusion: Toward High Color Fidelity in Infrared and Visible Image Fusion With Diffusion Models. IEEE Transactions on Image Processing 32 (2023), 5705–5720. [46] Hao Zhang, Lei Cao, and Jaiyi Ma. 2024. Text-DiFuse: An Interactive Multi-Modal Image Fusion Framework based on Text-modulated Diffusion Model. In Advances in Neural Information Processing Systems , Vol. 37. 39552–39572. [47] Kai Zhang, Rong Zhou, Eashan Adhikarla, Zhiling Yan, Yixin Liu, Jun Yu, Zhengliang Liu, Xun Chen, Brian D. Davison, Hui Ren, Jing Huang, Chen Chen, Yuyin Zhou, Sunyang Fu, Wei Liu, Tianming Liu, Xiang Li, Yong Chen, Lifang He, James Zou, Quanzheng Li, Hongfang Liu, and Lichao Sun. 2024. A generalist vision–language foundation model for diverse biomedical tasks. Nature Medicine 
+
+30, 11 (2024), 3129–3141. doi:10.1038/s41591-024-03185-2 [48] Sheng Zhang, Yanbo Xu, Naoto Usuyama, Hanwen Xu, Jaspreet Bagga, Robert Tinn, Sam Preston, Rajesh Rao, Mu Wei, Naveen Valluri, Cliff Wong, Andrea Tupini, Yu Wang, Matt Mazzola, Swadheen Shukla, Lars Liden, Jianfeng Gao, Angela Crabtree, Brian Piening, Carlo Bifulco, Matthew P. Lungren, Tristan Naumann, Sheng Wang, and Hoifung Poon. 2025. A Multimodal Biomedical Foundation Model Trained from Fifteen Million Image–Text Pairs. NEJM AI 2, 1 (2025), AIoa2400640. [49] Yu Zhang, Yu Liu, Peng Sun, Han Yan, Xiaolin Zhao, and Li Zhang. 2020. IFCNN: A general image fusion framework based on convolutional neural network. In-formation Fusion 54 (2020), 99–118. [50] Hang Zhao, Orazio Gallo, Iuri Frosio, and Jan Kautz. 2016. Loss functions for image restoration with neural networks. IEEE Transactions on Computational Imaging 3, 1 (2016), 47–57. [51] Zixiang Zhao, Haowen Bai, Jiangshe Zhang, Yulun Zhang, Shuang Xu, Zudi Lin, Radu Timofte, and Luc Van Gool. 2023. CDDFuse: Correlation-Driven Dual-Branch Feature Decomposition for Multi-Modality Image Fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) .5906–5916. [52] Zixiang Zhao, Haowen Bai, Yuanzhi Zhu, Jiangshe Zhang, Shuang Xu, Yulun Zhang, Kai Zhang, Deyu Meng, Radu Timofte, and Luc Van Gool. 2023. DDFM: Denoising Diffusion Model for Multi-Modality Image Fusion. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) . 8082–8093. [53] Zixiang Zhao, Lilun Deng, Haowen Bai, Yukun Cui, Zhipeng Zhang, Yulun Zhang, Haotong Qin, Dongdong Chen, Jiangshe Zhang, Peng Wang, and Luc Van Gool. 2024. Image fusion via vision-language model. In Proceedings of the 41st International Conference on Machine Learning (ICML) . JMLR.org. [54] Tao Zhou, Qi Li, Huiling Lu, Qianru Cheng, and Xiangxiang Zhang. 2023. GAN review: Models and medical image fusion applications. Information Fusion 91 (2023), 134–148.

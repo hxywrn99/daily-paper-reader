@@ -1,0 +1,513 @@
+Title: VCP-DCN: Beyond Visual Concealed Property via Depth Collaborative Network for Camouflaged Object Detection
+
+URL Source: https://arxiv.org/pdf/2607.27843v1
+
+Published Time: Fri, 31 Jul 2026 00:41:29 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# VCP-DCN: Beyond Visual Concealed Property via Depth Collaborative Network for Camouflaged Object Detection 
+
+Songsong Duan , Xi Yang B , and Nannan Wang 
+
+the State Key Laboratory of Integrated Services Networks, School of Telecommunications Engineering, Xidian University, Xi’an, China 
+
+duanss@stu.xidian.edu.cn, yangx@xidian.edu.cn, nnwang@xidian.edu.cn 
+
+Abstract. Camouflaged Object Detection (COD) aims to identify and segment camouflaged objects in complex environments, which are often concealed because their color and texture are similar to the background. Several existing COD methods introduce depth maps to boost detec-tion performance via learning complementary RGB-D features, ignor-ing modality-specific characteristics of concealed objects in the depth domain. To address this issue, we propose a depth collaborative net-work, called VCP-DCN, to mine distinguishable multi-modality features beyond visual concealed prototype in depth domain. Specifically, VCP-DCN progressively performs multi-modality alignment, interaction, and fusion for the COD task. In the alignment stage, we propose a Separable Prototype Embedding (SPE) module to learn modality-consistency and modality-specific RGB/depth prototype tokens through prototype con-trastive learning. Furthermore, we develop a Multi-modality Dual Atten-tion (MDA) module to enhance the cross-modal feature representation through local response maps between modality-consistency RGB/depth prototype tokens and visual tokens on the interaction stage. Finally, we design a Depth Adaptive Injection (DAI) module to adaptively mea-sure contribution of RGB/depth features with a decision-making mecha-nism, which calculates similarity distance between RGB/depth modality-specific prototype tokens and modality-consistency ones on the fusion 
+
+stage. Extensive experiments demonstrate the effectiveness of our VCP-DCN on three authoritative datasets. The code is available at https://gith ub.com/duan-song/VCPDCN. 
+
+Keywords: Camouflaged Object Detection · Depth Map · Multi-Modality Learning 
+
+## 1 Introduction 
+
+In nature, some camouflaged animals, such as chameleons and geckos, possess innate defense mechanisms that help them evade predators. From a biologi-cal perspective, these animals adapt their coloration, morphology, and other 
+
+> B
+
+Corresponding author: Xi Yang. arXiv:2607.27843v1 [cs.CV] 30 Jul 2026 2 Duan et al. RGB & Histogram            
+
+> 050 100 150 200 250 050 100 150 200 250
+> 0
+> ×100
+> 1
+> 2
+> 3
+> 4
+> 5
+> 2
+> 4
+> 6
+> 8
+> 12
+> 10
+> ×1000
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> ×100
+> 1
+> 2
+> 3
+> 4
+> 5
+> 6
+> ×5000
+
+(a) Histogram Diversity  (b) Attention Diversity via DINO V2 
+
+Depth & Histogram 
+
+RGB & Attention Maps 
+
+Depth & Attention Maps 
+
+Fig. 1: Comparison with RGB and Depth images via histogram and attention maps. Consistent RGB-D feature 
+
+> RGB-specific feature
+> Depth-specific feature
+> Mask Loss
+> RGB+D Fusion
+> RGB Encoder
+> Depth Encoder
+> (a) Existing Methods
+> RGB features
+> Depth features
+> RGB+D Fusion
+> Prototype Space
+> Contrastive Loss
+> RGB features
+> Depth features
+> RGB Encoder
+> Depth Encoder
+> Refine
+> Mask Loss
+> (c) Our VCP-DCN (b) Multi-modality Distribution
+
+Fig. 2: Comparison with existing RGB-D COD and our VCP-DCN. (a) is the existing RGB-D COD methods, which learns the RGB-D complementary features under the supervision of mask loss; (b) is the illustration of multi-modality feature distribution; (c) is our VCP-DCN, which learns multi-modality specific features to refine the RGB-D features via separable prototype learning. 
+
+attributes to blend into their surrounding environment for concealment pur-poses [5]. Drawing inspiration from these natural strategies, camouflaged ob-ject detection (COD) studies the concealment property in real-world scenes by searching and segmenting camouflaged objects. As a result, COD has become a vital research field in computer vision, with a wide range of applications includ-ing underwater understanding [22], agricultural crop detection [45], and medical image segmentation [6]. However, in COD, the low discrepancy between camouflaged objects and the background, e.g. , scale, color, appearance, and occlusion, poses significant challenges from a visual-domain perspective, often leading to unreliable accuracy. Our analysis reveals that existing COD methods struggle to produce fine-grained localization masks for camouflaged objects due to their inherent visual conceal-ment. As illustrated in Fig. 1 (a), we analyze the pixel intensity distribution of camouflaged images using histograms. These histograms exhibit a prominent single peak, indicating a lack of distinct brightness stratification and characteriz-ing the images as low-contrast. Beyond image-level analysis, we also investigate representation learning to further demonstrate the visual concealment property. VCP-DCN 3
+
+Fig. 1 (b) visualizes attention maps derived from DINOv2 [34] seed tokens ap-plied to camouflaged images. The results show that attention maps originating from both foreground and background seeds emerge ambiguous localization in-formation. Given that camouflaged objects exhibit concealed properties in the visual domain, can we explore novel characteristics of camouflaged objects from alternative perspectives? To this end, we study the feasibility of depth maps for the COD task. We compare the visual cues, histogram, and attention maps of depth maps with camouflaged images in Fig. 1. The comparison in-dicates that depth maps provide salient spatial and geometry priors, which is an effective supplement for the COD task. Based on this analysis, some works work [23, 45, 46, 50, 58] have also attempted to introduce depth maps into COD community. However, the existing methods are limited by the feature opti-mization bias caused by the multi-modality fusion stage, where RGB and Depth features tend to represent RGB-D consistent features. As shown in Fig. 2 (a) and (b), the unified supervision of GT mask leads to the convergence of multi-modality feature representations and the loss of inherent modal discriminability. Eventually, the RGB features and Depth features become homogeneous represen-tations, which fail to exert their complementary modal advantages. Therefore, how to effectively integrate depth information for in-depth exploration of the COD task remains challenging. 
+
+To address the feature optimization bias, this paper proposes a depth collab-orative network, termed VCP-DCN, to learn enrich diversity features in visual and depth domains, where we project RGB-D features into modality-aware pro-totype tokens to reserve modal discriminability in multi-modality fusion stage under supervision of contrastive loss in Fig. 2 (c). Specifically, VCP-DCN de-velops a progressive multi-modality presentation learning strategy with multi-modality alignment, interaction, and fusion. In the alignment stage, we pro-pose a Separable Prototype Embedding (SPE) module to extract multi-modality foreground and background prototype tokens, which are further projected into modality-consistency and modality-specific prototypes. We employ prototype contrastive loss to optimize prototype representation of the multi-modality fea-tures. In the interaction stage, we propose a Multi-modality Dual Attention (MDA) module to enhance RGB and depth features through exchanging cross-modal prototype semantic maps generated by global-to-local matching between modality-consistency prototypes and visual features. MDA further employs a masked linear attention to refine foreground and background multi-modality fea-tures. In the fusion stage, we propose a Depth Adaptive Injection (DAI) module to dynamically fuse RGB and Depth features by measuring the similarity dis-tance between modality-specific and modality-consistency prototypes. Extended experiments on three benchmark datasets demonstrate that our VCP-DCN out-performs previous state-of-the-art COD methods. Our main contributions are summarized as: (1) We propose a novel perspective to explore camouflaged object detection from multi-modality feature optimization bias, and propose a depth collabora-4 Duan et al. 
+
+tive network, termed VCP-DCN, to mine salient cues beyond visual concealed property. (2) We propose a progressive multi-modal leaning strategy, which consists of three key parts: SPE module for multi-modal alignment, MDA for multi-modal interaction, and DAI module for multi-modal fusion. (3) We innovatively introduce prototype contrastive loss to the COD commu-nity, which is utilized to reserve modality-aware discriminative cues and avoid RGB-D homogenization representation in multi-modality feature fusion stage. 
+
+## 2 Related Work 
+
+2.1 Camouflaged Object Detection 
+
+COD is a challenging vision task for understanding camouflaged scenes, which aims to search, recognize, and segment camouflaged objects. Fan et al. [10] first systematically introduced camouflage object detection and proposed a new large-scale COD10K dataset. Further, SINet [9] proposed a biological-inspired detection framework via search and localization manners. After the pioneer works [9, 10], COD has been attracting growing attention. The development of COD [33, 60] is closely related to the progress of neural networks. In the early stage, researchers usually used ConvNet [15, 28, 54] to ex-tract the multi-scale local features. Zhou et al. [67] used multi-scale convolution operations to extract boundary characteristics for capturing the scale variations of the camouflaged objects. Unlike ConvNet, vision transformer [27, 42, 48] has attracted much attention due to its superior long-range modeling ability and has been widely applied in the COD community. Huang et al. [16] proposed a transformer-based feature shrinking pyramid network to hierarchically learn locality-enhanced neighboring transformer features. Different from the pyramid network, Cong et al. [4] proposed a frequency perception network to model se-mantic hierarchy in the frequency domain. Furthermore, Luo et al. [29] intro-duced multi-task learning into the COD community, which innovatively designed a general 2D visual prompt learning to unify the salient and object detection tasks. Besides the pre-trained transformer, some large vision foundation models were progressively employed in COD community. Zhao et al. [65] introduced the stable diffusion model [39] into the COD community and proposed a FocusDif-fuser to study how generative models can improve camouflaged object detection. Unfortunately, the computational complexity of the vision transformer severely restricts the application of the COD methods in real-time scenarios. To address this issue, some works introduced state space model (SSM) [26, 35, 69], a new generation of neural networks, into the COD community. He et al. [13] proposed a unified saliency detection framework with any modality, including RGB, RGB-Depth, RGB-Thermal, and Video data. Zhang et al. [62] utilized causal inference to mine part-whole relational property with a Mamba model. VCP-DCN 5
+
+2.2 Camouflaged Object Detection with Depth 
+
+Depth maps are usually viewed as vital and effective auxiliary information for challenging vision tasks, including RGB-D semantic segmentation [12,55], RGB-D salient object detection [7, 52], and RGB-D object tracking [70, 71]. Because depth maps contain clear boundary cues and spatial layout priors, some works at-tempt to utilize depth to assist COD tasks. Liu et al. [24] proposed a dual stream adapter within Segment Anything Model [19], which used a parallel manner to control RGB and depth adapters for the COD task. Yu et al. [58] designed a prompt deeper module to interact the RGB and depth features with bias correc-tion. Wu et al. [51] explored the objects’ “pop-out” prior in depth maps, which assumed objects reside on the background surface. Wang et al. [47] proposed a depth-aided COD method with a cross-modal asymmetric fusion module. In ad-dition to the COD community, depth maps was widely used in many binary mask segmentation, like salient object detection [1, 3, 53], polyp segmentation [21, 59], and anomaly detection [2, 32]. Although early works attempted to introduce depth maps into the COD community, their accuracy was usually not as good as that of the RGB COD methods. We believe that this gap is caused by two factors: inconsistent multi-modal cues and an inefficient fusion strategy. To address this problem, we first utilized a depth foundation model (Depth Anything [56]) to generate consis-tent and high-quality depth maps. Then, we proposed a progressive multi-modal learning strategy to align, interact, and fuse multi-modal features. 
+
+## 3 Methodology 
+
+3.1 Overall Architecture 
+
+Following common practical network architecture [42, 57, 68], we adopt an end-to-end encoder-decoder structure to build our VCP-DCN. As shown in Fig. 3, our VCP-DCN consists of an encoder, a decoder, and the proposed depth col-laborative networks. 
+
+Encoder : To extract RGB and Depth features, we introduce a VMamba-S [26] as the encoder. The RGB and Depth encoders share parameters. Given an input image Ir ∈ R3×H×W and corresponding depth map Id ∈ R1×H×W , we feed it into the shared encoder to generate hierarchy pyramid features, which denote as fr = {f ir }4 
+
+> i=1
+
+and fd = {f id}4
+
+> i=1
+
+. Note that the spatial resolutions of hierarchy pyramid features are RCi×H/ 2i+1 ×W/ 2i+1 
+
+, where the channel dimensions are Ci ∈{96 , 192 , 384 , 768 }. Next, we embed the proposed depth collaborative network into each layer of hierarchy pyramid features to generate modality features Ff =
+
+{F if }4 
+
+> i=1
+
+with the same spatial resolutions and channel dimensions. 
+
+Decoder : We follow a triple decoder structure to generate three prediction masks from RGB, Depth, and RGB-D decoders, which has been proven to be an effective design in previous works [8, 66] for RGB-D segmentation tasks. Specifi-cally, the multi-modality pyramid features fr , fd, and Ff are feed into the triple 6 Duan et al. Encoder  
+
+> Encoder
+> Image  Depth
+> SPE SPE
+> MDA MDA
+> Shared Parameters DAI
+> Triple Decoder
+> Alignment
+> Fusion
+> Interaction
+> Depth Collaborative Network
+> Conv1x1  Conv1x1
+> Agg-F Agg-B Agg-F Agg-B
+> Proj function  Proj function
+> SPE SPE
+> Modality-Specific RGB/Depth Foreground Prototype Modality-Consistency RGB/Depth Foreground Prototype RGB/Depth Background Prototype
+> Mutual Pull Mutual Push
+> Prototype Contrastive Loss
+
+Fig. 3: Illustration of the proposed VCP-DCN, which consists of Separable Prototype Embedding (SPE), Multi-modality Dual Attention (MDA), Depth Adaptive Injection (DAI) modules. In the alignment stage, a prototype contrastive loss ( Lalign ) is proposed to lean modality-consistency and modality-specific prototypes, which contains LM CL ,
+
+LM SL , and LRCL .
+
+decoders to obtains prediction masks Mr , Md, and Mf . To achieve an effec-tive decoder, we use 1 ×1 convolution and 2 × up-sample operations to connect cross-level features. 
+
+3.2 Separable Prototype Embedding 
+
+Our VCP-DCN employs a progressive strategy to learn multi-modality feature presentation with multi-modality alignment, interaction, and fusion. As shown in Fig. 3, we propose an SPE module to achieve multi-modality alignment. For the RGB-D segmentation task, a conventional operation is used to indiscrimi-nately fuse RGB and Depth features for the subsequent decoder. However, this indiscriminate fusion strategy ignores diversity between RGB and Depth features from the perspective of global optimization. In COD community, several meth-ods [45, 46, 50] adopt indiscriminate fusion approach to extract complementary RGB-D features, ignore the diversity of RGB and Depth features. To address this issue, the SPE module projects RGB and Depth features into global prototype tokens via decoupling foreground and background features. The decoupled multi-modality foreground and background prototypes are further translated into the modality-consistency and modality-specific prototypes for VCP-DCN 7
+
+representing diversity between RGB and Depth features: 
+
+SM ir = Sigmoid(Proj C (f ir )) ,
+
+FG ir = 1
+
+Hi × WiHiX
+
+> m=1
+> Wi
+
+X
+
+> n=1
+
+Mul( SM ir , f ir )m,n ,
+
+BG ir = 1
+
+Hi × WiHiX
+
+> m=1
+> Wi
+
+X
+
+> n=1
+
+Mul(1 − SM ir , f ir )m,n ,
+
+(1) where Proj C is a 1 ×1 convolution, which is leveraged to generate foreground semantic map SM ir ∈ R1×Hi×Wi via compressing feature channels. Hi = H
+
+> 2i+1
+
+and Wi = W 
+
+> 2i+1
+
+are height and width of f ir . Sigmoid is activation function of 
+
+SM ir . FG ir and BG ir are global foreground and background tokens of RGB fea-tures. Furthermore, we use MLP operations to learn modality-consistency and modality-specific prototype tokens: 
+
+FP irs = MLP rs (FG ir ),
+
+FP irc = MLP rc (FG ir ),
+
+BP ir = MLP rb (BG ir ),
+
+(2) where MLP rs , MLP rc , and MLP rb represent three MLP operations with different projection functions for modality-specific foreground prototype FP irs , modality-consistency foreground prototypes FP irc , and modality-consistency background prototypes BP ir . For the depth branch, we use the same processing to extract 
+
+FP ids , FP idc , and BP id from the depth feature f id through Eq. (1) and (2). To learn modality-specific and modality-consistency presentation, we intro-duce contrastive learning to model and optimize the multi-modality prototype space. Specifically, we narrow the similarity distance between FP irc and FP idc 
+
+for modality-consistency foreground prototype tokens. Similarly, we implement the same processing on background features to learn modality-consistency back-ground prototype tokens: 
+
+LM CL = −
+
+> 4
+
+X
+
+> i=1
+
+log (Cos( FP irc , FP idc )+ Cos( BP ir , BP id)) ,
+
+(3) where Cos( , ) is the cosine similarity of two prototype tokens. LM CL is the modality-consistency contrastive loss for RGB and Depth features. After LM CL ,we use modality-specific contrastive loss LM SL to enlarge the similarity distance between FP irs and FP ids for modeling the modality-specific prototypes: 
+
+LM SL = −
+
+> 4
+
+X
+
+> i=1
+
+log (1 − Cos( FP irs , FP ids )) . (4) 8 Duan et al. F-MLA B-MLA  
+
+> Conv 1x1
+> Norm Layer
+> Proj function
+> F-MLA
+> HWxC CxHW HxWxC CxC HxWxC
+> MDA Depth
+> Similarity Score Similarity Score
+> Modality-Consistency
+> Features
+> Deformable Conv
+> (a) MDA Module (b) DAI Module
+
+Fig. 4: Illustration of MDA module of RGB feature and DAI module. Depth feature shares a similar MDA structure. 
+
+Under the constraints of LM CL and LM SL , we learn modality-consistency and modality-specific representation by optimizing the similarity distance be-tween multi-modality prototypes. Besides, we discover that foreground proto-types and background prototypes are opposed to each other in the feature space via the contrastive losses LRCL and LDCL between foreground and background prototype tokens: 
+
+LRCL = −
+
+> 4
+
+X
+
+> i=1
+
+(log (1 − Cos( FP irs , BP ir )) + log (1 − Cos( FP irc , BP ir ))) .
+
+(5) By replacing the RGB prototypes in Eq. (5) with Depth prototypes, we can obtain the contrast loss LDCL for Depth features. 
+
+3.3 Multi-modality Dual Attention 
+
+After the SPE module, we obtain modality-consistency RGB and Depth proto-types, which are further utilized to achieve interaction between RGB and Depth features in the MDA module. As shown in Fig. 4 (a), the MDA module first gen-erates foreground and background masks through global-to-local token matching between global prototypes and RGB/Depth features. To illustrate this, consider the RGB branch: 
+
+Mirf = f ir ⊙ FP irc , Mirb = f ir ⊙ BP ir , (6) where Mirf and Mirb are foreground and background masks, which present the semantic response between prototype tokens and RGB features. ⊙ is the dot VCP-DCN 9
+
+product operation. Similarity, we can use the same operation to generate fore-ground mask Midf and background mask Midb on the depth branch. To achieve cross-modal information interaction, we group foreground or back-ground masks from the RGB and Depth branches to refine foreground or back-ground regions via a masked linear attention mechanism (MLA). As shown in Fig. 3, the MDA module adopts foreground MLA and background MLA to co-operatively enhance foreground and background on both of RGB and Depth branches: 
+
+ef ir = Proj C ([ V ir · Softmax(( Mirf Kir )T(Midf Qir )) ,V ir · Softmax(( Mirb Kir )T(Midb Qir ))]) , (7) where Kir , Qir , and V ir are query, key, and value matrices of RGB feature f ir
+
+generated by three different 1 ×1 convolutions and a concatenation operation 
+
+[, ]. ef ir is the output RGB features of the MDA module. We apply the same operation on the depth branch to generate refined Depth features ef id. We achieve multi-modality interaction by exchanging the foreground and background images between the RGB and depth branches. 
+
+3.4 Depth Adaptive Injection 
+
+How to integrate RGB and depth features to achieve cross-modal complementar-ity is crucial for the RGB-D segmentation field. In this paper, we provide a novel perspective to explore decision-making dependency via modality-consistency and modality-specific prototypes generated by the SPE module. As shown in Fig. 4 (b), DAI leverages similarity scores between RGB/Depth modality-specific prototypes and the RGB-depth modality-consistency prototype to measure the correlation of RGB and Depth features in the decision-making process. Firstly, we obtain multi-modality consistency prototypes via integrating RGB and depth modality-consistency prototypes: 
+
+Pi 
+
+> Con
+
+= 12 × (FP irc + FP idc ), (8) where Pi 
+
+> Con
+
+is the multi-modality consistency prototype. Next, we compute sim-ilarity scores between modality-specific prototypes and multi-modality consis-tency prototype on RGB and Depth branches: 
+
+Wir = Cos( FP irs , Pi
+
+> Con
+
+),
+
+Wid = Cos( FP ids , Pi
+
+> Con
+
+), (9) where Wir and Wid determine which features are shared across modalities and which are modality-specific in both RGB and Depth features. By disentangling RGB and Depth features into modality-consistency and modality-specific components, we can effectively explore the diversity of multi-modality features. Next, we achieve adaptive fusion of RGB and Depth features: 10 Duan et al. 
+
+Fi 
+
+> c
+
+= Wir × ef ir + Wid × ef id,
+
+Fif = DC([(1 − W ir ) × ef ir , (1 − W id) × ef id, Fi 
+
+> c
+
+]) , (10) where Fi 
+
+> c
+
+is modality-consistency features, (1 − W ir ) × ef ir and (1 − W id) × ef id are RGB and Depth modality-specific features. DC and Fif are a 3 ×3 deformable convolution and fused features, respectively. 
+
+3.5 Objective 
+
+The total loss Ltotal of our VCP-DCN contains two components: (1) mask loss between GT and prediction masks from triple decoder; (2) alignment loss in SPE module for learning modality-consistency and modality-specific prototypes, which can be formulated as: 
+
+Ltotal = λ × L mask + μ × L align ,
+
+Lmask = 
+
+> {r,d,f }
+
+X
+
+> t
+
+LHybrid (Mt, MGT ),
+
+Lalign = LM CL + LM SL + LRCL + LDCL ,
+
+(11) where Mt(t ∈ { r, d, f }) and MGT are prediction mask and GT mask, LHybrid 
+
+is a hybrid loss with BCE, IoU, and SSIM losses, which are widely used loss functions in image segmentation. λ and μ as weights of Lmask and Lalign are used to balance the gradient optimization of multi-modality prototype learning and COD-oriented task. 
+
+## 4 Experiments 
+
+4.1 Experiment Settings Datasets and Evaluation Metrics . Following previous works [16, 42, 57], we use three benchmark datasets to evaluate our VCP-DCN, including CAMO [20], COD10K [11], and NC4K [30]. Specifically, we select 1000 samples from CAMO and 3040 samples from COD10K as training sets for training models; the rest of CAMO, COD10K, and NC4K are used to evaluate performance. For a fair comparison, we use universal evaluation metrics to measure the performance of different approaches, including Structure-measure ( Sm ↑), E-measure ( Eϕ ↑), weighted F-measure ( Fwβ ↑), and mean absolute error ( M ↓ ). 
+
+Implementation Details . We follow most of the visual models to adopt a pre-training backbone on ImageNet as the feature encoder. In this work, we use the VMamba-S [26] and Swin-S [27] as the backbone to demonstrate the effect of our VCP-DCN. All the experiments are implemented on an RTX 4090 GPU with 24G memory for training 80 epochs. AdamW optimizer is employed VCP-DCN 11 
+
+Method Pub. Tool CAMO COD10K NC4K 
+
+Sm ↑ Eϕ ↑ Fwβ ↑ M ↓ Sm ↑ Eϕ ↑ Fwβ ↑ M ↓ Sm ↑ Eϕ ↑ Fwβ ↑ M ↓ 
+
+RGB-based COD Methods 
+
+FSPNet [16] CVPR23 DeiT 0.856 0.877 0.738 0.071 0.851 0.901 0.716 0.032 0.879 0.913 0.789 0.044 VSCode [29] CVPR24 2D Prompt 0.838 0.906 0.768 0.060 0.847 0.913 0.744 0.028 0.874 0.924 0.813 0.038 FSEL [42] ECCV24 PVT 0.885 0.942 0.851 0.040 0.873 0.928 0.800 0.021 0.892 0.941 0.853 0.030 CamoFormer [57] TPAMI24 PVT 0.872 0.931 0.831 0.046 0.869 0.931 0.786 0.023 0.892 0.941 0.847 0.030 MCRNet [63] IJCV25 VMamba 0.886 0.942 0.849 0.040 0.879 0.941 0.807 0.021 0.893 0.943 0.853 0.030 CamoDiffusion [41] TPAMI25 DM 0.878 0.943 0.853 0.042 0.881 0.946 0.814 0.020 0.893 0.942 0.859 0.029 CGD [61] MM25 CLIP 0.876 0.932 0.838 0.045 0.872 0.935 0.793 0.023 0.889 0.935 0.847 0.032 MM-SAM [38] ICCV25 BLIP 0.863 0.901 0.782 0.059 0.867 0.907 0.808 0.023 - - - -ESCNet [68] ICCV25 PVT 0.871 0.934 0.843 0.044 0.873 0.939 0.804 0.021 0.892 0.941 0.859 0.028 Samba [14] CVPR25 VMamba 0.883 0.938 0.846 0.042 0.865 0.935 0.791 0.022 0.888 0.939 0.847 0.031 
+
+RGB-D-based COD Methods via DPT 
+
+PopNet [50] ICCV23 - 0.806 0.869 - 0.073 0.827 0.897 - 0.031 0.852 0.908 - 0.043 DaCOD [46] MM23 Swin 0.855 0.911 0.796 0.051 0.840 0.908 0.729 0.028 0.874 0.923 0.814 0.035 RISNet [45] CVPR24 - 0.870 0.922 0.827 0.050 0.873 0.931 0.779 0.025 0.882 0.925 0.834 0.037 DSAM [58] MM24 SAM 0.832 0.913 0.821 0.061 0.846 0.921 0.789 0.033 0.871 0.932 0.826 0.040 SAM-COD [23] ICCV25 SAM 0.866 0.943 0.839 0.047 0.881 0.936 0.817 0.023 0.889 0.935 0.847 0.032 Samba [14] CVPR25 VMamba 0.871 0.932 0.841 0.045 0.853 0.931 0.793 0.024 0.881 0.934 0.842 0.033 
+
+VCP-DCN Ours VMamba 0.875 0.937 0.851 0.041 0.862 0.938 0.799 0.021 0.891 0.940 0.849 0.031 RGB-D-based COD Methods via Depth Anything V2 
+
+Samba [14] CVPR25 VMamba 0.883 0.941 0.863 0.036 0.870 0.939 0.842 0.019 0.887 0.939 0.863 0.027 
+
+VCP-DCN Ours VMamba 0.892 0.946 0.871 0.033 0.881 0.948 0.930 0.017 0.896 0.945 0.871 0.026 
+
+DaCOD [46] MM23 Swin 0.877 0.941 0.846 0.042 0.874 0.922 0.795 0.021 0.883 0.938 0.847 0.030 
+
+VCP-DCN Ours Swin 0.899 0.951 0.871 0.033 0.880 0.947 0.932 0.017 0.898 0.944 0.869 0.028 
+
+Table 1: Quantitative comparison of VCP-DCN with SOTA COD methods on CAMO, COD10K, and NC4K datasets. The best results are highlighted in bold in each setting. 
+
+with a weight decay of 0.1 and a 5e−5 original learning rate, which decreased to one-tenth after 40 epochs. All training and testing images are resized to 384 
+
+× 384, and the batch sizes are 4. The weight factors λ and μ are set to 0.3 and 0.1 in our experiments. Different from previous works [23, 45, 50, 58], which use DPT [37] to generate depth maps, we introduce Depth Anything V2 [56] to generate high-quality depth maps. 
+
+4.2 Comparison with State-of-the-Arts 
+
+We conduct a comprehensive performance comparison with COD approaches, which are classified into three groups: (1) RGB-based methods, including FSP-Net [16], VSCode [29], FSEL [42], CamoFormer [57], MCRNet [63], CamoDiffu-sion [41], ESCNet [68] , and Samba [14]; (2) RGB-D-based methods, including PopNet [50], DaCOD [46] , and RISNet [45]; (3) VFM-based methods with extra modality, including DSAM [58], CGD [61] , SAM-COD [23], and MM-SAM [38]. 
+
+Quantitative Evaluation. The results of the performance comparison are reported in Table 1. We report the performance of our VCP-DCN on groups (2) and (3) with pseudo depth maps generated from DPT and depth anything v2, respectively. Firstly, our VCP-DCN significantly outperforms other RGB-D methods, like the latest Samba [14] with the same backbone-VMamba. Further-more, compared with the VFM-based method SAM-COD [23] with SAM, our VCP-DCN still gets overall advantageous performances with less parameters and FLOPs. Besides, compared with text-based COD methods, like CGD [61] and MM-SAM [38], our method can keep the performance superiority. Finally, per-formance comparison of our VCP-DCN on groups (1) and (2) indicates that the 12 Duan et al. Image  GT  Ours  Samba  CamoDiffusion  FSEL  CamoFormer 
+
+Fig. 5: Visual comparisons between our VCP-DCN and several previous SOTA meth-ods, including Samba [14], CamoDiffusion [41], FSEL [42], and CamoFormer [57] on challenging scenes.                                                                  
+
+> Method NJU2K NLPR DUT
+> Fwβ↑M ↓ Fwβ↑M ↓ Fwβ↑M ↓
+> AFB [44] 0.910 0.028 0.902 0.021 0.919 0.027 VSCode [29] 0.925 0.025 0.909 0.020 0.945 0.019 DIMSOD [64] -0.028 ---0.023 LEAF [49] -0.025 -0.016 -0.019 ACINet [40] 0.923 0.025 0.919 0.016 0.944 0.021 TwinsTNet [31] 0.925 0.026 0.922 0.016 0.946 0.018 UniSOD [43] 0.922 0.025 0.909 0.019 0.952 0.017 VST++ [25] --0.898 0.021 0.929 0.025 VCP-DCN 0.929 0.023 0.925 0.015 0.957 0.016
+
+Table 2: Comparison with SOTA RGB-D SOD methods on NJU2K [18], NLPR [36], and DUT [17] datasets. The best results are highlighted in bold .
+
+quality of depth maps generated by DAMv2 [56] is better than that generated by DPT [37]. Note that our VCP-DCN consistently outperforms other methods with the same backbone and pseudo depth maps, like Samba and DaCOD. 
+
+Qualitative Evaluation. As shown in Fig. 5, we present a visualization comparison of different SOTA COD methods, including Samba [14], CamoD-iffusion [41], FSEL [42], and CamoFormer [57], on several challenging scenes, 
+
+e.g. , artistic disguise, underwater objects, and small objects. These comparisons prove the effectiveness of our VCP-DCN. For example, our method accurately locates and segments the camouflaged cat with a carpet with cat patterns on the 2nd line of Fig. 5, but other methods locate the cat patterns as a camouflaged object. 
+
+Efficiency Evaluation. To evaluate the computation efficiency, we make a comprehensive efficiency comparison. As shown in Fig. 6, we report the param-VCP-DCN 13 60.2 
+
+61.7 
+
+66.2  67.2  71.7 
+
+71.3 
+
+274 
+
+74.7 
+
+46.4 
+
+49.6 
+
+47.1 
+
+60.3  109.5 
+
+143.1 
+
+283 
+
+59.7   
+
+> 100 140 200
+
+Fig. 6: Efficiency comparisons between our VCP-DCN and several SOTA methods on CAMO dataset.                               
+
+> Item SPE MDA DAI CAMO
+> SmEϕFwβ↑M ↓
+> C1 0.856 0.907 0.793 0.052 C2 ✓0.871 0.925 0.822 0.045 C3 ✓✓0.883 0.931 0.854 0.039 C4 ✓✓0.881 0.934 0.841 0.041 C5 ✓✓✓0.892 0.946 0.871 0.033
+
+Table 3: Ablation studies of components in our VCP-DCN.                             
+
+> Item CAMO
+> SmEϕFwβ↑M ↓
+> A1: w/o MDA 0.881 0.934 0.841 0.041 A2: A1 w/ Foreground MLA 0.889 0.941 0.862 0.037 A3: A1 w/ Background MLA 0.885 0.938 0.851 0.039 B1: w/o DAI 0.883 0.931 0.854 0.039 B2: B1 w/ Consistency MMF 0.887 0.938 0.861 0.038 B3: B1 w/ Specific MMF 0.884 0.945 0.869 0.035
+> Ours 0.892 0.946 0.871 0.033
+
+Table 4: Ablation studies of MDA and DAI. MMF is multi-modality features. 
+
+eters and FLOPs values of our VCP-DCN and compared methods. The com-parison results indicate that our VCP-DCN gets the best performance with the smallest parameters 60.2 M and FLOPs 46.4 G, which further proves the supe-riority of our method. 
+
+Application with RGB-D SOD Task. We further apply our VCP-DCN to RGB-D Salient Object Detection (SOD). We use a universal training set in the RGB-D SOD field to train our model, including NJU2K [18], NLPR [36], and DUT [17]; the rest are used for evaluation. The comparison results are reported in Table 2. Significantly, our VCP-DCN outperforms the compared RGB-D SOD methods, which proves that the depth collaborative network of VCP-DCN is effective for RGB-D segmentation tasks. 
+
+4.3 Ablation Study 
+
+To analyze the contribution of different components in our VCP-DCN, we con-duct comprehensive ablation studies on CAMO datasets with Sm, Eϕ, Fwβ , and 
+
+M metrics. 14 Duan et al. 𝓢𝓢 𝓜𝓜 𝒓𝒓 𝟑𝟑 𝒘𝒘 / 𝓛𝓛 𝐚𝐚𝐚𝐚𝐚𝐚𝐚𝐚𝐚𝐚  𝓢𝓢 𝓜𝓜 𝒅𝒅 𝟑𝟑 𝒘𝒘 / 𝓛𝓛 𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂 RGB  Depth 𝓢𝓢 𝓜𝓜 𝒓𝒓 𝟑𝟑 𝒘𝒘 /𝐨𝐨  𝓛𝓛 𝐚𝐚𝐚𝐚𝐚𝐚𝐚𝐚𝐚𝐚  𝓢𝓢 𝓜𝓜 𝒅𝒅 𝟑𝟑 𝒘𝒘 /𝒐𝒐  𝓛𝓛 𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂       
+
+> RGB Depth 𝓜𝓜 𝒓𝒓𝒓𝒓 𝟑𝟑 𝓜𝓜 𝒓𝒓𝒓𝒓 𝟑𝟑 𝓜𝓜 𝒅𝒅 𝒓𝒓
+> 𝟑𝟑 𝓜𝓜 𝒅𝒅 𝒓𝒓
+> 𝟑𝟑
+> Inputs w/o SPE w/ SPE
+> RGB-Specific F.P.
+> RGB-Consistency F.P.
+> RGB B.P.
+> Depth-Specific F.P.
+> Depth-Consistency F.P.
+> Depth B.P.
+> (a) Semantic Map Visualization on 3-th SPE
+> (b) RGB-D features Visualization on 1-th SPE
+> (c) Fore/back-ground mask Visualization on 3-th MDA  (d) t-SNE of RGB-D prototypes in SPE
+
+Fig. 7: Heatmap visualization of multi-modality semantic maps SM 3 
+
+> r
+
+and SM 3 
+
+> d
+
+in SPE module. 
+
+Effectiveness of VCP-DCN. To investigate the role of the depth collabora-tive network in our  VCP -DCN  , we conduct faithful ablation studies in Table 3, aiming to highlight how our method learns multimodal features. First, adding the SPE module to C1 yields significant gains through multi-modality alignment, validating the effectiveness of SPE. Building on this, the modality-specific and modality-consistency prototype tokens generated from the SPE module enable MDA and DAI to obtain further performance improvements ( e.g. , C3 vs C1: 0.039 vs 0.052 and C4 vs C1: 0.041 vs 0.052). Combining MDA and DAI leads to the best performance. Since SPE underpins both MDA and DAI, we do not discuss the cases of C1 + MDA and C1 + DAI separately. 
+
+Effectiveness of MDA Module. The DMA module uses foreground and back-ground prototype tokens to generate foreground and background masks, which are then used to build foreground- and background-masked linear attention. To validate the effectiveness of dual masked linear attention (F-MLA and B-MLA), we conduct two ablation studies in Table 4. F-MLA and B-MLA boots A1 by 9.8% and 4.9% M scores on CAMO, respectively, prompting accurate localiza-tion of camouflaged objects in a complex background. 
+
+Effectiveness of DAI Module. DAI module leverages the cosine similarity be-tween modality-specific and modality-consistency prototypes to learn modality-specific RGB, modality-specific depth, and modality-consistency RGB-D fea-tures. Ablation studies on Table 4 show that modality-specific and modality-consistency features are valuable for improving multi-modality feature represen-tation. For examples, modality-specific features boots B1 by 12.8% M scores on CAMO. VCP-DCN 15 
+
+4.4 Heatmap Visualization 
+
+To provide more comprehensive insights into our VCP-DCN, we visualize the heatmap of multi-modality features around it. As shown in Fig. 7 (a), we visualize the semantic maps SM 3 
+
+> r
+
+and SM 3 
+
+> r
+
+with or without align loss Lalign . semantic maps with Lalign obviously outperforms the ones without Lalign , which proves that Lalign is effective for improving multi-modality representation. As shown in Fig.7 (b), depth features provides more sharp edges and more detailed cues than RGB features. SPE uses modality-consistency loss to enhance the edge details of RGB features (w/ SPE vs w/o SPE) via reducing the distance between FP rc and 
+
+FP dc . Fig. 7 (c) presents foreground and background masks of RGB and Depth features, which provide clear foreground and background regions for enhancing interaction between RGB and Depth features. In Fig. 7 (d), we present t-SNE of RGB-D prototypes, where modality-specific and consistency prototypes are well-separated. 
+
+## 5 Conclusion 
+
+In this paper, we presents VCP-DCN, a novel COD model, which mines salient properties of camouflaged objects from a depth domain perspective. The core of VCP-DCN is a depth collaborative network, which adopt a progressive strategy to learn multi-modality representation via alignment, interaction, and fusion. The proposed SPE module leverages modality-consistency and modality-specific prototypes to align RGB and depth features. MDA module leverages modality-consistency prototypes to achieve multi-modality interaction. The DAI module uses similarity scores between modality-consistency and modality-specific pro-totypes to adaptively fuse multi-modality features. Experiments on benchmark datasets demonstrate that our VCP-DCN outperforms the existing 15 SOTA ap-proaches. Furthermore, extra experiments on the RGB-D SOD datasets proves the flexibility of our VCP-DCN on other RGB-D segmentation task. 
+
+## Acknowledgements 
+
+This work was supported in part by the National Natural Science Foundation of China under Grant 62372348, in part by the Key Research and Development Program of Shaanxi under Grant 2024GXZDCYL-02-10, in part by Scientific and Technological Innovation Teams in Shaanxi Province under Grant 2025RS-CXTD-011, in part by the Shaanxi Province Core Technology Research and Development Project under Grant 2024QY2-GJHX-11, in part by the Estab-lishment Fund of the State Key Laboratory of Wakefullness/Sleep and Cogni-tion(Chongqing Institute for Brain and Intelligence), in part by the Fundamental Research Funds for the Central Universities under Grant QTZX26138. 16 Duan et al. 
+
+## References 
+
+1. Chen, G., Wang, Q., Dong, B., Ma, R., Liu, N., Fu, H., Xia, Y.: Em-trans: Edge-aware multimodal transformer for rgb-d salient object detection. IEEE Transac-tions on Neural Networks and Learning Systems 36 (2), 3175–3188 (2024) 2. Cheng, H., Luo, J., Zhang, X.: Multimodal industrial anomaly detection via uni-modal and cross-modal fusion. IEEE Transactions on Industrial Informatics (2025) 3. Cong, R., Liu, H., Zhang, C., Zhang, W., Zheng, F., Song, R., Kwong, S.: Point-aware interaction and cnn-induced refinement network for rgb-d salient object de-tection. In: Proceedings of the ACM International Conference on Multimedia. pp. 406–416 (2023) 4. Cong, R., Sun, M., Zhang, S., Zhou, X., Zhang, W., Zhao, Y.: Frequency per-ception network for camouflaged object detection. In: Proceedings of the ACM International Conference on Multimedia. pp. 1179–1189 (2023) 5. Cuthill, I.C., Stevens, M., Sheppard, J., Maddocks, T., Párraga, C.A., Troscianko, T.S.: Disruptive coloration and background pattern matching. Nature 434 (7029), 72–74 (2005) 6. Dong, B., Wang, W., Fan, D.P., Li, J., Fu, H., Shao, L.: Polyp-pvt: Polyp segmen-tation with pyramid vision transformers. arXiv preprint arXiv:2108.06932 (2021) 7. Duan, S., Yang, X., Wang, N., Gao, X.: Lightweight rgb-d salient object detection from a speed-accuracy tradeoff perspective. IEEE Transactions on Image Process-ing (2025) 8. Duan, S., Yang, X., Wang, N., Gao, X.: Lightweight rgb-d salient object detection from a speed-accuracy tradeoff perspective. IEEE Transactions on Image Process-ing (2025) 9. Fan, D.P., Ji, G.P., Cheng, M.M., Shao, L.: Concealed object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence 44 (10), 6024–6042 (2021) 10. Fan, D.P., Ji, G.P., Sun, G., Cheng, M.M., Shen, J., Shao, L.: Camouflaged object detection. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 2777–2787 (2020) 11. Fan, D.P., Ji, G.P., Sun, G., Cheng, M.M., Shen, J., Shao, L.: Camouflaged object detection. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 2777–2787 (2020) 12. Hao, Z., Xiao, Z., Luo, Y., Guo, J., Wang, J., Shen, L., Hu, H.: Primkd: Primary modality guided multimodal fusion for rgb-d semantic segmentation. In: Proceed-ings of the ACM International Conference on Multimedia. pp. 1943–1951 (2024) 13. He, J., Fu, K., Liu, X., Zhao, Q.: Samba: A unified mamba-based framework for general salient object detection. In: Proceedings of the Computer Vision and Pat-tern Recognition Conference. pp. 25314–25324 (2025) 14. He, J., Fu, K., Liu, X., Zhao, Q.: Samba: A unified mamba-based framework for general salient object detection. In: Proceedings of the Computer Vision and Pat-tern Recognition Conference. pp. 25314–25324 (June 2025) 15. He, K., Zhang, X., Ren, S., Sun, J.: Deep residual learning for image recognition. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 770–778 (2016) 16. Huang, Z., Dai, H., Xiang, T.Z., Wang, S., Chen, H.X., Qin, J., Xiong, H.: Feature shrinkage pyramid for camouflaged object detection with transformers. In: Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 5557–5566 (2023) VCP-DCN 17 17. Ji, W., Yan, G., Li, J., Piao, Y., Yao, S., Zhang, M., Cheng, L., Lu, H.: Dmra: Depth-induced multi-scale recurrent attention network for rgb-d saliency detection. IEEE Transactions on Image Processing 31 , 2321–2336 (2022) 18. Ju, R., Ge, L., Geng, W., Ren, T., Wu, G.: Depth saliency based on anisotropic center-surround difference. In: IEEE International Conference on Image Process-ing. pp. 1115–1119. IEEE (2014) 19. Kirillov, A., Mintun, E., Ravi, N., Mao, H., Rolland, C., Gustafson, L., Xiao, T., Whitehead, S., Berg, A.C., Lo, W.Y., et al.: Segment anything. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 4015–4026 (2023) 20. Le, T.N., Nguyen, T.V., Nie, Z., Tran, M.T., Sugimoto, A.: Anabranch network for camouflaged object segmentation. Computer Vision and Image Understanding 
+
+184 , 45–56 (2019) 21. Li, Y., Zhu, Z., Zhang, Y., Chen, Y., Yu, Z.: Boost the inference with co-training: A depth-guided mutual learning framework for semi-supervised medical polyp seg-mentation. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 10394–10403 (2025) 22. Lian, S., Zhang, Z., Li, H., Li, W., Yang, L.T., Kwong, S., Cong, R.: Diving into underwater: Segment anything model guided underwater salient instance segmen-tation and a large-scale dataset. In: Proceedings of the International Conference on Machine Learning. pp. 29545–29559 (2024) 23. Liu, J., Kong, L., Chen, G.: Improving sam for camouflaged object detection via dual stream adapters. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (2025) 24. Liu, J., Kong, L., Chen, G.: Improving sam for camouflaged object detection via dual stream adapters. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (2025) 25. Liu, N., Luo, Z., Zhang, N., Han, J.: Vst++: Efficient and stronger visual saliency transformer. IEEE Transactions on Pattern Analysis and Machine Intelligence 
+
+46 (11), 7300–7316 (2025) 26. Liu, Y., Tian, Y., Zhao, Y., Yu, H., Xie, L., Wang, Y., Ye, Q., Jiao, J., Liu, Y.: Vmamba: Visual state space model. Proceedings of the Advances in Neural Information Processing Systems 37 , 103031–103063 (2024) 27. Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., Guo, B.: Swin transformer: Hierarchical vision transformer using shifted windows. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 10012–10022 (2021) 28. Liu, Z., Mao, H., Wu, C.Y., Feichtenhofer, C., Darrell, T., Xie, S.: A convnet for the 2020s. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 11976–11986 (2022) 29. Luo, Z., Liu, N., Zhao, W., Yang, X., Zhang, D., Fan, D.P., Khan, F., Han, J.: Vscode: General visual salient and camouflaged object detection with 2d prompt learning. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 17169–17180 (2024) 30. Lv, Y., Zhang, J., Dai, Y., Li, A., Liu, B., Barnes, N., Fan, D.P.: Simultane-ously localize, segment and rank the camouflaged objects. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 11591– 11601 (2021) 31. Lyu, P., Yu, X., Chi, J., Wu, H., Wu, C., Rajapakse, J.C.: Twinstnet: Broad-view twins transformer network for bi-modal salient object detection. IEEE Transactions on Image Processing (2025) 18 Duan et al. 32. Mao, K., Wei, P., Lian, Y., Wang, Y., Zheng, N.: Beyond single-modal bound-ary: Cross-modal anomaly detection through visual prototype and harmonization. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 9964–9973 (2025) 33. Mei, H., Ji, G.P., Wei, Z., Yang, X., Wei, X., Fan, D.P.: Camouflaged object seg-mentation with distraction mining. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 8772–8781 (2021) 34. Oquab, M., Darcet, T., Moutakanni, T., Vo, H., Szafraniec, M., Khalidov, V., Fernandez, P., Haziza, D., Massa, F., El-Nouby, A., et al.: Dinov2: Learning robust visual features without supervision. arXiv preprint arXiv:2304.07193 (2023) 35. Pei, X., Huang, T., Xu, C.: Efficientvmamba: Atrous selective scan for light weight visual mamba. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 39, pp. 6443–6451 (2025) 36. Peng, H., Li, B., Xiong, W., Hu, W., Ji, R.: Rgbd salient object detection: A bench-mark and algorithms. In: Proceedings of the European Conference on Computer Vision. pp. 92–109. Springer (2014) 37. Ranftl, R., Bochkovskiy, A., Koltun, V.: Vision transformers for dense prediction. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 12179–12188 (2021) 38. Ren, G., Liu, H., Lazarou, M., Stathaki, T.: Multi-modal segment anything model for camouflaged scene segmentation. In: Proceedings of the IEEE/CVF Interna-tional Conference on Computer Vision. pp. 19882–19892 (October 2025) 39. Rombach, R., Blattmann, A., Lorenz, D., Esser, P., Ommer, B.: High-resolution image synthesis with latent diffusion models. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 10684–10695 (2022) 40. Su, Y., Gao, H., Wang, M., Wang, F.: Asymmetric cross-modality interaction net-work for rgb-d salient object detection. Expert Systems with Applications 275 ,127004 (2025) 41. Sun, K., Chen, Z., Lin, X., Sun, X., Liu, H., Ji, R.: Conditional diffusion models for camouflaged and salient object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence (2025) 42. Sun, Y., Xu, C., Yang, J., Xuan, H., Luo, L.: Frequency-spatial entanglement learn-ing for camouflaged object detection. In: Proceedings of the European Conference on Computer Vision. pp. 343–360 (2024) 43. Wang, K., Tu, Z., Li, C., Liu, Z., Luo, B.: Unified-modal salient object detection via adaptive prompt learning. IEEE Transactions on Circuits and Systems for Video Technology (2025) 44. Wang, K., Tu, Z., Li, C., Zhang, C., Luo, B.: Learning adaptive fusion bank for multi-modal salient object detection. IEEE Transactions on Circuits and Systems for Video Technology 34 (8), 7344–7358 (2024) 45. Wang, L., Yang, J., Zhang, Y., Wang, F., Zheng, F.: Depth-aware concealed crop detection in dense agricultural scenes. In: Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition. pp. 17201–17211 (2024) 46. Wang, Q., Yang, J., Yu, X., Wang, F., Chen, P., Zheng, F.: Depth-aided camou-flaged object detection. In: Proceedings of the ACM International Conference on Multimedia. pp. 3297–3306 (2023) 47. Wang, Q., Yang, J., Yu, X., Wang, F., Chen, P., Zheng, F.: Depth-aided camou-flaged object detection. In: Proceedings of the ACM international Conference on Multimedia. pp. 3297–3306 (2023) VCP-DCN 19 48. Wang, W., Xie, E., Li, X., Fan, D.P., Song, K., Liang, D., Lu, T., Luo, P., Shao, L.: Pyramid vision transformer: A versatile backbone for dense prediction with-out convolutions. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 568–578 (2021) 49. Wu, L., Gao, Z., Fei, H., Lee, M.L., Hsu, W.: Leaf-mamba: Local emphatic and adaptive fusion state space model for rgb-d salient object detection. In: Proceedings of the ACM International Conference on Multimedia (2025) 50. Wu, Z., Paudel, D.P., Fan, D.P., Wang, J., Wang, S., Demonceaux, C., Timofte, R., Van Gool, L.: Source-free depth for object pop-out. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 1032–1042 (2023) 51. Wu, Z., Paudel, D.P., Fan, D.P., Wang, J., Wang, S., Demonceaux, C., Timofte, R., Van Gool, L.: Source-free depth for object pop-out. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 1032–1042 (2023) 52. Xia, C., Duan, S., Ge, B., Zhang, H., Li, K.C.: Hdnet: Multi-modality hierarchy-aware decision network for rgb-d salient object detection. IEEE Signal Processing Letters 29 , 2577–2581 (2022) 53. Xia, C., Duan, S., Fang, X., Gao, X., Sun, Y., Ge, B., Zhang, H., Li, K.C.: Efgnet: Encoder steered multi-modality feature guidance network for rgb-d salient object detection. Digital Signal Processing 131 , 103775 (2022) 54. Yang, J., Li, C., Dai, X., Gao, J.: Focal modulation networks. Proceedings of the Advances in Neural Information Processing Systems 35 , 4203–4217 (2022) 55. Yang, J., Bai, L., Sun, Y., Tian, C., Mao, M., Wang, G.: Pixel difference convo-lutional network for rgb-d semantic segmentation. IEEE Transactions on Circuits and Systems for Video Technology 34 (3), 1481–1492 (2023) 56. Yang, L., Kang, B., Huang, Z., Zhao, Z., Xu, X., Feng, J., Zhao, H.: Depth anything v2. Proceedings of the Advances in Neural Information Processing Systems 37 ,21875–21911 (2024) 57. Yin, B., Zhang, X., Fan, D.P., Jiao, S., Cheng, M.M., Van Gool, L., Hou, Q.: Camoformer: Masked separable attention for camouflaged object detection. IEEE Transactions on Pattern Analysis and Machine Intelligence (2024) 58. Yu, Z., Zhang, X., Zhao, L., Bin, Y., Xiao, G.: Exploring deeper! segment anything model with depth perception for camouflaged object detection. In: Proceedings of the ACM International Conference on Multimedia. pp. 4322–4330 (2024) 59. Yuan, H., Li, X., Yang, Y., Cheng, G., Zhang, J., Tong, Y., Zhang, L., Tao, D.: Polyphonicformer: Unified query learning for depth-aware video panoptic segmen-tation. In: Proceedings of the European Conference on Computer Vision. pp. 582– 599 (2022) 60. Zhai, Q., Li, X., Yang, F., Chen, C., Cheng, H., Fan, D.P.: Mutual graph learning for camouflaged object detection. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 12997–13007 (2021) 61. Zhang, C., Zhang, Q., Wu, J., Pang, Y.: Cgcod: Class-guided camouflaged object detection. In: Proceedings of the ACM International Conference on Multimedia (2025) 62. Zhang, D., Cheng, L., Liu, Y., Wang, X., Han, J.: Mamba capsule routing to-wards part-whole relational camouflaged object detection. International Journal of Computer Vision pp. 1–21 (2025) 63. Zhang, D., Cheng, L., Liu, Y., Wang, X., Han, J.: Mamba capsule routing to-wards part-whole relational camouflaged object detection. International Journal of Computer Vision pp. 1–21 (2025) 20 Duan et al. 64. Zhang, S., Huang, J., Tang, W., Wu, Y., Hu, T., Xu, X., Liu, J.: Dimsod: A diffusion-based framework for multi-modal salient object detection. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 39, pp. 10103–10111 (2025) 65. Zhao, J., Li, X., Yang, F., Zhai, Q., Luo, A., Jiao, Z., Cheng, H.: Focusdiffuser: Perceiving local disparities for camouflaged object detection. In: Proceedings of the European Conference on Computer Vision. pp. 181–198 (2024) 66. Zhou, T., Fu, H., Chen, G., Zhou, Y., Fan, D.P., Shao, L.: Specificity-preserving rgb-d saliency detection. In: Proceedings of the IEEE/CVF International Confer-ence on Computer Vision. pp. 4681–4691 (2021) 67. Zhou, T., Zhou, Y., Gong, C., Yang, J., Zhang, Y.: Feature aggregation and prop-agation network for camouflaged object detection. IEEE Transactions on Image Processing 31 , 7036–7047 (2022) 68. Zhou, Z., Li, Y., Zhong, C., Huang, J., Pei, J., Li, H., Tang, H.: Rethinking de-tecting salient and camouflaged objects in unconstrained scenes. In: Proceedings of the IEEE/CVF International Conference on Computer Vision. pp. 22372–22382 (October 2025) 69. Zhu, L., Liao, B., Zhang, Q., Wang, X., Liu, W., Wang, X.: Vision mamba: Efficient visual representation learning with bidirectional state space model. arXiv preprint arXiv:2401.09417 (2024) 70. Zhu, X.F., Xu, T., Atito, S., Awais, M., Wu, X.J., Feng, Z., Kittler, J.: Self-supervised learning for rgb-d object tracking. Pattern Recognition 155 , 110543 (2024) 71. Zhu, X.F., Xu, T., Tang, Z., Wu, Z., Liu, H., Yang, X., Wu, X.J., Kittler, J.: Rgbd1k: A large-scale dataset and benchmark for rgb-d object tracking. In: Pro-ceedings of the AAAI Conference on Artificial Intelligence. vol. 37, pp. 3870–3878 (2023)

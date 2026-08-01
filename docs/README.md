@@ -6,72 +6,65 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-07-29
-- 运行时间：2026-07-29 21:33:26 UTC
+- 最新运行日期：2026-08-01
+- 运行时间：2026-08-01 21:39:10 UTC
 - 运行状态：成功
-- 本次总论文数：16
-- 精读区：7
-- 速读区：9
+- 本次总论文数：15
+- 精读区：10
+- 速读区：5
 
 ### 今日简报（AI）
-今日日报共16篇论文，精读7篇速读9篇，重点关注医学图像与食物分割领域。
-
-最值得精读的是《Risk-Routed Implicit Boundary Refinement》与《DishSeg24k》，分别以9.0分在鲁棒超声图像分割和食物分割大规模基准上提出创新方法。
-
-建议优先阅读弱监督和少样本学习方向的速读论文，如《Open-Ended CT Volume Segmentation with Weak Supervision from Language》。
-- 详情：[/202607/29/README](/202607/29/README)
+今日共读15篇论文，精读10篇、速读5篇，聚焦计算机视觉与多模态融合前沿。最值得关注精读中的《MIND》医学图像融合与《A Smooth Phase-Separation Model》弱边界分割，均为9分以上高分工作。建议优先复现或精读这两篇，并留意速读中《TraceCLIP》的局部语义恢复方法。
+- 详情：[/202608/01/README](/202608/01/README)
 
 ### 精读区论文标签
-1. [Risk-Routed Implicit Boundary Refinement for Robust Ultrasound Image Segmentation](/202607/29/2607.21787v1-risk-routed-implicit-boundary-refinement-for-robust-ultrasound-image-segmentation)  
+1. [MIND: Multimodal Intent-Driven Network via Diffusion Transformers for Medical Image Fusion](/202608/01/2607.28565v1-mind-multimodal-intent-driven-network-via-diffusion-transformers-for-medical-image-fusion)  
+   标签：评分：10.0/10、query:image-fusion
+   evidence：基于扩散Transformer的多模态医学图像融合，意图驱动
+2. [A Smooth Phase-Separation Model for Weak-Boundary Segmentation of Homogeneous Structures](/202608/01/2607.22053v1-a-smooth-phase-separation-model-for-weak-boundary-segmentation-of-homogeneous-structures)  
    标签：评分：9.0/10、query:image-seg
-   evidence：医学超声图像分割与隐式边界细化
-2. [DishSeg24k: A Large-Scale Benchmark for Food Segmentation with Stochastic Expert Decoding](/202607/29/2607.23070v1-dishseg24k-a-large-scale-benchmark-for-food-segmentation-with-stochastic-expert-decoding)  
+   evidence：同质结构弱边界分割；相分离变分模型
+3. [Perturbation-Aware Diffusion-Guided Hybrid Segmentation for Robust and Annotation-Efficient Plant Stress Phenotyping](/202608/01/2607.23680v1-perturbation-aware-diffusion-guided-hybrid-segmentation-for-robust-and-annotation-efficient-plant-stress-phenotyping)  
    标签：评分：9.0/10、query:image-seg
-   evidence：基于Transformer解码器的大规模食物分割基准
-3. [Spatio-Temporal Conditional Denoising Transformer for Modality-Missing RGBT Tracking](/202607/29/2607.24701v1-spatio-temporal-conditional-denoising-transformer-for-modality-missing-rgbt-tracking)  
-   标签：评分：9.0/10、query:image-fusion
-   evidence：基于Transformer的多模态图像融合用于缺失模态恢复
-4. [Dual-Domain Manifold Modeling for Hyperspectral Image Fusion](/202607/29/2607.25338v1-dual-domain-manifold-modeling-for-hyperspectral-image-fusion)  
-   标签：评分：9.0/10、query:image-fusion
-   evidence：高光谱图像融合，双域流形建模
-5. [Loss Landscape Topology Reveals Why Simple Baselines are Competitive at 3D Point Cloud Segmentation Under Class Imbalance](/202607/29/2607.21089v1-loss-landscape-topology-reveals-why-simple-baselines-are-competitive-at-3d-point-cloud-segmentation-under-class-imbalance)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：3D点云语义分割及类别不平衡分析
-6. [Perturbation-Aware Diffusion-Guided Hybrid Segmentation for Robust and Annotation-Efficient Plant Stress Phenotyping](/202607/29/2607.23680v1-perturbation-aware-diffusion-guided-hybrid-segmentation-for-robust-and-annotation-efficient-plant-stress-phenotyping)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：植物表型语义分割与扩散引导混合框架
-7. [A Modern ConvNet for Solar Filament Detection](/202607/29/2607.24525v1-a-modern-convnet-for-solar-filament-detection)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：用于太阳暗条检测的语义分割深度学习方法
+   evidence：基于U-Net、DeepLabV3+、SegFormer与扩散精化的混合语义分割框架
+4. [QueenVIS: Rethinking Image-Only Training for Video Instance Segmentation via Query Enrichment](/202608/01/2607.24598v1-queenvis-rethinking-image-only-training-for-video-instance-segmentation-via-query-enrichment)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：视频实例分割；基于查询增强的仅图像训练
+5. [From Spatial Semantics to Temporal Context: Leveraging Gaze Trajectory for Weakly Supervised Medical Image Segmentation](/202608/01/2607.26542v1-from-spatial-semantics-to-temporal-context-leveraging-gaze-trajectory-for-weakly-supervised-medical-image-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：基于注视轨迹的弱监督医学图像分割
+6. [BATS: Resource-Efficient Volumetric Segmentation with Boundary-Aware Mixed-Resolution Tokens](/202608/01/2607.26829v1-bats-resource-efficient-volumetric-segmentation-with-boundary-aware-mixed-resolution-tokens)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：三维医学图像分割，边界感知令牌选择
+7. [Step-Attention Refinement of DINOv3 Features for Efficient Anterior Eye Segmentation](/202608/01/2607.27087v1-step-attention-refinement-of-dinov3-features-for-efficient-anterior-eye-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：使用DINOv3特征细化实现医学图像分割的深度学习方法
+8. [SAFViT: Spatial Attention Fusion Gating for Vision Transformer-Based Nucleus Segmentation and Classification](/202608/01/2607.27835v1-safvit-spatial-attention-fusion-gating-for-vision-transformer-based-nucleus-segmentation-and-classification)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：深度学习用于医学图像细胞核分割与分类
+9. [Benchmarking Foundation and Large Language Models for Few-Shot Medical Image Segmentation](/202608/01/2607.27856v1-benchmarking-foundation-and-large-language-models-for-few-shot-medical-image-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：面向少样本医学图像分割的基础模型和大语言模型统一基准
+10. [AuricularWorld: Hierarchical Action-Guided World Modeling for Fine-Grained Auricular Structure Segmentation from CT Scans](/202608/01/2607.28487v1-auricularworld-hierarchical-action-guided-world-modeling-for-fine-grained-auricular-structure-segmentation-from-ct-scans)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：基于深度学习的医学图像分割，用于耳廓CT结构
 
 ### 速读区论文标签
-1. [Unifying Active Learning and Semi-Supervised Learning for Medical Image Segmentation](/202607/29/2607.25014v1-unifying-active-learning-and-semi-supervised-learning-for-medical-image-segmentation)  
+1. [TraceCLIP: Recovering Local Semantics from Patch-to-CLS Contributions](/202608/01/2607.26107v1-traceclip-recovering-local-semantics-from-patch-to-cls-contributions)  
    标签：评分：8.0/10、query:image-seg
-   evidence：主动学习与半监督学习统一框架用于医学图像分割
-2. [Bi-Level Collaborative Learning for Few-Shot Scribble-Supervised Medical Image Segmentation](/202607/29/2607.25432v1-bi-level-collaborative-learning-for-few-shot-scribble-supervised-medical-image-segmentation)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：使用双层协作学习的少样本涂鸦监督医学图像分割
-3. [Open-Ended CT Volume Segmentation with Weak Supervision from Language](/202607/29/2607.25860v1-open-ended-ct-volume-segmentation-with-weak-supervision-from-language)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：CT体积分割，语言弱监督
-4. [QueenVIS: Rethinking Image-Only Training for Video Instance Segmentation via Query Enrichment](/202607/29/2607.24598v1-queenvis-rethinking-image-only-training-for-video-instance-segmentation-via-query-enrichment)  
+   evidence：开放词汇语义分割；密集视觉语言理解；CLIP块到CLS贡献
+2. [Token-Region Guided Cross-Attention Fusion for Multimodal Affect Interpretation](/202608/01/2607.23493v1-token-region-guided-cross-attention-fusion-for-multimodal-affect-interpretation)  
+   标签：评分：7.0/10、query:image-fusion
+   evidence：用于多模态梗图分类的视觉-文本跨模态多头注意力融合
+3. [ReflexTrack: A Feedback-Driven Agent for Training-Free Referring Video Object Segmentation](/202608/01/2607.24098v1-reflextrack-a-feedback-driven-agent-for-training-free-referring-video-object-segmentation)  
    标签：评分：7.0/10、query:image-seg
-   evidence：视频实例分割，图像分割的子任务
-5. [Food Image Segmentation with LLM-Derived Ingredient Labels and Multimodal Fusion](/202607/29/2607.25820v1-food-image-segmentation-with-llm-derived-ingredient-labels-and-multimodal-fusion)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：利用LLM标签进行多模态融合的食品图像深度学习分割
-6. [IGGT4D: Streaming 4D Instance-Grounded Geometry Transformer](/202607/29/2607.19228v1-iggt4d-streaming-4d-instance-grounded-geometry-transformer)  
-   标签：评分：6.0/10、query:image-seg
-   evidence：在线4D实例分割与几何理解
-7. [A Smooth Phase-Separation Model for Weak-Boundary Segmentation of Homogeneous Structures](/202607/29/2607.22053v1-a-smooth-phase-separation-model-for-weak-boundary-segmentation-of-homogeneous-structures)  
-   标签：评分：6.0/10、query:image-seg
-   evidence：基于Cahn-Hilliard方程的弱边界分割模型
-8. [From level set evolution to threshold optimization: A grayscale level set framework for image segmentation](/202607/29/2607.22255v1-from-level-set-evolution-to-threshold-optimization-a-grayscale-level-set-framework-for-image-segmentation)  
-   标签：评分：6.0/10、query:image-seg
-   evidence：基于水平集框架与阈值优化的无监督图像分割
-9. [Multi-Modal Object Re-Identification with Prompt-S6 and Semantic-Aware Knowledge Guidance](/202607/29/2607.23451v1-multi-modal-object-re-identification-with-prompt-s6-and-semantic-aware-knowledge-guidance)  
-   标签：评分：6.0/10、query:image-fusion
-   evidence：多模态特征融合与Prompt-S6
+   evidence：基于深度学习的指代视频目标分割，采用反馈驱动智能体
+4. [LaP-Forensics: Latent-Pixel Consistency Guided Multimodal Reasoning for Deepfake Detection](/202608/01/2607.25962v1-lap-forensics-latent-pixel-consistency-guided-multimodal-reasoning-for-deepfake-detection)  
+   标签：评分：7.0/10、query:image-fusion
+   evidence：面向深伪检测的RGB与重建残差特征多模态融合
+5. [VCP-DCN: Beyond Visual Concealed Property via Depth Collaborative Network for Camouflaged Object Detection](/202608/01/2607.27843v1-vcp-dcn-beyond-visual-concealed-property-via-depth-collaborative-network-for-camouflaged-object-detection)  
+   标签：评分：7.0/10、query:image-fusion
+   evidence：面向深度伪装检测的RGB-D多模态对齐、交互与融合
 
 
 <div class="dpr-home-promo-card">
