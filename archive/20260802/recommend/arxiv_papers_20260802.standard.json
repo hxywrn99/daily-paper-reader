@@ -1,0 +1,228 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-02T21:19:40.995614+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 3,
+    "deep_cap": 7,
+    "deep_selected": 3,
+    "quick_candidates": 2,
+    "quick_skim_target": 12,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2607.26165v1",
+      "source": "arxiv",
+      "title": "DVPSFormer: Efficient Online Depth-aware Video Panoptic Segmentation for Autonomous Driving",
+      "abstract": "Safe autonomous navigation requires a holistic understanding of dynamic environments, necessitating the simultaneous estimation of metric depth, semantic segmentation, and instance trajectories. While depth-aware video panoptic segmentation (DVPS) unifies these tasks, existing approaches often rely on computationally expensive, multi-stage pipelines or offline tracking, rendering them unsuitable for real-time decision-making. To address this, we propose DVPSFormer, a unified online architecture designed for efficient 4D scene understanding. Central to our approach is explicit scene discretization (ESD), a novel mechanism that leverages segmentation queries to represent foreground and background regions, enabling a discrete-to-continuous (D2C) depth head to decode metric depth in a single pass. This tightly couples semantic and geometric learning while significantly reducing latency. Furthermore, we propose an online majority voting (OMV) mechanism that exploits temporal consistency to refine classification during instance tracking. DVPSFormer establishes a new state-of-the-art on the Cityscapes-DVPS and SemKITTI-DVPS benchmarks, offering a streamlined solution for online robotic perception. Code and models are available at https://royyang0714.github.io/DVPSFormer.",
+      "authors": [
+        "Yung-Hsu Yang",
+        "Luigi Piccinelli",
+        "Siyuan Li",
+        "Mattia Segu",
+        "Lei Ke",
+        "Martin Danelljan",
+        "Yuqian Fu",
+        "Zuria Bauer",
+        "Fisher Yu",
+        "Hermann Blum",
+        "Marc Pollefeys"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-28T18:16:00+00:00",
+      "link": "https://arxiv.org/pdf/2607.26165v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Efficient online depth-aware video panoptic segmentation using a unified deep learning architecture",
+      "llm_evidence_cn": "面向自动驾驶的深度感知视频全景分割，统一架构实现高效在线推理",
+      "llm_evidence": "面向自动驾驶的深度感知视频全景分割，统一架构实现高效在线推理",
+      "canonical_evidence": "面向自动驾驶的深度感知视频全景分割，统一架构实现高效在线推理",
+      "llm_tldr_en": "DVPSFormer unifies depth, semantic segmentation, and instance trajectories in an online architecture with explicit scene discretization, enabling real-time depth-aware video panoptic segmentation for autonomous driving.",
+      "llm_tldr_cn": "安全自动驾驶需要对动态环境进行整体理解，同时估计深度、语义分割和实例轨迹，而现有方法往往依赖多阶段流程或离线跟踪，难以实时运行。本文提出DVPSFormer，一种高效在线架构，通过显式场景离散化机制统一了深度感知视频全景分割任务，利用分割查询表示前景与背景区域。实验表明该方法在保持分割质量的同时显著提升推理效率，为自动驾驶的实时4D场景理解提供了可行方案。",
+      "llm_tldr": "安全自动驾驶需要对动态环境进行整体理解，同时估计深度、语义分割和实例轨迹，而现有方法往往依赖多阶段流程或离线跟踪，难以实时运行。本文提出DVPSFormer，一种高效在线架构，通过显式场景离散化机制统一了深度感知视频全景分割任务，利用分割查询表示前景与背景区域。实验表明该方法在保持分割质量的同时显著提升推理效率，为自动驾驶的实时4D场景理解提供了可行方案。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.24098v1",
+      "source": "arxiv",
+      "title": "ReflexTrack: A Feedback-Driven Agent for Training-Free Referring Video Object Segmentation",
+      "abstract": "Referring video object segmentation (RVOS) requires segmenting a target specified by natural language throughout a video. Recent agentic approaches combine multimodal large language models with promptable segmentation models to perform RVOS without task-specific training. However, most pipelines rely on one-shot spatial grounding followed by mask propagation, leaving both the initial prompts and temporal predictions largely unverified. We introduce ReflexTrack, a training-free, feedback-driven agent that closes this loop at both spatial and temporal levels. Mask-guided Spatial Refinement evaluates the mask induced by the current keyframe prompt and iteratively updates the bounding box together with positive and negative points, yielding a more reliable initialization. Video-level Mask Reflection assesses the complete mask sequence, localizes unreliable intervals, selects complementary repair keyframes, and generates candidate predictions through mask-guided re-propagation. Only candidates that provide a verified improvement are used to update the affected intervals, preserving reliable predictions elsewhere. All components remain frozen during inference. ReflexTrack achieves an overall $\\mathcal{Q}$ score of $69.7$ on Ref-VPS and a $\\mathcal{J}\\&\\mathcal{F}$ score of $67.2$ on ReasonVOS. These results demonstrate that prediction-level feedback substantially improves the reliability of training-free RVOS.",
+      "authors": [
+        "Yuanjia Li",
+        "Tianyang Xu",
+        "Tao Zhou",
+        "Zhangyong Tang",
+        "Xiao-Jun Wu",
+        "Josef Kittler"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-27T07:39:20+00:00",
+      "link": "https://arxiv.org/pdf/2607.24098v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "referring video object segmentation with feedback-driven agent",
+      "llm_evidence_cn": "基于反馈驱动代理的引用视频目标分割",
+      "llm_evidence": "基于反馈驱动代理的引用视频目标分割",
+      "canonical_evidence": "基于反馈驱动代理的引用视频目标分割",
+      "llm_tldr_en": "ReflexTrack introduces a training-free agent with mask-guided spatial and temporal refinement for referring video object segmentation, improving prompt grounding and temporal predictions.",
+      "llm_tldr_cn": "现有引用视频目标分割方法依赖一次性空间定位和掩码传播，初始提示和时间预测常缺乏验证。ReflexTrack提出免训练的反馈驱动代理，通过掩码引导的空间细化迭代更新边界框和正负点，并在时间层面闭环优化。实验表明该方法在RVOS基准上显著提升分割准确率，且无需任务特定训练。",
+      "llm_tldr": "现有引用视频目标分割方法依赖一次性空间定位和掩码传播，初始提示和时间预测常缺乏验证。ReflexTrack提出免训练的反馈驱动代理，通过掩码引导的空间细化迭代更新边界框和正负点，并在时间层面闭环优化。实验表明该方法在RVOS基准上显著提升分割准确率，且无需任务特定训练。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2607.24598v1",
+      "source": "arxiv",
+      "title": "QueenVIS: Rethinking Image-Only Training for Video Instance Segmentation via Query Enrichment",
+      "abstract": "Video instance segmentation (VIS) requires models to detect, segment, and track object identities across frames, and most methods enforce temporal consistency through video-level supervision. Image-only training approaches, with MinVIS as one prominent example, have challenged this assumption, reaching competitive VIS without video training by treating frames as independent images and associating instances only at inference. The field has nonetheless moved toward ever more elaborate video-trained trackers, which depend on costly identity-consistent annotations, leaving the image-only direction under-explored. A diagnostic analysis identifies object query quality as the bottleneck: queries trained only to localize objects within a frame drift apart across frames and destabilize association. QueenVIS introduces a query-centric framework for strengthening image-trained VIS. During single-frame training, we enrich Mask2Former queries with two auxiliary heads: a feature-prediction loss that aligns each query with the pooled backbone descriptor of its instance, and a center-prediction loss that injects spatial structure. Both heads are discarded at inference, adding zero parameters, and temporal identity is maintained by a training-free query-propagation and memory-bank scheme. On YouTube-VIS and OVIS with a ResNet-50 backbone, QueenVIS improves over MinVIS, up to +6.7 AP on YouTube-VIS, +4.8 AP on OVIS, and +10.3 AP on the long-sequence YouTube-VIS split. QueenVIS achieves 50.9 AP on YouTube-VIS and remains competitive with recent video-supervised state-of-the-art, without processing a single video clip during training. Our findings suggest that strengthening the discriminative power and temporal stability of object queries is an important, underexplored axis for VIS. Code and models: https://github.com/ArianKheir/QueenVIS",
+      "authors": [
+        "Arian Kheirandish",
+        "Fardin Ayar",
+        "Ehsan Javanmardi",
+        "Manabu Tsukada",
+        "Mahdi Javanmardi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-27T16:00:03+00:00",
+      "link": "https://arxiv.org/pdf/2607.24598v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video instance segmentation via image-only training and query enrichment",
+      "llm_evidence_cn": "基于仅图像训练与查询增强的视频实例分割方法",
+      "llm_evidence": "基于仅图像训练与查询增强的视频实例分割方法",
+      "canonical_evidence": "基于仅图像训练与查询增强的视频实例分割方法",
+      "llm_tldr_en": "QueenVIS enriches object query quality during image-only training for video instance segmentation, achieving performance competitive with video-trained models without requiring identity-consistent video annotations.",
+      "llm_tldr_cn": "视频实例分割通常依赖视频级监督和昂贵的身份一致标注，而仅图像训练方法在MinVIS等工作后未被充分探索。针对对象查询质量这一瓶颈，提出查询增强机制，使模型在仅图像训练下获得更好的定位与关联能力。实验显示，该方法在不需要视频标注的情况下取得了与视频训练相当的性能，显著降低了标注成本，为视频实例分割提供了高效训练范式。",
+      "llm_tldr": "视频实例分割通常依赖视频级监督和昂贵的身份一致标注，而仅图像训练方法在MinVIS等工作后未被充分探索。针对对象查询质量这一瓶颈，提出查询增强机制，使模型在仅图像训练下获得更好的定位与关联能力。实验显示，该方法在不需要视频标注的情况下取得了与视频训练相当的性能，显著降低了标注成本，为视频实例分割提供了高效训练范式。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2607.23921v1",
+      "source": "arxiv",
+      "title": "DDVT: Dynamic Dual-level Vision Transformer Fusion Network for Answer Grounding in Visual Question Answering",
+      "abstract": "Answer grounding in visual question answering aims to locate the region from a given natural language question associated with the visual content of an image, which has garnered significant attention due to its practical applications. In this paper, we introduce the Dynamic Dual-level Vision Transformer Fusion Network (DDVT) for answer grounding in visual question answering. Specifically, we propose a question-guided dynamic regional-level module (QGDR) that combines complementary image context through ROI Align and text content, enabling precise localization of text-related visual content. Moreover, we present a cross-modal multi-scale aggregation module (CMA) that enhances feature fusion between pixel-level and region-level features, facilitating the effective localization of visual content associated with grounded answers. Furthermore, we fuse the located visual content with text features to locate the region and provide answers to questions posed about the image. Experimental results demonstrate that our DDVT outperforms state-of-the-art methods on several widely-used benchmarks.",
+      "authors": [
+        "Yue Zhang",
+        "Xiangyu Li",
+        "Wanshu Fan",
+        "Xin Yang",
+        "Dongsheng Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-27T01:26:15+00:00",
+      "link": "https://arxiv.org/pdf/2607.23921v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Feature-level fusion in deep learning through cross-modal multi-scale aggregation module for VQA answer grounding",
+      "llm_evidence_cn": "利用跨模态多尺度聚合模块实现深度学习中的特征级融合",
+      "llm_evidence": "利用跨模态多尺度聚合模块实现深度学习中的特征级融合",
+      "canonical_evidence": "利用跨模态多尺度聚合模块实现深度学习中的特征级融合",
+      "llm_tldr_en": "Proposes a Dynamic Dual-level Vision Transformer Fusion Network (DDVT) for answer grounding in VQA, with a question-guided regional module and a cross-modal multi-scale aggregation for feature fusion.",
+      "llm_tldr_cn": "针对视觉问答中答案定位需要融合文本与视觉信息的问题，本文提出DDVT动态双层视觉Transformer融合网络。模型通过问题引导的区域级模块结合ROI Align与文本内容，并利用跨模态多尺度聚合模块增强像素级与区域级特征融合。该方法有效提升了文本相关视觉内容的定位精度。实验表明其在答案定位任务上表现出优越性能，是一种有效的特征级融合方法。",
+      "llm_tldr": "针对视觉问答中答案定位需要融合文本与视觉信息的问题，本文提出DDVT动态双层视觉Transformer融合网络。模型通过问题引导的区域级模块结合ROI Align与文本内容，并利用跨模态多尺度聚合模块增强像素级与区域级特征融合。该方法有效提升了文本相关视觉内容的定位精度。实验表明其在答案定位任务上表现出优越性能，是一种有效的特征级融合方法。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2607.23451v1",
+      "source": "arxiv",
+      "title": "Multi-Modal Object Re-Identification with Prompt-S6 and Semantic-Aware Knowledge Guidance",
+      "abstract": "Multi-modal object Re-Identification (ReID) aims to retrieve specific objects by integrating complementary information from multiple modalities. However, existing multi-modal ReID methods do not effectively address background interference suppression or achieve tri-modal alignment, instead focusing on pairwise feature fusion. Moreover, many current aggregation approaches suffer from high computational complexity. To address these limitations, we propose PRISM, a novel multi-modal ReID framework built upon Prompt-S6 (PS6) and semantic-aware knowledge guidance. PS6 maintains the linear complexity and strong sequence modeling capability of Mamba while enabling efficient cross-modal interaction. Leveraging these advantages, we design two key components: Semantic-Driven Token Pruning (SDTP) and Progressive Fusion Network (PFN). Parsing semantic priors from the segmentation foundation models, the SDTP then leverages these priors and applies dynamic token pruning to suppress background noise and refine feature representations. The PFN progressively aggregates multi-modal features to achieve tri-modal alignment and fully exploit modality complementarity. With the proposed modules, PRISM generates more robust multi-modal representations under complex scenarios. Extensive experiments on four multi-modal object ReID benchmarks demonstrate the effectiveness and efficiency of our approach. The source code is available at https://github.com/zw-absin/PRISM.",
+      "authors": [
+        "Weixiang Zhou",
+        "Jiabei Zuo",
+        "Yuhao Wang",
+        "Cong Wang",
+        "Huchuan Lu",
+        "Zhixun Su"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-07-26T04:29:48+00:00",
+      "link": "https://arxiv.org/pdf/2607.23451v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-modal feature fusion and cross-modal interaction for ReID",
+      "llm_evidence_cn": "多模态特征融合与跨模态交互用于目标重识别",
+      "llm_evidence": "多模态特征融合与跨模态交互用于目标重识别",
+      "canonical_evidence": "多模态特征融合与跨模态交互用于目标重识别",
+      "llm_tldr_en": "PRISM proposes Prompt-S6 and semantic-aware knowledge guidance for efficient tri-modal feature fusion, addressing background interference and high computational cost in multi-modal ReID.",
+      "llm_tldr_cn": "多模态目标重识别常受背景干扰和高计算复杂度困扰，现有方法多局限于两两特征融合。PRISM基于Prompt-S6与语义感知知识引导，以Mamba的线性复杂度实现高效跨模态交互，并设计两种模块解决三模态对齐问题。实验表明PRISM在多个基准上取得显著性能提升，为跨模态特征级融合提供了高效新思路。",
+      "llm_tldr": "多模态目标重识别常受背景干扰和高计算复杂度困扰，现有方法多局限于两两特征融合。PRISM基于Prompt-S6与语义感知知识引导，以Mamba的线性复杂度实现高效跨模态交互，并设计两种模块解决三模态对齐问题。实验表明PRISM在多个基准上取得显著性能提升，为跨模态特征级融合提供了高效新思路。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

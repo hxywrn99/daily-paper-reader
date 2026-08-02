@@ -1,0 +1,222 @@
+Title: DDVT: Dynamic Dual-level Vision Transformer Fusion Network for Answer Grounding in Visual Question Answering
+
+URL Source: https://arxiv.org/pdf/2607.23921v1
+
+Published Time: Tue, 28 Jul 2026 01:25:11 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# DDVT: Dynamic Dual-level Vision Transformer Fusion Network for Answer Grounding in Visual Question Answering 
+
+Yue Zhang 1, Xiangyu Li 1, Wanshu Fan 1∗, Xin Yang 2, and Dongsheng Zhou 1,2 ∗ 
+
+> 1
+
+National and Local Joint Engineering Laboratory of Computer Aided Design, School of Software Engineering, Dalian University, Dalian, China  
+
+> 2
+
+School of Computer Science and Technology, Dalian University of Technology, Dalian, China 
+
+Abstract. Answer grounding in visual question answering aims to lo-cate the region from a given natural language question associated with the visual content of an image, which has garnered significant attention due to its practical applications. In this paper, we introduce the Dy-namic Dual-level Vision Transformer Fusion Network (DDVT) for an-swer grounding in visual question answering. Specifically, we propose a question-guided dynamic regional-level module (QGDR) that com-bines complementary image context through ROI Align and text con-tent, enabling precise localization of text-related visual content. More-over, we present a cross-modal multi-scale aggregation module (CMA) that enhances feature fusion between pixel-level and region-level features, facilitating the effective localization of visual content associated with grounded answers. Furthermore, we fuse the located visual content with text features to locate the region and provide answers to questions posed about the image. Experimental results demonstrate that our DDVT out-performs state-of-the-art methods on several widely-used benchmarks. 
+
+Keywords: Dynamic network · Vision transformer · Answer grounding 
+
+· Visual question answering 
+
+# 1 Introduction 
+
+Answer grounding in Visual Question Answering (VQA) represents a vital in-tersection between computer vision and natural language processing [24,22,20]. This multimodal task aims to not only provide accurate answers to questions based on visual data but also identify or "ground" the regions in the image that support the answer, which involves the extraction of feature data from the vision using image processing techniques. The primary challenge lies in the sys-tem’s ability to understand the nuanced interplay between visual and textual 
+
+*Corresponding author Email address: fanwanshu@dlu.edu.cn (Wanshu Fan); zhouds@dlu.edu.cn (Dongsheng Zhou) arXiv:2607.23921v1 [cs.CV] 27 Jul 2026 elements, enabling it to reason and make inferences based on both. It holds im-mense potential for diverse real-life applications, including answering questions from visually impaired individuals [41], aiding radiologists in early diagnosis of life-threatening diseases [2], and enhancing human-computer interaction [31]. As VQA systems continue to advance, the need for interpretability in various appli-cations becomes increasingly evident. An ideal VQA system for such purposes should not only provide accurate answers but also offer a mechanism for answer verification.This is necessary to ensure that the answers are derived based on the correct image location, rather than language biases or other factors. Efforts have been made recently for this task. MAC-Caps [18] aims to en-hance answer localization accuracy by generating visual attention maps alongside textual answers in evaluation systems. Similarly, approaches like LXMERT [32] and SDCAM [33] produce textual answers while simultaneously identifying the corresponding grounded answer regions in images. While these methods can gen-erate attention maps or bounding boxes somewhat related to the question, they exhibit certain limitations. Firstly, existing methods may not effectively capture the intricate relationship between textual features and visual ones. Secondly, these methods might overlook the crucial task of aggregating pixel-level and region-level features. To overcome these limitations, we propose a Dynamic Dual-level Vision Transformer Fusion Network (DDVT) that jointly predicts textual answers and generates accurate grounding masks. Through a novel question-guided region-level selection strategy and a cross-modal multi-scale aggregation mechanism, our method adaptively fuses pixel-level and region-level visual information, ef-fectively localizing regions that correspond to textual answers. 
+
+– We propose a dual-level visual transformer framework for answer grounding, which constructs direct flows from pixel-level features to region-level features at multiple levels, thus facilitating complementary information aggregation from multi-level features. 
+
+– We propose a question-guided dynamic regional-level module to effectively locate region-level objects based on questions and dynamically select masks of different resolutions. 
+
+– We propose a cross-modal multi-scale fusion module to adaptively aggregate pixel-level information and region-level content guided by language in the image, allowing for the interaction and fusion of multimodal information from different levels. 
+
+# 2 Related work 
+
+2.1 Visual Question Answering and Answer Grounding 
+
+In recent years, methods for the VQA task have relied on object-level features as input to enhance the accuracy of the system[18,19,13,17,39,8]. Those features are extracted from pre-trained object detectors. This makes the VQA task eas-ier and usually performs better than spatial or appearance features, but it also 2Fig. 1. The overall architecture of Dynamic Dual-level Vision Transformer Fusion Network (DDVT). we leverage the Swin Transformer to extract visual features and the BERT model to obtain language question features. These are then fused using our pro-posed Question-Guided Dynamic Regional-Level (QGDR) module, enabling dynamic object region identification and mask selection based on questions. Additionally, we introduce a Cross-Modal Multi-Scale Aggregation (CMA) module to adaptively merge pixel- and region-level information, guided by the language. Ultimately, DDVT pre-dicts the answer grounding mask and generates the corresponding answer based on the visual image and question input. 
+
+adds an additional preprocessing step (detecting objects) to the pipeline. Fur-thermore, since pre-training relies on object classes in the training dataset, these feature mappings are pre-trained with relevant object categories. This limits the system’s learning scope to known object classes or requires annotated regions for related objects and pre-training an object detector for them. All these meth-ods usually focus only on the accuracy of the textual answer output or generate visual attention maps to indicate whether the answer is based on correct visual evidence, but they without providing evaluate the grounding of the answers. Recently, researchers have proposed that a good VQA model should provide correct answers by attending to the correct visual evidence[15]. Therefore, it is crucial to ensure that the model’s visual attention is correctly focused when generating answers. To address this issue, several datasets have been introduced that provide grounding labels, which locate each visual object relevant to the language question and answer. Some of these datasets were created by tracking people’s attention when observing visual questions or by collecting bounding boxes of relevant visual answers. Additionally, datasets like VizWizground [4] and VQS [9] provide mask annotations for visual answers that are related to the questions. Notably, VizWizground is the first answer grounding dataset that reflects real-world VQA scenarios. By using this dataset, we can evaluate not only the accuracy of the answers but also assess the accuracy of the grounding answers using the Intersection over Union (IOU) metric. 
+
+2.2 Dynamic Networks 
+
+Dynamic networks are able to adaptively adjust the network structure based on input features. Although traditional static networks can maintain inference 3efficiency through classification selection or budget constraints, the network pa-rameters and computation are very redundant during training, which leads to a huge demand for experimental resources. Unlike traditional static network structures, dynamic networks can dynamically select or adjust the structure or parameters of their instances during the inference process to obtain better rep-resentability, adaptability, compatibility, and generality [11,3,23,38,5], which are more compatible with various situations during practical applications, so they have been widely studied and applied in recent years. Dynamic networks can be classified into three categories according to their structural design: sample adaptive, spatial adaptive, and temporal adaptive [14,28]. The dynamic network methods commonly used in the VQA field are gen-erally sample adaptive, such as the dynamic routing method used by TARA [42] network proposed by Zhao et al. In the field of image segmentation, spatial adaptive methods have been proven effective for object localization and segmen-tation. For instance, Huang et al. [34] propose a multi-scale dense network with multiple classifiers for allocating different computations for “easy” and “hard” samples. The DRNET [44] network proposed by Li et al. to reduce redundancy in the input resolution of modern CNN networks. The DynaMask [21] network proposed by Li et al. utilizes dynamic masks of different resolutions to seg-ment different instances. We are inspired to improve the object localization and grounding answer segmentation performance of VQA systems without increasing the computational load. This motivates our study where we adopt a spatial adap-tive network, the first attempt to design a question-guided dynamic region-level feature module (Section 3.1). Based on question guidance, it performs object localization and adaptively assigns masks of suitable resolutions for different target segmentation difficulties. 
+
+# 3 Method 
+
+Our goal aims to local the answer grounding in one image in the visual question answering system. To that end, we propose a Dynamic Dual-level Vision Trans-former Fusion Network (DDVT). Fig. 1 (a) shows the overall architecture of our DDVT. We first exploit the Swin Transformer [25] as the baseline backbone to extract the visual features that are further utilized to generate Roi Align fea-tures, and utilize the BERT model [35] to generate language question features. Then we adopted the Pixel-Word Attention Module (PWAM) [37] , which uti-lizes attention operations between pixel-level visual features and linguistic cues to ensure spatial alignment between visual image areas and corresponding textual descriptions. Specifically, this module builds a cross-modal interaction map by computing attention scores between visual feature maps and word embeddings, selectively enhancing the relevant visual features based on linguistic context, which effectively bridges semantic gaps between the modalities. To better fuse the language question features and visual ones, we propose a Question-Guided Dynamic Regional-Level module (QGDR), which is introduced in Sec. 3.1, to effectively locate region-level objects based on questions and dynamically select 4masks of different resolutions. To further improve the interaction of multi-modal information from different levels, we propose a Cross-Modal Multi-Scale Aggre-gation module (CMA), which is introduced in Sec. 3.2, to adaptively aggregate pixel-level information and region-level content from the outputs of PWAM [37] and QGDR guided by language in the image. Finally, our DDVT predicts the answer grounding mask and generates the answer from the give the visual image and question. 
+
+3.1 Question-Guided Dynamic Regional-Level Module 
+
+We propose a Question-Guided Dynamic Regional-level (QGDR) module to ef-fectively locate region-level objects based on questions to improve the quality of grounded answer segmentation, as shown in Fig. 1 (b). First, the ROI-aligned regional feature Zi extracted from the Swin Transformer [25] is average pooling to obtain ¯Zi, which is then combined with the question feature Ki extracted from the BERT [35]. Then, the ¯Zi and Ki are performed within cross-modal attention: 
+
+Qi = softmax 
+
+ ¯Zi ¯KTi
+
+√Di
+
+
+
+ˆKi, (1) where Qi ∈ RC×dv and Di means the number of dimension of the head. Then, the obtained is performed with a global pooling operation on Qi to get the feature weight ¯Qi ∈ RC×1×1. The ¯Qi is fed into the channel attention module SE-block [12] to weigh the different channels of visual information. Finally, several convolutional and fully-connected layers are used to classify to obtain different sizes of Fi.The QGDR module is essentially a lightweight classifier, aiming to accurately locate and segment the best mask resolution from the k candidate targets of different scales in a cost-effective manner. QGDR divides Fi into 4 categories of region-level hierarchy feature {Ft, F s, F m, F l}, with spatial resolutions doubling from Ft to Fl.It then performs softmax operation to output a probability vector εk =[ε1, · · · , ε k]. Each element of this vector represents the probability of select-ing the corresponding candidate resolution. The soft output εk of QGDR should be transformed into a one-hot prediction, denoted as H = [ h1, · · · , h k], where 
+
+hi ∈ { 0, 1}. This process can be achieved through discrete sampling, and in this paper, Gumbel-Softmax [16] is utilized for gradient-based back propagation to update QGDR. The specific formula is as follows: 
+
+hi = exp (( logε k + gi) /τ )
+
+P 
+
+> k′
+
+exp (( logε k + gi) /τ ) , (2) where τ denotes a temperature parameter; When τ approaches 0, the Gumbel-softmax is close to one-hot. gi are samples drawn from the Gumbel (0 , 1) distri-bution. 53.2 Cross-Modal Multi-Scale Aggregation Module 
+
+To better align the cross-modal features at multiple scales, we introduce a cross-modal multi-scale aggregation module (CMA), as shown in Fig. 1 (c). Firstly, we use a deconvolution layer to enlarge the spatial size of Fi which is the output of QGDR. Then, Fi is concatenated with Pi which is generated by the PWAM [37] to explore the pixel-level interaction between visual and language features. Next, we use 3 ×3 convolution on the concatenated features to obtain the offset map-ping. After that, the deconvolution feature of Fi is aligned with the concatenated feature via a Deformable convolution [6]. Then, the aligned feature is added to 
+
+Pi, which would be passed by a 1 × 1 convolution and CondConv [36] which serves to pay more attention to the salient parts of the object. 
+
+3.3 Loss Funcion 
+
+We use Mask Loss Lmask , Edge Loss Ledge , Budget Constraint Lbudget , Text Answer Loss Ltext to train our model within an end-to-end fashion: 
+
+Ltotal = Lmask + λ1Ledge + λ2Lbudget + Ltext , (3) where λ1 and λ2 are the trade-off hyper-parameters. 
+
+Mask Loss. Given a VQA instance, we first predict its mask switching state 
+
+H = [ h1, . . . , h k] by QGDR, and obtain a group of mask prediction maps at 
+
+k different resolutions m1 
+
+> i
+
+, . . . , m ki by passing this instance through different stages of decoding. The mask loss function is defined as: 
+
+Lmask =
+
+> N
+
+X
+
+> i=1
+> K
+
+X
+
+> k=1
+
+hiC   ˆmki , m i
+
+ , (4) where ˆmki denotes the k-th mask prediction ground truth answer , and mi rep-resents corresponding ground truth mask grid. hi is the indicator for whether the k-th mask resolution is selected as the output resolution. C is the binary cross-entropy loss. 
+
+Edge Loss. The edge loss for the edge mapping at different resolutions is defined as follows: 
+
+Ledge =
+
+> N
+
+X
+
+> i=1
+> K
+
+X
+
+> k=1
+
+hiC  ˆeki , e i
+
+ , (5) where ei denotes the ground-truth grounding answer edge, which is generated by first applying the Laplacian operator on the ground-truth grounding answer mask mi to obtain a soft edge map and then converting it into a binary edge map by thresholding. 
+
+Budget Constraint. We adopt budget constraints [21] to train QGDR. Specifi-cally, let C represent the corresponding computational cost for the selected mask resolution. A penalty is added to the model when the expected deviation E (C) 
+
+6Table 1. Comparison results with the state-of-the-art methods on the VizWiz-Ground [4] test set and VQS [9] val set. The pre-trained represents whether the model adopts a large-scale dataset for pre-training or not. Method Pre-trained IOU VizWizGround VQS LXMTRT [32] " 22.09 -Mac-Caps [18] % 27.3 -UNIFIED [27] " 54.7 -DDTN [43] % 53.4 -DFAF [10] % - 17.5 MCAN [40] % - 23.91 BUTD [1] % - 33.97 SDCAM [33] % - 37.93    
+
+> DDVT (Ours) %65.3 43.47
+
+from the current batch data exceeds the target deviation (represented as Ct) to control the computational cost: 
+
+Lbudget = max 
+
+ E (C) Ct
+
+− 1, 0
+
+
+
+, (6) 
+
+Text Answer Loss. Textual answers are constrained by binary cross-entropy loss and obtained through the text answer decoder [32](TAD): 
+
+Ltext = C (σ(¯ ai), a i) . (7) where ¯ai denotes the textual answers prediction; ai represents corresponding truth textual answers; σ means the sigmoid function. 
+
+# 4 Experiments 
+
+4.1 Datasets and metrics 
+
+We conduct experiments on the VizwizGround [4] and VQS [9] datasets. The VizWizGround dataset consists of 6494 images for training, 1131 images for validation, and 2373 images for online testing. Each example includes a question-answer pair and the corresponding instance mask. This dataset comprises 9998 VQA triplets and 9998 Grounding pairs. Compared to other VQA datasets, it has lower image quality, making the task more challenging. The VQS dataset contains 37868 images, 96508 questions, 108537 instance segmentations, and 43725 bounding boxes. The accuracy of grounding answers based on textual responses is used to evaluate the inference performance of models [35]. For grounding answer evaluation, the IoU is used to measure the similarity between each binary segmentation mask and the ground truth grounding seg-mentation answer. The average IoU score is calculated for all test examples. 7Fig. 2. Predicted masks generated by DDTN [43] and our DDVT on the Vizwiz-Ground [4] val set. 
+
+The range of the Q value is from 0 to 1, with higher values indicating better performance. For the validation set, we also evaluate using the general metrics for detection and localization tasks: mAP@IoU based on the COCO evaluation protocol, and the average AP values with IoU thresholds ranging from 0.5 to 0.95 with a step size of 0.05. 
+
+4.2 Implementation Details 
+
+We implement the method by PyTorch [30]. Swin Transformer [25] is adopted as the backbone, which is initialized with classification weights on ImageNet22K [7]. The language encoder is based on the BERT model [35] initialized with official pre-trained weights. We use Adam [26] optimizer with an initial learning rate of 0.00005 for train-ing. The model training is performed on 4 GPUs for 100 epochs with a batch size of 16 . The Ki is set to 512 . The λ1 and λ2 are set to 0.1 and 0.4, respectively. 
+
+4.3 Main Results 
+
+We conduct experiments using the VizWizGround dataset [4] and the VQS dataset [9]. Since these datasets exclusively support IOU comparisons of ground-ing answers and do not offer text answer verification, our method is compared with existing approaches based on IOU metrics. The results in Tab. 1 demonstrate that our method achieves a grounded answer accuracy of 
+
+65 .3% on the VizWizGround test set [4]. This represents a significant 12% im-provement in accuracy compared to the latest method, DDTN [43]. Notably, 8our method achieves state-of-the-art performance even without extensive pre-training, surpassing the Unified model by 11% . On the VQS [9] dataset, our method attains an accuracy of 43 .47% , a substantial improvement over previous methods, highlighting the effectiveness of our approach. To provide further evidence effectiveness of our method, we visualize the estimated masks and predicted text answers in Fig. 2. It is evident that our model produces more detailed object edge segmentation. For instance, in the second sample of the first row, our method demonstrates superior ability in modeling complex object contours, as seen in the “plants" segmentation. Additionally, in the last example, while DDTN [29] struggles to accurately locate the object, our model excels in capturing global information. However, it is worth noting that our method still faces challenges in generating highly accurate textual answers, particularly when distinguishing between objects with similar appearances, such as “label maker" and “keyboard". Moreover, to address the discrepancy between our model’s outstanding lo-calization performance and relatively lower textual answer accuracy presented in Fig. 2, we perform an additional analysis. This difference primarily arises because the DDVT model emphasizes more on effectively localizing complex object boundaries and adopts a robust fusion scheme between pixel-level and region-level features guided explicitly by linguistic cues. Such a sophisticated localization mechanism might overspecialize on grounding answers and cause suboptimal final textual predictions, especially in cases with visually or seman-tically ambiguous objects. Future work will explore balancing grounding and classification tasks to minimize this discrepancy. 
+
+4.4 Ablation Study 
+
+To validate the effectiveness of our question-guided dynamic regional-level mod-ule (QGDR) and cross-modal aggregation module (CMA), we conducted ablation experiments. Tab. 2 clearly demonstrates their positive impact on performance. Disabling the QGDR resulted in a notable decrease in IoU by an absolute value of 4.17 (see Tab. 2 (a) vs. (d)). Furthermore, when we replace the CMA with a simple concatenation between Fi and Pi, we observe a decrease in IoU by 
+
+3.57 (see Tab. 2 (c) vs. (d)). This change also leads to a drop in accuracy by 
+
+3 to 4 points across the two IoU thresholds. These results strongly indicate the significant performance benefits benefits from the proposed QGDR and CMA. Additionally, Tab. 2 highlights the utility of the used PWAM in performance enhancement (see Tab. 2 (b) vs. (d)). To provide further insight into our method’s effectiveness, we visually present segmentation results using ground truth answers for experiments involving small targets in Fig. 3. In these cases, the baseline struggles to accurately segment any objects. In contrast, our method closely approximates the ground truth answers, demonstrating its robustness and proficiency in segmenting small target answers. 9Fig. 3. Visualized predictions from the VizWizground [4] val set. Baseline is LAVT [37].  
+
+> Table 2. Ablation results on the VizWizGround [4] val set.
+
+ID QGDR PWAM CMA IOU mAP50 mAP (a) % " " 69.44 74.09 60.28 (b) " % " 65.35 70.56 49.67 (c) " " % 70.04 75.86 60.24 
+
+(d) " " " 73.61 79.84 65.16 
+
+4.5 Discussion The impact of the mask size in the dynamic multi-scale module. We further investigate how the mask size impacts both model accuracy and compu-10 Fig. 4. Visualized predictions and feature maps on an example from the VizWizgroun validation set. (a) shows from left to right, the left-most column illustrates the input image and the truth answer ground mask. We visualize the predicted mask and the feature maps used for final classification ( i.e. , Y4,Y3, Y2, and Y1) from left to right. (b) shows the output of attention to questions in word pixel attention, with the vertical axis corresponding to each of the four aggregation stages.  
+
+> Table 3. Performance of using different grounding answer mask sizes.
+
+Mask Size FLOPs(G) IOU mAP mAP50 mAP75 14*14 13.02 70.82 62.19 77.15 60.17 28*28 14.67 73.58 65.02 79.73 63.78 56*56 16.56 73.71 65.18 79.86 63.91 112*112 19.10 74.68 67.01 81.10 66.14 
+
+tational complexity. An effective model should strike a balance between perfor-mance and computational demands. To this end, we conduct several experiments by fixing different mask sizes. QGDR module outputs four different candidate mask resolutions [14 × 14 , 28 × 28 , 56 × 56 , 112 × 112] . We choose one of them as the uniform output mask size and present the corresponding results in Tab. 3. It is evident that models with larger mask resolutions can achieve higher seg-mentation performance, but this also significantly increases computational costs. Furthermore, as the mask size further increases, the performance tends to sat-urate. Therefore, dynamic methods can achieve comparable performance to the baseline at a lower cost. 
+
+Visualized predictions. To further validate the effectiveness of our pro-posed method of location grounding answer information via a dual-level vision Transformer fusion Network. In Fig. 4 (a) shows the visual attention maps for each stage after the multi-scale aggregation module, specifically for the Y4, Y2, Y3, and Y1 stages. Combining this with the word-pixel attention in Fig. 4 (b), 11 Fig. 5. (a) demonstrates the output bounding boxes of 50 after being processed through ROI Align, as well as the output bounding boxes of 30 after being scored by QGDR. (b) displays the cross-attention maps generated by QGDR. Each index from [1-30] corresponds to each object in the subgraph (a). 
+
+12 we can observe that the visual attention at each stage progressively aligns with the attention output from the question. Ultimately, it accurately localizes the correct grounding answer. From Fig. 4 (a), we can observe that the higher-level feature maps ( i.e. , {Y4, Y 3, Y 2, }) in our full model can accurately locate the se-mantic concept given in question, while the low-level feature maps ( i.e. , {Y1, })contain rich boundary information important to binary segmentation. 
+
+Visualisation QGDR. In order to further validate the effectiveness of our proposed QGDR for localizing region-level object information. Visualizes the input and output of the QGDR module, as well as the intermediate processing in Fig. 5. The visualization in Fig. 5 (a) displays 50 boxes detected by the Roi Align part, while Fig. 5 (a) shows the output after passing through the QGDR module. The 30 detected boxes are labeled with numbers, and the four different colors represent the four different resolution sizes of the output. Fig. 5 (b) presents the output of the cross-attention part, demonstrating the scores assigned to the 30 boxes based on different words. We can observe that the word "this" is a crucial localizing word, so objects with higher scores in this region are more likely to be the correct grounding answers. These results indicate that QGDR is capable of accurately localizing objects relevant to the answer. 
+
+# 5 Conclusion 
+
+We have proposed a Dynamic Dual-level Vision Transformer Fusion Network (DDVT) for grounded visual question answering. Our framework leverages multi-level visual transformers to collectively encode cross-modal multi-scale inputs. It employs language guidance to dynamically pinpoint visual information across multiple scales and aggregates cross-modal information effectively. Experimental results on two widely used benchmark datasets have demonstrated the superi-ority of our DDVT over existing techniques. 
+
+Acknowledgments This work was supported in part by National Natural Science oundation of China (Grant No. 62502064), Liaoning Province Science and Technology Joint Plan (Grant No. 2025JH2/101800417), Educational De-partment of Liaoning Province, China (Grant No. LJ222511258003), Liaoning Provincial Key Research and Development Joint Program (Grant No. 2025110219-JH2/1018), Interdisciplinary project of Dalian University (Grant No. DLUXK-2025-QN-020), 111 Center (Grant No. D23006). 
+
+# References 
+
+> 1. Anderson, P., He, X., Buehler, C.: Bottom-up and top-down attention for image captioning and visual question answering. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 6077–6086 (2018) 2. Ben Abacha, A., Hasan, S.A., Datla, V.V., Demner-Fushman, D., Müller, H.: Vqa-med: Overview of the medical visual question answering task at imageclef 2019. In: Proc. of Conf. and Labs of the Evaluation Forum. 9-12 September 2019 (2019)
+
+13 3. Bolukbasi, T., Wang, J., Dekel, O., Saligrama, V.: Adaptive neural networks for efficient inference. In: Proc. of the 2022 INt. Conf. on Mach. Learn. pp. 527–536 (2017) 4. Chen, C., Anjum, S., Gurari, D.: Grounding answers for visual questions asked by visually impaired people. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 19098–19107 (2022) 5. Cheng, T., Wang, X., Huang, L., Liu, W.: Boundary-preserving mask r-cnn. In: Proc. of the 2022 Eur. Conf. on Comput. Vis. pp. 660–676 (2020) 6. Dai, J., Qi, H., Xiong, Y., Li, Y., Zhang, G., Hu, H., Wei, Y.: Deformable con-volutional networks. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 764–773 (2017) 7. Deng, J., Dong, W., Socher, R., Li, L.J., Li, K., Fei-Fei, L.: Imagenet: A large-scale hierarchical image database. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 248–255 (2009) 8. Gan, C., Li, Y., Li, H., Sun, C., Gong, B.: Vqs: Linking segmentations to ques-tions and answers for supervised attention in vqa and question-focused semantic segmentation. In: Proc. of the 2022 IEEE/CVF Int. Conf. on Comput. Vis. pp. 1811–1820 (2017) 9. Gan, C., Li, Y., Li, H., Sun, C., Gong, B.: Vqs: Linking segmentations to ques-tions and answers for supervised attention in vqa and question-focused semantic segmentation. pp. 1829–1838 (2017) 10. Gao, P., Jiang, Z., You, H., Lu, P., Hoi, S.C.H., Wang, X., Li, H.: Dynamic fusion with intra- and inter-modality attention flow for visual question answering. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 6632–6641 (2019) 11. Han, Y., Huang, G., Song, S., Yang, L., Wang, H., Wang, Y.: Dynamic neural networks: A survey. IEEE Trans. Pattern Anal. Mach. Intell. 44 , 7436–7456 (2021) 12. Hu, J., Shen, L., Sun, G.: Squeeze-and-excitation networks. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 7132–7141 (2018) 13. Hu, R., Rohrbach, A., Darrell, T., Saenko, K.: Language-conditioned graph net-works for relational reasoning. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 10294–10303 (2019) 14. Huang, G., Chen, D., Li, T., Wu, F., van der Maaten, L., Weinberger, K.Q.: Multi-scale dense networks for resource efficient image classification. In: Proc. of the 2022 Int. Conf. on Learn. Represent. (2018) 15. Hudson, D.A., Manning, C.D.: Gqa: A new dataset for real-world visual reasoning and compositional question answering. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 6700–6709 (2019) 16. Jang, E., Gu, S., Poole, B.: Categorical reparameterization with gumbel-softmax. In: Proc. of the 2022 Int. Conf. on Learn. Represent. (2017) 17. Jiang, Y., Natarajan, V., Chen, X., Rohrbach, M., Batra, D., Parikh, D.: Pythia v0.1: the winning entry to the VQA challenge 2018. CoRR abs/1807.09956 (2018) 18. Khan, A.U., Kuehne, H., Duarte, K., Gan, C., da Vitoria Lobo, N., Shah, M.: Found a reason for me? weakly-supervised grounded visual question answering using capsules. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 8465–8474 (2021) 19. Khan, A.U., Mazaheri, A., da Vitoria Lobo, N., Shah, M.: MMFT-BERT: multi-modal fusion transformer with BERT encodings for visual question answering. In: EMNLP. pp. 4648–4660 (2020) 20. Lan, H., Zhang, P.: Learning and integrating multi-level matching features for image-text retrieval. IEEE Signal Process. Lett. 29 , 374–378 (2022) 
+
+14 21. Li, R., He, C., Li, S., Zhang, Y., Zhang, L.: Dynamask: Dynamic mask selection for instance segmentation. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 11279–11288 (2023) 22. Li, W., Ma, Z., Shi, J., Fan, X.: The style transformer with common knowledge optimization for image-text retrieval. IEEE Signal Process. Lett. 30 , 1197–1201 (2023) 23. Lin, J., Rao, Y., Lu, J., Zhou, J.: Runtime neural pruning. NIPS 30 (2017) 24. Liu, Y., Liu, H., Wang, H., Liu, M.: Regularizing visual semantic embedding with contrastive learning for image-text matching. IEEE Signal Process. Lett. 29 , 1332– 1336 (2022) 25. Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., Guo, B.: Swin transformer: Hierarchical vision transformer using shifted windows. In: Proc. of the 2022 IEEE/CVF Int. Conf. on Comput. Vis. pp. 10012–10022 (2021) 26. Loshchilov, I., Hutter, F.: Decoupled weight decay regularization. In: Proc. of the 2022 Int. Conf. on Learn. Represent. (2019) 27. Lu, J., Clark, C., Zellers, R., Mottaghi, R., Kembhavi, A.: UNIFIED-IO: A unified model for vision, language, and multi-modal tasks. In: Proc. of the 2022 Int. Conf. on Learn. Represent. (2023) 28. Mullapudi, R.T., Mark, W.R., Shazeer, N., Fatahalian, K.: Hydranets: Specialized dynamic architectures for efficient inference. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 8080–8089 (2018) 29. Pan, J., Chen, G., Liu, Y., Wang, J., Bian, C., Zhu, P., Zhang, Z.: Tell me the evidence? dual visual-linguistic interaction for answer grounding. CoRR 
+
+abs/2207.05703 (2022) 30. Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., Killeen, T., Lin, Z., Gimelshein, N., Antiga, L., et al.: Pytorch: An imperative style, high-performance deep learning library. Annual Conference on Neural Information Pro-cessing Systems 32 (2019) 31. Qiu, Y., Satoh, Y., Suzuki, R., Iwata, K., Kataoka, H.: Multi-view visual question answering with active viewpoint selection. Sensors 20 , 2281 (2020) 32. Tan, H., Bansal, M.: LXMERT: learning cross-modality encoder representations from transformers. In: Pro. of the 2019 Conf. on Empirical Methods in Natural Language Processing and the 9th International Joint Conf. on Natural Language Processin. pp. 5099–5110 (2019) 33. Tian, W., Li, H., Zhao, Z.Q.: Dual capsule attention mask network with mutual learning for visual question answering. In: Proc. of the 29th International Conf. on Computational Linguistics. pp. 5678–5688 (2022) 34. Wang, X., Yu, F., Dou, Z.Y., Darrell, T., Gonzalez, J.E.: Skipnet: Learning dy-namic routing in convolutional networks. In: Proc. of the 2022 Eur. Conf. on Com-put. Vis. pp. 409–424 (2018) 35. Wolf, T., Debut, L., Sanh, V., et al., J.C.: Transformers: State-of-the-art natural language processing. In: EMNLP. pp. 38–45 (2020) 36. Yang, B., Bender, G., Le, Q.V., Ngiam, J.: Condconv: Conditionally parameter-ized convolutions for efficient inference. Annual Conference on Neural Information Processing Systems 32 (2019) 37. Yang, Z., Wang, J., Tang, Y., Chen, K., Zhao, H., Torr, P.H.S.: LAVT: language-aware vision transformer for referring image segmentation. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 18134–18144 (2022) 38. You, Z., Yan, K., Ye, J., Ma, M., Wang, P.: Gate decorator: Global filter pruning method for accelerating deep convolutional neural networks. Annual Conference on Neural Information Processing Systems 2019 32 (2019) 
+
+15 39. Yu, Z., Yu, J., Cui, Y., Tao, D., Tian, Q.: Deep modular co-attention networks for visual question answering. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 6281–6290 (2019) 40. Yu, Z., Yu, J., Cui, Y., Tao, D., Tian, Q.: Deep modular co-attention networks for visual question answering. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 6274–6283 (2019) 41. Zhang, S., Qu, L., You, S., Yang, Z., Zhang, J.: Automatic generation of grounded visual questions. In: IJCAI Int. Joint Conf. Artif. Intell. Int. Joint Conf. Artif. Intell. pp. 4235–4243 (2017) 42. Zhou, Y., Ren, T., Zhu, C., Sun, X., Liu, J.: Trar: Routing the attention spans in transformer for visual question answering. In: Proc. of the 2022 IEEE Int. Conf. on Comput. Vis. and Pattern Recognit. pp. 2074–2084 (2021) 43. Zhu, L., Peng, L., Zhou, W., Yang, J.: Dual-decoder transformer network for answer grounding in visual question answering. Pattern Recognit. Lett. 171 , 53–60 (2023) 44. Zhu, M., Han, K., Wu, E., Zhang, Q., Nie, Y., Lan, Z., Wang, Y.: Dynamic reso-lution network. Annual Conference on Neural Information Processing Systems 34 ,27319–27330 (2021) 
+
+16

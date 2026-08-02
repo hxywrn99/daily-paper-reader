@@ -1,0 +1,610 @@
+Title: Multi-Modal Object Re-Identification with Prompt-S6 and Semantic-Aware Knowledge Guidance
+
+URL Source: https://arxiv.org/pdf/2607.23451v1
+
+Published Time: Tue, 28 Jul 2026 00:53:41 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+> 1
+
+# Multi-Modal Object Re-Identification with Prompt-S6 and Semantic-Aware Knowledge Guidance 
+
+Weixiang Zhou, Jiabei Zuo, Yuhao Wang, Cong Wang, Huchuan Lu, Fellow, IEEE, and Zhixun Su, Member, IEEE 
+
+Abstract —Multi-modal object Re-Identification (ReID) aims to retrieve specific objects by integrating complementary infor-mation from multiple modalities. However, existing multi-modal ReID methods do not effectively address background interference suppression or achieve tri-modal alignment, instead focusing on pairwise feature fusion. Moreover, many current aggregation ap-proaches suffer from high computational complexity. To address these limitations, we propose PRISM, a novel multi-modal ReID framework built upon Prompt-S6 (PS6) and semantic-aware knowledge guidance. PS6 maintains the linear complexity and strong sequence modeling capability of Mamba while enabling efficient cross-modal interaction. Leveraging these advantages, we design two key components: Semantic-Driven Token Pruning (SDTP) and Progressive Fusion Network (PFN). Parsing semantic priors from the segmentation foundation models, the SDTP then leverages these priors and applies dynamic token pruning to sup-press background noise and refine feature representations. The PFN progressively aggregates multi-modal features to achieve tri-modal alignment and fully exploit modality complementarity. With the proposed modules, PRISM generates more robust multi-modal representations under complex scenarios. Exten-sive experiments on four multi-modal object ReID benchmarks demonstrate the effectiveness and efficiency of our approach. The source code is available at https://github.com/zw-absin/PRISM. 
+
+Index Terms —Multi-modal object re-identification, Prompt-S6, semantic-aware learning. 
+
+I. I NTRODUCTION 
+
+# OBJECT Re-Identification (ReID) aims to match instances of the same object across non-overlapping camera views. Owing to its broad applicability in surveillance, autonomous driving, and smart city systems, single-modal ReID based on RGB imagery has seen substantial progress in recent years [1]– [7]. However, RGB-based methods are highly sensitive to en-vironmental variations such as low illumination, glare, and oc-clusion. These challenges often lead to significant performance degradation in adverse conditions [8]–[12], limiting their ro-bustness and generalization in real-world deployments [13]. To address these limitations, multi-modal ReID has emerged                    
+
+> This work was supported in part by the National Natural Science Foundation of China under Grant 62476041. (Weixiang Zhou and Jiabei Zuo contributed equally to this work.) (Corresponding author: Zhixun Su and Cong Wang.)
+> Weixiang Zhou and Zhixun Su are with the School of Mathematical Sciences and the Key Laboratory for Computational Mathematics and Data Intelligence of Liaoning Province, Dalian University of Technology, Dalian, 116024, China (e-mail: s20201162006@mail.dlut.edu.cn; zxsu@dlut.edu.cn). Jiabei Zuo is with the School of Computer Science and Technol-ogy, Dalian University of Technology, Dalian, 116024, China (e-mail: 2214944912@mail.dlut.edu.cn). Yuhao Wang and Huchuan Lu are with the School of Future Technology, School of Artificial Intelligence, Dalian University of Technology, Dalian, 116024, China (e-mail: 924973292@mail.dlut.edu.cn; lhchuan@dlut.edu.cn). Cong Wang is with the Department of Radiology and Biomedical Imag-ing, University of California, San Francisco, 94107, USA (e-mail: super-cong94@gmail.com).
+
+as a promising alternative by exploiting complementary cues from heterogeneous sensors. This approach integrates informa-tion from multiple modalities, such as multi-spectral images, depth maps, and textual descriptions, to construct more dis-criminative and resilient feature representations. As a result, multi-modal ReID achieves superior performance in degraded scenarios where RGB-only systems fail [14]–[20]. However, existing multi-modal methods often overlook object-background separation by extracting features directly from raw multi-spectral inputs. Under realistic imaging con-ditions, such inputs are frequently contaminated by noisy and cluttered backgrounds, which degrade model robust-ness [21] and impede accurate cross-modal feature alignment in ReID [22]. To mitigate this, some works incorporate seman-tic masks to isolate foreground regions [23]–[27], while others exploit pre-trained vision-language models like CLIP [28] for enhanced semantic understanding through prompt learning and cross-modal alignment [29], [30]. Yet, these methods are primarily designed for single-modal settings and struggle to preserve discriminative semantic parts under challenging conditions such as occlusion, background clutter, and cross-modal misalignment. More recently, token selection mecha-nisms have been proposed to focus on salient regions. Zhang et al. [22] retain tokens with high attention weights. While improving feature concentration, such strategies risk discard-ing potentially useful contextual information and may retain background-correlated tokens due to attention bias. To fully aggregate tri-modal features, Wang et al. [13] utilize Multi-Head Cross-Attention (MHCA) [31] to enable each modality’s class token to perceive information from other modalities. Although this facilitates pairwise interactions, it limits the ability to achieve comprehensive tri-modal alignment due to the isolation of the third modality. These limitations highlight the need for a more effective mechanism that simultaneously ensures semantic fidelity, maximizes information utilization, and achieves comprehensive tri-modal alignment. To address the issues of imprecise token selection and insufficient tri-modal alignment in existing methods, we pro-pose PRISM, a novel framework for robust multi-modal object ReID. As shown in Fig. 1(a), PRISM first extracts multi-spectral features from RGB, Near-Infrared (NIR), and Thermal-Infrared (TIR) images using a shared vision encoder. Concurrently, a pre-trained mask extractor generates semantic masks, which provide spatially aligned guidance to distinguish foreground from background. To enhance semantic fidelity and suppress background interference, we introduce Semantic-Driven Token Pruning (SDTP), comprising two components: (i) Target-Aware Feature Enhancement (TAFE), which lever-ages Prompt-S6 (PS6) for efficient fine-grained fusion between arXiv:2607.23451v1 [cs.CV] 26 Jul 2026 2RGB (Ours) Unit TIR NIR EDITOR (c) (CVPR 2024) (b) (a) CLIP Backbone One-stage Aggregation 
+
+Progressive Fusion Network CLIP Backbone Tri-Spectral Input Tri-Spectral Input Mask More Effective, More Efficient! Semantic-Driven Token Pruning        
+
+> TAFE w/ Mamba* TAFE w/ Mamba Model Size
+> 2 M 5 M
+> TAFE w/ Attention Inter-MA in Mambapro (AAAI 2025) Params TAFE: 3.94M PS6: 0.79M TAFE w/ PS6 Attention in EDITOR (CVPR2024)
+> Fig. 1. (a) Our method addresses two key limitations: ignoring background information and struggling with tri-modal alignment. These are addressed through semantic-driven token pruning and a progressive fusion network. (b) Enabled by PS6, our framework achieves stronger cross-modal interactions and improved performance. (c) Token selection visualization demonstrates that our method retains more informative regions.
+
+semantic masks and multi-spectral features (Fig. 1(b)); and (ii) Tail Drop Module (TDM), which employs a cross-modal consensus mechanism to identify and suppress tokens likely associated with background or non-discriminative regions, as shown in Fig. 1(c). By preserving the majority of foreground-aligned tokens, TDM achieves a favorable balance between noise suppression and feature completeness. Further, we pro-pose the Progressive Fusion Network (PFN), which integrates intra-modal modeling, inter-modal interaction, and tri-modal aggregation in a three-stage strategy. This design progressively refines feature representations and enables comprehensive alignment across all three modalities. Both TAFE and PFN are built upon Prompt-S6 (PS6), a lightweight module grounded in the theoretical framework of State Space Models (SSMs) [32]. Unlike attention-based approaches, PS6 enables efficient and simultaneous tri-modal interaction. Through these compo-nents, PRISM effectively leverages semantic structure to guide feature refinement and achieves robust cross-modal align-ment. Extensive experiments on four multi-modal benchmark datasets validate the effectiveness of our proposed method. To summarize, our main contributions are as follows:  
+
+> •
+
+We propose Prompt-S6 (PS6), a lightweight cross-modal interaction module grounded in State Space Models (SSMs). PS6 enables efficient, simultaneous tri-modal interaction with linear complexity and fewer parameters, avoiding the quadratic overhead of attention mechanisms.  
+
+> •
+
+We introduce Semantic-Driven Token Pruning (SDTP), which leverages semantic masks to enhance fore-ground features and suppress background-associated to-kens through a cross-modal consensus mechanism, im-proving feature selectivity.  
+
+> •
+
+We design the Progressive Fusion Network (PFN), a three-stage fusion pipeline that progressively models intra-modal dynamics, inter-modal interactions, and tri-modal alignment for comprehensive feature integration.  
+
+> •
+
+Based on PS6, SDTP, and PFN, we present PRISM, a novel framework for multi-modal object ReID that achieves robust semantic alignment and efficient feature learning across RGB, NIR, and TIR modalities. II. R ELATED WORKS 
+
+We review related works in three aspects: single-modal object Re-Identification (ReID), multi-modal object ReID, and State Space Models (SSMs) for visual sequence modeling. 
+
+A. Single-Modal Object Re-Identification 
+
+Due to the demands of real-world applications, single-modal object ReID has witnessed rapid development. This line of work focuses on extracting discriminative features from a single spectral modality, primarily including RGB, Near-Infrared (NIR), Thermal-Infrared (TIR), and depth images, among which RGB is the most prevalent. State-of-the-art methods in this domain are largely built upon Convolutional Neural Networks (CNNs) or Transformers [33]. For example, 3
+
+OSNet [34] introduces a multi-stream residual block to achieve holistic multi-scale feature learning. He et al. [35] propose the first pure Transformer-based architecture for ReID, aiming to preserve fine-grained details by eliminating convolutional operations and spatial downsampling. In addition, several approaches incorporate semantic priors to enhance the model’s semantic awareness. Song et al. [23] and Qi et al. [24] employ binary foreground masks to separate and model the target object from the background. Zhu et al. [36] leverage part-level semantic segmentation masks to distinguish different body regions. Cui et al. [26] and Somers et al. [37] integrate human keypoint detection to guide feature learning. However, like most single-modal methods, these approaches are inherently limited by the characteristics of a single modality and exhibit significant performance degradation under severe conditions, such as low illumination, occlusion, or adverse weather. This performance gap is partly attributed to the reduced effec-tiveness of their semantic generation and fusion mechanisms under such conditions. Many rely on fine-grained semantic priors (e.g., masks or keypoints) that are typically derived from clean, well-lit inputs [36], [37]. Others employ binary masking strategies that rigidly distinguish foreground from background [23], [24], but fail to model nuanced semantic interactions or adapt to degraded visual conditions. When these fragile signals are processed through simplistic fusion pathways, the resulting representations become unreliable, further degrading overall performance. To address these limitations, we introduce a robust semantic guidance framework that overcomes the fragility of traditional mask-based priors under degraded conditions. Instead of rely-ing on binary masks or part annotations generated from clean inputs, our approach leverages prompt-driven soft masks to establish fine-grained, token-level interaction between seman-tic cues and multi-spectral features. This enables selective refinement of critical semantic regions, ensuring that guidance remains effective even when appearance is severely degraded. 
+
+B. Multi-Modal Object Re-Identification 
+
+Compared to single-modal ReID, multi-modal ReID en-hances robustness in challenging environments by fusing complementary information from multiple sensing modali-ties [38]–[46]. Recent advances primarily focus on effective cross-modal modeling, with a growing trend toward adopting Vision Transformer (ViT) [31] in multi-modal ReID due to its ability to model long-range dependencies and support flexible token-based representation [3], [13], [22], [43], [47]. To en-hance inter-modal interaction, several methods design special-ized architectures for token-level fusion. For instance, Wang et al. [13] introduce a cyclic token permutation framework to en-able cross-modal information exchange, while Wang et al. [48] propose a test-time training strategy that adapts to modality-specific variations during inference. Concurrently, pre-trained multi-modal models such as CLIP [28] have been leveraged as powerful feature extractors in ReID frameworks. Build-ing upon this, several approaches introduce learnable cross-modal prompts to enhance discriminative capability. Wang et al. [49] employ modality-specific prompts and adapters with a frozen ViT encoder and leverage Mamba’s efficiency to significantly reduce FLOPs. In contrast, Zhang et al. [50] keep the ViT backbone trainable and utilize shared cross-modal prompts for effective modality alignment and fusion, achieving superior generalization and notable performance gains on large-scale vehicle datasets. Other works explore Mixture-of-Experts (MoE) architectures. Feng et al. [51] jointly model modality-shared and modality-specific features through pixel-level cross-modal interaction and sparse expert routing, at-taining competitive accuracy with lower computational cost. Wang et al. [52] utilize dynamic attention mechanisms to handle decoupled multi-modal features. However, these meth-ods often struggle to effectively suppress background noise due to insufficient foreground-background discrimination, and their deployment efficiency is hampered by excessive prompt usage, stacked Mamba layers, or complex MoE routing mech-anisms. To address these limitations, we design an efficient fine-grained interaction module that integrates semantic infor-mation with multi-spectral features, thereby obtaining more robust and discriminative representations. 
+
+C. Visual State Space Models in Re-Identification 
+
+State Space Models (SSMs) [32], [53], [54] enable effective management of long sequence data with linear complexity, efficiently handling long-range dependencies. Among these, Mamba [55] has become a focal point of research due to its high efficiency and scalability in processing long se-quences [56], [57]. It improves upon SSMs through selective scan algorithms and hardware-aware optimizations, enabling linear complexity for long sequence data processing and out-performing Transformers [33]. In the visual domain, Mamba demonstrates strong performance in tasks such as image clas-sification, image processing, and multi-modal tasks [58]–[61]. Given their strong performance, SSMs have been introduced into ReID tasks in recent years. Geng et al. [62] propose a hybrid CNN-Mamba framework for local and global feature learning. Yu et al. [63] apply Mamba for video processing, capturing critical spatiotemporal information. Zhang et al. [64] use multi-stage VMamba [60] as a feature extractor. Wang et al. [49] model intra-modal and inter-modal interactions using Mamba. However, these methods mainly treat SSMs as substitutes for CNNs or Transformers in feature extraction or aggregation, without explicit modality alignment. To better address tri-modal alignment with reduced computational over-head, we introduce a fine-grained semantic interaction module and a progressive fusion module based on PS6, enabling efficient multi-modal feature aggregation. III. M ETHODOLOGY 
+
+As shown in Fig. 2, our framework consists of three key components: a vision feature extractor, Semantic-Driven Token Pruning (SDTP), and Progressive Fusion Network (PFN). Below, we delve into the specific details of each component. 
+
+A. Semantic Information Extraction 
+
+Traditional segmentation methods often fail in person ReID scenarios due to occlusions and background clutter, such 4Patch Embedding 
+
+> 256 ×128 ×3
+
+I R 
+
+> RGB 256 ×128 ×3256 ×128 ×3
+
+I N I T
+
+> TIR NIR
+
+* * *       
+
+> CLIP Backbone Pre-trained Segmentation Net
+> CLIP Backbone
+> TAFE TAFE FFN
+> FFN
+> Add 𝐿 𝑐𝑒 +𝐿 𝑡𝑟𝑖 Intra-modal Modeling Lg
+
+P ISM ℰ          
+
+> f
+> C
+> Concat
+> 𝑭 𝑹 𝒑 𝑭 𝑵 𝒑 𝑭 𝑻 𝒑 𝑭 𝒎 𝒑 𝐹 𝑅 𝐹 𝑇
+> Inter-modal Interaction
+> ℰℰ𝐹 𝑅 𝑀 𝑅
+> CLIP Backbone PS6 PS6
+> * * *
+> 𝑓
+> LgLg
+> 𝐹 𝑁
+> Target-Aware Feature Enhancement (TAFE)
+> 𝑭 𝒎 𝒄𝒍𝒂𝒔𝒔 Tail Drop Module
+> 𝑭 𝒎 𝒄𝒍𝒂𝒔𝒔 ⨀ 𝒊 𝒑𝒂𝒕𝒄𝒉
+> (c) Progressive Fusion Network Cross -Modal Union
+> Θ𝑹
+> Θ𝑵
+> Θ𝑻
+> (b) Semantic-Driven Token Pruning (a) Elem-wise Mult C
+> 𝑭 𝒎 𝒑 =𝑭 𝒎 𝒑𝒂𝒕𝒄𝒉
+
+F R F N F T 
+
+> ℰ
+> Tri-modal Aggregation
+> Fig. 2. Overview of the proposed PRISM framework. (a) Semantic masks and multi-spectral features are extracted using a segmentation network and vision encoder. (b) To suppress background interference and exploit sequential information in a semantic-guided manner, the semantic masks and multi-spectral features interact in a fine-grained way, enabling knowledge distillation and pruning of irrelevant tokens. (c) Finally, for tri-modal alignment modeling, cross-modal interaction and cyclic permutation from PS6 progressively aggregate multi-modal features.
+
+as similar-colored clothing or accessories. To mitigate this, we employ OpenPifPaf [65] to detect human skeletal key-points and aggregate the corresponding part-level masks for robust person segmentation. For vehicle instances, we utilize SAM2 [66], which uses automatically generated prompts proportional to the image dimensions to produce accurate vehicle masks. The mask generation is performed offline and remains decoupled from model training and inference, ensuring computational efficiency without incurring additional runtime overhead. Meanwhile, based on CLIP’s vision encoder Fvisual , we extract features Fm ∈ R(Np+1) ×D from multi-modal images 
+
+Im (m ∈ {R, N, T }), where Fm contains patch tokens 
+
+F patch m ∈ RNp×D and a global class token f class m ∈ RD :
+
+Fm = [ f class m , F patch m ] = Fvisual (Im). (1) Here, Np represents the number of patch tokens, D is the embedding dimension, and [·] denotes concatenation. Simul-taneously, a semantic mask is generated from IR ∈ R3×H×W
+
+using Fsemantic . This mask is subsequently embedded into patch tokens M ′ ∈ RNp×D via a Patch Embedding operation P. The embedded mask tokens are concatenated with the class token to form the mask-enhanced sequence Mm ∈ R(Np+1) ×D ,formulated as: 
+
+M ′ = P(Fsemantic (IR)) , Mm = [ f class m , M ′]. (2) Through these operations, we obtain multi-spectral image features and semantic features. 
+
+B. Semantic-Driven Token Pruning 
+
+To leverage rich semantic priors from pre-trained segmen-tation models, we propose Semantic-Driven Token Pruning (SDTP), a cross-modal mechanism that integrates semantic guidance into multi-spectral feature learning. Rather than treating segmentation masks as external dependencies, our framework utilizes them as structured spatial priors to guide feature refinement across all three modalities, enabling robust focus on semantically meaningful regions even under severe appearance degradation. SDTP adopts a sequential architecture consisting of two stages. First, Target-Aware Feature Enhance-ment (TAFE) establishes fine-grained semantic-spectral align-ment through token-level interaction, enhancing discriminative features within foreground regions. Subsequently, the Tail Drop Module (TDM) operates on these refined features to suppress low-response tokens in background or noisy areas, effectively pruning irrelevant information and concentrating model capacity on key structural parts. This cascaded design ensures that token pruning is performed on semantically en-riched representations rather than raw feature responses, which are often corrupted under real-world degradations. 
+
+1) Prompt-S6: Decoupled Prompt Conditioning for Asym-metric State Control: Building upon the selective state space model (SSM) in Mamba [55], we propose Prompt-S6 (PS6), a novel operator designed for efficient cross-modal interac-tion. Unlike standard Mamba blocks that process a single input modality, PS6 decouples the generation of the SSM’s core components to enable conditioning on external auxil-iary signals. Formally, given a primary input token sequence 
+
+x ∈ RNp×D (e.g., features from an RGB image), PS6 introduces two auxiliary prompt sequences: t ∈ RNp×D and 
+
+tp ∈ RNp×D , which typically originate from other modalities such as thermal images or semantic masks. The primary sequence x undergoes standard preprocessing via a 1D causal convolution followed by layer normalization, as in the original Mamba architecture. The key innovation of PS6 lies in the decoupled generation of the SSM projection matrices: the input projection matrix B
+
+is derived solely from the gating prompt t through a linear pro-jection, i.e., B = Linear B (t); and the output projection matrix 
+
+C is similarly derived from the projection prompt tp, i.e., 
+
+C = Linear C (tp). This design allows the external prompts to directly modulate how information from the primary input 5
+
+Algorithm 1 Prompt-S6 (PS6) 
+
+Require: Primary tokens x : (Np,D ) (main modality), gating prompt t : (Np,D ), projection prompt tp : (Np,D )
+
+Ensure: y : ( Np, D ) 
+
+> 1:
+
+x : (Np,D ) ← Conv1d(Linear( x)) ▷ Input preprocessing  
+
+> 2:
+
+B : (Np,K )← Linear B(t) ▷ From gating prompt  
+
+> 3:
+
+C : (Np,K )← Linear C(tp) ▷ From projection prompt  
+
+> 4:
+
+/∗Parameter ∆ ∈ R(D,D )∗/ 
+
+> 5:
+
+∆ : (Np,D ) ← log(1 + exp(Linear ∆(x) + Parameter ∆))  
+
+> 6:
+
+/∗Parameter A ∈R(Np,1) ∗/ 
+
+> 7:
+
+A, B ← ∆ ⊗ Parameter A, ∆ ⊗ B 
+
+> 8:
+
+y : ( Np, D ) ← SSM( A, B, C )( x) 
+
+> 9:
+
+return yx is written into and read from the latent state. For instance, a semantic mask prompt can act as a soft gating mechanism, adaptively emphasizing relevant regions and suppressing back-ground noise during state evolution. This decoupled prompt conditioning mechanism is the core technical contribution of PS6. In this design, external signals independently govern state injection ( B) and emission ( C), enabling fine-grained, asymmetric modulation that prior fusion-based or shared-state SSM designs cannot achieve. This architectural choice is motivated by a fundamental limitation of standard Mamba and its recent multi-modal extensions (e.g., MambaPro [49], S2CrossMamba [67]). These methods integrate multi-modal information either through early feature fusion (e.g., summation or concatenation) or by sharing a single SSM state across modalities. In S2CrossMamba, for instance, HSI and LiDAR features are first fused via element-wise addition into a unified representation, which serves as the input to the Cross-SSM. The SSM param-eters ( B, C) are then formed as the sum of modality-specific projections, i.e., B = BH + BL and C = CH + CL. While ef-fective, this approach couples the cross-modal interaction with the primary sequence processing, limiting the ability to apply independent, modality-specific control over how information is written into and read from the latent state. In contrast, PS6 explicitly decouples these roles. The gating prompt t
+
+solely governs the writing process via B = Linear B (t),while the projection prompt tp exclusively controls the reading process via C = Linear C (tp). This enables fine-grained, asymmetric modulation of the SSM dynamics by external signals. By embedding cross-modal interaction directly into the SSM kernel through prompt-decoupled parameterization, PS6 achieves dynamic, context-aware feature modulation with linear computational complexity. This design fundamentally differs from existing multi-modal SSMs that rely on early feature fusion (e.g., concatenation) to jointly generate B and 
+
+C, thereby coupling modality interactions and limiting inde-pendent control over state dynamics. The complete procedure is detailed in Algorithm 1. 
+
+2) Target-Aware Feature Enhancement: To enable fine-grained interaction between semantic features and multi-spectral inputs, we propose Target-Aware Feature Enhance-ment (TAFE). This module uses a PS6 module shared across the three modalities to fuse each modality’s feature Fm with its corresponding semantic mask Mm, producing an enhanced representation F Mm ∈ R(Np+1) ×D that incorporates semantic knowledge. With LN denoting Layer Normalization [68] for stable interaction, the overall pipeline can be expressed as: 
+
+F Mm = PS6(LN( Fm), LN( Fm), M m). (3) The fused feature is then combined with the original input via a skip connection and passed through a Feed-Forward Network (FFN) [31], yielding the output F im ∈ R(Np+1) ×D :
+
+F im = FFN(LN( Fm) + F Mm ), (4) where i denotes the i-th TAFE layer. TAFE thus enables effective cross-modal interaction and produces semantically enriched representations. 
+
+3) Tail Drop Module: This module includes three indepen-dent scorers Θm (m ∈ { R, N, T }) and a Cross-Modal Union (CMU). After applying a skip connection to retain semantic-guided features: 
+
+F m = F i=km + Fm, (5) we split F m into f class m and F patch m . Scoring each patch token yields spatch m = Θ m(F patch m ). The top-k scoring tokens in each modality are selected, and the indices iR, iN , and iT
+
+are combined as: 
+
+im = Topk( spatch m ), ipatch = iR ∪ iN ∪ iT , (6) ensuring cross-modal consistency. Finally, the critical tokens are retained by applying the fused index to the patch features and merged with f class m to produce ˆFm ∈ R(Np+1) ×D :
+
+ˆFm = [ f class m , (F patch m ⊙ ipatch )] . (7) Unlike methods that retain only a small subset of tokens [22], our approach selectively removes the lowest-scoring tokens, preserving a larger share of valuable feature information and maintaining fine-grained details without underutilizing available tokens. Overall, SDTP leverages soft guidance from non-binary masks through its cascaded architecture, reducing dependence on precise mask boundaries and eliminating the need for part-specific annotations [36], which are challenging to obtain under severe imaging degradations. 
+
+C. Progressive Fusion Network 
+
+We propose the Progressive Fusion Network (PFN) to model sequential features from multiple modalities. As illustrated in Fig. 2, PFN contains three components: Intra-modal Modeling (IM), Inter-modal Interaction (IT), and Tri-modal Aggregation (TA). IM enhances per-modality features, IT enables cross-modal fusion, and TA integrates all three modalities for comprehensive representation learning. 
+
+1) Intra-modal Modeling: Intra-modal Modeling (IM) en-hances per-modality features. Given ˆFm, the encoder E outputs refined features ˆF Em ∈ R(Np+1) ×D :
+
+ˆF Em = E( ˆFm), (8) where E consists of Multi-Head Self-Attention (MHSA) and a Feed-Forward Network (FFN) [31]. 6Linear Linear Linear  
+
+> Linear
+
+𝐶 𝑁 
+
+> Linear
+
+𝑥 𝑁 𝑥 𝑇 𝐵 𝑁 𝐶 𝑇 𝐴 𝑅 , 𝑃 𝛥 𝛥 𝑅 
+
+> 0
+
+𝐵 𝑇  
+
+> Linear
+
+𝛥 𝑅 
+
+> 0
+
+𝑥 𝑅 
+
+> LN Linear Conv LN LN
+
+𝑥 𝑇 𝑥 𝑁 𝑥 𝑅 
+
+> LN Linear Conv LN LN
+
+𝐴 𝑅 , 𝑃 𝛥 𝛥 𝑅 = log(1 + exp( 𝛥 𝑅  
+
+> 0
+
++ 𝑃 𝛥 )) 
+
+𝐴 𝑅 , 𝐵 𝑇 = exp( 𝛥 𝑅 𝐴 𝑅 ), 𝛥 𝑅 𝐵 𝑇 ℎ𝑅 𝑡 = 𝐴 𝑅 ℎ𝑅 𝑡− 1 + 𝐵 𝑇 𝑥 𝑅 𝑡 𝑦 𝑅𝑇𝑁 𝑡 = 𝐶 𝑁 ℎ𝑅 𝑡 + 𝐷 𝑅 𝑥 𝑅 𝑡 
+
+> Linear Linear Linear
+> Linear Linear
+
+𝑥 𝑇 𝑥 𝑅 ′𝛥 𝑅  
+
+> 0
+> Linear
+
+𝛥 𝑅 
+
+> 0
+
+𝑥 𝑅 
+
+> LN Linear Conv LN LN
+
+𝑥 𝑁 𝑥 𝑅 ′𝑥 𝑅 
+
+> LN Linear Conv LN LN
+> 𝐿𝑒𝑎𝑟𝑛𝑎𝑏𝑙𝑒 𝑃𝑎𝑟𝑎𝑚𝑒𝑡𝑒𝑟𝑠
+
+𝐵 𝑅 𝐶 𝑁 𝐶 𝑇 𝐵 𝑅 𝛥 𝑅 = log(1 + exp( 𝛥 𝑅  
+
+> 0
+
++ 𝑃 𝛥 )) 
+
+𝐴 𝑅 , 𝐵 𝑁 = exp( 𝛥 𝑅 𝐴 𝑅 ), 𝛥 𝑅 𝐵 𝑁 ℎ𝑅 𝑡 = 𝐴 𝑅 ℎ𝑅 𝑡− 1 + 𝐵 𝑁 𝑥 𝑅 𝑡 𝑦 𝑅𝑁𝑇 𝑡 = 𝐶 𝑇 ℎ𝑅 𝑡 + 𝐷 𝑅 𝑥 𝑅 𝑡 𝛥 𝑅 = log(1 + exp( 𝛥 𝑅  
+
+> 0
+
++ 𝑃 𝛥 )) 
+
+𝐴 𝑅 , 𝐵 𝑅 = exp( 𝛥 𝑅 𝐴 𝑅 ), 𝛥 𝑅 𝐵 𝑅 ℎ𝑅 𝑡 = 𝐴 𝑅 ℎ𝑅 𝑡− 1 + 𝐵 𝑅 𝑥 𝑅 𝑡 𝑦 𝑅𝑁 𝑡 = 𝐶 𝑁 ℎ𝑅 𝑡 + 𝐷 𝑅 𝑥 𝑅 𝑡 𝛥 𝑅 = log(1 + exp( 𝛥 𝑅  
+
+> 0
+
++ 𝑃 𝛥 )) 
+
+𝐴 𝑅 , 𝐵 𝑅 = exp( 𝛥 𝑅 𝐴 𝑅 ), 𝛥 𝑅 𝐵 𝑅 ℎ𝑅 𝑡 = 𝐴 𝑅 ℎ𝑅 𝑡− 1 + 𝐵 𝑅 𝑥 𝑅 𝑡 𝑦 𝑅𝑇 𝑡 = 𝐶 𝑇 ℎ𝑅 𝑡 + 𝐷 𝑅 𝑥 𝑅 𝑡 
+
+## (a) PS6 in Inter-modal Interaction (IT) 
+
+𝐴 𝑅 , 𝑃 𝛥 𝐴 𝑅 , 𝑃 𝛥 
+
+## (b) PS6 in Tri-modal Aggregation (TA) 
+
+> 𝐿𝑒𝑎𝑟𝑛𝑎𝑏𝑙𝑒 𝑃𝑎𝑟𝑎𝑚𝑒𝑡𝑒𝑟𝑠 𝐿𝑒𝑎𝑟𝑛𝑎𝑏𝑙𝑒 𝑃𝑎𝑟𝑎𝑚𝑒𝑡𝑒𝑟𝑠 𝐿𝑒𝑎𝑟𝑛𝑎𝑏𝑙𝑒 𝑃𝑎𝑟𝑎𝑚𝑒𝑡𝑒𝑟𝑠
+
+𝐹 𝑅 𝐸 𝐹 𝑅 𝐸 𝐹 𝑁 𝐸 𝐹 𝑅 𝐸 𝐹 𝑅 𝐸 𝐹 𝑇 𝐸 𝐹 𝑅 𝐸 𝐹 𝑁 𝐸 𝐹 𝑇 𝐸 𝐹 𝑅 𝐸 𝐹 𝑇 𝐸 𝐹 𝑁 𝐸 
+
+Fig. 3. Implementation details of the PFN, illustrated with an RGB modality input x. Unlike previous methods that use pairwise interactions to aggregate modalities, TA enables simultaneous interaction among all three modalities, building on initial interactions from Inter-modal Interaction. 
+
+2) Inter-modal Interaction: The Inter-modal Interaction (IT) module enables each modality to interact with the other two. For the RGB modality, as shown in Fig. 3(a), ˆF ER is paired with ˆF EN and ˆF ET , respectively, and fed into PS6 for cross-modal interaction: 
+
+ˆF ERN = ˆF ER + PS6( ˆF ER , ˆF ER , ˆF EN ), (9) 
+
+ˆF ERT = ˆF ER + PS6( ˆF ER , ˆF ER , ˆF ET ). (10) The outputs are averaged to obtain the pairwise fused repre-sentation ˆF P airwise R ∈ R(Np+1) ×D:
+
+ˆF P airwise R = ( ˆF ERN + ˆF ERT )/2. (11) Here, ˆF ERN and ˆF ERT ∈ R(Np+1) ×D represent the interaction results of RGB with NIR and TIR, respectively. Similarly, we compute the fused features for the NIR and TIR modalities: 
+
+ˆF P airwise N = ( ˆF EN R + ˆF EN T )/2, (12) 
+
+ˆF P airwise T = ( ˆF ET R + ˆF ET N )/2. (13) For notational brevity, we denote ˆF P airwise m as ˆF Pm throughout the remainder of the paper. 
+
+3) Tri-modal Aggregation: The Tri-modal Aggregation (TA) module uses a shared PS6 block to achieve full tri-modal interaction. Unlike the approach of Wang et al. [49], which concatenates modalities before processing, PS6 allows input sequence, SSM input matrix, and output matrix to come from different modalities, as shown in Fig. 3(b). Taking RGB modality as an example, we perform two cyclic permutations 
+
+(RN T ) and (RT N ) to feed ˆF PR , ˆF PN , and ˆF PT into PS6. The final representation is obtained via averaging: 
+
+ˆFRN T = ˆF PR + PS6( ˆF PR , ˆF PN , ˆF PT ), (14) 
+
+ˆFRT N = ˆF PR + PS6( ˆF PR , ˆF PT , ˆF PN ), (15) 
+
+ˆF T ri R = ( ˆFRN T + ˆFRT N )/2. (16) Similar steps produce ˆF T ri N and ˆF T ri T . The class token and averaged patch tokens are concatenated, transformed linearly, and normalized to form the final feature ˆfm(m ∈ { R, N, T }):
+
+ˆfm = [ ˆf class m , L(A( ˆF patch m ))] , (17) 
+
+TABLE I PERFORMANCE COMPARISON ON RGBNT201. M ETHODS MARKED WITH 
+
+† ARE CLIP-BASED , THOSE WITH ∗ ARE VIT-BASED , WHILE OTHERS ARE 
+
+CNN-BASED 
+
+Methods RGBNT201 mAP R-1 R-5 R-10 Single  OSNet [34] 25.4 22.3 35.1 44.7 CAL [69] 27.6 24.3 36.5 45.7 PCB [70] 32.8 28.1 37.4 46.9 
+
+> Multi-Modal
+
+HAMNet [41] 27.7 26.3 41.5 51.7 PFNet [39] 38.5 38.9 52.0 58.4 IEEE [40] 47.5 44.4 57.1 63.6 DENet [71] 42.4 42.2 55.3 64.5 LRMM [72] 52.3 53.4 64.6 73.2 UniCat ∗ [47] 57.0 55.7 - -HTT ∗ [48] 71.1 73.4 83.1 87.3 TOP-ReID ∗ [13] 72.3 76.6 84.7 89.4 EDITOR ∗ [22] 66.5 68.3 81.1 88.2 RSCNet ∗ [73] 68.2 72.5 - -WTSF-ReID ∗ [74] 67.9 72.2 83.4 89.7 DESANet ∗ [44] 74.6 77.6 87.1 91.3 PromptMA † [50] 78.4 80.9 87.0 88.9 MambaPro † [49] 78.9 83.4 89.8 91.9 DeMo † [52] 79.0 82.3 88.8 92.0 IDEA w/o Text † [75] 74.5 75.0 84.8 88.8 IDEA † [75] 80.2 82.1 90.0 93.3 
+
+PRISM † 80.5 84.0 91.7 93.9 
+
+where A(·) denotes patch-wise average pooling and L(·)
+
+denotes a linear projection. These are then concatenated to produce the final representation ˆf = [ ˆfR, ˆfN , ˆfT ] ∈ R3D . This design enables PFN to capture hierarchical cross-modal in-teractions while incurring minimal parameter overhead, since PS6 itself is lightweight. 
+
+D. Objective Functions 
+
+As depicted in Fig. 2, the objective function of our model consists of two components: losses associated with the image encoder and the Progressive Fusion Network (PFN). Both 7                                                                                                                           
+
+> TABLE II PERFORMANCE COMPARISON ON RGBNT100 AND MSVR310
+> Methods RGBNT100 MSVR310 mAP R-1 mAP R-1 Single  PCB [70] 57.2 83.5 23.2 42.9 OSNet [34] 75.0 95.6 28.7 44.8 AGW [21] 73.1 92.7 28.9 46.9 TransReID ∗[35] 75.6 92.9 18.4 29.6
+> Multi-Modal
+> HAMNet [41] 74.5 93.3 27.1 42.3 PFNet [39] 68.1 94.1 23.5 37.4 GAFNet [78] 74.4 93.4 --GPFNet [42] 75.0 94.5 --CCNet [79] 77.2 96.3 36.4 55.2 LRMM [72] 78.6 96.7 36.7 49.7 GraFT ∗[80] 76.6 94.3 --UniCat ∗[47] 79.4 96.2 --PHT ∗[43] 79.9 92.7 --HTT ∗[48] 75.7 92.6 --TOP-ReID ∗[13] 81.2 96.4 35.9 44.6 EDITOR ∗[22] 82.1 96.4 39.0 49.3 FACENet ∗[81] 81.5 96.9 36.2 54.1 RSCNet ∗[73] 82.3 96.6 39.5 49.6 WTSF-ReID ∗[74] 82.2 96.5 39.2 49.1 DESANet ∗[44] 82.1 97.4 39.2 47.8 PromptMA †[50] 85.3 97.4 55.2 64.5 MambaPro †[49] 83.9 94.7 47.0 56.5 DeMo †[52] 86.2 97.6 49.2 59.8 IDEA †[75] 87.2 96.5 47.0 62.4
+> PRISM †86.1 97.8 47.6 64.8
+
+the backbone network and the PFN are supervised using a combination of label smoothing cross-entropy loss [76] and triplet loss [77]. The global loss for each component can be expressed as: 
+
+Lg (X ) = Lce (X ) + Ltri (X ), (18) where X denotes input features. Finally, the overall loss of our framework can be expressed as: 
+
+L = Lg ([ f class R , f class N , f class T ]) + Lg ( ˆf ). (19) IV. E XPERIMENT 
+
+A. Experimental Setup 1) Datasets and Evaluation Protocols: To comprehensively evaluate our method, we conduct experiments on four multi-modal object ReID benchmarks. For generating high-quality masks, we employ semantic keypoint detection [65] and SAM2 [66] to obtain masks for persons and vehicles, re-spectively. To be specific, RGBNT201 [39] is a person ReID dataset comprising RGB, NIR, and TIR images, featuring 4,787 triplets with 14,361 annotations. RGBNT100 [41] is a large-scale vehicle ReID dataset with 17,250 triplets and 51,750 annotations, incorporating challenges such as occlu-sion and abnormal lighting. MSVR310 [79] is a smaller yet more complex vehicle ReID dataset, containing 2,087 triplets and 6,261 annotations with intricate visual challenges. WMVEID863 [81] is a vehicle ReID dataset containing 4,709                                                                         
+
+> TABLE III PERFORMANCE COMPARISON ON WMVEID863
+> Methods WMVEID863 mAP R-1 R-5 R-10 Multi-Modal
+> HAMNet [41] 45.6 48.5 63.1 68.8 PFNet [39] 50.1 55.9 68.7 75.1 IEEE [40] 45.9 48.6 64.3 67.9 CCNet [79] 50.3 52.7 69.6 75.1 EDITOR ∗[22] 65.6 73.8 80.0 82.3 TOP-ReID ∗[13] 67.7 75.3 80.8 83.5 FACENet ∗[81] 69.8 77.0 81.0 84.2 MambaPro †[49] 69.8 76.3 81.3 86.1 DeMo †[52] 68.9 75.8 81.1 84.3
+> PRISM †70.7 78.1 84.5 87.9 TABLE IV PERFORMANCE COMPARISON OF PS6 AGAINST RECENT SSM VARIANTS
+> Modules GFLOPs Params mAP PS6 (Ours) 0.337 0.79 80.5 Mamba [55] 0.472 2.17 79.3 VMamba [60] 0.511 2.17 79.0 Vision Mamba [59] 0.944 2.17 78.5 CrossMamba [61] 0.473 2.18 77.7
+
+triplets and 14,127 annotations, specifically emphasizing mo-tion blur and strong glare under real-world surveillance condi-tions. For evaluation metrics, performance is measured using mean Average Precision (mAP) and Cumulative Matching Characteristic (CMC) at Rank-K (K = 1, 5, 10), reported in percentage (%). Specifically, final results are presented as mAP (%) , Rank-1 (%) , Rank-5 (%) , and Rank-10 (%) .
+
+2) Implementation Details: Our framework is implemented using PyTorch on an NVIDIA A6000 GPU, leveraging CLIP [28] as the visual backbone. For RGBNT201, input images are resized to 256 × 128 , while for RGBNT100 and MSVR310, they are resized to 128 × 256 . Data augmentation techniques include random horizontal flipping, cropping, and erasing [82], which are employed to enhance model robust-ness. We adopt the same loss function as DeMo [52] to train the feature extractor and subsequent modules, where both components are supervised using a combination of label smoothing cross-entropy loss [76] and triplet loss [77]. During training, we adopt a mini-batch size of 64 for RGBNT201 and MSVR310, sampling 8 images per identity, and a mini-batch size of 128 for RGBNT100, sampling 16 images per identity. The total number of training epochs is set to 60 for RGBNT201 and MSVR310 and 50 for RGBNT100. The model is optimized using the Adam optimizer with a learning rate of 3.5e−4, while the visual encoder uses a smaller learning rate of 5e−6.
+
+B. Comparison with State-of-the-Art Methods 1) Multi-Modal Person ReID: In Table I, we com-pare PRISM † with existing multi-modal approaches on the RGBNT201 dataset. Our model, enhanced with PS6, surpasses existing state-of-the-art (SOTA) methods across all metrics. 8
+
+TABLE V PERFORMANCE COMPARISON (MAP) UNDER DIFFERENT PIXEL -LEVEL MODALITY MISALIGNMENT . T HE COLUMN HEADERS INDICATE THE DEGREE OF RANDOM SPATIAL SHIFT (IN PIXELS ) APPLIED TO THE AUXILIARY MODALITY 
+
+Methods - 10 20 30 40 50 PromptMA † [50] 78.4 78.1 77.2 74.2 70.8 66.1 DeMo † [52] 79.0 79.4 78.2 75.1 71.3 65.4 IDEA † [75] 80.2 81.3 79.5 76.7 71.4 66.1 MFRNet † [51] 80.7 79.7 78.1 74.8 71.1 66.4 
+
+PRISM † 80.5 81.9 80.1 77.0 71.8 66.6 TABLE VI PERFORMANCE COMPARISON (MAP) UNDER DIFFERENT LEVELS OF IMAGE OCCLUSION . T HE COLUMN HEADERS INDICATE THE RATIO OF THE OCCLUDED AREA RELATIVE TO THE TOTAL IMAGE AREA 
+
+Methods - 0.1 0.2 0.3 0.4 PromptMA † [50] 78.4 74.3 64.8 58.4 45.5 DeMo † [52] 79.0 73.5 65.1 61.4 48.0 IDEA † [75] 80.2 76.1 68.2 63.9 49.8 MFRNet † [51] 80.7 75.9 67.7 62.1 49.3 
+
+PRISM † 80.5 77.0 68.5 62.4 49.7 
+
+Specifically, PRISM † obtains 80.5% mAP and 84.0% Rank-1 accuracy, outperforming TOP-ReID ∗ [13] by 8.2% in mAP and 7.4% in Rank-1. Compared to other CLIP-based SOTA methods such as DeMo † [52] and IDEA † [75], our method consistently achieves superior results across all evaluation metrics. These findings highlight the effectiveness of inte-grating semantic masks for enhancing feature discrimination. Furthermore, our method achieves 80.5% mAP with 109.25M trainable parameters, demonstrating strong performance un-der a compact model footprint. It surpasses TOP-ReID [13] (72.3% mAP, 324.53M parameters), EDITOR [22] (66.5% mAP, 118.55M), WTSF-ReID [74] (67.9% mAP, 143.60M), and RSCNet [73] (68.2% mAP, 124.10M) in accuracy, despite using significantly fewer parameters. This highlights the supe-rior parameter efficiency of the proposed approach. 
+
+2) Multi-Modal Vehicle ReID: We evaluate PRISM † against SOTA methods on the RGBNT100 and MSVR310 datasets, as shown in Table II. On RGBNT100, PRISM † achieves an mAP of 86.1%, improving upon EDITOR ∗ [22] by 4.0% in mAP. On the more challenging MSVR310 dataset, our model attains 47.6% mAP and 64.8% Rank-1 accuracy, surpassing EDITOR ∗ by 8.6% in mAP and 15.5% in Rank-1. Further-more, as shown in Table III, PRISM attains 70.7% mAP and 78.1% Rank-1 on the WMVEID863 dataset, surpassing FACENet ∗ [81] by 0.9% and 1.1%, respectively, and estab-lishing SOTA performance across all evaluation metrics. This highlights the effectiveness of PRISM’s fine-grained token pruning in handling localized disturbances such as motion blur and intense flare. These results demonstrate that PRISM achieves competitive performance and exhibits strong general-ization capability across diverse and challenging multi-spectral vehicle ReID scenarios. 
+
+3) Comparison with Recent SSM Variants: PS6 is grounded in State Space Models (SSMs) theory, and its core contri-bution lies in a simple yet effective architecture for unified 
+
+TABLE VII PERFORMANCE COMPARISON (R-1) UNDER DIFFERENT PIXEL -LEVEL MODALITY MISALIGNMENT . T HE COLUMN HEADERS INDICATE THE DEGREE OF RANDOM SPATIAL SHIFT (IN PIXELS ) APPLIED TO THE AUXILIARY MODALITY 
+
+Methods - 10 20 30 40 50 PromptMA † [50] 80.9 81.0 80.6 80.4 78.6 78.0 DeMo † [52] 82.3 81.8 81.0 80.3 78.8 77.8 IDEA † [75] 82.1 84.8 84.6 81.7 79.2 78.1 MFRNet † [51] 83.6 83.3 83.0 81.2 81.8 79.1 
+
+PRISM † 84.0 85.4 84.6 84.7 83.6 82.1 TABLE VIII PERFORMANCE COMPARISON (R-1) UNDER DIFFERENT LEVELS OF IMAGE OCCLUSION . T HE COLUMN HEADERS INDICATE THE RATIO OF THE OCCLUDED AREA RELATIVE TO THE TOTAL IMAGE AREA 
+
+Methods - 0.1 0.2 0.3 0.4 PromptMA † [50] 80.9 79.1 70.7 67.7 61.2 DeMo † [52] 82.3 77.6 70.3 68.1 65.0 IDEA † [75] 82.1 80.9 74.4 72.8 65.7 MFRNet † [51] 83.6 81.2 74.9 72.7 66.6 
+
+PRISM † 84.0 83.0 78.1 74.4 68.1 
+
+multi-modal feature processing, distinguishing it from existing Mamba variants. We compare PS6 against Inter-Mamba [49], attention-based methods [22], and Mamba baselines (Mamba, Mamba*), demonstrating superior computational efficiency, as shown in Fig. 1(b). Specifically, Mamba and Mamba* denote feature aggregation via summing and concatenating, re-spectively, after Mamba-based self-interactions. Furthermore, comparisons with other representative Mamba variants on the RGBNT201 dataset highlight the overall performance advantage of PS6, as shown in Table IV. 
+
+4) Robustness Evaluation: To comprehensively evaluate the robustness of the proposed PRISM framework, we con-duct dedicated experiments under two challenging scenarios: partial occlusion and inter-modality misalignment, using the RGBNT201 dataset. For partial occlusion, we simulate realis-tic blocking by applying random square masks of varying sizes to the same spatial location across all three modalities (RGB, NIR, and TIR). To model modality misalignment, we fix the TIR image as the reference and independently apply random horizontal and vertical shifts to the RGB and NIR images, thereby emulating registration errors commonly encountered in practical multi-spectral capture systems. As shown in Fig. 4 and summarized in Tables V-VIII, PRISM demonstrates con-sistently stable performance under both degradation types. No-tably, while MFRNet [51] slightly outperforms PRISM in mAP under clean conditions (80.7 versus 80.5), our method exhibits superior robustness when data quality is compromised. An interesting observation from the misalignment study is that a small offset (e.g., 10 pixels) often leads to a slight mAP improvement across several methods. We attribute this to the centered nature of targets in RGBNT201, where minor shifts effectively reduce background clutter and act as implicit data augmentation. In severe occlusion cases (mask area ratios of 0.3 and 0.4), IDEA [75] achieves marginally better mAP than PRISM, likely due to its integration of textual semantic cues 965 67 69 71 73 75 77 79 81 83 85 0 10 20 30 40 50 mAP (a) Pixel Offset PromptMA DeMo IDEA MFRNet PRISM 45 50 55 60 65 70 75 80 85 0 0.1 0.2 0.3 0.4 mAP (b) Occluded Area PromptMA DeMo IDEA MFRNet PRISM 73 75 77 79 81 83 85 87 0 10 20 30 40 50 R-1 (c) Pixel Offset PromptMA DeMo IDEA MFRNet PRISM 60 65 70 75 80 85 0 0.1 0.2 0.3 0.4 R-1 (d) Occluded Area PromptMA DeMo IDEA MFRNet PRISM                                    
+
+> Fig. 4. Performance evaluation under challenging conditions on the RGBNT201. (a) Robustness to pixel-level modality misalignment (spatial shift in pixels, mAP). (b) mAP degradation under varying levels of image occlusion (relative occluded area ratio). (c) Robustness to pixel-level modality misalignment (R-1). (d) R-1 degradation under image occlusion. TABLE IX PERFORMANCE COMPARISON WITH DIFFERENT MODULES IN PRISM
+> Index Modules Metrics Mask SDTP PFN mAP Rank-1
+> A-%%70.5 73.4 B-%"73.7 78.1 C%""75.8 79.3 D"""80.5 84.0
+
+that complement visual features under extreme information loss. This further supports our central thesis that enriching rep-resentations with auxiliary semantic information significantly enhances model resilience in adverse conditions. 
+
+C. Ablation Studies 
+
+We evaluate the effectiveness of key modules on RGBNT201, using a baseline that leverages only the class tokens from the visual encoder. We set the number of stacked layers in TAFE to k = 2 for optimal performance, with the stacking architecture illustrated in Fig. 2. Due to the lightweight design of each module, this configuration intro-duces only a minimal number of additional parameters. 
+
+1) Effects of Key Modules: Table IX presents the perfor-mance of various combinations of the proposed components. Model A serves as the baseline, achieving an mAP of 70.5% and a Rank-1 accuracy of 73.4%. Incorporating PFN into the framework, Model B improves the performance to an mAP of 73.7% and a Rank-1 accuracy of 78.1%, demonstrating the benefit of this integration. Model C further integrates SDTP, boosting the mAP to 75.8% and the Rank-1 accuracy to 79.3%. Finally, Model D introduces semantic details through the use of a mask extractor, achieving the highest performance with an mAP of 80.5%. These results confirm the effectiveness of the proposed components in improving overall performance.                                                            
+
+> TABLE X COMPARISON WITH DIFFERENT COMPONENTS IN SDTP
+> Index SDTP Metrics TAFE TDM PS6 Quantity mAP Rank-1
+> A%%-73.7 78.1 B"%276.4 80.7 C""177.5 79.1 D""379.3 82.2 E""280.5 84.0
+> TABLE XI COMPARISON WITH DIFFERENT COMPONENTS IN PFN
+> Index PFN Metrics Intra Inter Tri mAP Rank-1
+> A%%%76.3 79.9 B"%%76.4 81.3 C""%77.6 79.4 D"""80.5 84.0
+
+2) Effects of Key Components in SDTP: Table X evaluates the impact of different components within SDTP. Model A (baseline, without SDTP) achieves an mAP of 73.7% and a Rank-1 accuracy of 78.1%. Model B adds the TAFE module, increasing the mAP to 76.4%, which shows the positive effect of fine-grained semantic interaction. Models C, D, and E include the TDM module with varying numbers of PS6 modules: Model C (1 PS6) achieves 77.5% mAP, Model D (3 PS6s) reaches 79.3% mAP, and Model E (2 PS6s) achieves the highest mAP of 80.5%. These results confirm that TDM contributes significantly to performance gain, with two PS6 modules yielding the optimal configuration. 
+
+3) Effects of Key Components in PFN: Table XI shows the performance of different components within PFN. Model A (without PFN) achieves an mAP of 76.3% and a Rank-1 accu-racy of 79.9%. Model B incorporates IM, improving the mAP to 76.4% and the Rank-1 accuracy to 81.3%. Model C further integrates IT, boosting the mAP to 77.6%, which demonstrates the effectiveness of PS6-based interaction. Finally, Model D introduces TA, achieving the best performance with an mAP of 80.5%. The results validate the contribution of each component in the PFN framework, particularly the progressive three-stage aggregation strategy. 
+
+4) Effects of Different Mask Generation Methods: We eval-uate the impact of mask generation strategies on RGBNT201 and RGBNT100, as shown in Tables XII, XIII, and XIV. On RGBNT201 (person ReID), OpenPifPaf outperforms SAM2 because pose keypoints provide strong structural priors for articulated bodies, yielding more accurate masks that localize key parts. Conversely, on RGBNT100 (vehicle ReID), SAM2 with box prompts achieves better results, as rigid objects are poorly represented by sparse keypoints. In this case, OpenPifPaf often produces fragmented or incomplete masks (Fig. 5), which degrade performance by introducing noise rather than guidance. These results confirm that the optimal mask generator depends on the target object’s physical structure. To avoid severe failures, such as missing the object entirely, we adopt an 10 RGB NIR TIR RGB NIR TIR RGB NIR TIR RGB NIR TIR R/N/T SAM2 SAM2 R/N/T SAM2 SAM2    
+
+> RGB TIR NIR Mask Failure Cases
+
+Fig. 5. Qualitative comparison of semantic masks generated on the RGBNT201 and RGBNT100 datasets. Our mask generation approach produces more accurate and robust masks under imaging degradations such as low lighting, occlusion, and thermal variations. TABLE XII COMPARISON OF MODEL PERFORMANCE USING DIFFERENT MASKS GENERATED ON RGBNT201. RGB, NIR, AND TIR DENOTE USING A MASK GENERATED FROM THAT SINGLE MODALITY FOR ALL INPUTS ;R/N/T DENOTES USING MODALITY -SPECIFIC MASKS 
+
+Data Metrics RGB NIR TIR R/N/T OpenPifPaf mAP 80.5 76.9 79.6 80.1 [65] Rank-1 84.0 81.5 83.4 84.1 
+
+Data Metrics Heatmap Binary Mask SAM2 mAP 79.4 78.2 [66] Rank-1 85.4 83.1 TABLE XIII COMPARISON OF MODEL PERFORMANCE USING DIFFERENT MASKS GENERATED ON RGBNT100 
+
+Data mAP R-1 R-5 R-10 OpenPifPaf [65] 82.9 93.4 94.5 95.6 
+
+SAM2 [66] 86.1 97.8 98.2 98.6 
+
+adaptive prompting strategy that uses skeleton-based masking for pedestrians and box or center-prior masking for vehicles. Importantly, all masks are generated from the RGB modality only. This choice is empirically justified for two reasons. First, RGB provides the most reliable visual cues for pre-trained seg-mentation models. Second, our framework exhibits robustness to minor mask imperfections or inter-modal misalignments since the mask serves as a coarse semantic prior rather than pixel-accurate supervision. This robustness is further enhanced by the Cross-Modal Union (CMU) mechanism in the Tail Drop Module, which aggregates token decisions across modalities. Consequently, using a single RGB-based generator avoids unnecessary complexity while maintaining effectiveness, as verified by the stability under pixel offsets and occlusions in Table V and Table VI. 
+
+5) Effects of Drop Rate in the TDM: Table XV evaluates the performance of PRISM under different drop rates in the 
+
+TABLE XIV PERFORMANCE AND EFFICIENCY COMPARISON OF DIFFERENT MASK GENERATION STRATEGIES ON RGBNT201 
+
+Mask generator G Inf time of G (s) mAP Rank-1 Ours w/o SDTP - 73.7 78.1 Ours w/o Mask - 75.8 79.3 SAM w/ Box Prompt 0.0238 75.6 78.6 SAM2 Binary Mask w/o Box Prompt 0.0113 76.4 79.1 SAM w/ SamAutomaticMaskGenerator 0.1097 77.5 82.3 SAM2 w/ Dynamic Box Prompt (Ours) 0.0115 80.5 85.9 TABLE XV PERFORMANCE COMPARISON (MAP) OF UNIFIED VERSUS SEPARATE TOKEN SELECTION UNDER VARYING RETENTION RATES . T HE UNIFIED STRATEGY ACHIEVES THE HIGHEST M AP AT A RETENTION RATE OF 0.5 
+
+Retention Rate 0.3 0.4 0.5 0.6 0.7 Union 78.1 79.6 80.5 80.0 79.1 
+
+Separate 77.9 79.4 79.7 78.7 78.6 
+
+TDM, with experiments conducted on RGBNT201. The results show that the CMU-based union strategy performs better than modality-specific tail dropping. A drop rate of 0.5 achieves the best performance. Performance degrades when the drop rate deviates from this value, indicating that 0.5 strikes an effective balance between pruning poorly attended tokens and preserving informative ones. Notably, the actual set of dropped tokens is determined by the intersection of the drop regions across the three modalities, resulting in an effective dropout ratio that is inherently lower than the configured value. Therefore, setting the drop rate to 0.5 ensures sufficient sparsification without compromising cross-modal alignment. This choice aligns with the well-established dropout principle [83], where a 50% retention rate maximizes subnetwork diversity and enhances ensemble effects during training. 11                                                                          
+
+> TABLE XVI PERFORMANCE COMPARISON OF PFN WITH VARYING COMPONENT CONFIGURATIONS ON RGBNT201
+> Index PFN Metrics Intra Inter Tri mAP Rank-1
+> A11177.2 81.0 B11276.3 80.6 C11378.6 83.5 D12179.4 81.8 E12280.5 84.0 F12380.2 84.8 G13176.8 81.1 H13278.9 83.9 I13378.8 84.2 TABLE XVII COMPARISON OF COMPUTATIONAL COMPLEXITY BETWEEN PS6 AND STANDARD ATTENTION MODULES UNDER VARYING SEQUENCE LENGTHS .RESULTS CONFIRM THE LINEAR COMPLEXITY OF PS6, IN CONTRAST TO THE QUADRATIC GROWTH OF SELF -AND CROSS -ATTENTION
+> SeqLen PS6 SelfAttn/CrossAttn 64 0.0840 0.2139 128 0.1679 0.4530 256 0.3358 1.0065 512 0.6716 2.4159 1024 1.3432 6.4425 2048 2.6865 19.3275
+
+6) Ablation Study on Number of Modules in PFN: To determine the optimal stacking depth for the IT and TA modules within PFN, we conduct an ablation study on their ar-chitectural depth, as shown in Table XVI. The results indicate that setting the number of stacked modules to k = 2 yields the best performance. Further increasing the depth provides no additional gain, suggesting diminishing returns beyond this point. The lack of improvement with deeper stacking may stem from redundant feature refinement or increased optimization difficulty in very deep fusion pathways. Notably, each module is designed to be lightweight with few trainable parameters; thus, doubling the stack count results in only a marginal increase in overall model complexity, which highlights the pa-rameter efficiency of our design. Nevertheless, excessive depth may impair generalization, particularly on the RGBNT201 dataset, where challenging imaging conditions and suboptimal image quality place high demands on model robustness. 
+
+7) Inference Efficiency: The proposed SDTP and PFN modules are built upon the lightweight PS6 backbone and introduce only marginal computational overhead, as illustrated in Fig. 1(b). To evaluate the efficiency of PS6, we compare its GFLOPs with those of a standard self-attention module under identical input conditions, as shown in Table XVII. The results confirm that PS6 scales linearly with sequence length, in contrast to the quadratic complexity of standard self-attention. We compare inference time, GFLOPs, sampling speed, and memory consumption with recent SOTA methods in Tables XVIII and XIX to assess deployment efficiency. All FLOPs are measured using fvcore under identical experimental settings. As shown, our method achieves comparable inference speed to PromptMA and MFRNet, while significantly outper-                                       
+
+> TABLE XVIII INFERENCE TIME COMPARISON OF DIFFERENT METHODS
+> Methods PromptMA MambaPro IDEA MFRNet Ours Total Inf. Time (s) 9.75 15.90 21.88 10.77 11.78
+> Avg. Batch Time (ms) 361.11 590.00 810.48 399.02 436.34 TABLE XIX EFFICIENCY COMPARISON WITH SOTA METHODS IN TERMS OF COMPUTATIONAL COST ,INFERENCE SPEED ,AND MEMORY USAGE . O UR METHOD ACHIEVES THE LOWEST MEMORY CONSUMPTION WHILE MAINTAINING COMPETITIVE THROUGHPUT AND FLOP S
+> Methods GFLOPs ↓Sample/s ↑Memory (MiB) ↓
+> PromptMA [50] 67.40 119.5 3647 MambaPro [49] 51.25 106.7 2761 IDEA [75] 43.73 117.2 2760 MFRNet w/ ViT-S [51] 22.10 155.8 3404 Ours 40.59 112.7 1718
+
+forming MambaPro and IDEA by a large margin. Crucially, under consistent experimental settings, our approach attains the lowest memory consumption among all compared meth-ods. Moreover, its memory usage is substantially lower than that of PromptMA and MFRNet, while still maintaining com-petitive throughput and FLOPs, which highlights its advantage for practical deployment. This efficiency stems from the PS6 mechanism, which minimizes the footprint of intermediate activations. In con-trast, MambaPro processes each modality with independent Mamba blocks, requiring multiple parallel state spaces during inference. Although MFRNet adopts a lighter ViT-S back-bone (compared to the ViT-B used by other methods), its memory consumption remains high due to the Mixture-of-Experts (MoE) based fusion module. Specifically, only asubset of experts is activated per token, keeping FLOPs low and enabling marginally faster inference. However, all expert parameters and routing logits must still be retained in memory. Coupled with dense feature fusion operations that produce large intermediate activation tensors, this results in a substan-tial memory footprint despite its lower computational cost. Moreover, PromptMA achieves marginally faster inference than our method, primarily owing to its fixed-token processing pipeline that avoids dynamic token selection. However, by operating on the full set of input tokens throughout the network without explicit token reduction, it incurs higher FLOPs and greater memory usage, particularly in intermediate feature maps. In contrast, PRISM’s semantic-aware token pruning effectively reduces sequence length early in the network, yielding lower computational cost and a reduced memory footprint with minimal latency overhead. 
+
+8) Effect of Key Modules on a Degraded Vehicle Dataset: 
+
+As shown in Table XX, we further evaluate the proposed framework on MSVR310, a challenging vehicle ReID dataset with significant real-world degradations, including low resolu-tion, motion blur, and adverse weather. The baseline achieves 40.8% mAP and 55.7% Rank-1 accuracy under these con-ditions. Integrating the Progressive Fusion Network (PFN) improves performance to 44.0% mAP and 58.4% Rank-1, 12 Separation: 3.3727    
+
+> 0.6
+> Overlap Area: 0.1047
+> 0.7 0.8 0.9 1.0
+
+Cosine Similarity        
+
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12 Density
+> 0.9230 0.7740 Positive Pairs (Same ID) Negative Pairs (Different ID) Mean Positive Similarity Mean Negative Similarity
+> 0.65 0.70 0.75 0.80 0.85 0.90 0.95 1.00
+
+Cosine Similarity     
+
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> 12
+> 14
+> 0.9359 0.8157
+> Separation: 3.4213 Overlap Area: 0.1031
+> Positive Pairs (Same ID) Negative Pairs (Different ID) Mean Positive Similarity Mean Negative Similarity
+> 0.92 0.94 0.96 0.98 1.00
+
+Cosine Similarity 
+
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 0.9834 0.9503
+> Separation: 3.5959 Overlap Area: 0.0659
+> Positive Pairs (Same ID) Negative Pairs (Different ID) Mean Positive Similarity Mean Negative Similarity
+
+SDTP SDTP SDTP w/o IT w/o TA w/o TA 
+
+Fig. 6. Cosine similarity distribution visualization. Incorporating IT and TA improves separation and reduces overlap, indicating enhanced discriminative power from progressive interaction. (a) Baseline (b) Baseline + PFN (c) Baseline + SDTP + PFN (d) Baseline + SDTP + PFN + Mask 
+
+Fig. 7. Visualization of feature distributions using t-SNE [84]. Different colors represent different identities, illustrating the clustering effect and separability achieved by our method. TABLE XX PERFORMANCE COMPARISON OF PRISM WITH VARYING COMPONENT CONFIGURATIONS ON MSVR310 
+
+Index Modules Metrics Mask SDTP PFN mAP Rank-1 
+
+A - % % 40.8 55.7 B - % " 44.0 58.4 C % " " 46.2 61.8 D " " " 47.6 64.8 
+
+TABLE XXI QUANTITATIVE EVALUATION OF COSINE SIMILARITY DISTRIBUTIONS 
+
+USING SEPARATION AND OVERLAP METRICS , WITH M AP C OMPARISON 
+
+Metric Separation Metric Overlap Area mAP MambaPro [49] 3.5274 0.0872 78.9 
+
+IDEA [75] 2.9998 0.0882 80.2 
+
+PRISM (Ours) 3.5959 0.0659 80.5 
+
+demonstrating its robustness in fusing multi-spectral features under degraded inputs. Further incorporating the SDTP mod-ule with semantic mask guidance achieves the best perfor-mance of 47.6% mAP and 64.8% Rank-1. The SDTP module is explicitly designed to leverage seman-tic structure as a prior for reliable region identification and token pruning. When SDTP operates without this guidance, it relies solely on response-driven region selection, where high-activation areas in the feature map are prioritized as potentially discriminative. This contrast highlights the effectiveness of our semantic-aware token pruning mechanism, where the synergy between semantic structure and multi-spectral features is key to robust matching. Overall, these results validate the complementary design of the proposed components and their ability to handle complex, real-world vehicle ReID scenarios. 
+
+D. Visualization Analysis 1) Cosine Similarity Distributions: Fig. 6 shows the distri-butions of cosine similarities for features after adding different components to PFN. Unlike methods such as IDEA [75], which typically only examine the separation (e.g., peak dif-ference) between the two distribution modes, our approach focuses on evaluating the comprehensive overlap area and separation degree of the entire distributions. To quantify this, we utilize two specific metrics. The Separation Metric is de-fined as the standardized mean difference between the positive samples ( X1) and negative samples ( X2). This is calculated as follows: Separation Metric = ( ¯X1 − ¯X2)/
+
+q
+
+(s21 + s22)/2, (20) where ¯X1 and ¯X2 are the means of the positive and negative samples, and s21 and s22 are their respective variances. Fur-thermore, to estimate the overlap between the distributions, we use Kernel Density Estimation (KDE). The overlap area 13 (a) Baseline (b) Baseline + PFN (c) Baseline + PFN + SDTP (w/o Mask) (d) Baseline + PFN + SDTP + Mask          
+
+> Rank-1 Query Rank-2 Rank-3 Rank-4 Rank-5 Rank-6 Rank-7 Rank-8 Rank-9 Rank-10 Rank-1 Query Rank-2 Rank-3 Rank-4 Rank-5 Rank-6 Rank-7 Rank-8 Rank-9 Rank-10
+> Rank-1 Query Rank-2 Rank-3 Rank-4 Rank-5 Rank-6 Rank-7 Rank-8 Rank-9 Rank-10 Rank-1 Query Rank-2 Rank-3 Rank-4 Rank-5 Rank-6 Rank-7 Rank-8 Rank-9 Rank-10
+
+Fig. 8. Rank list comparison of our model with varying components on RGBNT201. The progressive performance improvement with the addition of each module demonstrates the effectiveness of the proposed architecture. (a) Baseline (b) Baseline + PFN (c) Baseline + PFN + SDTP (w/o Mask) (d) Baseline + PFN + SDTP + Mask                 
+
+> Rank-1 Query Rank-2 Rank-3 Rank-4 Rank-5 Rank-1 Query Rank-2 Rank-3 Rank-4 Rank-5 Rank-1 Query Rank-2 Rank-3 Rank-4 Rank-5 Rank-1 Query Rank-2 Rank-3 Rank-4 Rank-5
+
+Fig. 9. Rank list comparison of our model with varying components on RGBNT100. 
+
+is approximated by the integral of the minimum of the two probability density functions: Overlap Area ≈
+
+Z
+
+min( f1(x), f 2(x)) dx, (21) where f1(x) and f2(x) are the probability density functions es-timated via KDE for the positive and negative samples, respec-tively. Together, these metrics provide a concise framework for evaluating both the separation and similarity of the two distri-butions, as shown in Fig. 6. The results show that both the IT and TA modules independently improve the separation metric and reduce the overlap area. When combined, they achieve optimal performance with a separation metric of 3.5959 and an overlap area of 0.0659, demonstrating their effectiveness in enhancing feature discriminability. Furthermore, as shown in Table XXI, our method outperforms SOTA approaches in both distribution quality and retrieval accuracy. 
+
+2) Multi-Modal Feature Distributions: Fig. 7 visualizes the learned feature embeddings from different configurations. As shown in Fig. 7(a), the baseline model exhibits entangled clusters with significant intra-class variance, particularly in the region highlighted by the red circle. In contrast, the integra-tion of the Progressive Fusion Network (PFN) yields better-separated class boundaries and reduced intra-class dispersion (Fig. 7(b)). This demonstrates that PFN effectively fuses com-plementary multi-spectral cues to enhance discriminability. Further improvements are observed when incorporating the SDTP module with semantic guidance, as shown in Fig. 7(c) and (d). Compared to the features with PFN only, the resulting features exhibit tighter intra-class clustering and clearer inter-class separation. This suggests that SDTP, by leveraging semantic structure to guide token pruning and feature enhance-14                                 
+
+> TABLE XXII PERFORMANCE OF PS6 IN IMAGE FUSION
+> Model EN ↑SD ↑VIF ↑AG ↑CC ↑SCD ↑MS SSIM ↑
+> Baseline [85] 7.428 9.805 0.726 4.659 0.673 1.546 0.949 Baseline w/ PS6 7.435 10.624 0.735 4.757 0.676 1.593 0.959
+
+RGB Baseline Ours RGB Baseline Ours       
+
+> Fig. 10. Visualization of channel activation maps. Interacting with semantic masks helps the model focus on more discriminative regions, thereby boosting feature robustness and enhancing interpretability. Ours  Baseline  Input
+> RGB NIR TIR RGB NIR TIR
+> Fig. 11. Visualization of channel activation maps for vehicle ReID. The inter-action with semantic masks enables the model to focus on more discriminative regions, thereby improving feature robustness and enhancing interpretability.
+
+ment, suppresses irrelevant background responses. 
+
+3) Rank List Comparison: Fig. 8 and Fig. 9 compare the cross-camera rank lists produced by the baseline method and progressively enhanced variants, culminating in the full PRISM model. Starting from the baseline, which exhibits noisy and inconsistent ranking patterns, the introduction of the tri-modal fusion module leads to an improved retrieval or-der. Further incorporating the semantic-guided token selection mechanism enhances ranking stability. This visual ablation clearly demonstrates the individual and cumulative contri-butions of the proposed components, highlighting PRISM’s ability to retrieve correct matches across camera views. 
+
+4) Visualization of Channel Activation Maps: Fig. 10 and Fig. 11 illustrate a comparison between the channel activation maps of our baseline model and those generated by PRISM following the TAFE module. The incorporation of PS6-based fine-grained semantic interaction enables the model to focus on more discriminative regions, thereby enhancing feature robustness and interpretability. 
+
+E. Generalization Capability of PS6 in Multi-Modal Tasks 
+
+Unlike recent works that use global semantic information for feature sampling or guidance, our framework incorporates semantic priors as full inputs to enable finer-grained local interaction. Moreover, the proposed PS6 module achieves tri-modal feature interaction with linear computational complexity and fewer parameters, making it highly suitable for resource-constrained multi-modal applications. As shown in Table XXII, integrating PS6 into a baseline fusion network improves performance across multiple metrics, demonstrating its effectiveness in capturing cross-modal cor-respondences. The gains in EN, SD, and AG indicate that the fused features preserve richer spatial details and sharper edges, while improvements in CC, SCD, and MS SSIM suggest better structural alignment with the reference image. These results confirm that PS6 enhances both detail preservation and cross-modal consistency, and highlight its broader applicability to low-level multi-modal vision tasks such as image fusion. V. C ONCLUSION 
+
+In this paper, we propose PRISM, a novel multi-modal ob-ject Re-Identification framework built upon Prompt-S6 (PS6) and semantic-aware knowledge guidance. Specifically, we first utilize a pre-trained mask generator to obtain semantic masks, providing spatially aligned guidance for foreground-background separation. Building upon PS6, our Semantic-Driven Token Pruning (SDTP) facilitates fine-grained inter-action between semantic information and tri-modal features while suppressing background-associated tokens through a cross-modal consensus mechanism. Furthermore, our Progres-sive Fusion Network (PFN) progressively models intra-modal dynamics, inter-modal interactions, and tri-modal alignment, achieving comprehensive aggregation across RGB, NIR, and TIR modalities. Benefiting from the linear complexity of PS6, both SDTP and PFN achieve efficient cross-modal interaction with minimal computational overhead. Extensive experiments on four public multi-modal object ReID benchmarks confirm the effectiveness and efficiency of our approach. REFERENCES [1] G. Wang, Y. Yuan, J. Li, S. Ge, and X. Zhou, “Receptive multi-granularity representation for person re-identification,” TIP , 2020. [2] X. Liu, C. Yu, P. Zhang, and H. Lu, “Deeply coupled convolution– transformer with spatial–temporal complementary learning for video-based person re-identification,” TNNLS , 2023. [3] Y. Wang, P. Zhang, D. Wang, and H. Lu, “Other tokens matter: Exploring global and local features of vision transformers for object re-identification,” CVIU , 2024. [4] X. Liu, P. Zhang, C. Yu, X. Qian, X. Yang, and H. Lu, “A video is worth three views: Trigeminal transformers for video-based person re-identification,” TITS , 2024. 15 
+
+[5] X. Liu, P. Zhang, C. Yu, H. Lu, and X. Yang, “Watching you: Global-guided reciprocal learning for video-based person re-identification,” in 
+
+CVPR , 2021. [6] G. Zhang, P. Zhang, J. Qi, and H. Lu, “Hat: Hierarchical aggregation transformers for person re-identification,” in ACM MM , 2021. [7] C. Yu, X. Liu, Y. Wang, P. Zhang, and H. Lu, “Tf-clip: Learning text-free clip for video-based person re-identification,” in AAAI , 2024. [8] C. Wang, Y. Wu, Z. Su, and J. Chen, “Joint self-attention and scale-aggregation for self-calibrated deraining network,” in ACM MM , 2020. [9] L. Wang, C. Wang, J. Pan, X. Liu, W. Zhou, X. Sun, W. Wang, and Z. Su, “Ultra-high-definition image restoration: New benchmarks and a dual interaction prior-driven solution,” TCSVT , 2025. [10] X. Sun, L. Wang, C. Wang, Y. Jin, K.-m. Lam, Z. Su, Y. Yang, and J. Pan, “Adapting large vlms with iterative and manual instructions for generative low-light enhancement,” arXiv:2507.18064 , 2025. [11] C. Wang, J. Pan, L. Wang, W. Wang, and Y. Yang, “Neural discrimination-prompted transformers for efficient uhd image restoration and enhancement: C. wang et al.” IJCV , 2026. [12] L. Wang, W. Zhou, C. Wang, K.-M. Lam, Z. Su, and J. Pan, “Deep learning-driven ultra-high-definition image restoration: A survey,” 
+
+arXiv:2505.16161 , 2025. [13] Y. Wang, X. Liu, P. Zhang, H. Lu, Z. Tu, and H. Lu, “Top-reid: Multi-spectral object re-identification with token permutation,” in AAAI , 2024. [14] J. Shi, X. Yin, Y. Zhang, Y. Xie, Y. Qu et al. , “Learning commonality, divergence and variety for unsupervised visible-infrared person re-identification,” NeurIPS , 2024. [15] B. Yang, J. Chen, and M. Ye, “Shallow-deep collaborative learning for unsupervised visible-infrared person re-identification,” in CVPR , 2024. [16] ——, “Towards grand unified representation learning for unsupervised visible-infrared person re-identification,” in ICCV , 2023. [17] S. Li, J. Leng, C. Kuang, M. Tan, and X. Gao, “Video-level language-driven video-based visible-infrared person re-identification,” TIFS , 2025. [18] S. Tao, S. Li, J. Ye, N. Dong, F. Li, and H. Li, “Spatial-temporal high-frequency learning for video-based visible-infrared person re-identification,” TCSVT , 2026. [19] L. Zhou, S. Li, N. Dong, Y. Tai, Y. Zhang, and H. Li, “Hierarchical prompt learning for image-and text-based person re-identification,” in 
+
+AAAI , 2026. [20] J. Leng, Z. Wang, S. Li, and X. Gao, “Dynamic-static collaboration for unsupervised domain adaptive video-based visible-infrared person re-identification,” in AAAI , 2026. [21] M. Ye, J. Shen, G. Lin, T. Xiang, L. Shao, and S. C. Hoi, “Deep learning for person re-identification: A survey and outlook,” TPAMI , 2021. [22] P. Zhang, Y. Wang, Y. Liu, Z. Tu, and H. Lu, “Magic tokens: Select diverse tokens for multi-modal object re-identification,” in CVPR , 2024. [23] C. Song, Y. Huang, W. Ouyang, and L. Wang, “Mask-guided contrastive attention model for person re-identification,” in CVPR , 2018. [24] L. Qi, J. Huo, L. Wang, Y. Shi, and Y. Gao, “A mask based deep ranking neural network for person retrieval,” in ICME , 2019. [25] G. Zhang, J. Liu, Y. Chen, Y. Zheng, and H. Zhang, “Multi-biometric unified network for cloth-changing person re-identification,” TIP , 2023. [26] C. Cui, S. Huang, W. Song, P. Ding, M. Zhang, and D. Wang, “Profd: Prompt-guided feature disentangling for occluded person re-identification,” in ACM MM , 2024. [27] S. Li, J. Leng, J. Gan, M. Mo, and X. Gao, “Shape-centered repre-sentation learning for visible–infrared person re-identification,” Pattern Recognition , 2025. [28] A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark et al. , “Learning transferable visual models from natural language supervision,” in ICML , 2021. [29] S. Wei, Z. Gao, C. Ma, Y. Zhao, W. Guan, and S. Chen, “Multiple information prompt learning for cloth-changing person re-identification,” 
+
+TIP , 2025. [30] S. Yan, N. Dong, L. Zhang, and J. Tang, “Clip-driven fine-grained text-image person re-identification,” TIP , 2023. [31] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly et al. ,“An image is worth 16x16 words: Transformers for image recognition at scale,” arXiv:2010.11929 , 2020. [32] A. Gu, K. Goel, and C. R´ e, “Efficiently modeling long sequences with structured state spaces,” arXiv:2111.00396 , 2021. [33] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin, “Attention is all you need,” NeurIPS , 2017. [34] K. Zhou, Y. Yang, A. Cavallaro, and T. Xiang, “Omni-scale feature learning for person re-identification,” in ICCV , 2019. [35] S. He, H. Luo, P. Wang, F. Wang, H. Li, and W. Jiang, “Transreid: Transformer-based object re-identification,” in ICCV , 2021. [36] K. Zhu, H. Guo, Z. Liu, M. Tang, and J. Wang, “Identity-guided human semantic parsing for person re-identification,” in ECCV , 2020. [37] V. Somers, A. Alahi, and C. D. Vleeschouwer, “Keypoint promptable re-identification,” in ECCV , 2024. [38] K. Niu, Y. Huang, W. Ouyang, and L. Wang, “Improving description-based person re-identification by multi-granularity image-text align-ments,” TIP , 2020. [39] A. Zheng, Z. Wang, Z. Chen, C. Li, and J. Tang, “Robust multi-modality person re-identification,” in AAAI , no. 4, 2021. [40] Z. Wang, C. Li, A. Zheng, R. He, and J. Tang, “Interact, embed, and enlarge: Boosting modality-specific representations for multi-modal person re-identification,” in AAAI , 2022. [41] H. Li, C. Li, X. Zhu, A. Zheng, and B. Luo, “Multi-spectral vehicle re-identification: A challenge,” in AAAI , 2020. [42] Q. He, Z. Lu, Z. Wang, and H. Hu, “Graph-based progressive fusion network for multi-modality vehicle re-identification,” TITS , 2023. [43] W. Pan, L. Huang, J. Liang, L. Hong, and J. Zhu, “Progressively hybrid transformer for multi-modal vehicle re-identification,” Sensors , 2023. [44] W. Dong, X. Yang, D. Cheng, N. Wang, and X. Gao, “Escaping modal interactions: An efficient desanet for multi-modal object re-identification,” TIP , 2025. [45] Y. Li, T. Zhang, X. Liu, Q. Tian, Y. Zhang, and F. Wu, “Visible-infrared person re-identification with modality-specific memory network,” TIP ,2022. [46] X. Zheng, X. Chen, and X. Lu, “Visible-infrared person re-identification via partially interactive collaboration,” TIP , 2022. [47] J. Crawford, H. Yin, L. McDermott, and D. Cummings, “Unicat: Crafting a stronger fusion baseline for multimodal re-identification,” 
+
+arXiv:2310.18812 , 2023. [48] Z. Wang, H. Huang, A. Zheng, and R. He, “Heterogeneous test-time training for multi-modal person re-identification,” in AAAI , 2024. [49] Y. Wang, X. Liu, T. Yan, Y. Liu, A. Zheng, P. Zhang, and H. Lu, “Mam-bapro: Multi-modal object re-identification with mamba aggregation and synergistic prompt,” in AAAI , 2025. [50] S. Zhang, W. Luo, D. Cheng, Y. Xing, G. Liang, P. Wang, and Y. Zhang, “Prompt-based modality alignment for effective multi-modal object re-identification,” TIP , 2025. [51] Y. Feng, J. Li, C. Xie, L. Tan, and J. Ji, “Multi-modal object re-identification via sparse mixture-of-experts,” in ICML , 2025. [52] Y. Wang, Y. Liu, A. Zheng, and P. Zhang, “Decoupled feature-based mixture of experts for multi-modal object re-identification,” in AAAI ,2025. [53] A. Gu, I. Johnson, K. Goel, K. Saab, T. Dao, A. Rudra, and C. R´ e, “Combining recurrent, convolutional, and continuous-time models with linear state space layers,” NeurIPS , 2021. [54] J. T. Smith, A. Warrington, and S. W. Linderman, “Simplified state space layers for sequence modeling,” arXiv:2208.04933 , 2022. [55] A. Gu and T. Dao, “Mamba: Linear-time sequence modeling with selective state spaces,” arXiv:2312.00752 , 2023. [56] Z. Wan, P. Zhang, Y. Wang, S. Yong, S. Stepputtis, K. Sycara, and Y. Xie, “Sigma: Siamese mamba network for multi-modal semantic segmentation,” arXiv:2404.04256 , 2024. [57] Z. Xu, F. Tang, Z. Chen, Z. Zhou, W. Wu, Y. Yang, Y. Liang, J. Jiang, X. Cai, and J. Su, “Polyp-mamba: Polyp segmentation with visual mamba,” in MICCAI , 2024. [58] M. M. Rahman, A. A. Tutul, A. Nath, L. Laishram, S. K. Jung, and T. Hammond, “Mamba in vision: A comprehensive survey of techniques and applications,” arXiv:2410.03105 , 2024. [59] L. Zhu, B. Liao, Q. Zhang, X. Wang, W. Liu, and X. Wang, “Vision mamba: Efficient visual representation learning with bidirectional state space model,” arXiv:2401.09417 , 2024. [60] Y. Liu, Y. Tian, Y. Zhao, H. Yu, L. Xie, Y. Wang, Q. Ye, and Y. Liu, “Vmamba: Visual state space model,” arXiv:2401.10166 , 2024. [61] X. He, K. Cao, J. Zhang, K. Yan, Y. Wang, R. Li, C. Xie, D. Hong, and M. Zhou, “Pan-mamba: Effective pan-sharpening with state space model,” Information Fusion , 2025. [62] H. Geng, J. Peng, W. Yang, D. Chen, H. Lv, G. Li, and Y. Shao, “Re-mamba: a hybrid cnn-mamba aggregation network for visible-infrared person re-identification,” Scientific Reports , 2024. [63] C. Yu, X. Liu, J. Zhu, Y. Wang, P. Zhang, and H. Lu, “Climb-reid: A hybrid clip-mamba framework for person re-identification,” in AAAI ,2025. [64] R. Zhang, L. Xu, S. Yang, and L. Wang, “Mambareid: Exploiting vision mamba for multi-modal object re-identification,” Sensors , 2024. [65] S. Kreiss, L. Bertoni, and A. Alahi, “Openpifpaf: Composite fields for semantic keypoint detection and spatio-temporal association,” TITS ,2021. 16 
+
+[66] N. Ravi, V. Gabeur, Y.-T. Hu, R. Hu, C. Ryali, T. Ma, H. Khedr, R. R¨ adle, C. Rolland, L. Gustafson, E. Mintun, J. Pan, K. V. Alwala, N. Carion, C.-Y. Wu, R. Girshick, P. Doll´ ar, and C. Feichtenhofer, “Sam 2: Segment anything in images and videos,” arXiv:2408.00714 , 2024. [67] G. Zhang, Z. Zhang, J. Deng, L. Bian, and C. Yang, “S 2 crossmamba: Spatial–spectral cross-mamba for multimodal remote sensing image classification,” IEEE Geosci. Remote Sens. Lett. , 2024. [68] J. L. Ba, J. R. Kiros, and G. E. Hinton, “Layer normalization,” 
+
+arXiv:1607.06450 , 2016. [69] Y. Rao, G. Chen, J. Lu, and J. Zhou, “Counterfactual attention learning for fine-grained visual categorization and re-identification,” in ICCV ,2021. [70] Y. Sun, L. Zheng, Y. Yang, Q. Tian, and S. Wang, “Beyond part models: Person retrieval with refined part pooling (and a strong convolutional baseline),” in ECCV , 2018. [71] A. Zheng, Z. He, Z. Wang, C. Li, and J. Tang, “Dynamic en-hancement network for partial multi-modality person re-identification,” 
+
+arXiv:2305.15762 , 2023. [72] D. Wu, Z. Liu, Z. Chen, S. Gan, K. Tan, Q. Wan, and Y. Wang, “Lrmm: Low rank multi-scale multi-modal fusion for person re-identification based on rgb-ni-ti,” ESWA , 2025. [73] Z. Yu, Z. Huang, M. Hou, J. Pei, Y. Yan, Y. Liu, and D. Sun, “Representation selective coupling via token sparsification for multi-spectral object re-identification,” TCSVT , 2024. [74] Z. Yu, Z. Huang, M. Hou, Y. Yan, and Y. Liu, “Wtsf-reid: Depth-driven window-oriented token selection and fusion for multi-modality vehicle re-identification with knowledge consistency constraint,” ESWA , 2025. [75] Y. Wang, Y. Lv, P. Zhang, and H. Lu, “Idea: Inverted text with cooper-ative deformable aggregation for multi-modal object re-identification,” in CVPR , 2025. [76] C. Szegedy, V. Vanhoucke, S. Ioffe, J. Shlens, and Z. Wojna, “Rethinking the inception architecture for computer vision,” in CVPR , 2016. [77] A. Hermans, L. Beyer, and B. Leibe, “In defense of the triplet loss for person re-identification,” arXiv:1703.07737 , 2017. [78] J. Guo, X. Zhang, Z. Liu, and Y. Wang, “Generative and attentive fusion for multi-spectral vehicle re-identification,” in ICSP , 2022. [79] A. Zheng, X. Zhu, Z. Ma, C. Li, J. Tang, and J. Ma, “Cross-directional consistency network with adaptive layer normalization for multi-spectral vehicle re-identification and a high-quality benchmark,” Information Fusion , 2023. [80] H. Yin, J. Li, E. Schiller, L. McDermott, and D. Cummings, “Graft: Gradual fusion transformer for multimodal re-identification,” 
+
+arXiv:2310.16856 , 2023. [81] A. Zheng, Z. Ma, Y. Sun, Z. Wang, C. Li, and J. Tang, “Flare-aware cross-modal enhancement network for multi-spectral vehicle re-identification,” Information Fusion , 2025. [82] Z. Zhong, L. Zheng, G. Kang, S. Li, and Y. Yang, “Random erasing data augmentation,” in AAAI , 2020. [83] A. Krizhevsky, I. Sutskever, and G. E. Hinton, “Imagenet classification with deep convolutional neural networks,” NeurIPS , 2012. [84] L. Van der Maaten and G. Hinton, “Visualizing data using t-sne.” JMLR ,2008. [85] P. Zhu, Y. Sun, B. Cao, and Q. Hu, “Task-customized mixture of adapters for general image fusion,” in CVPR , 2024.
