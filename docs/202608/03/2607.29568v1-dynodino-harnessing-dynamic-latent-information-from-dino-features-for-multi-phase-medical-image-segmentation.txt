@@ -1,0 +1,448 @@
+Title: DynoDINO: Harnessing Dynamic Latent Information from DINO Features for Multi-Phase Medical Image Segmentation
+
+URL Source: https://arxiv.org/pdf/2607.29568v1
+
+Published Time: Mon, 03 Aug 2026 01:13:44 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# DYNO DINO: H ARNESSING DYNAMIC LATENT INFORMATION FROM DINO F EATURES FOR MULTI -P HASE MEDICAL IMAGE 
+
+# SEGMENTATION 
+
+A P REPRINT 
+
+Yu-Pu Hsu 
+
+College of Artificial Intelligence National Yang Ming Chiao Tung University Taiwan 
+
+yupu.ai12@nycu.edu.tw 
+
+Jen-Jee Chen 
+
+College of Artificial Intelligence National Yang Ming Chiao Tung University Taiwan 
+
+jenjee@nycu.edu.tw 
+
+Yu-Chee Tseng 
+
+College of Artificial Intelligence National Yang Ming Chiao Tung University Taiwan 
+
+yctseng@cs.nycu.edu.tw 
+
+August 3, 2026 
+
+# ABSTRACT 
+
+Multi-phase Contrast-Enhanced Computed Tomography (CECT) plays a central role in the diagnosis and characterization of focal lesions by capturing temporal enhancement patterns across multiple acquisition phases. Accurate lesion segmentation from such data remains challenging because clinically relevant contrast kinetics are distributed across phases, while anatomical incon-sistencies, respiratory motion, and incomplete acquisitions often lead to inter-phase misalignment and interrupted temporal information. Conventional segmentation frameworks typically process each phase independently or rely on simple fusion strategies, limiting their temporal reasoning capability. To address these challenges, we propose DynoDINO , a unified framework tailored to address the core challenges of multi-phase medical image segmentation. DynoDINO first performs slice-level alignment to establish inter-phase anatomical correspondence and then employs a Multi-phase Fusion Model to jointly enhance temporal correlations across phases. Our fusion model incorporates a Mix-attention (MA) mechanism for efficient multi-phase feature calibration and an Adaptive Gating Mechanism with difference-based residual learning to selectively preserve diagnostically relevant contrast variations while suppressing artifacts caused by residual misalignment. In addition, the adaptive gating mechanism improves training stability by preventing feature degradation caused by unguided subtraction operations. Experiments on three large-scale datasets, including LiTS , PLC-CECT , and WAW-TACE , demon-strate that DynoDINO consistently improves boundary delineation and structural fidelity under standard, shifted, and missing-phase conditions. 
+
+Keywords Multi-phase contrast-enhanced computed tomography (CECT) · Medical image segmentation · Multi-phase fusion · Image alignment · Mix-attention mechanism · Adaptive gating mechanism 
+
+# 1 Introduction 
+
+Medical imaging plays a fundamental role by supporting disease detection, lesion characterization, treatment planning, and longitudinal patient monitoring Gore [2020], Esteva et al. [2019]. Accurate lesion segmentation is fundamental arXiv:2607.29568v1 [cs.CV] 31 Jul 2026 arXiv Template A P REPRINT 
+
+to these tasks, as it enables the quantification of lesion size, shape, spatial extent, and treatment response. Recent advances in deep learning have substantially improved the performance of automated medical image segmentation systems, reducing the workload of radiologists while enabling large-scale image analysis Ronneberger et al. [2015], Milletari et al. [2016]. Nevertheless, many clinically important imaging protocols contain rich temporal information that remains underexplored. 
+
+Contrast-enhanced imaging is a representative example. In both Computed Tomography (CT) and Magnetic Resonance Imaging (MRI), contrast agents are injected to reveal tissue vascularity and perfusion characteristics over time. As a result, multiple imaging phases , including the Early Phase (EP) (arterial phase), Mid Phase (MP) (portal venous phase), and Late Phase (LP) , are acquired Galle et al. [2018], Chernyak et al. [2018]. Each phase captures complementary physiological information and provides a different view of the same anatomical structures. The temporal evolution of contrast enhancement, known as contrast kinetics , is a key indicator for differentiating benign and malignant lesions Hennedige and Venkatesh [2013], Kamel et al. [2005]. Consequently, radiologists rarely interpret individual phases independently; instead, they rely heavily on comparing enhancement patterns across phases to characterize temporal changes in lesion appearance. This paper studies multi-phase imaging segmentation of Hepatocellular Carcinoma (HCC) , one of the leading causes of cancer-related mortality Bray et al. [2024], Marrero et al. [2018]. Multi-phase contrast-enhanced CT is widely used for HCC diagnosis because characteristic enhancement patterns can often be observed without invasive biopsy. Typical HCC lesions exhibit arterial phase hyper-enhancement followed by relative signal attenuation in later phases Lee et al. [2012], Hori et al. [2026]. These temporal enhancement characteristics constitute well-established clinical guidelines Bruix and Sherman [2011], Marrero et al. [2018], Heimbach et al. [2018]. From a segmentation perspective, lesion boundaries may become more distinguishable in certain phases, while other phases provide complementary contextual information regarding vascular structure, lesion extent, and surrounding tissue characteristics. Despite the importance of multi-phase imaging in clinical diagnosis, most existing segmentation frameworks are funda-mentally tailored to single-phase image analysis. When multiple phases are available, they are typically incorporated through channel-wise concatenation Isensee et al. [2018] or other simple fusion strategies Zhou et al. [2019]. However, these approaches often dilute cross-phase interactions and fail to capture diagnostically important temporal enhancement patterns. More advanced transformer-based architectures have demonstrated strong capabilities in modeling long-range dependencies Dosovitskiy et al. [2020], Hatamizadeh et al. [2022]. Nevertheless, directly applying these models to multi-phase imaging remains challenging due to three practical issues commonly encountered in clinical datasets. First, multi-phase acquisitions often suffer from inter-slice misalignment . Since different phases are acquired at separate time points, anatomical correspondence along the z-axis is frequently disrupted by respiratory motion, patient movement, and acquisition variability, making reliable slice-to-slice correspondence difficult to establish Haskins et al. [2020]. Second, clinically relevant enhancement patterns are inherently non-linear . Effective lesion characterization therefore requires modeling temporal contrast dynamics rather than simply aggregating multi-phase features. Third, real-world multi-phase imaging is often incomplete, with missing phases caused by variations in clinical imaging protocols. However, existing segmentation frameworks rarely account for such practical scenarios. Collectively, these challenges call for a fundamental redesign of existing segmentation frameworks. Recent advances in self-supervised learning and medical foundation models have demonstrated the potential of pre-trained representations for medical image analysis Caron et al. [2021], Li et al. [2025]. However, effective utilization of multi-phase temporal information with these pretraining models remains an open problem. In particular, the combined challenges of multi-phase alignment, temporal non-linearity, and robustness to incomplete phases need to be addressed. To address these limitations, we propose DynoDINO , a general-purpose end-to-end framework for multi-phase medical image segmentation that integrates inter-phase alignment, temporal representation learning, adaptive feature fusion, and robust lesion segmentation. The main contributions of this work are summarized as follows: • Robust Multi-Phase Architecture: We propose a multi-phase architecture with a Flexible Input that natively accommodates incomplete phase sequences, enabling robust learning from heterogeneous clinical acquisition protocols. The architecture integrates an FFT-based ZNCC alignment and an Adaptive Gating Module to effectively suppress registration noise and subtraction artifacts, preventing representation collapse caused by missing phases and stabilizing the difference-based learning. • Efficient Mix-Attention (MA): We introduce an MA mechanism for efficient Cross-Phase Fusion . By leveraging a shared bidirectional attention map, the model effectively captures complementary temporal phase dynamics while avoiding redundant attention computation. Furthermore, we incorporate FlashAttention Dao et al. [2022] to alleviate GPU memory bottlenecks. Compared with conventional cross-attention, DynoDINO reduces the memory footprint by 4.1%, corresponding to a savings of approximately 7.08M parameters. 2arXiv Template A P REPRINT 
+
+• Unified Framework: We establish a unified framework for multi-phase medical image segmentation that seamlessly integrates alignment, temporal modeling, and adaptive fusion into a single workflow. Although evaluated on multi-phase contrast-enhanced CT datasets, the proposed architecture is readily extensible to other multi-phase or multi-temporal medical imaging modalities without requiring protocol-specific redesign. • Extensive Clinical Validation: Comprehensive experiments across three large-scale datasets with distinct clinical protocols ( LiTS , PLC-CECT , and WAW-TACE ) demonstrate consistent improvements in boundary delineation and structural fidelity under standard, shifted, and missing-phase conditions. 
+
+# 2 Related Work 
+
+DINO Family. Recent advances in self-supervised learning have led to powerful visual foundation models. The DINO family Caron et al. [2021], including DINOv2 Oquab et al. [2023], DINOv3 Siméoni et al. [2025], and MedDINOv3 
+
+Li et al. [2025], has demonstrated strong performance across general and medical vision tasks. For dense prediction, 
+
+Dino U-Net Gao et al. [2025] integrates DINO features with a U-Net architecture for volumetric segmentation. Recent studies Zhang et al. [2023] further suggest that foundational representations can provide richer semantic information than conventional backbones such as nnU-Net Isensee et al. [2018] and SegFormer Xie et al. [2021]. Despite these advances, existing DINO-based segmentation frameworks are primarily designed for single-phase image analysis, leaving multi-phase imaging largely unexplored. 
+
+Image Registration and Alignment. Traditional registration methods align images by optimizing similarity measures such as Mutual Information and Cross-Correlation Zitova and Flusser [2003]. More recently, learning-based approaches such as VoxelMorph Balakrishnan et al. [2019] estimate deformation fields directly from image pairs. However, deformable registration remains computationally expensive for high-resolution volumetric data, while large inter-phase contrast variations can introduce registration errors and artifacts. Consequently, several studies Zhang et al. [2021], Estienne et al. [2019] have explored segmentation frameworks that do not require precise voxel-level alignment. These limitations motivate a framework that tolerates residual inter-phase inconsistencies while effectively exploiting complementary information across phases. 
+
+Multi-phase Image Fusion. Different fusion strategies have been studied for multi-phase medical image segmentation. Early fusion approaches Isensee et al. [2018], Zhou et al. [2019] combine data at the input level by channel concatenation. Late fusion methods process each phase independently and merge high-level representations at deeper network stages Zhou et al. [2019], Bi et al. [2021]. More recently, attention-based fusion techniques Liu et al. [2022], Papanastasiou et al. [2023] have been introduced to adaptively aggregate information. Despite these advances, temporal enhancement patterns are typically represented implicitly through feature aggregation rather than modeled explicitly. However, in clinical practice, lesion characterization relies heavily on analyzing enhancement changes across phases. 
+
+Temporal Representation Learning. Multi-phase CT can be viewed as a sparse temporal sequence. Temporal representation learning has been extensively studied in video understanding Wang et al. [2018], Feichtenhofer et al. [2019] and change detection Chen et al. [2021], where difference representations emphasize structural changes across time. Similarly, clinical lesion characterization relies on arterial enhancement and delayed wash-out patterns observed across phases. However, explicit modeling of inter-phase enhancement dynamics remains uncommon in current 3D medical image segmentation frameworks. 
+
+Efficient Attention Mechanisms. The quadratic complexity of self-attention limits the scalability of Transformer-based models for volumetric imaging. Efficient attention mechanisms Zhou et al. [2021], Tay et al. [2022] and recent advances such as Flash Attention Dao [2023] reduce computational and memory costs while preserving long-range dependency modeling. These techniques are particularly beneficial for multi-phase volumetric imaging, where large feature maps impose substantial memory demands. 
+
+# 3 Method 
+
+3.1 Multi-Phase Imaging Datasets 
+
+The appearance of lesions in CECT scans varies substantially across different phases. Pre-contrast phases often lack the structural detail necessary for precise lesion characterization and are frequently absent from clinical datasets. Consequently, our framework focuses on the three primary post-contrast phases. To ensure clinical generalizability, we define a generalized temporal hierarchy. Despite variations in organ-specific nomenclature (e.g., the corticomedullary phase in renal imaging), we categorize the sequences into Early Phase (EP), Mid Phase (MP), and Late Phase (LP). These stages represent a generalized temporal hierarchy: the initial arrival of the contrast agent, the peak parenchymal enhancement, and the subsequent clearance or equilibrium stage, respectively. This taxonomy ensures that DynoDINO 3arXiv Template A P REPRINT 
+
+Table 1: Distribution of the datasets after filtering.                      
+
+> Category LiTS PLC-CECT WAW-TACE
+> Patients 131 361 123 2D Slices 58,638 46,761 29,037 (1, 1, 1) 046,761 18,951 (1, 0, 1) 002,720 (1, 1, 0) 009,074 (1, 0, 0) 58,638 01,708
+> Note: The binary triplet denotes the existence EP, MP, and LP phases, where 1/0 indicates the presence/absence of the respective phase (e.g., (1, 0, 1) represents the absence of MP).
+
+remains applicable to various contrast-enhanced modalities, including multi-parametric MRI (mpMRI) and dynamic CT protocols beyond liver imaging. In this work, we consider three multi-phase datasets: • LiTS (Liver Tumor Segmentation) : Sourced from the MSD Challenge (Task03_Liver) Bilic et al. [2023], this is a single-phase dataset. It consists of 201 3D volumes, with 131 patients provided with ground-truth labels for the liver and associated tumors. LiTS serves as a single-phase benchmark in our experiments. We adapt these volumes into our multi-phase framework by routing all frames to the EP channel and all missing frames to the MP and LP channels (intensity value = −1024 HU), thereby requiring no architecture change. • PLC-CECT (Primary Liver Cancer CECT Imaging Dataset) : Sourced from Science Data Bank Luo and Shixin [2024], this is our core multi-phase dataset providing comprehensive temporal enhancement profiles. It includes 278 patients presenting with HCC, Intrahepatic Cholangiocarcinoma (ICC), and Combined HCC-CCA (cHCC-CCA), along with 83 control subjects without liver cancer. A total of 50,560 lesion-bearing 2D slices were collected. • WAW-TACE : Sourced from Zenodo Bartnik et al. [2024], this dataset represents a real-world challenge characterized by incomplete temporal sequences. Since Transarterial Chemoembolization (TACE) is the primary first-line treatment for HCC patients unsuitable for surgery, this dataset includes data from 233 treatment-naive HCC patients undergoing TACE. It contains 377 independent labels, where multiple tumors within the same patient are treated as distinct labeled entities, reflecting the complex multifocal nature of liver cancer in clinical practice. 
+
+Exclusion Criteria. To ensure the integrity of multi-phase fusion training, the following data filtering criteria were applied: 1. Pre-contrast Exclusion: Non-contrast phases were excluded due to their limited structural information. 2. EP Requirement: Patients without the critical EP were excluded to ensure the presence of the baseline enhancement signature. 3. Annotation Requirement: Patient volumes without ground-truth annotations were excluded. DynoDINO integrates multi-phase features to enhance representation learning, but generates a single, unified segmenta-tion mask. To maintain spatial alignment, the final prediction is mapped directly to the EP reference frame. 
+
+3.2 Data Preprocessing with FFT-based ZNCC 
+
+Multi-phase CECT datasets are often unstandardized. During scanning across different phases, patient respiration or involuntary movement can lead to anatomical misalignment, as illustrated in Fig. 8(a). Furthermore, inconsistent slice thicknesses between sequences pose a significant challenge for precise pixel-wise fusion. While traditional methods rely on 3D geometric transformations, they often struggle with the drastic intensity shifts inherent in contrast-enhanced imaging. To address this issue, we employ FFT-accelerated Zero-mean Normalized Cross-Correlation (ZNCC) for 2D slice alignment. Its robustness to linear brightness and contrast variations Lewis [1995] makes it well suited for multi-phase CECT with substantial inter-phase intensity variations. We then select one of EP, MP, or LP as the Fixed Phase (FP) to serve as the alignment reference using the following strategy, while the remaining unselected phases are designated as the Source Phases (SP) .4arXiv Template A P REPRINT 
+
+• Complete Sequences: For datasets (e.g., PLC-CECT) in which all temporal phases are available but slice counts differ due to varying reconstruction intervals, the phase with the fewest slices is selected as the FP to preserve data integrity and minimize interpolation. • Incomplete Sequences: For datasets (e.g., WAW-TACE) with missing phases but a guaranteed baseline, EP is selected as the FP to ensure a consistent anatomical reference across all subjects. 
+
+Spatial Resizing. Prior to ZNCC calculation, all 2D slices are resized to a uniform resolution of 512 × 512 pixels, ensuring identical matrix dimensions required for FFT operations. 
+
+ZNCC Scoring. The alignment is performed on a per-patient basis. Based on the above strategy, the FP is established, while the remaining phases serve as SP. For each slice in the FP, we iterate through all slices in the SP to calculate ZNCC scores. The index corresponding to the peak score is identified as the best match candidate. 
+
+Reliability Verification. To prevent false matching—particularly in regions with sparse anatomical structures (e.g., empty abdominal space where multiple slices appear similar)—we perform the following verification protocol: 1. Thresholding: The peak ZNCC similarity score must exceed a predefined similarity threshold (0.75). 2. Statistical Significance: The peak score must be sufficiently separated from the remaining score distribution. Specifically, the difference between the maximum score and the median score must be greater than 1.5 times the difference between the 75th percentile and the median. If a reliable match is not found (e.g., the anatomy is outside the scan range), the slice is padded with a default value (−1024 HU for CT, 0 for labels), which effectively discards unaligned frames to minimize noise interference. Otherwise, the slices are sequentially concatenated to the whole volume as detailed below. 
+
+FFT-based Acceleration. Calculating ZNCC for every slice pair is computationally expensive. We leverage the Fast Fourier Transform (FFT) to accelerate this process. Mathematically, convolution in the spatial domain is equivalent to element-wise multiplication in the frequency domain Guizar-Sicairos et al. [2008]. By utilizing GPU-accelerated FFT, we can significantly reduce the computational overhead. Without loss of generality, we consider a FP slice Ifixed and a SP slice Isource . In practice, multiple SP slices can be evaluated in parallel as a batch on a GPU for parallelism. It includes 4 steps: 
+
+A. Mean Removal. To remove global intensity offsets and improve robustness across scanning devices, each slice is first mean-centered: 
+
+ˆIfixed = Ifixed − μIfixed , ˆIsource = Isource − μIsource (1) where μIfixed and μIsource represent the scalar spatial means of the FP and SP slices, respectively. 
+
+B. Cross-Correlation in the Frequency Domain. The ZNCC numerator N is computed using the convolution theorem: 
+
+N = F−1(F( ˆIsource ) ⊙ F ( ˆIfixed )∗) (2) where F and F−1 denote the 2D FFT and inverse FFT, respectively, and F( ˆIfixed )∗ denotes the complex conjugate of the FP slice spectrum. 
+
+C. Local Normalization Factor. The ZNCC denominator D, representing the local energy, is similarly accelerated via FFT: 
+
+D =
+
+q
+
+F−1(F( ˆI2
+
+> source
+
+) ⊙ F (1)∗) ⊙ ∥ ˆIfixed ∥22 + ϵ (3) where ˆI2 
+
+> source
+
+is the element-wise square of the mean-centered source batch, 1 is a kernel of ones of the FP slice size, and 
+
+∥ ˆIfixed ∥22 is the total energy of the mean-centered fixed slice (corresponding to T_std_sum_sq in the implementation). 
+
+ϵ is a smoothing term ( 10 −8) to avoid division by zero. 
+
+D. Final ZNCC Score. The normalized correlation matrix is defined as: 
+
+ZN CC (Isource , I fixed ) = N/D (4) During input, we select the Isource with the highest ZNCC value as the best-matched reference SP slice for each Ifixed .
+
+Slice Alignment of the Input Volume. The final 3D input volume is synthesized through FP-to-SP re-indexing. Specifically, for each FP slice Ifixed , the best-matched SP slice Isource from each of the other two phases is selected and aligned with the FP slice in the input volume, ensuring improved anatomical correspondence across phases. 5arXiv Template A P REPRINT 
+
+Figure 1: The DynoDINO framework. Multi-phase CT slices are first aligned using the ZNCC matching method (here, the MP is assumed to serve as the FP). The aligned slices are reshaped from (B, 3, H, W ) to (B × 3, 1, H, W ) and then replicated to (B × 3, 3, H, W ) to comply with the MedDINOv3 encoder input format. After phase-wise feature extraction, the encoded representations are reshaped from (B × 3, L, C ) back to (B, 3, L, C ) for cross-phase fusion. Finally, the fused representation (B, L, C ) is decoded by the Primus Decoder. 
+
+3.3 DynoDINO Architecture 
+
+We propose the DynoDINO framework, illustrated in Fig. 1. It adopts MedDINOv3 Li et al. [2025], a medical adaptation of DINOv3 Siméoni et al. [2025], as the backbone encoder. A novel Fusion Module is introduced to fuse the representations from multiple physiological phases (EP, MP, and LP). The module includes iterative Fusion Layers ,followed by Difference-based Residual and Adaptive Gating .
+
+3.3.1 Input Reshaping and Multiscale Extraction 
+
+To facilitate parallel processing, 2D slices from the three phases are concatenated along the batch dimension. In instances of missing phases (as observed in WAW-TACE), inputs are padded with a background intensity value of 
+
+−1024 HU. Through the MedDINOv3 encoder, multiscale latent representations are extracted from layers 3, 6, 9, and 12. This hierarchical extraction captures a wide range of receptive fields, including both global anatomical structures and localized, subtle focal lesions. 
+
+3.3.2 Fusion Layers and Mix-Attention 
+
+While MedDINOv3 encodes each phase independently, the N Fusion Layers (e.g., 4) then progressively aligns and calibrates features across temporal phases, as illustrated in Fig. 2. 
+
+Mix-Attention (MA) Mechanism. Typical attention for high-resolution multi-phase CECT data is computationally expensive. The MA is designed to balance attention effectiveness and efficiency. Unlike traditional cross-attention that computes separate maps for each directional interaction, our MA utilizes a shared attention map. A single affinity matrix Att map is computed bidirectionally between the reference (LP) and target (EP/MP) streams. The design is inspired by efficient transformer variant Informer Zhou et al. [2021], which utilizes shared query-key structures to reduce redundant computations. As demonstrated in our complexity analysis (Table 8), this strategy reduces trainable projection parameters and activation memory, achieving a 4.1% reduction (effectively 7.08M less) in total parameters compared to standard cross-attention baselines. Combined with Flash Attention Dao et al. [2022], it enables DynoDINO to process multi-scale sequences without GPU memory bottlenecks. 
+
+Mathematical Formulation. Let Tseq (LP) and Rseq (EP/MP) denote the latent features. The projections are defined as: 
+
+RQK , TQK , RV , TV = Linear (·) (5) The shared attention matrix Att map captures inter-phase affinity: 
+
+Att map = RQK × TQK (6) 6arXiv Template A P REPRINT 
+
+Figure 2: The Fusion Module, which performs N iterations of Mix-Attention followed by a difference-based residual connection and a Sigmoid gating mechanism. The calibrated outputs are derived by applying the map in opposing directions: 
+
+R′seq = RQK + Softmax 
+
+ Att map 
+
+√dk
+
+
+
+TV (7) 
+
+T′seq = TQK + Softmax Att Tmap 
+
+√dk
+
+!
+
+RV (8) 
+
+3.3.3 Difference-based Residual and Adaptive Gating 
+
+After N Fusion Layers, we obtain the refined multi-phase features E′′ , L′′ , and M′′ . Then, they are passed through a pair of post-loop Cross-Attention Layers anchored by the LP representation to generate the final aligned reference streams, denoted as FE (Fused E) and FM (Fused M): 
+
+FE = Cross-Att (Q = E′′ , K = L′′ , V = L′′ ) (9) 
+
+FM = Cross-Att (Q = M′′ , K = L′′ , V = L′′ ) (10) Building upon these fully calibrated representations, the Difference-based Residual Learning aims to mimic the clinical subtraction logic . To ensure numerical stability before subtraction, layer normalization (LN) is applied: 
+
+∆Fdif f = LN (FE ) − LN (FM ) (11) 
+
+∆F = ∆ Fdif f + FFN f eat (∆ Fdif f ) (12) Then the Adaptive Gating selectively incorporates these temporal variances with a goal of suppressing alignment noise . The residual difference feature is normalized again to generate a spatial weight map W:
+
+W = σ(FFN gate (LN (∆ F))) (13) 7arXiv Template A P REPRINT 
+
+Figure 3: The Mix-Attention Layer computes a shared bidirectional attention map ( Att map ) between the reference LP (input T ) and the target EP/MP (input R), reducing computational overhead while effectively capturing dynamic contrast boundaries. The final output Fout is constructed by injecting the gated difference back into the original EP features Ein (which corresponds to the pre-fusion representation): 
+
+Fout = Ein + (∆ F ⊙ W) (14) Clinically, this gating mechanism preserves sensitivity to phase-specific enhancement patterns, such as wash-in and wash-out kinetics, while remaining robust to residual local misalignment. 
+
+3.4 Compound Loss Function 
+
+To ensure that the DynoDINO framework remains robust across diverse clinical scenarios and anatomical structures, we employ a compound loss function Ltotal . While our focus is liver and tumor segmentation, it follows the MedDINOv3 Li et al. [2025] implementation to address the universal challenges of medical imaging: high class imbalance and the need for precise boundary localization. 
+
+Ltotal = LDice + LCE (15) 
+
+Pixel-wise Cross-Entropy Loss. The Cross-Entropy component LCE treats segmentation as a comprehensive pixel-wise classification task. By optimizing the log-likelihood of each class, it provides a stable and smooth gradient landscape, which is essential for the convergence of the Vision Transformer backbone during the initial training phases. For N pixels and C classes, it is defined as: 
+
+LCE = − 1
+
+N
+
+> N
+
+X
+
+> i=1
+> C
+
+X
+
+> c=1
+
+yi,c log(ˆ yi,c ) (16) where yi,c is the ground-truth label and ˆyi,c is the predicted probability for class c at pixel i.
+
+Region-based Soft Dice Loss. To mitigate the impact of class imbalance—a common issue in medical imaging where the target organs or lesions often occupy a small fraction of the total volume—we incorporate the Soft Dice Loss. This region-based component directly optimizes the overlap between the prediction and ground truth, ensuring that the model remains sensitive to small structural details regardless of the specific organ type. 
+
+LDice = 1 − 2 PNi=1 ˆyi,c yi,c + ϵ
+
+PNi=1 ˆyi,c + PNi=1 yi,c + ϵ (17) where ϵ = 10 −5 is a smoothing constant for numerical stability. 8arXiv Template A P REPRINT 
+
+# 4 Experiments 
+
+4.1 Implementation Details 
+
+We performed experiments using PyTorch and NVIDIA RTX 4090 GPUs. To ensure a fair and transparent comparison, all experiments were conducted within the official MedDINOv3 implementation settings Li et al. [2025]. Unless otherwise specified, we strictly adhered to the default hyperparameters provided by the MedDINOv3 repository: • Optimization : AdamW optimizer (Weight Decay = 0 .05 ) with a SequentialLR scheduler (10-epoch linear warmup, 90-epoch cosine annealing). • Loss Function : A hybrid of Soft Dice Loss and Cross-Entropy (CE) Loss. • Preprocessing : Standardized intensity clipping and resampling consistent with the MedDINOv3 data pipeline. This protocol ensures that the observed performance gains are directly attributable to the architectural innovations of DynoDINO. For datasets with missing phases (specifically the WAW-TACE cohort), standard configurations of CNN-based baselines like nnU-Net inherently crash due to mismatched input channels. To enable these baselines to execute without runtime errors, a preprocessing protocol was applied: any missing phase was artificially instantiated by blank volumes, with the slice count perfectly matched to the existing reference phases. Consequently, all models were evaluated on structurally consistent inputs. 
+
+4.2 Evaluation Metrics and Baselines 
+
+Three standard metrics were evaluated: Dice Similarity Coefficient (DSC), Normalized Surface Distance (NSD), and the 95th percentile Hausdorff Distance (HD95) Taha and Hanbury [2015]. While DSC provides a global evaluation of regional overlap, it is inherently volume-biased and relatively insensitive to localized boundary errors. In clinical practice—especially for focal hepatic lesion characterization and surgical resection planning— boundary precision is far more critical than generic region overlap. Misalignments at the tumor margins directly impact the determination of safe surgical borders and the evaluation of residual viable tumor patches. Therefore, NSD and HD95 were heavily prioritized in this study to evaluate the morphological fidelity across phases. For multi-phase datasets, we evaluated DynoDINO under two configurations: • Single-phase Input : Only the EP is provided; MP and LP are padded with background values ( −1024 HU). • Multi-phase Input : All available phases (EP, MP, LP) are utilized. We benchmarked DynoDINO against CNN-based nnU-Net Isensee et al. [2018], SegFormer Xie et al. [2021], Dino U-Net Gao et al. [2025], and vanilla MedDINOv3 Li et al. [2025]. 
+
+4.3 Benchmark Results 4.3.1 Robustness under Single-phase Constraints 
+
+We evaluate on LiTS (Tables 2–3) and under single-phase constraints on LPC-CECT and WAW-TACE (Tables 4–7). These results demonstrate the inherent robustness of DynoDINO to incomplete phase information. In LiTS (Table 2), DynoDINO achieves a superior global HD95 of 13.76 mm compared to MedDINOv3 (13.85 mm), suggesting that even without temporal cues, the self-supervised spatial priors from our backbone coupled with the Iterative Refinement module provide stronger structural regularization. This structural integrity is further verified by the spatial localization metrics in Table 3. DynoDINO yields a highly precise tumor centroid distance (CD) of 7.56 mm, markedly outperforming the gold-standard nnU-Net (11.26 mm). It is worth noting that DynoDINO exhibits a larger average minimum detectable tumor volume ( Avg. Vmin ) of 4,826.23 mm 3, a limitation inherited from Vision Transformer (ViT) architectures due to patch-level tokenization that inherently sacrifices pixel-level local resolution. Nevertheless, the substantial reduction in tumor CD demonstrates that DynoDINO successfully constrains severe spatial deviations and prevents topological hallucinations during voxel clustering. 
+
+4.3.2 Performance under Multi-phase Settings 
+
+It is worth noting that although foundation models (e.g., Dino U-Net) theoretically possess more representative latent embeddings, standard nnU-Net often yields superior or competitive Dice scores in single-phase or naive multi-phase 9arXiv Template A P REPRINT 
+
+Table 2: Quantitative segmentation performance on the LiTS dataset. We report organ-, lesion-level, and global segmentation sensitivity.                                                    
+
+> Liver Tumor Global Performance
+> Method DSC (%) ↑Sens. (%) ↑DSC (%) ↑Sens. (%) ↑DSC (%) ↑NSD (%) ↑HD95 (mm) ↓
+> SegFormer 94.06 ±3.18 94.70 ±2.00 52.88 ±18.82 57.08 ±35.45 73.47 44.24 26.79 Dino U-Net 94.25 ±3.03 95.22 ±2.04 55.79 ±20.00 64.19 ±17.36 75.02 45.39 37.03 nnU-Net 95.19 ±5.04 96.33 ±1.54 58.74 ±19.37 68.11 ±15.36 76.97 49.23 19.01 MedDINOv3 96.33 ±1.07 96.53 ±1.28 56.82 ±18.22 60.30 ±16.58 76.58 52.31 13.85
+> DynoDINO (ours) 96.16 ±0.57 97.02 ±1.18 60.12 ±15.57 55.81 ±15.32 78.14 49.19 13.76
+
+settings. This discrepancy is primarily attributed to nnU-Net’s heavily optimized preprocessing pipeline and aggressive data augmentation. However, when confronting complex temporal contrast kinetics, both architectures fall short due to the lack of dedicated inter-phase modeling, a limitation effectively addressed by DynoDINO. The clinical effectiveness of this explicit multi-phase temporal modeling is clearly reflected in the results. In the clinical PLC-CECT dataset (Table 4), transitioning from single-phase to multi-phase inputs allows DynoDINO to significantly reduce the global HD95 from 26.81 mm to 24.35 mm. Conversely, while nnU-Net maintains a marginally higher Global DSC (79.34% vs. 78.00%), this regional advantage is fundamentally driven by the CNN’s inherent volume-matching and over-smoothing bias . In our qualitative study (Sec. 4.4), nnU-Net achieves high region overlap by generating generalized, blob-like masks that sacrifice complex structural margins, leading to a drastically inferior HD95 (28.72 mm). DynoDINO’s explicit modeling of inter-phase kinetics and self-supervised structural priors strictly prioritizes edge precision. Under the multi-phase configuration, DynoDINO offers a 15.2% reduction in global HD95 (24.35 mm vs. 28.72 mm) and a superior global NSD (47.10%) compared to its multi-phase nnU-Net counterpart. Furthermore, our multi-phase alignment empowers DynoDINO to achieve a remarkable leap in small-lesion detectability, reducing the liver Avg. Vmin from 90,145.65 mm 3 down to an exceptional 21,871.95 mm 3 (Table 5). These findings demonstrate that DynoDINO successfully captures true physiological contrast kinetics rather than relying on over-smoothed region approximations. 
+
+4.3.3 Robustness to Real-world Data Incompleteness 
+
+The WAW-TACE dataset represents a highly challenging post-treatment scenario characterized by severe artifacts and inconsistent scanning intervals . Counter-intuitively, for the CNN baselines such as nnU-Net, transiting from a single-phase to a multi-phase configuration leads to a systematic degradation: the macro-averaged Global DSC drops from 79.04% to 77.75% and NSD drops from 54.19% to 53.11 (Table 6). This performance drop is directly tied to the artificial imputation protocol required to prevent pipeline execution failure. Because standard nnU-Net lacks an intrinsic routing mechanism to handle missing temporal sequences, the brute-force padding ( −1024 HU) introduces severe non-physiological step-artifacts. Consequently, the localized convolutional layers are forced to ingest contaminated features, disrupting the network’s spatial consistency. Operating in the multi-phase domain, DynoDINO remains effectively insulated from the imputation noise. While the single-phase nnU-Net achieves a high surface alignment (NSD of 54.19%) due to its highly optimized voxel-intensity preprocessing on complete reference volumes, it exhibits a dangerous vulnerability to localized boundary anomalies under severe lipiodol artifacts, as reflected by its inferior HD95 (21.31 mm). Conversely, driven by the Adaptive Gating mechanism, DynoDINO actively filters the padded placeholders, recovering an outstanding global NSD (54.69%), surpassing the single-phase CNN, while simultaneously achieving a substantial 13.0% reduction in global HD95 (18.54 mm) compared to the single-phase nnU-Net baseline. DynoDINO also achieves the lowest liver centroid distance (1.61 mm) under extreme imaging noise (Table 7). These results demonstrate that DynoDINO effectively mitigates the topological hallucinations and missed lesions commonly observed in vanilla architectures, thereby ensuring high boundary precision for real-world applications. 
+
+4.4 Qualitative Analysis 
+
+We present visual comparative results across the LiTS (Fig. 4), PLC-CECT (Fig. 5), and WAW-TACE (Fig. 6) cohorts to evaluate the clinical utility of our framework. 10 arXiv Template A P REPRINT 
+
+Table 3: Spatial localization accuracy (centroid distance) and lesion detectability on the LiTS dataset (avg. min. detectable volume).                                  
+
+> Liver Tumor
+> Method CD (mm) ↓Avg. Vmin (mm 3)↓CD (mm) ↓Avg. Vmin (mm 3)↓
+> SegFormer 5.32 ±7.64 715,136.15 15.67 ±13.29 1,645.88 Dino U-Net 6.01 ±15.02 715,136.22 20.43 ±18.56 1,596.45
+> nnU-Net 4.04 ±5.71 618,018.85 11.26 ±11.45 1,625.59 MedDINOv3 1.07 ±0.28 605,396.66 7.98 ±4.47 4,799.19
+> DynoDINO (ours) 1.20 ±0.29 605,396.66 7.56 ±5.47 4,826.23
+
+Table 4: Quantitative segmentation performance on the PLC-CECT dataset.                                                                  
+
+> Liver Tumor Global Performance
+> Method DSC (%) ↑Sens. (%) ↑DSC (%) ↑Sens. (%) ↑DSC (%) ↑NSD (%) ↑HD95 (mm) ↓
+> Single-phase Input
+> SegFormer 87.47 ±2.74 91.57 ±2.30 58.44 ±8.59 53.48 ±9.11 72.96 38.23 32.72 Dino U-Net 87.52 ±3.23 93.14 ±2.57 60.75 ±7.93 56.11 ±9.22 74.14 39.50 32.41 nnU-Net 88.71 ±3.15 92.77 ±1.92 64.64 ±8.09 62.18 ±8.94 76.68 44.52 29.71 MedDINOv3 81.77 ±4.31 84.64 ±3.74 52.04 ±9.39 44.72 ±9.50 66.91 21.95 33.41
+> DynoDINO (ours) 88.38 ±3.16 94.23 ±1.77 56.41 ±9.27 47.23 ±9.01 72.40 44.67 26.81
+> Multi-phase Input
+> nnU-Net 88.92 ±2.92 92.73 ±2.51 69.76 ±6.88 66.23 ±8.15 79.34 44.60 28.72
+> DynoDINO (ours) 89.77 ±2.79 93.40 ±2.67 66.23 ±8.42 61.67 ±9.42 78.00 47.10 24.35
+
+Model-Specific Observations. Across all evaluated datasets, distinct architectural behaviors emerge under visual inspection. Standard nnU-Net exhibits a persistent over-smoothing bias ; while it effectively covers core regional masks, it frequently sacrifices fine-grained, non-convex morphological details. Conversely, SegFormer consistently suffers from boundary coarseness and localized under-segmentation. The self-supervised baseline, MedDINOv3, although structurally robust, frequently struggles with sub-optimal boundary delineation in transitional tumor zones. 
+
+Dataset-Specific Observations. In the public LiTS dataset (Fig. 4), Patient 101 highlights these architectural trade-offs: SegFormer and MedDINOv3 yield highly imprecise tumor margins, while Dino U-Net introduces an isolated, false-positive micro-tumor artifact directly superior to the large primary tumor. For the non-convex tumor margins observed in Patients 101–103, nnU-Net’s smoothing bias leads to structural erosion, whereas DynoDINO maintains superior morphological fidelity, adhering tightly to complex liver boundaries. However, the multi-focal scenario of Patient 109 exposes a clear performance disparity and boundary limitation under single-phase constraints. Notably, all evaluated models completely fail to detect the subtle micro-lesion located at the top-leftmost margin of the liver. In this challenging case, standard nnU-Net delivers the superior baseline performance, capturing the multi-focal distribution with high regional fidelity due to its dense local convolutions. MedDINOv3 follows as the second-best architecture, retaining the capacity to detect the primary tumor alongside the smaller peripheral clusters. In contrast, DynoDINO only resolves the large primary tumor mass while entirely omitting the smaller micro-lesions. This qualitative outcome visually corroborates our quantitative findings in Table 3. It demonstrates that under strict single-phase constraints—where temporal cues are absent—DynoDINO’s structural regularizers tend to heavily prioritize macroscopic boundary cohesion, inadvertently dismissing isolated micro-lesions as background noise. This limitation underscores that multi-phase temporal synergy is fundamentally required to fully unlock the framework’s localized detection sensitivity. In the clinical PLC-CECT cohort (Fig. 5), the integration of multi-phase temporal synergy overcomes these single-phase limitations. Patient 004 showcases the topographical precision unlocked by our framework; only DynoDINO successfully differentiates two independent, adjacent lesions, whereas all baseline models either merge them into a single mass or omit them entirely. A more profound clinical advantage is observed in Patient 012, where the gold-standard nnU-Net completely fails to segment any tumor structures. Among all tested networks, only the multi-phase configuration of DynoDINO successfully and correctly localizes both independent lesions. Furthermore, for Patient 018, DynoDINO’s segmentation area is visually the closest to the expert Ground Truth. In Patient 024, SegFormer exhibits severe localized under-segmentation along the tumor periphery, and both Dino U-Net and nnU-Net generate substantial false-positive regions in healthy tissue, while DynoDINO remains tightly constrained to the true pathological boundaries. 11 arXiv Template A P REPRINT 
+
+Table 5: Spatial localization accuracy and lesion detectability on the PLC-CECT dataset.                                          
+
+> Liver Tumor
+> Method CD (mm) ↓Avg. Vmin (mm 3)↓CD (mm) ↓Avg. Vmin (mm 3)↓
+> Single-phase Input
+> SegFormer 10.14 ±3.52 166,908.89 15.78 ±6.10 481,747.28 Dino U-Net 11.67 ±4.71 258,009.22 15.27 ±5.26 463,409.57
+> nnU-Net 10.24 ±5.67 97,864.70 10.60 ±3.18 466,601.66 MedDINOv3 13.93 ±6.27 104,759.92 24.98 ±11.27 562,741.91
+> DynoDINO (ours) 10.17 ±4.13 90,145.65 11.20 ±2.45 558,828.88
+> Multi-phase Input
+> nnU-Net 9.30 ±3.87 26,295.70 13.46 ±9.14 470,586.67 DynoDINO (ours) 8.47 ±3.30 21,871.95 12.05 ±7.68 477,496.58
+
+Table 6: Quantitative segmentation performance on the WAW-TACE dataset.                                                                  
+
+> Liver Tumor Global Performance
+> Method DSC (%) ↑Sens. (%) ↑DSC (%) ↑Sens. (%) ↑DSC (%) ↑NSD (%) ↑HD95 (mm) ↓
+> Single-phase Input
+> SegFormer 94.13 ±1.97 95.98 ±0.82 45.20 ±16.50 36.47 ±15.99 69.67 44.39 31.96 Dino U-Net 93.89 ±2.02 94.84 ±1.48 53.46 ±15.73 49.29 ±17.78 73.68 42.25 44.37 nnU-Net 96.01 ±1.55 96.91 ±0.64 62.06 ±15.31 61.19 ±17.89 79.04 54.19 21.31 MedDINOv3 92.90 ±1.87 93.25 ±2.30 21.12 ±15.48 18.06 ±16.82 57.01 31.40 22.35
+> DynoDINO (ours) 95.85 ±1.70 97.80 ±0.45 43.58 ±20.12 38.75 ±20.56 69.72 52.10 19.20
+> Multi-phase Input
+> nnU-Net 95.94 ±1.30 96.99 ±0.61 59.56 ±15.34 56.05 ±16.98 77.75 53.11 20.18
+> DynoDINO (ours) 96.14 ±1.34 97.46 ±0.54 44.28 ±19.71 39.04 ±20.50 70.21 54.69 18.54
+
+The post-treatment WAW-TACE cohort confirms the resilience of DynoDINO under extreme imaging noise, severe artifacts, and lipiodol depositions (Fig. 6). In the highly challenging case of Patient 135, a compelling architectural anomaly is observed: while the single-phase nnU-Net yields acceptable baseline segments, its multi-phase counterpart completely fails to detect or segment the tumor due to the introduced step-artifacts from brute-force padding. In contrast, DynoDINO successfully identifies the lesion under both single- and multi-phase configurations. For Patient 104, although the severe post-treatment artifacts cause all models to completely omit the true tumor regions, DynoDINO clearly delineates the most accurate and anatomically precise liver boundary among all baselines. Finally, across Patients 118 and 127, DynoDINO achieves high localization precision and sharp edge delineation without generating the over-smoothing artifacts characteristic of nnU-Net. 
+
+4.5 Ablation Study 
+
+We investigate the following core architectural choices. 1. Inter-Phase Fusion Method : Evaluating the performance of MA against vanilla Cross Attention when synthesizing information between the reference (LP) and target (EP/MP) feature streams. 2. Kinetic Modeling Strategy : Comparing the effectiveness of the Subtraction-based dynamic modeling 
+
+against standard Cross Attention for capturing dynamic contrast signatures. 3. Adaptive Gating Mechanism : Verifying whether the integration of a Sigmoid-based gating function prior to the residual skip connection effectively filters noise. 
+
+4.5.1 Analysis of Ablated Components 
+
+The evaluated variants and their characteristics are summarized in Table 8. Our key observations are as follows. 
+
+Kinetic Modeling via Subtraction. Comparing Variants A and B, the kinetic modeling achieves higher region accuracy (DSC 77.17%), effectively mimicking clinical subtraction logic while remaining efficient. 
+
+Inter-Phase Mix-Attention. MA (Variants C and D) reduces fusion parameters by 7.08M, while maintaining high-resolution feature maps during iterative refinement. 12 arXiv Template A P REPRINT 
+
+Table 7: Spatial localization accuracy and lesion detectability on the WAW-TACE dataset.                                          
+
+> Liver Tumor
+> Method CD (mm) ↓Avg. Vmin (mm 3)↓CD (mm) ↓Avg. Vmin (mm 3)↓
+> Single-phase Input
+> SegFormer 6.00 ±6.89 1,194,212.54 28.34 ±30.91 31,507.25 Dino U-Net 5.68 ±3.22 1,396,202.08 30.95 ±19.73 25,087.62
+> nnU-Net 1.71 ±1.2 1,302,667.15 15.15 ±7.86 26,025.85 MedDINOv3 3.82 ±1.74 1,194,212.54 43.39 ±23.46 32,598.90
+> DynoDINO (ours) 1.86 ±1.49 1,194,212.54 27.94 ±16.14 30,641.27
+> Multi-phase Input
+> nnU-Net 2.34 ±1.62 1,194,182.00 16.85 ±11.31 25,942.31 DynoDINO (ours) 1.61 ±1.21 1,194,212.54 22.36 ±13.82 28,040.67
+
+Figure 4: Qualitative comparison of segmentation results on the LiTS dataset. Results are shown in red. 
+
+Adaptive Gating. Transitioning from Variant D to Proposed, NSD is improved from 46.00% to 47.10%, validating its role in handling misalignment. 
+
+4.5.2 Fusion Strategy: Difference vs. Concatenation 
+
+DynoDINO employs a difference-based residual learning strategy. We compare it against two other fusion paradigms: (i) Naive Concatenation , where feature maps from all phases are simply stacked, and (ii) Concatenation + Explicit Differences , which augments the concatenated features with pairwise subtracted feature maps. While Naive Concatenation achieves competitive DSC scores (76.10% in PLC-CECT), it struggles with boundary localization, resulting in the worst HD95 across both datasets (Table 9). Adding explicit differences provides marginal improvements in WAW-TACE, but does not significantly enhance boundary fidelity. In contrast, DynoDINO consistently achieves the best performance in surface-based metrics (HD95=24.35 mm in PLC-CECT and 17.79 mm in WAW-TACE). These results indicate that our difference-based residual fusion strategy more effectively isolates and translates temporal contrast kinetics into explicit structural constraints than generic feature stacking. By directly computing inter-phase feature subtractions, the network is regularized to capture subtle hemodynamic variations rather than relying 13 arXiv Template A P REPRINT 
+
+Figure 5: Qualitative comparison of segmentation results on the PLC-CECT dataset. 
+
+Figure 6: Qualitative comparison of segmentation results on the WAW-TACE dataset. on unconstrained channel-wise concatenations, ultimately leading to segmentations that are more anatomically precise and clinically reliable. 
+
+4.5.3 Sensitivity to Missing Phase (Phase Dropout) 
+
+To validate the model’s reliance on temporal information, we conduct a “Phase Dropout” analysis during the inference stage (Table 10). In the PLC-CECT cohort, performance scales linearly with the number of available phases, achieving the most optimal boundary fidelity (HD95: 24.35 mm) when complete triphasic data is provided. Conversely, a catastrophic performance collapse is observed when the EP is omitted, resulting in a tumor DSC of merely 0.59%. This severe degradation firmly confirms that DynoDINO strictly utilizes the EP as its foundational reference frame for difference-based residual learning. Removing this crucial spatial anchor during inference violates the rigid structural dependencies established during training on complete triphasic distributions (Table 1). 14 arXiv Template A P REPRINT 
+
+Table 8: Ablation study on phase fusion methods, difference extraction, and gating mechanisms (PLC-CECT).                                               
+
+> Model Inter-Phase Fusion Kinetic Modeling Gating Params. ↓DSC (%) ↑NSD (%) ↑HD95 (mm) ↓
+> Variant A Cross-attn. Cross-attn. ✗170,929,155 76.82 47.25 23.90
+> Variant B Cross-attn. Subtraction ✗168,569,091 77.17 46.01 24.79 Variant C Mix-attn. Cross-attn. ✗163,851,267 76.92 46.99 24.03 Variant D Mix-attn. Subtraction ✗161,491,203 76.09 46.00 24.74
+> DynoDINO (ours) Mix-attn. Subtraction ✓163,852,803 76.01 47.10 24.35
+
+Table 9: Ablation of fusion strategies (PLC-CECT and WAW-TACE).                                
+
+> PLC-CECT WAW-TACE
+> Fusion Strategy DSC (%) ↑NSD (%) ↑HD95 (mm) ↓DSC (%) ↑NSD (%) ↑HD95 (mm) ↓
+> Concatenation 76.10 45.02 26.05 76.93 52.17 20.58 Explicit Diff. + Concat 76.29 44.84 26.19 76.81 52.84 20.12
+> Fusion Model (Ours) 76.01 47.10 24.35 77.33 54.15 17.79
+
+In contrast, evaluations on the WAW-TACE dataset demonstrate a more resilient and nuanced integration of temporal features. While the EP-only baseline already yields a robust performance (DSC: 76.52%), introducing the MP or LP sequences provides incremental gains in surface alignment (HD95 improving from 18.82 mm to 18.53 mm). The optimal topological precision is ultimately unlocked under the full triphasic configuration (DSC: 77.33%, HD95: 17.79 mm). This distinct behaviors across cohorts indicate that under severe clinical artifacts and inconsistent scanning intervals, the Adaptive Gating mechanism robustly prevents the network from collapsing. Instead of failing catastrophically in the absence of complete sequences, DynoDINO dynamically routes and aggregates whatever partial temporal cues are available during inference, demonstrating superior clinical viability and adaptive robustness for real-world deployment. 
+
+4.5.4 Robustness to Misalignment and Spatial Noise 
+
+A key clinical requirement is robustness against respiratory-induced motion and inter-phase misalignment. We perform an ablation study of the FFT-based pre-alignment and the Adaptive Gating Mechanism from four perspectives. 
+
+Justification of ZNCC for Pre-alignment. To rigorously justify the selection of ZNCC for our FFT-based pre-alignment module, we established a controlled axial displacement simulation framework using a subset of the PLC-CECT cohort. Specifically, 30 patients were randomly selected, and 30 independent axial slices were sampled per patient (yielding 900 evaluation instances). With the EP slice held fixed as the spatial anchor, artificial random axial translations ranging within ±10 slices were independently introduced to the corresponding MP and LP sequences. We systematically evaluated the capability of six prominent similarity metrics—Cosine Similarity, Mean Absolute Difference (MAD), Mean Squared Difference (MSD), Mutual Information (MI), Structural Similarity Index (SSIM), and ZNCC—to recover these induced spatial offsets (Table 11). Standard structural and intensity-based metrics struggled to handle the complex contrast dynamics. Notably, SSIM exhibited the lowest tracking accuracy (58.77%), while MI suffered from a severe Mean Absolute Error (MAE) of 0.916 ± 2.14 slices. This degradation is primarily attributed to the radical, non-linear intensity variations and localized contrast inversions inherent to multi-phase contrast-medium kinetics, which introduce misleading local optima for statistical and structure-matching paradigms. In contrast, ZNCC achieved the highest localization alignment accuracy (65.25%) and minimized the alignment error to a sub-slice level of 0.718 ± 1.78 slices, marginally outperforming Cosine Similarity (0.720 ± 1.78 slices). This sub-slice resolution demonstrates that by intrinsically normalizing local mean intensities and variances, ZNCC effectively filters out global contrast shifts caused by hemodynamics, establishing itself as the most resilient mathematical regularizer for mitigating inter-phase respiratory motion in our framework. 
+
+Impact of FFT-ZNCC Alignment. We evaluated the necessity of synchronization by ablating the FFT-ZNCC preprocessing step (Table 12). In PLC-CECT, the model without FFT-ZNCC performs comparably to the pre-aligned version, suggesting that for standard diagnostic scans, our Adaptive Gating provides sufficient spatial tolerance. However, the WAW-TACE cohort exhibited significant degradation: DSC dropped from 77.33% to 75.28%, and 15 arXiv Template A P REPRINT 
+
+Table 10: Sensitivity analysis to phase dropout during inference.                                            
+
+> PLC-CECT WAW-TACE
+> Combination DSC (%) ↑NSD (%) ↑HD95 (mm) ↓DSC (%) ↑NSD (%) ↑HD95 (mm) ↓
+> EP only 62.48 39.42 32.16 76.52 54.21 18.82 EP + MP 69.11 41.18 29.18 76.78 54.11 18.59 EP + LP 73.07 45.90 25.33 76.86 53.80 18.53 MP + LP 0.59 0.19 79.58 58.22 12.20 27.37
+> EP+MP+LP 76.01 47.10 24.35 77.33 54.15 17.79
+
+Table 11: Quantitative comparison of image similarity metrics under induced multi-phase axial misalignments ( ±10 
+
+slices search space).                             
+
+> Similarity Metric MAE (Slices) ↓Tracking Accuracy (%) ↑
+> Cosine 0.720 ±1.78 64.69 MAD 0.791 ±1.95 62.65 MSD 0.767 ±1.84 62.10 MI 0.916 ±2.14 61.36 SSIM 0.856 ±1.86 58.77
+> ZNCC (Ours) 0.718 ±1.78 65.25
+
+HD95 deteriorated to 19.74 mm. These findings underscore that FFT-ZNCC is critical for “messy” clinical data with inconsistent breath-holds. 
+
+Robustness to In-plane Shift. To simulate extreme registration errors, we applied artificial 2D translations to the MP and LP sequences during inference (Table 13). The results reveal a critical dependency on the Adaptive Gating module. In PLC-CECT, while nnU-Net maintains a slightly higher DSC, it exhibits significantly poorer boundary precision (HD95: 29.35 mm vs. 24.69 mm). More importantly, in the WAW-TACE cohort, the model without Adaptive Gating suffered a catastrophic failure (DSC: 0.00%), whereas the full DynoDINO model remained robust (DSC: 76.81%, HD95: 18.61 mm). This disparity highlights a fundamental risk: without a gating mechanism to filter out spatial noise, misaligned features are amplified through the subtraction logic, leading to divergent latent representations. 
+
+Learning Stability and Convergence Analysis. To further investigate the optimization failure observed in Table 13, we analyzed the training dynamics on the WAW-TACE dataset across four configurations (Fig. 7). In the absence of simulated spatial shifts, the full DynoDINO model (Fig. 7a) demonstrates smooth, stable loss reduction and consistent Pseudo Dice growth. However, removing the gating mechanism even in this seemingly aligned scenario (Fig. 7b) leads to sudden instability; around epoch 200, the validation Pseudo Dice scores become highly erratic and eventually collapse to zero. This unstable behavior confirms that the inherent, sub-voxel misalignments present in clinical post-TACE scans are sufficient to trigger severe representation conflicts in raw subtraction-based architectures when left unmitigated. Under simulated spatial noise (In-plane Shift), the functional necessity of the Adaptive Gating module is absolute. With-out this gating mechanism (Fig. 7d), the network suffers from a catastrophic gradient collapse, and the training process fails to initiate entirely, with Pseudo Dice scores remaining at zero throughout the optimization cycle. This suggests that spatial misalignment noise, when amplified by difference-based residual subtraction, completely overwhelms the backpropagated gradient signal. Conversely, the gated DynoDINO model (Fig. 7c) successfully filters these spatial artifacts, maintaining stable convergence and robust loss minimization. These combined learning dynamics demonstrate that the Adaptive Gating mechanism is not merely an empirical enhancement, but an indispensable architectural “safety valve.” It effectively filters representation conflicts and ensures robust optimization in clinical workflows characterized by either inherent scanning misalignments or simulated spatial noise. 
+
+4.6 ZNCC Alignment Visualization 
+
+As visualized in Fig. 8, FFT-ZNCC alignment ensures that anatomical structures—highlighted by the liver (green) and lesion (red) masks—are spatially synchronized across the EP, MP, and LP. This pixel-wise consistency effectively validates the contribution of this module. 16 arXiv Template A P REPRINT 
+
+Table 12: Ablation of FFT-ZNCC pre-alignment.                          
+
+> PLC-CECT WAW-TACE
+> Alignment DSC (%) ↑NSD (%) ↑HD95 (mm) ↓DSC (%) ↑NSD (%) ↑HD95 (mm) ↓
+> w/o FFT-ZNCC 76.51 46.28 24.35 75.28 55.50 19.74
+> w/ FFT-ZNCC (Ours) 76.01 47.10 24.35 77.33 54.15 17.79
+
+Table 13: Robustness analysis against in-plane spatial shifts.                                
+
+> PLC-CECT WAW-TACE
+> Configuration DSC (%) ↑NSD (%) ↑HD95 (mm) ↓DSC (%) ↑NSD (%) ↑HD95 (mm) ↓
+> nnU-Net 76.95 44.48 29.35 79.11 53.16 20.42 DynoDINO w/o Gating 76.46 46.36 24.89 0.00 0.00 N/A
+> DynoDINO (Ours) 76.32 46.60 24.69 76.81 54.19 18.61
+
+4.7 Model Complexity and Efficiency Analysis 
+
+The number of trainable parameters and empirical training times for each configuration are summarized in Table 14. While DynoDINO possesses a higher parameter count (163.85M) compared to the CNN-based baseline nnU-Net (33.47M), this increase is primarily attributed to the high-capacity self-supervised ViT backbone adopted from MedDI-NOv3 (110.72M). When extending from single-phase to multi-phase configurations, DynoDINO introduces necessary structural overhead. However, the proposed Mixed-Attention within our inter-phase fusion module significantly mitigates computational complexity. Specifically, the MA mechanism achieves a 4.1% reduction in the model size (saving 7.08M parameters) compared to a full cross-attention configuration (Table 8). This architectural efficiency demonstrates that DynoDINO effectively balances high-capacity representation learning with parameter and memory efficiency. Table 14 reports the empirical wall-clock training times across all three cohorts. Although DynoDINO requires extended training hours due to its multi-phase fusion architecture (20.76–24.25 hours depending on the dataset scale), the computational footprint remains highly manageable for offline clinical training pipelines. This additional training investment represents a highly acceptable trade-off given the substantial gains in morphological fidelity and edge precision across different clinical imaging modalities. 
+
+# 5 Conclusions 
+
+This research introduced DynoDINO , a robust framework designed to address the inherent challenges of multi-phase medical image segmentation. By integrating a specialized Multi-phase Fusion Model anchored by LP guidance with the MedDINOv3 backbone, our approach effectively captures complex temporal contrast signatures across diverse clinical scenarios. Our experimental analysis demonstrates that the combination of Mix-attention and difference-based interaction allows the model to leverage dynamic contrast-agent kinetics—such as characteristic “wash-in” and “wash-out” signatures—to resolve spatial ambiguities that are indistinguishable in single-phase snapshots. Significantly, ablation studies validate that the Adaptive Gating Mechanism is not merely an incremental enhancement but a foundational component for architectural stability; it effectively screens out local registration residuals, shielding the transformer backbone from disruptive noise and preventing catastrophic training divergence. While achieving a 4.1% reduction in total parameter overhead (saving 7.08M parameters), DynoDINO consistently delivers superior boundary precision, as evidenced by substantial gains in NSD and HD95 metrics across three large-scale datasets under both aligned and perturbed settings. While this study focused on liver lesion segmentation as the primary evaluation task, the architectural design of DynoDINO holds the potential to be scaled beyond a single organ or disease. The framework offers a flexible foundation that could be adapted to a broader range of contrast-enhanced imaging applications, including multi-parametric MRI (mpMRI), dynamic perfusion imaging, and other dynamic contrast-enhanced (DCE) protocols Pellicer-Valero et al. [2022], Li et al. [2024]. Future work will investigate these clinical contexts to extend DynoDINO’s versatility as an efficient solution for high-fidelity multi-phase medical image analysis. 17 arXiv Template A P REPRINT   
+
+> (a) No Shift + Gating (Standard) (b) No Shift, No Gating (Ablated)
+> (c) Shifted + Gating (Proposed) (d) Shifted, No Gating (Collapse)
+
+Figure 7: Analysis of training dynamics and convergence stability on the WAW-TACE dataset. Blue and red curves represent training and validation loss, respectively. Solid green curves denote the Pseudo Dice score, with dashed lines showing the moving average. (a) standard DynoDINO configuration with gating and no spatial shift, (b) ablated model without gating and no spatial shift, (c) proposed DynoDINO configuration with gating under simulated in-plane spatial shift, and (d) ablated model without gating under simulated in-plane spatial shift. Table 14: Comparison of model complexity and training time (notation: LiTS / PLC-CECT / WAW-TACE).                 
+
+> Method Trainable Params. Training Time (h) Dino U-Net 13,182,247 11.42 / 10.07 / 11.49 nnU-Net 33,473,906 3.69 /3.25 /3.76
+> SegFormer 27,448,918 5.13 / 4.55 / 5.15 MedDINOv3 110,718,723 7.80 / 7.10 / 7.88
+> DynoDINO (Ours) 163,852,803 24.25 / 20.76 / 23.99
+
+# References 
+
+John C Gore. Artificial intelligence in medical imaging. Magnetic resonance imaging , 68:A1–A4, 2020. Andre Esteva, Alexandre Robicquet, Bharath Ramsundar, Volodymyr Kuleshov, Mark DePristo, Katherine Chou, Claire Cui, Greg Corrado, Sebastian Thrun, and Jeff Dean. A guide to deep learning in healthcare. Nature medicine , 25(1): 24–29, 2019. Olaf Ronneberger, Philipp Fischer, and Thomas Brox. U-net: Convolutional networks for biomedical image segmenta-tion. In International Conference on Medical image computing and computer-assisted intervention , pages 234–241. Springer, 2015. Fausto Milletari, Nassir Navab, and Seyed-Ahmad Ahmadi. V-net: Fully convolutional neural networks for volumetric medical image segmentation. In 2016 fourth international conference on 3D vision (3DV) , pages 565–571. Ieee, 2016. 18 arXiv Template A P REPRINT  
+
+> (a) Pre-alignment: Anatomical shifts due to respiratory motion. (b) Post-alignment: Spatial synchronization via FFT-ZNCC.
+
+Figure 8: Visualization of the FFT-ZNCC alignment (Case P0001, PLC-CECT). The green and red masks represent the liver and lesion, respectively. For this specific case, MP is dynamically designated as FP due to its minimum slice count. Peter R Galle, Alejandro Forner, Josep M Llovet, Vincenzo Mazzaferro, Fabio Piscaglia, Jean-Luc Raoul, Peter Schirmacher, and Valérie Vilgrain. Easl clinical practice guidelines: Management of hepatocellular carcinoma. 
+
+Journal of hepatology , 69(1):182–236, 2018. Victoria Chernyak, Kathryn J Fowler, Aya Kamaya, Ania Z Kielar, Khaled M Elsayes, Mustafa R Bashir, Yuko Kono, Richard K Do, Donald G Mitchell, Amit G Singal, et al. Liver imaging reporting and data system (li-rads) version 2018: Imaging of hepatocellular carcinoma in at-risk patients. Radiology , 289(3):816–830, 2018. Tiffany Hennedige and Sudhakar Kundapur Venkatesh. Imaging of hepatocellular carcinoma: diagnosis, staging and treatment monitoring. Cancer Imaging , 12(3):530, 2013. Ihab R Kamel, Eleni Liapi, and Elliot K Fishman. Multidetector ct of hepatocellular carcinoma. Best Practice & Research Clinical Gastroenterology , 19(1):63–89, 2005. Freddie Bray, Mathieu Laversanne, Hyuna Sung, Jacques Ferlay, Rebecca L Siegel, Isabelle Soerjomataram, and Ahmedin Jemal. Global cancer statistics 2022: Globocan estimates of incidence and mortality worldwide for 36 cancers in 185 countries. CA: a cancer journal for clinicians , 74(3):229–263, 2024. Jorge A Marrero, Laura M Kulik, Claude B Sirlin, Andrew X Zhu, Richard S Finn, Michael M Abecassis, Lewis R Roberts, and Julie K Heimbach. Diagnosis, staging, and management of hepatocellular carcinoma: 2018 practice guidance by the american association for the study of liver diseases. Hepatology , 68(2):723–750, 2018. J H Lee, J M Lee, S J Kim, J H Baek, S H Yun, K W Kim, J K Han, and B I Choi. Enhancement patterns of hepatocellular carcinomas on multiphasic multidetector row ct: comparison with pathological differentiation. The British journal of radiology , 85(1017):e573–e583, 2012. Masatoshi Hori, Yuki Suzuki, Keitaro Sofue, Junya Sato, Daiki Nishigaki, Miyuki Tomiyama, Atsushi Nakamoto, Takamichi Murakami, and Noriyuki Tomiyama. Artificial intelligence in imaging diagnosis of liver tumors: current status and future prospects. Abdominal Radiology , 51(1):446–457, 2026. Jordi Bruix and Morris Sherman. Management of hepatocellular carcinoma: An update. Hepatology , 53(3):1020–1022, 2011. Julie K Heimbach, Laura M Kulik, Richard S Finn, Claude B Sirlin, Michael M Abecassis, Lewis R Roberts, Andrew X Zhu, M Hassan Murad, and Jorge A Marrero. Aasld guidelines for the treatment of hepatocellular carcinoma. 
+
+Hepatology , 67(1):358–380, 2018. Fabian Isensee, Jens Petersen, Andre Klein, David Zimmerer, Paul F Jaeger, Simon Kohl, Jakob Wasserthal, Gregor Koehler, Tobias Norajitra, Sebastian Wirkert, et al. nnu-net: Self-adapting framework for u-net-based medical image segmentation. arXiv preprint arXiv:1809.10486 , 2018. Tongxue Zhou, Su Ruan, and Stéphane Canu. A review: Deep learning for medical image segmentation using multi-modality fusion. Array , 3:100004, 2019. 19 arXiv Template A P REPRINT 
+
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, et al. An image is worth 16x16 words: Transformers for image recognition at scale. arXiv preprint arXiv:2010.11929 , 2020. Ali Hatamizadeh, Yucheng Tang, Vishwesh Nath, Dong Yang, Andriy Myronenko, Bennett Landman, Holger R Roth, and Daguang Xu. Unetr: Transformers for 3d medical image segmentation. In Proceedings of the IEEE/CVF winter conference on applications of computer vision , pages 574–584, 2022. Grant Haskins, Uwe Kruger, and Pingkun Yan. Deep learning in medical image registration: a survey. Machine Vision and Applications , 31(1):8, 2020. Mathilde Caron, Hugo Touvron, Ishan Misra, Hervé Jégou, Julien Mairal, Piotr Bojanowski, and Armand Joulin. Emerging properties in self-supervised vision transformers. In Proceedings of the IEEE/CVF international conference on computer vision , pages 9650–9660, 2021. Yuheng Li, Yizhou Wu, Yuxiang Lai, Mingzhe Hu, and Xiaofeng Yang. Meddinov3: How to adapt vision foundation models for medical image segmentation? arXiv preprint arXiv:2509.02379 , 2025. Tri Dao, Dan Fu, Stefano Ermon, Atri Rudra, and Christopher Ré. Flashattention: Fast and memory-efficient exact attention with io-awareness. Advances in neural information processing systems , 35:16344–16359, 2022. Maxime Oquab, Timothée Darcet, Théo Moutakanni, Huy Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa, Alaaeldin El-Nouby, et al. Dinov2: Learning robust visual features without supervision. arXiv preprint arXiv:2304.07193 , 2023. Oriane Siméoni, Huy V Vo, Maximilian Seitzer, Federico Baldassarre, Maxime Oquab, Cijo Jose, Vasil Khalidov, Marc Szafraniec, Seungeun Yi, Michaël Ramamonjisoa, et al. Dinov3. arXiv preprint arXiv:2508.10104 , 2025. Yifan Gao, Haoyue Li, Feng Yuan, Xiaosong Wang, and Xin Gao. Dino u-net: Exploiting high-fidelity dense features from foundation models for medical image segmentation. arXiv preprint arXiv:2508.20909 , 2025. Yu Zhang, Yuan Wang, Jinhong Feng, et al. Multi-modal learning for clinical decision support, surgery assistance and medical image analysis. Medical Image Analysis , 83:102638, 2023. Enze Xie, Wenhai Wang, Zhiding Yu, Anima Anandkumar, Jose M Alvarez, and Ping Luo. Segformer: Simple and efficient design for semantic segmentation with transformers. Advances in neural information processing systems ,34:12077–12090, 2021. Barbara Zitova and Jan Flusser. Image registration methods: a survey. Image and vision computing , 21(11):977–1000, 2003. Guha Balakrishnan, Amy Zhao, Mert R Sabuncu, John Guttag, and Adrian V Dalca. Voxelmorph: a learning framework for deformable medical image registration. IEEE transactions on medical imaging , 38(8):1788–1800, 2019. Yao Zhang, Jiawei Yang, Jiang Tian, Zhongchao Shi, Cheng Zhong, Yang Zhang, and Zhiqiang He. Modality-aware mutual learning for multi-modal medical image segmentation. In International conference on medical image computing and computer-assisted intervention , pages 589–599. Springer, 2021. Théo Estienne, Maria Vakalopoulou, Stergios Christodoulidis, Enzo Battistela, Marvin Lerousseau, Alexandre Carre, Guillaume Klausner, Roger Sun, Charlotte Robert, Stavroula Mougiakakou, et al. U-resnet: Ultimate coupling of registration and segmentation with deep nets. In International conference on medical image computing and computer-assisted intervention , pages 310–319. Springer, 2019. Lei Bi, Michael Fulham, Nan Li, Qiufang Liu, Shaoli Song, David Dagan Feng, and Jinman Kim. Recurrent feature fusion learning for multi-modality pet-ct tumor segmentation. Computer Methods and Programs in Biomedicine ,203:106043, 2021. Di Liu, Yunhe Gao, Qilong Zhangli, Ligong Han, Xiaoxiao He, Zhaoyang Xia, Song Wen, Qi Chang, Zhennan Yan, Mu Zhou, et al. Transfusion: Multi-view divergent fusion for medical image segmentation with transformers. In 
+
+International conference on medical image computing and computer-assisted intervention , pages 485–495. Springer, 2022. Giorgos Papanastasiou, Nikolaos Dikaios, Jiahao Huang, Chengjia Wang, and Guang Yang. Is attention all you need in medical image analysis? a review. IEEE Journal of Biomedical and Health Informatics , 28(3):1398–1411, 2023. Xiaolong Wang, Ross Girshick, Abhinav Gupta, and Kaiming He. Non-local neural networks. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 7794–7803, 2018. Christoph Feichtenhofer, Haoqi Fan, Jitendra Malik, and Kaiming He. Slowfast networks for video recognition. In 
+
+Proceedings of the IEEE/CVF international conference on computer vision , pages 6202–6211, 2019. Hao Chen, Zipeng Qi, and Zhenwei Shi. Remote sensing image change detection with transformers. IEEE Transactions on Geoscience and Remote Sensing , 60:1–14, 2021. 20 arXiv Template A P REPRINT 
+
+Haoyi Zhou, Shanghang Zhang, Jieqi Peng, Shuai Zhang, Jianxin Li, Hui Xiong, and Wancai Zhang. Informer: Beyond efficient transformer for long sequence time-series forecasting. In Proceedings of the AAAI conference on artificial intelligence , volume 35, pages 11106–11115, 2021. Yi Tay, Mostafa Dehghani, Dara Bahri, and Donald Metzler. Efficient transformers: A survey. ACM Computing Surveys ,55(6):1–28, 2022. Tri Dao. Flashattention-2: Faster attention with better parallelism and work partitioning. arXiv preprint arXiv:2307.08691 , 2023. Patrick Bilic, Patrick Christ, Hongwei Bran Li, Eugene Vorontsov, Avi Ben-Cohen, Georgios Kaissis, Adi Szeskin, Colin Jacobs, Gabriel Efrain Humpire Mamani, Gabriel Chartrand, et al. The liver tumor segmentation benchmark (lits). Medical image analysis , 84:102680, 2023. Jiawei Luo and Huang Shixin. Primary liver cancer cect imaging dataset, Aug 2024. URL https://doi.org/10. 57760/sciencedb.12173 .Krzysztof Bartnik, Tomasz Bartczak, Mateusz Krzyzi´ nski, Krzysztof Korzeniowski, Krzysztof Lamparski, Piotr W˛ egrzyn, Eric Lam, Mateusz Bartkowiak, Tadeusz Wróblewski, Katarzyna Mech, et al. Waw-tace: a hepatocellular carcinoma multiphase ct dataset with segmentations, radiomics features, and clinical data. Radiology: Artificial Intelligence , 6(6):e240296, 2024. John P Lewis. Fast normalized cross-correlation. In Vision interface , volume 10, pages 120–123, 1995. Manuel Guizar-Sicairos, Samuel T Thurman, and James R Fienup. Efficient subpixel image registration algorithms. 
+
+Optics letters , 33(2):156–158, 2008. Abdel Aziz Taha and Allan Hanbury. Metrics for evaluating 3d medical image segmentation: analysis, selection, and tool. BMC medical imaging , 15:1–28, 2015. Oscar J Pellicer-Valero, Jose L Marenco Jimenez, Victor Gonzalez-Perez, Juan Luis Casanova Ramon-Borja, Isabel Martin Garcia, Maria Barrios Benito, Paula Pelechano Gomez, Jose Rubio-Briones, Maria Jose Ruperez, and Jose D Martin-Guerrero. Deep learning for fully automatic detection, segmentation, and gleason grade estimation of prostate cancer in multiparametric magnetic resonance images. Scientific reports , 12(1):2975, 2022. Xin Li, Wei Huang, and James H Holmes. Dynamic contrast-enhanced (dce) mri. Magnetic Resonance Imaging Clinics ,32(1):47–61, 2024. 21

@@ -1,0 +1,5795 @@
+Title: Local spectral clustering for heterogeneous clustering structures
+
+URL Source: https://arxiv.org/pdf/2607.29147v1
+
+Published Time: Mon, 03 Aug 2026 00:42:37 GMT
+
+Number of Pages: 56
+
+Markdown Content:
+# Local spectral clustering for heterogeneous clustering structures 
+
+Yuanxing Chen School of Economics and Management, Fuzhou University and Qingzhao Zhang School of Economics, Xiamen University The Wang Yanan Institute for Studies in Economics, Xiamen University and Yuhong Yang Yau Mathematical Sciences Center, Tsinghua University Beijing Institute of Mathematical Sciences and Applications August 3, 2026 
+
+Abstract 
+
+Classical clustering methods typically assume that all informative features support a single latent partition of the observations. This assumption can be overly restrictive for modern high-dimensional data, where different subsets of features may encode distinct notions of similarity and induce heterogeneous sample partitions, while some features may contain no meaningful clustering information. We develop a frequentist framework for local clustering that simultaneously identifies feature groups and estimates the sample clustering structure associated with each group. Our approach represents each sample partition by a label-invariant clustering matrix and groups features according to their shared clustering structures, thereby reformulating local clustering as a feature-grouping, or clustering-of-clusterings, problem. Under a heterogeneous sub-Gaussian mixture model, we construct feature-specific Gaussian-kernel similarity matrices and propose a local spectral clustering procedure based on a clustering-matrix optimization criterion. The proposed method avoids explicit likelihood specification and Bayesian posterior computation, accommodates heterogeneous feature distributions, and permits the presence of non-informative features. Extensive simulations and applications further demonstrate the practical utility and superiority of the proposed approach. 
+
+Keywords: Local clustering; heterogeneous clustering structures; Feature grouping; Cluster-ing matrix; Spectral clustering; Sub-Gaussian mixture model. 1arXiv:2607.29147v1 [stat.ME] 31 Jul 2026 1 Introduction 
+
+Clustering is one of the most fundamental tasks in statistical learning, aiming to partition a collection of observations into internally homogeneous and mutually heterogeneous groups based on certain similarities in the observed features. Classical approaches, including 
+
+K-means clustering (Jain 2010), hierarchical clustering (Murtagh & Contreras 2012), model-based clustering (Gormley et al. 2023), and spectral clustering (Von Luxburg 2007), differ substantially in their formulations and computational strategies. Nevertheless, they are generally built upon a common structural assumption: a dataset is characterized by a single latent partition of the observations. Under this global clustering paradigm, all informative features are expected to contribute, possibly with different strengths, to the recovery of the same underlying clustering structure. Although the assumption of a single global partition is natural and desirable in many classical applications, it can be overly restrictive for modern high-dimensional datasets (Witten & Tibshirani 2010, Lee et al. 2013). In such cases, features are often highly heterogeneous in their scientific meanings, dependence structures, and sources of variation, and only subsets of features may carry meaningful clustering information relevant to particular clustering patterns (Raftery & Dean 2006, Liu et al. 2023). Consequently, different subsets of features may encode different notions of similarity among the same observations, thereby inducing distinct sample partitions (Lee et al. 2013, Xu et al. 2013). Rather than being characterized by a unique global clustering structure, a high-dimensional dataset may therefore contain multiple clustering structures that coexist across different subsets of features. This phenomenon is particularly common in modern omics and also epidemiological studies, where distinct subsets of features often correspond to different biological processes or disease types and, therefore, induce different partitions of the same observations. The success of gene set enrichment analysis (Subramanian et al. 2005) demonstrated that biologically 2meaningful signals frequently arise from the coordinated behavior of groups of genes, such as pathways or functional modules, rather than from isolated individual genes. Genes involved in different biological pathways may distinguish observations according to various disease subtypes, cellular states, or molecular mechanisms. As a result, one subset of genes may separate observations according to a particular biological process, whereas another subset may induce a substantially different partition of the same observations (Xie et al. 2019). In proteomic studies, different protein modules reflect heterogeneous biological mechanisms and generate different patterns of sample similarity (Lee et al. 2013, Hao et al. 2021). Similar forms of structural heterogeneity arise in electronic health records (EHR), where different sets of clinical indicators reflect distinct latent diseases (Ni et al. 2020). More broadly, whenever high-dimensional features arise from multiple functional systems, measurement platforms, or data-generating mechanisms, it is generally unrealistic to expect all features to support a common sample partition. These examples motivate a more flexible framework for clustering structures, which is referred to as local clustering in Lee et al. (2013). Instead of asking for a single partition that summarizes the entire feature space, local clustering seeks to determine which features support the same partition and jointly identify a non-overlapping feature partition while recovering the corresponding non-overlapping clustering structure within each feature group. Importantly, the feature partition in local clustering is unknown a priori and depends on the sample clustering structures it induces. Therefore, separate clustering analyses cannot be conducted in advance for different feature groups. The need to identify localized clustering patterns has motivated an extensive literature on biclustering and related methods. Biclustering seeks subsets of observations and features that exhibit coherent local patterns within a data matrix (Cheng & Church 2000, Lazzeroni & Owen 2002, Chi et al. 2017, Flynn & Perry 2020, Zhong & Huang 2022). These biclustering 3methods simultaneously cluster features and observations by identifying submatrices with coherent numerical patterns, rather than grouping features according to the sample partitions they induce. Consequently, biclustering does not always directly address the problem of recovering multiple complete partitions of the same set of observations. Bayesian local clustering methods provide a more direct formulation of this problem by allowing different subsets of features to induce different partitions of a common set of observations. An influential work is the nonparametric Bayesian local clustering model proposed by Lee et al. (2013), which formalized the idea that features can be grouped according to a shared partition of the observations. Related hierarchical and nonparametric constructions have further expanded the flexibility of this approach (Rodriguez et al. 2008, Dombowsky & Dunson 2025). These developments offer a powerful alternative to global clustering and demonstrate the practical importance of explicitly modeling heterogeneous clustering structures. Despite their flexibility and empirical success, existing local clustering methods face several limitations. First, most available approaches are model-based and rely on hierarchical Bayesian formulations, latent allocation features, or elaborate likelihood specifications (Rodriguez et al. 2008, Lee et al. 2013, Dombowsky & Dunson 2025). Statistical inference may therefore require computationally intensive posterior sampling procedures. Second, existing methods typically describe local clustering structures indirectly through latent parameters in a probabilistic model (Tan & Witten 2014, Chi et al. 2017). The partitions themselves are not always treated as explicit statistical objects in the formulation of the estimation problem. This makes it difficult to directly compare clustering structures across features or to characterize the statistical separation required to distinguish one feature group from another. Third, a complete theoretical analysis must account for two interconnected sources of uncertainty. One needs to simultaneously estimate the grouping of features and the sample partition associated with each feature group. Errors in feature grouping may 4propagate into the estimation of sample clusters, while inaccurate sample partitions may, in turn, obscure the distinction between feature groups. Establishing recovery guarantees therefore requires a unified analysis of these two layers of latent structure, which is basically absent to the best of our knowledge. In this paper, we develop a frequentist framework for local clustering based on an explicit representation of heterogeneous clustering structures. Our starting point is that the central object in local clustering is the partition of observations rather than a collection of latent model parameters. We represent each sample partition by its clustering matrix, whose entries record whether pairs of observations belong to the same cluster. This representation is invariant to permutations of cluster labels and therefore provides a natural object for comparing clustering structures across features. Under this formulation, features belong to the same feature group when they induce the same clustering matrix. Local clustering can consequently be reformulated as a feature grouping problem in which features are grouped according to their shared sample partitions. Equivalently, the problem may be viewed as a clustering-of-clusterings problem: each feature contains information about a sample clustering structure, and the objective is to identify groups of features that generate identical or sufficiently similar partitions. This representation separates the structural target of interest from any particular likelihood specification and provides a direct basis for estimation and theoretical analysis. To formalize this idea, we introduce a heterogeneous sub-Gaussian mixture model under which different feature groups induce different partitions of the observations. Based on feature-specific Gaussian kernel similarity matrices, we propose a local spectral clustering (LSC) framework that jointly estimates feature groups and their associated clustering structures through a clustering-matrix optimization criterion. As a result, within each feature group, the corresponding features share a common sample clustering structure, 5although their cluster centers, noise levels, and marginal distributions may vary. The formulation also permits non-informative features that are unrelated to any meaningful sample partition, which is important in high-dimensional applications where only a subset of the measured features may contain clustering information. A key advantage of the proposed framework is that it enables a comprehensive theoretical analysis of local clustering. We first derive non-asymptotic estimation error bounds for an oracle estimator that knows the true feature grouping structure. We then show that the oracle estimator can be recovered as a local maximizer of the proposed objective function with high probability, leading to the asymptotic recovery of the true feature grouping structure. Finally, by combining spectral perturbation arguments with approximate K-means theory, we derive uniform upper bounds for the misclassification errors of the estimated sample partitions. These results simultaneously control the clustering errors across multiple feature groups and reveal how uncertainty in the estimated similarity matrices propagates through spectral embedding and subsequent cluster assignment. Together, the theoretical results provide recovery guarantees for both levels of the local clustering problem: the grouping of features and the clustering of observations within each feature group. To the best of our knowledge, these results provide the first frequentist understanding of the local clustering under heterogeneous feature-specific clustering structures. Our major contributions are fourfold: 
+
+• First, we introduce a new statistical formulation of local clustering based on shared sample partitions. Unlike existing approaches that define local clusters through latent model parameters, our framework treats clustering matrices as the primary statistical objects and formulates local clustering as a feature grouping problem. 
+
+• Second, we propose a computationally efficient optimization framework that simulta-neously identifies informative feature groups and estimates their associated clustering 6structures. The proposed method does not require likelihood maximization or Bayesian posterior computation and is scalable to high-dimensional settings. 
+
+• Third, we establish a unified theoretical framework for local clustering, which charac-terizes the recovery of group-specific clustering structures, the asymptotic recovery of feature groups, and the consistency of local spectral clustering under heterogeneous sub-Gaussian mixture models. The results provide explicit signal-to-noise conditions under which heterogeneous clustering structures can be successfully recovered. 
+
+• Fourth, we apply our local spectral clustering method to a real data and it reveals that a group of AML patients may benefit from one available treatment over the other, which seems to be an interesting finding. The remainder of the paper is organized as follows. Section 2 introduces the model formu-lation, clustering-matrix representation, and local spectral clustering procedure. Section 3 presents the theoretical properties of the proposed method, including oracle recovery, feature-group recovery, and clustering consistency. Section 4 investigates the finite-sample performance through simulation studies. Section 5 illustrates the proposed framework using real data examples. Section 6 concludes with a discussion. 
+
+# 2 Methodology 
+
+2.1 Notation 
+
+For any positive integer n, define [n] = {1, . . . , n }. For two sets A and B, denote by 
+
+A \ B the set difference {x : x ∈ A , x /∈ B} . Given an index set S ⊆ [n], let |S| 
+
+be the cardinality of S. For any vector a = ( a1, . . . , a n)⊤, let aS denote a vector of length |S| whose components are {ai : i ∈ S} . Meanwhile, its ℓ2 norm is defined by 
+
+∥a∥2 = √∑pj=1 a2 
+
+> j
+
+. For any matrix A ∈ Rn×n, let Tr (A) be its trace and Aij be its 7(i, j )-th entry. In addition, we define its ℓ2 norm, ℓ1 norm, sup-norm, and Frobenius norm as ∥A∥2 = sup v∈Rn,∥v∥2=1 ∥Av ∥2, ∥A∥1 = ∑ni=1  
+
+> ∑nj=1
+
+|Aij |, ∥A∥max = max i,j ∈[n] |Aij |,and ∥A∥F = √∑ni=1  
+
+> ∑nj=1
+
+A2 
+
+> ij
+
+, respectively. For another matrix B ∈ Rn×n, the inner product between A and B is denoted by ⟨A, B⟩ := Tr (A⊤B) = ∑ni=1  
+
+> ∑nj=1
+
+Aij Bij . We represent the n × n matrix of all ones by En and denote Is as the s-dimensional identity matrix. For two sequences of real numbers {an} and {bn}, we use an ≫ bn (or bn ≪ an) if 
+
+bn/a n = o(1) , and an ≍ bn if an is of the same order as bn. For a centered random variable 
+
+X ∈ R, we say X is a sub-Gaussian random variable with sub-Gaussian norm σx > 0 if 
+
+E(exp {λX }) ≤ exp {σ2
+
+> x
+
+λ2/2} for any λ ∈ R.
+
+2.2 Model setting 
+
+Let X = ( x1, . . . , xn)⊤ ∈ Rn×p denote the observed data matrix, where xi = ( xi1, . . . , x ip )⊤.We assume that the p features can be partitioned into G informative groups and one non-informative group. For each informative group g ∈ [G], the features within the group induce a common clustering structure on the samples, with Mg ≥ 2 clusters. In contrast, the non-informative group does not exhibit any clustering structure, corresponding to a single cluster. Let A∗ ⊂ [p] index the informative features, and let A∗
+
+> 1
+
+, . . . , A∗ 
+
+> G
+
+be a partition of 
+
+A∗, where each A∗ 
+
+> g
+
+corresponds to the feature indices in the g-th informative group. The complement A∗ 
+
+> G+1
+
+= [ p] \ A ∗ represents the non-informative feature group. The observations are generated from G sub-Gaussian mixture models (SGMMs) and one sub-Gaussian model (SGM). For each g ∈ [G], the g-th SGMM consists of Mg sub-Gaussian components, denoted by D(g) 
+
+> m
+
+: m ∈ [Mg]. For the g-th SGMM, let π(g) = ( π(g)1 , . . . , π (g) 
+
+> Mg
+
+)⊤
+
+be the mixing probability vector, where ∑Mg 
+
+> m=1
+
+π(g) 
+
+> m
+
+= 1 and π(g) 
+
+> m
+
+> 0 for all m ∈ [Mg]. Let 
+
+μ(g) 
+
+> m
+
+= ( μ(g)
+
+> m, 1
+
+, . . . , μ (g) 
+
+> m,s g
+
+)⊤ ∈ Rsg denote the mean vector of the m-th component, where 
+
+sg = |A ∗
+
+> g
+
+|. For each observation i ∈ [n], let ψ(g) 
+
+> i
+
+∈ [Mg] denote its latent cluster label 8under the g-th SGMM, which is drawn from a multinomial distribution with parameter 
+
+π(g). Accordingly, for each g ∈ [G], define the group-specific sample partition G∗
+
+> g, 1
+
+, . . . , G∗
+
+> g,M g
+
+of [n], where G∗ 
+
+> g,m
+
+= {i ∈ [n] : ψ(g) 
+
+> i
+
+= m} and n(g) 
+
+> m
+
+= |G ∗
+
+> g,m
+
+| is the size of the m-th cluster. The corresponding true membership matrix is given by Z∗ 
+
+> g
+
+∈ { 0, 1}n×Mg , where Z∗ 
+
+> g,im
+
+= 1 if and only if i ∈ G ∗
+
+> g,m
+
+. Without loss of generality, assume that observations from the same cluster are indexed together. Then, under the g-th informative feature group, the associated clustering matrix P∗ 
+
+> g
+
+= Z∗
+
+> g
+
+Z∗⊤  
+
+> g
+
+is block diagonal, with P ∗ 
+
+> g,ii ′
+
+= 1 if i and i′ belong to the same cluster, and 0 otherwise. In contrast, for the non-informative feature group (i.e., the 
+
+(G + 1) -th group), all observations are homogeneous. In this case, Z∗ 
+
+> G+1
+
+reduces to an 
+
+n-dimensional vector of ones, and consequently P∗ 
+
+> G+1
+
+= En.
+
+Figure 1: Data generating structure with group heterogeneity. Figure 1 illustrates the group-heterogeneous structure considered in this paper. The features are partitioned into several latent feature groups, where features within the same group induce a common partition of the samples, while different groups correspond to distinct clustering structures. For example, Features 1–3 partition the samples into two clusters, 9whereas Features 4–6 partition the same samples into three clusters under a different latent mechanism. In contrast, Features 7–9 do not exhibit any meaningful clustering pattern and can be viewed as non-informative features. This example highlights a key challenge in modern high-dimensional data analysis: different subsets of features may capture different underlying mechanisms and therefore generate heterogeneous sample partitions. Consequently, the objective of local clustering is not to recover a single global clustering structure, but rather to identify groups of features that share common sample partitions and to recover the corresponding local clustering structures. Based on the above SGMM formulation, for any g ∈ [G], conditional on Z∗ 
+
+> g,im
+
+= 1 , the 
+
+i-th observation restricted to the g-th feature group, xi, A∗ 
+
+> g
+
+, is generated from the m-th component distribution D(g) 
+
+> m
+
+, i.e., 
+
+xi, A∗ 
+
+> g
+
+:= μ(g) 
+
+> m
+
++ ϵi, A∗ 
+
+> g
+
+.
+
+Here, ϵi = ( ϵi1, . . . , ϵ ip )⊤, where {ϵij }pj=1 are mean-zero sub-Gaussian random variables with sub-Gaussian norm σ. For the non-informative feature group, the observations are generated from a single sub-Gaussian distribution. Specifically, 
+
+xi, A∗ 
+
+> G+1
+
+:= μ(G+1) + ϵi, A∗ 
+
+> G+1
+
+,
+
+where μ(G+1) is the common mean shared by all n observations. Given a feature partition 
+
+A1, . . . , AG+1 , let gj denote the group label for feature j ∈ [p], i.e., j ∈ A gj . Let P∗ =(P∗
+
+> 1
+
+, . . . , P∗
+
+> G
+
+) collect the true clustering matrices associated with the G informative feature groups. For each g ∈ [G], the matrix P∗ 
+
+> g
+
+is unknown and needs to be estimated according to the group-specific sample clustering structure. Note that, once the informative groups 
+
+A1, . . . , AG are identified, the non-informative group AG+1 is determined accordingly. 10 2.3 Local spectral clustering 
+
+To incorporate the sample clustering structure into feature clustering, we construct, for each feature j ∈ [p], a similarity matrix that captures pairwise proximity among observations. In this paper, we adopt a Gaussian kernel to define the similarity matrices, which serve as the basis for the objective function, the computational algorithm, and the subsequent theoretical analysis. Specifically, for each feature j ∈ [p], let Kj ∈ [0 , 1] n×n denote the corresponding similarity matrix, whose (i, i ′)-th entry is defined as Kj,ii ′ = exp 
+
+> {
+
+− (xi,j −xi′,j )2
+
+> 2θ2
+> j
+> }
+
+, where θj is a feature-specific scaling parameter for feature j (The choice of parameters {θj }pj=1 will be discussed in detail in Section 2.4). Then, given the number of informative feature groups G,solving (1) (defined later) yields (G + 1) clustering matrices {̂ P1, . . . , ̂ PG, En} along with the corresponding feature partition {̂A1, . . . , ̂ AG+1 }. Lastly, we apply the reduced-rank spectral clustering algorithm (Zhou & Amini 2019, Amini & Razaee 2021) to each ̂ Pg, obtaining G
+
+group-specific clustering structures. The overall procedure of local spectral clustering, used to construct G distinct feature groups and their associated sample clustering structures, is summarized as follows: 
+
+Step 1. Construct Gaussian kernel matrices {Kj ; j ∈ [p]}, where Kj,ii ′ = exp 
+
+> {
+
+−(xi,j −xi′,j )2
+
+> 2θ2
+> j
+> }
+
+.
+
+Step 2. Solve (1) to obtain G center clustering matrix estimators {̂Pg, g ∈ [G]} and the associated feature group indices {̂ Ag, g ∈ [G]}. The non-informative feature group index ̂ AG+1 is then determined accordingly. 
+
+Step 3. For each g ∈ [G], calculate the rank-Mg truncated eigenvalue decomposition (EVD) of ̂ Pg,̂
+
+P(Mg ) 
+
+> g
+
+=̂ U(Mg ) 
+
+> ĝ
+
+Λ(Mg ) 
+
+> ĝ
+
+U(Mg )⊤ 
+
+> g
+
+.
+
+Specifically, let ̂ Pg =̂ Uĝ Λĝ U⊤ 
+
+> g
+
+be the full EVD of ̂ Pg, where ̂ Λg = diag (̂λ1, . . . , ̂ λn)
+
+with |̂λ1| ≥ · · · ≥ | ̂λn|. Then ̂ Λ(Mg ) 
+
+> g
+
+= diag (̂λ1, . . . , ̂ λMg ), and ̂ U(Mg ) 
+
+> g
+
+∈ Rn×Mg
+
+11 consists of the corresponding Mg leading eigenvectors. 
+
+Step 4. For each g ∈ [G], apply a constant-factor K-means algorithm to the rows of ̂
+
+U(Mg ) 
+
+> ĝ
+
+Λ(Mg ) 
+
+> g
+
+to obtain the group-specific sample membership matrices {̂ Zg : g ∈ [G]}.In Step 2, we consider the following objective function to simultaneously identify the informative feature groups and estimate their corresponding clustering matrices: 
+
+> (̂
+
+P,̂ g)
+
+:= arg max 
+
+> 
+> p∑
+> j=1
+> 〈
+
+Kj − τ En, Pgj
+
+> 〉
+
+subject to 0 ≤ Pg,ii ′ ≤ 1 ∀ g ∈ [G], i, i ′ ∈ [n], and PG+1 = En,
+
+(1) where P = ( P1, . . . , PG), and τ ∈ (0 , 1) is a tuning parameter (The choice of tuning parameter τ will be discussed in detail in Section 2.4). Inspired by the classical Lloyd’s algorithm (MacQueen et al. 1967) for K-means clustering, we develop Algorithm 1 to solve (1) in Step 2 of LSC. The procedure is described as follows. 
+
+Algorithm 1. 
+
+(1) Initialize a feature partition ̂ A(0) = {̂A(0) 1 , . . . , ̂ A(0) 
+
+> G+1
+
+} based on clustering the p × n2
+
+matrix K = ( vec (K1), . . . , vec (Kp)) ⊤. Assign the group label ̂ g(0)  
+
+> j
+
+= g if j ∈̂ A(0)  
+
+> g
+
+for 
+
+g ∈ [G + 1] .(2) Given ̂ A(0) , for each g ∈ [G + 1] , compute ̂
+
+P(0)  
+
+> g
+
+:= arg max 
+
+> Pg
+> 〈(
+
+|̂A(0)  
+
+> g
+
+|−1 ∑
+
+> j∈̂A(0)
+> g
+
+Kj
+
+> )
+
+− τ En, Pg
+
+> 〉
+
+.
+
+(3) Given {̂P(0) 1 , . . . , ̂ P(0) 
+
+> G+1
+
+}, compute 
+
+> ˜
+
+g := arg min 
+
+> 1≤g≤G+1
+> ∥∥∥̂
+
+P(0)  
+
+> g
+
+− En 
+
+> ∥∥∥2
+> F
+
+,
+
+and set ̂ P(0)  
+
+> ˜g
+
+= En. Without loss of generality, we can swap labels ˜g and G + 1 , that is, let ̂ g(0)  
+
+> j
+
+= ˜g if j ∈̂ A(0)  
+
+> G+1
+
+and ̂ g(0)  
+
+> j
+
+= G + 1 if j ∈̂ A(0)  
+
+> ˜g
+
+. This ensures that ̂ P(0)  
+
+> G+1
+
+= En.12 (4) For iteration w ≥ 1, repeat the following steps until the feature membership estimates do not change: (a) Given {̂P(w−1) 1 , . . . , ̂ P(w−1)  
+
+> G
+
+,̂ P(w−1)  
+
+> G+1
+
+= En}, update ̂
+
+g(w) 
+
+> j
+
+:= arg max 
+
+> g∈[G+1]
+> 〈
+
+Kj − τ En,̂ P(w−1) 
+
+> g
+> 〉
+
+.
+
+(b) Given {̂ g(w)1 , . . . , ̂ g(w) 
+
+> p
+
+}, form the partition ̂ A(w) = {̂ A(w)1 , . . . , ̂ A(w)
+
+> G+1
+
+}. For each 
+
+g ∈ [G], compute ̂
+
+P(w) 
+
+> g
+
+:= arg max 
+
+> Pg
+> 〈(
+
+|̂A(w) 
+
+> g
+
+|−1 ∑
+
+> j∈̂A(w)
+> g
+
+Kj
+
+> )
+
+− τ En, Pg
+
+> 〉
+
+.
+
+Remark 1 To gain insight into the objective function (1) , consider the simplified case with 
+
+p = 1 , under which (1) reduces to ̂
+
+Q1 := arg max ⟨K1 − τ En, Q1⟩ . (2) 
+
+It can be readily verified that (2) admits a closed-form solution given by ̂
+
+Q1,ii ′ =
+
+> 
+
+1 if K1,ii ′ − τ > 0,
+
+0 otherwise .
+
+Under an appropriate choice of the scaling parameter θ1, the similarity values satisfy a clear separation: for any i, i ′ from the same cluster and any i, i ′′ from different clusters, 
+
+K1,ii ′ is close to 1 while K1,ii ′′ is close to 0, provided that the distance between any two cluster centers (i.e., the signal-to-noise ratio) is sufficiently large. In this case, there exists 
+
+0 < τ < 1 such that K1,ii ′ > τ > K 1,ii ′′ , which ensures that ̂ Q1 exactly recovers the true clustering matrix. Extending this argument, given the true feature partition, one can guarantee that ̂ Pg = P∗ 
+
+> g
+
+for all g ∈ [G] as long as the average signal-to-noise ratio within each informative group is sufficiently large. Furthermore, if the matrices {P∗
+
+> g
+
+}g∈[G] are well separated, the corresponding group-specific sample partitions can be consistently recovered with high probability, for example via a subsequent K-means procedure. 
+
+13 Remark 2 Algorithm 1 concludes convergence once the feature memberships at iterations w
+
+and (w + 1) coincide. As an adaptation of Lloyd’s algorithm, it is susceptible to convergence to local optima. To mitigate this issue, Arthur & Vassilvitskii (2007) proposed the K-means++ initialization, which selects good starting points and improves both convergence speed and clustering accuracy when followed by Lloyd’s iterations. Directly applying the 
+
+K-means++ algorithm in Step (1), however, is computationally intensive due to the n2
+
+dimensionality of K. To address this issue, inspired by Chan & Leung (2017), we combine 
+
+K-means++ with random projection to obtain an efficient and reliable initialization. To further reduce sensitivity to initialization, we run the algorithm with 20 such initializations and select the solution that achieves the largest objective function value of (1) .
+
+Remark 3 In Step 4, a natural choice for the constant-factor K-means algorithm is the 
+
+(1 + ω)-approximate K-means algorithm (Kumar et al. 2004). Another common alternative is the K-means++ algorithm (Arthur & Vassilvitskii 2007), which admits a (1 + log Mg)-approximation guarantee. Owing to its theoretical guarantee and widespread use (Zhou & Amini 2019, Liu et al. 2023), we adopt the K-means++ algorithm in our implementation. 
+
+2.4 Tuning parameter selection 
+
+In this subsection, we provide a detailed discussion of the selection of the tuning parameters 
+
+{θj }pj=1 , τ , and {Mg}Gg=1 .
+
+• Choice of θj . Inspired by Yan & Sarkar (2021), we adopt the data-driven procedure of Shi et al. (2009) to select the scale parameter θj . The key idea is to ensure that a sufficient proportion (say β × 100% ) of pairwise distances falls within the effective range of the kernel function for most (say α × 100% ) data points. Under this principle, 14 each θj is determined by 
+
+θj = α quantile of {q1j , . . . , q nj }
+
+> √
+
+α quantile of χ21
+
+,
+
+where χ21 denotes a Chi-squared distribution with degree of freedom 1, and qij is defined as the β quantile of |xij − xlj |(l ∈ [n]) for feature j.
+
+• Choice of τ . From the objective function (1) , it is clear that τ acts as a threshold separating within-cluster and between-cluster observations. Motivated by Srivastava et al. (2023), the optimal τ is determined by 
+
+τ = exp 
+
+> {
+
+−t1−α
+
+2
+
+> }
+
+,
+
+where t1−α is the α quantile of the χ21 distribution. This choice is obtained by setting the distance in the Gaussian kernel to the α quantile of {q1j , . . . , q nj } for each j ∈ [p].
+
+• Choice of Mg. In the proposed approach, we assume that the number of informative feature clusters G is known in advance. In practice, such as in the exploratory clustering of biological omics data, the number of clustering structures is often determined based on relevant prior knowledge about the data. After constructing the center matrix estimators ̂ Pg, we need to select an appropriate Mg to implement Step 3 in Algorithm 1 to obtain a nested sample partition within the g-th cluster. Specifically, we can use the eigen-gap heuristic (Von Luxburg 2007) based on the normalized Laplacian matrix 
+
+L := In − D−1/2 
+
+> ĝ
+
+PgD−1/2 
+
+> g
+
+, where Dg = diag (̂Pg1n) is the n-dimensional diagonal matrix. It is easy to show L is positive semi-definite, and we can choose the optimal ̂
+
+Mg by ̂
+
+Mg := arg max r κr+1 (L) − κr(L),
+
+where κr(L) is the r-th smallest eigenvalue of L.In the subsequent simulations and real data analysis, we set α = 0 .9 and β = 0 .2, which lead to stable and favorable numerical performance. 15 3 Theory 
+
+In this section, we first establish the non-asymptotic upper bounds of the estimation error for the group-oracle estimators (defined later) and discuss different signal-to-noise conditions for the recovery of the sample cluster structures. Afterwards, we show the asymptotic recovery of feature group structure by verifying that the group-oracle estimator is exactly the local maximizer of (1) with high probability. Finally, we turn to the group-specific sample clustering structures and further establish the uniform non-asymptotic upper bound of the misclassification error for the LSC estimator. To define the recovery of the clustering structure for samples, we first introduce some definitions and notations from Sun et al. (2021) and Yagishita & Gotoh (2024). 
+
+Definition 1 (Recovery of cluster structure) For any g ∈ [G], let G∗ 
+
+> g
+
+:= 
+
+{G ∗
+
+> g, 1
+
+, . . . , G∗ 
+
+> g,L g
+
+} with Lg ≤ Mg be another partition of [n]. We call G∗ 
+
+> g
+
+a coarsen-ing of G∗ 
+
+> g
+
+if for any G∗ 
+
+> g,l
+
+∈ G ∗ 
+
+> g
+
+there exists Tl ⊂ [Mg] such that G∗ 
+
+> g,l
+
+= ∪mg ∈T l G∗ 
+
+> g,m g
+
+.(a) When G∗ 
+
+> g
+
+= G∗ 
+
+> g
+
+, we say that G∗ 
+
+> g
+
+perfectly recovers G∗ 
+
+> g
+
+.(b) Moreover, G∗ 
+
+> g
+
+is called the trivial coarsening if G∗ 
+
+> g
+
+= {[n]}. Otherwise, it is called a strict non-trivial coarsening. 
+
+For each j ∈ A ∗ 
+
+> g
+
+and m, m ′ ∈ [Mg], the distance between any pair of clusters G∗ 
+
+> g,m
+
+and 
+
+G∗ 
+
+> g,m ′
+
+is defined by d(g) 
+
+> mm ′,j
+
+= ∣∣∣μ(g) 
+
+> m,j
+
+− μ(g)
+
+> m′,j
+> ∣∣∣
+
+. For each j ∈ A ∗ 
+
+> g
+
+and l ∈ [Lg], we denote 
+
+d(g) 
+
+> l,j
+
+= max m̸=m′∈T l d(g) 
+
+> mm ′,j
+
+with Tl ⊂ [Mg]. Besides, for each j ∈ A ∗ 
+
+> g
+
+and l̸ = l′ ∈ [Lg], we denote d(g) 
+
+> ll ′,j
+
+= min m∈T l,m ′∈T l′ d(g) 
+
+> mm ′,j
+
+with Tl, Tl′ ⊂ [Mg]. Accordingly, for each j ∈ A ∗
+
+> g
+
+, let 
+
+d(g)min ,j = min l̸ =l′∈[Lg ] d(g) 
+
+> ll ′,j
+
+and d(g)max ,j = max l∈[Lg ] d(g) 
+
+> l,j
+
+. Then, the minimal signal-to-noise ratio (SNR) for j ∈ A ∗ 
+
+> g
+
+is defined by SNR (g)min ,j := d(g)min ,j /σ .
+
+Definition 2 (Oracle group estimator) Given the true group partition {A ∗
+
+> 1
+
+, . . . , A∗
+
+> G+1
+
+},
+
+16 the oracle group estimator ̂ Por = ( ̂Por 1 , . . . , ̂ Por  
+
+> G
+
+) is defined as ̂
+
+Por := arg max 
+
+> P∈[0 ,1] n×nG
+> G
+
+∑
+
+> g=1
+
+∑
+
+> j∈A ∗
+> g
+
+⟨Kj − τ En, Pg⟩
+
+ .
+
+More specifically, let Kor  
+
+> g
+
+= |A ∗
+
+> g
+
+|−1 ∑ 
+
+> j∈A ∗
+> g
+
+Kj for g ∈ [G]. Then, the oracle group estimator ̂
+
+Por can be defined equivalently by ̂
+
+Por  
+
+> g
+
+:= arg max  
+
+> Pg∈[0 ,1] n×n
+
+〈
+
+Kor  
+
+> g
+
+− τ En, Pg
+
+〉
+
+for g ∈ [G]. (3) 
+
+3.1 Error analysis of the oracle estimator 
+
+In our theoretical analysis, we let Mmax = max g∈[G] Mg and assume that both G and Mmax 
+
+are finite, and ϵij are independent across observations ( i) and features ( j). 
+
+Condition 1 For the g-th ( g ∈ [G]) group, we let dg = s−1
+
+> g
+
+∑ 
+
+> j∈A ∗
+> g
+
+d(g)min ,j and θj = θj′ =
+
+ϑg := κ2,g dg for any j, j ′ ∈ A ∗
+
+> g
+
+, where κ2,g > 0 is a constant. Given a constant 0 < κ 1,g < 1,let 
+
+ξin  
+
+> g
+
+= 1 − κ1,g 
+
+sg
+
+× ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+ and 
+
+ξout  
+
+> g
+
+= 1 + κ1,g 
+
+sg
+
+× ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+ .
+
+Assume that 
+
+ξin  
+
+> g
+
+> ξ out  
+
+> g
+
+under 1 < L g ≤ Mg. (4) 
+
+Note that when Lg = Mg, d(g)max ,j = 0 for any j ∈ A ∗
+
+> g
+
+.
+
+Condition 1 works as a necessary condition to recover G∗
+
+> g
+
+, a non-trivial coarsening of G∗ 
+
+> g
+
+,with high probability. Moreover, it is noteworthy that to ensure the validity of (4) , it is not necessary for the signal of each feature in the g-th group to be sufficiently strong; rather, it suffices that the average signal across the g-th group is strong enough. 
+
+Remark 4 Condition 1 holds if the SNR is sufficiently large. To see this, consider a special case in which d(g)min ,j = d(g)min ,j ′ and d(g)max ,j = d(g)max ,j ′ hold for any j, j ′ ∈ A ∗
+
+> g
+
+. Then, (4) is 
+
+17 reduced to 
+
+exp 
+
+> 
+
+−(d(g)max ,j /σ )2 + 2 2( ϑg/σ )2 
+
+> 
+
+> 1 + κ1,g 
+
+1 − κ1,g 
+
+·
+
+> 
+
+exp 
+
+> 
+
+−(SNR (g)min ,j )2
+
+8( ϑg/σ )2 
+
+> 
+
++ 2 exp 
+
+> 
+
+−(SNR (g)min ,j )2
+
+16  
+
+> 
+
+.
+
+(5) 
+
+If we further assume that SNR (g)min ,j = c holds for a constant c > 0, (5) can be rewritten as 
+
+exp 
+
+> 
+
+−(d(g)max ,j /σ )2 + 2 2( κ2,g c)2 
+
+> 
+
+> 1 + κ1,g 
+
+1 − κ1,g 
+
+·
+
+> (
+
+exp 
+
+> {
+
+− 18κ22,g 
+
+> }
+
++ 2 exp 
+
+> {
+
+− c2
+
+16 
+
+> })
+
+. (6) 
+
+In this case, (6) can be satisfied if there exists a sufficiently small constant κ2,g and a sufficiently large constant c, such that cκ 2,g is sufficiently large. 
+
+Theorem 1 Assume that Condition 1 holds for any g ∈ [G]. If there exists a constant 
+
+0 < γ < 1 such that max g∈[G] ξout  
+
+> g
+
+< γ < min g∈[G] ξin  
+
+> g
+
+, after taking τ = γ, we have that with probability at least 1 − 2GM max /n min ,
+
+sup 
+
+> g∈[G]
+> ∥∥∥̂
+
+Por  
+
+> g
+
+− P∗ 
+
+> g
+> ∥∥∥1
+
+≤ rn := Cn 2 · max 
+
+> {
+
+exp [ −κs min ] , log nmin 
+
+nmin 
+
+> }
+
+,
+
+where smin = min g∈[G] sg, nmin = min g∈[G],m g ∈[Mg ] n(g) 
+
+> mg
+
+> 2GM max , and nmin ≍ n. The constant κ > 0 depends on {κ1,g , κ 2,g }Gg=1 , and C > 0 is also a constant. Here P∗ 
+
+> g
+
+is a clustering matrix corresponding to G∗ 
+
+> g
+
+(a strict non-trivial coarsening of G∗ 
+
+> g
+
+). 
+
+Under Condition 1, if (4) holds under Lg = Mg for all g ∈ [G] and max g∈[G] ξout  
+
+> g
+
+<
+
+min g∈[G] ξin  
+
+> g
+
+, Theorem 1 tells us G∗ 
+
+> 1
+
+, . . . , G∗ 
+
+> G
+
+can be perfectly recovered with high probability if the true feature group structure is known. However, under Lg = Mg for all g ∈ [G], (4) does not always hold in practice. For example, if the centers of certain clusters are relatively close to each other but distant from the centers of the other clusters, (4) may not hold under Lg = Mg for all g ∈ [G]. But (4) could be satisfied when 1 < L g < M g for some 
+
+g ∈ K 1 ⊂ [G], and for those g ∈ [G] \ K 1, (4) can hold under Lg = Mg. Moreover, it may not be possible to achieve max g∈[G] ξout  
+
+> g
+
+< min g∈[G] ξin  
+
+> g
+
+when (4) holds under Lg = Mg for all g ∈ [G]. However, it could be satisfied by allowing (4) to hold under Lg < M g for some 
+
+g ∈ K 2 ⊂ [G]. Simultaneously, for those g ∈ [G] \ K 2, (4) can hold under Lg = Mg. In such 18 scenarios, Theorem 1 tells us that, for g ∈ K 1 (or K2), a strict non-trivial coarsening of G∗ 
+
+> g
+
+,i.e., G∗
+
+> g
+
+, can be recovered without giving rise to a chaotic clustering structure with high probability for sufficiently large n.
+
+3.2 Asymptotic recovery of group structure 
+
+For theoretical convenience, in this subsection and the subsequent subsections, we assume that Condition 1 holds under Lg = Mg and max g∈[G] ξout  
+
+> g
+
+< γ < min g∈[G] ξin  
+
+> g
+
+. Therefore, we can clearly show that the true feature group structure can be asymptotically recovered under true sample clustering structures. This result can be similarly adjusted for asymp-totic recovery under non-trivial coarsening structures, with corresponding changes to the conditions in Theorem 1. Before showing that the oracle estimator ̂ Por is a strictly local maximizer of (1) with high probability, we first provide Condition 2 and then quantify the differences between P∗ 
+
+> g
+
+and P∗ 
+
+> g′
+
+.
+
+Condition 2 For the g-th ( g ∈ [G + 1] ) group and the j-th ( j ∈ A ∗
+
+> g
+
+) feature, Let θj =
+
+κj d(g)min ,j for any j ∈ A ∗
+
+> g
+
+, where κj > 0 is a constant. Given a constant 0 < κ ′ 
+
+> j
+
+< 1, let 
+
+ζin  
+
+> j
+
+= (1 − κ′ 
+
+> j
+
+) exp 
+
+> {
+
+−σ2
+
+θ2
+
+> j
+> }
+
+and 
+
+ζout  
+
+> j
+
+= (1 + κ′ 
+
+> j
+
+)
+
+> 
+
+exp 
+
+> 
+
+−(d(g)min ,j )2
+
+8θ2 
+
+> j
+> 
+
++ 2 exp 
+
+> 
+
+−(d(g)min ,j )2
+
+16 σ2 
+
+> 
+
+.
+
+Assume that 
+
+ζin  
+
+> j
+
+> ζ out  
+
+> j
+
+f or j ∈ A ∗ 
+
+> g
+
+and g ∈ [G].
+
+Similar to Remark 4, it can be verified that ζin  
+
+> j
+
+> ζ out  
+
+> j
+
+holds for sufficiently small κ′ 
+
+> j
+
+and sufficiently large SNR (g)min ,j , such that κ′ 
+
+> j
+
+SNR (g)min ,j is large enough. Now, we quantify the differences between P∗ 
+
+> g
+
+and P∗ 
+
+> g′
+
+. In particular, given a pair of (g, g ′)
+
+with g̸ = g′ ∈ [G + 1] , by suitably permuting the matrix P∗ 
+
+> g
+
+− P∗ 
+
+> g′
+
+, we can always find a 19 partition of the observations H(gg ′) = {H (gg ′)1 , . . . , H(gg ′) 
+
+> hgg ′
+
+}, under which for any h, h ′ ∈ [hgg ′ ],
+
+Dgg ′ 
+
+> hh ′
+
+:= 
+
+∑ 
+
+> i∈H (gg ′)
+> h,i ′∈H (gg ′)
+> h′
+
+(P ∗ 
+
+> g,ii ′
+
+− P ∗ 
+
+> g′,ii ′
+
+)
+
+
+
+∈ {∣ ∣∣H(gg ′)
+
+> h
+
+∣∣∣ · ∣∣∣H(gg ′)
+
+> h′
+
+∣∣∣ , − ∣∣∣H(gg ′)
+
+> h
+
+∣∣∣ · ∣∣∣H(gg ′)
+
+> h′
+
+∣∣∣ , 0}
+
+.
+
+Remark 5 The partition H(gg ′) = {H (gg ′)1 , . . . , H(gg ′) 
+
+> hgg ′
+
+} is constructed for theoretical analysis. As shown in Figure 8 (supplementary material), without rearranging matrix P∗ 
+
+> g
+
+− P∗ 
+
+> g′
+
+, the entries would appear as scattered points, as shown in Figure 8(3), where each point represents either 1 or -1. Such a dispersed pattern makes it difficult to apply large-sample theory for quantitative analysis. In contrast, after rearrangement, the pattern shown in Figure 8(6) exhibits a clear block structure, which facilitates the quantitative comparison of the differences between P∗ 
+
+> g
+
+and P∗ 
+
+> g′
+
+.
+
+Note that hgg ′ ≤ MgMg′ is the number of groups in H(gg ′) related to the differences between 
+
+P∗ 
+
+> g
+
+and P∗ 
+
+> g′
+
+. Thus, for each pair of (g, g ′) with g̸ = g′ ∈ [G + 1] , we only need to focus on two corresponding subsets of {(h, h ′) : 1 ≤ h < h ′ ≤ hgg ′ }, defined by 
+
+Dgg ′ 
+
+> 1
+
+= {
+
+(h, h ′) : Dgg ′ 
+
+> hh ′
+
+= ∣∣∣H(gg ′)
+
+> h
+
+∣∣∣ · ∣∣∣H(gg ′)
+
+> h′
+
+∣∣∣}
+
+,
+
+Dgg ′ 
+
+> −1
+
+= {
+
+(h, h ′) : Dgg ′ 
+
+> hh ′
+
+= − ∣∣∣H(gg ′)
+
+> h
+
+∣∣∣ · ∣∣∣H(gg ′)
+
+> h′
+
+∣∣∣}
+
+.
+
+Let |D 1| := max g′̸ =g∈[G+1] |D gg ′ 
+
+> 1
+
+|, |D −1| := max g′̸ =g∈[G+1] |D gg ′ 
+
+> −1
+
+| and n(gg ′) 
+
+> h
+
+= ∣∣∣H(gg ′)
+
+> h
+
+∣∣∣. For some g̸ = g′ ∈ [G + 1] , let D(gg ′)I be a subset of Dgg ′ 
+
+> 1
+
+∪ D gg ′ 
+
+> −1
+
+such that, for any (h, h ′) ∈ D (gg ′)I ,
+
+min {
+
+n(gg ′) 
+
+> h
+
+, n (gg ′)
+
+> h′
+
+}
+
+≍ n, and D(gg ′)II be another subset of Dgg ′ 
+
+> 1
+
+∪ D gg ′ 
+
+> −1
+
+such that, for any 
+
+(h, h ′) ∈ D (gg ′)II , min {
+
+n(gg ′) 
+
+> h
+
+, n (gg ′)
+
+> h′
+
+}
+
+≪ n. Let 
+
+ndiff min := min 
+
+> (h,h ′)∈D (gg ′)I
+
+min {
+
+n(gg ′) 
+
+> h
+
+, n (gg ′)
+
+> h′
+
+}
+
+.
+
+For any g ∈ [G + 1] and (h, h ′) ∈ D gg ′ 
+
+> 1
+
+∪ D gg ′ 
+
+> −1
+
+, let P∗ 
+
+> g,hh ′
+
+be the submatrix of P∗ 
+
+> g
+
+with rows and columns corresponding to H(gg ′) 
+
+> h
+
+and H(gg ′) 
+
+> h′
+
+, respectively. Define ζin  
+
+> min
+
+:= min j∈[p] ζin  
+
+> j
+
+and 
+
+ζout  
+
+> max
+
+:= max j∈[p] ζout  
+
+> j
+
+. The separation between the two clustering matrices P∗ 
+
+> g
+
+and P∗ 
+
+> g′
+
+is 20 defined by 
+
+Λgg ′ := min {ζin min − τ, τ − ζout max } ∑
+
+> (h,h ′)∈D (gg ′)I
+
+∥∥∥P∗ 
+
+> g,hh ′
+
+− P∗
+
+> g′,hh ′
+
+∥∥∥1
+
+− max {τ, 1 − τ } ∑
+
+> (h,h ′)∈D (gg ′)II
+
+∥∥∥P∗ 
+
+> g,hh ′
+
+− P∗
+
+> g′,hh ′
+
+∥∥∥1 .
+
+Theorem 2 Suppose the conditions in Theorem 1 hold. Assume that Condition 2 holds for any g ∈ [G + 1] . If there exists a 0 < γ < 1 such that ζin min > γ > ζ out max . Assume that 
+
+min g̸ =g′∈[G+1] Λgg ′ > 2rn (rn is defined in Theorem 1), then after taking τ = γ, we have 
+
+P
+
+
+
+> G
+
+⋂
+
+> g=1
+
+{̂ 
+
+Por  
+
+> g
+
+=̂ Pg
+
+} ≥ 1 − 2pG (|D 1| + |D −1|) · exp {− C′ndiff min },
+
+where C′ > 0 is a constant. 
+
+Remark 6 Note that G(|D 1| + |D −1|) < GM 4max < ∞, if log p ≪ n, the result in Theorem 2 holds with probability approaching 1. Note that, ndiff min ≍ n leads to Λgg ′ ≍ n2 − o(n2).Besides, rn ≪ n2 as smin → ∞ and n → ∞ . Therefore, min g̸ =g′∈[G+1] Λgg ′ > 2rn can be satisfied with high probability when n and smin are sufficiently large. 
+
+Combining the results in Theorems 1 and 2, the estimator ̂ P from (1) is asymptotically equivalent to the oracle estimator ̂ Por from (3) . In addition, the oracle estimator ̂ Por is calculated based on the true feature group partition. Hence ̂ Por can recover the true feature group partition with high probability. 
+
+3.3 Misclassification error 
+
+Before showing the results about clustering consistency, we firstly introduce some definitions. Let Hn×M be the set of hard (cluster) labels: {0, 1}-valued n×M matrices where each row has exactly a single 1. For any two membership matrices Z, Z′ ∈ Hn×M with Z = ( z1, . . . , zn)⊤
+
+and Z′ = ( z′
+
+> 1
+
+, . . . , z′
+
+> n
+
+)⊤, the average misclassification rate between them is denoted by 21 Mis( Z, Z′), defined by 
+
+Mis( Z, Z′) := min 
+
+> Q∈Q
+
+1
+
+n
+
+> n∑
+> i=1
+
+1{zi̸ = Qz ′
+
+> i
+
+},
+
+where Q collects all M × M permutation matrices Q.
+
+Theorem 3 Let ̂ Zg be the estimated membership matrix obtained by applying spectral clustering on ̂ P(Mg ) 
+
+> g
+
+based on a (1 + ω)-approximate K-means algorithm. Suppose the conditions in Theorems 1 and 2 hold. Then for sufficiently large n and smin , with probability at least 1 − 2GM max /n min − 2pG (|D 1| + |D −1|) · exp {− C′ndiff min }, we have 
+
+sup 
+
+> g∈[G]
+
+Mis (
+
+P∗
+
+> g
+
+; Pω(̂P(Mg ) 
+
+> g
+
+))
+
+≤ 16 Mmax (1 + ω)2C′′ · max 
+
+> {
+
+exp[ −κs min ], log nmin 
+
+nmin 
+
+> }
+
+,
+
+where C′′ > 0 is a constant, Pω(̂X) = {˜X ∈ MMn,n ′ : ∥̂X − ˜X∥F ≤ ω∥X −̂ X∥F , ∀X ∈ MMn,n ′ },and MMn,n ′ is a class of M -means matrices (defined in Appendix). Here, if X1, X2 ∈
+
+MMn,n ′ with the corresponding membership matrices Z1, Z2 ∈ Hn×M , respectively, we define 
+
+Mis( X1, X2) := Mis( Z1, Z2).
+
+Remark 7 Note that nmin ≍ n and ndiff min ≍ n, thus as n → ∞ and smin → ∞ , the misclassification errors for G M g-truncated clustering matrices tend to 0 with probability approaching 1. 
+
+Combining the results in Theorems 1 – 3, the true feature group partition and the corre-sponding true (or coarsening) clustering structures can be perfectly recovered with high probability. 
+
+# 4 Simulation studies 
+
+In this section, we conduct numerical simulations to evaluate the finite-sample performance of the proposed LSC method. For comparison, we also consider five alternative approaches. (a) The multistep Local Spectral Clustering method (mLSC), which first applies the COSCI 22 approach (Banerjee et al. 2017) to screen features with significant clustering signals, and then estimates a clustering matrix for each selected feature individually. The retained features are subsequently partitioned into a pre-specified number of G groups, each associated with a center clustering matrix. Finally, applying the aforementioned spectral clustering procedure to each clustering matrix then yields the group-specific sample clustering structures. (b) The Oracle method, which maximizes (3) to obtain the oracle group estimator. (c) The Nonparametric Bayesian Local Clustering method (NBLC) proposed by Lee et al. (2013), implemented via MCMC with 10000 iterations, of which the first 2000 iterations are discarded as burn-in. (d) The Sparse K-means method (SKM) proposed by Witten & Tibshirani (2010), implemented using R package sparcl . (e) The spectral clustering with feature selection method (SCFS) proposed by Liu et al. (2023). Among these, method (a) serves as a multistep counterpart to our LSC method, while method (b) represents an infeasible oracle method. Together, they serve as two benchmark methods for assessing the advantages of the proposed one-step design and for validating our theoretical results. Since methods (d) and (e) are designed for sample clustering under a single homogeneous feature group, and assume that the number of clusters M is known a priori, we denote their implementations with a specified number of clusters ( m) by SKM(M=m) and SCFS(M=m) ,respectively. 
+
+4.1 Simulation setup 
+
+We consider G = 3 informative feature groups, allowing for heterogeneous SNRs within each group, along with one non-informative feature group. For the first informative group, let 
+
+X(1) be an n × s informative data matrix consisting of two equally sized clusters G∗ 
+
+> 1,1
+
+and 
+
+G∗
+
+> 1,2
+
+. The cluster centers are given by μ(1)  
+
+> m
+
+= ( μ(1) 
+
+> m, 1
+
+, . . . , μ (1) 
+
+> m,s
+
+), where μ(1) 1,j = (2 V (1)  
+
+> j
+
+− 1) × U (1) 1j ,and μ(1) 2,j = −(2 V (1)  
+
+> j
+
+− 1) × U (1) 2j . Here, {U (1)  
+
+> mj
+
+}2,s m=1 ,j =1 are independent uniform variables with 
+
+U(0 .75 , 1.25) , and {V (1)  
+
+> j
+
+}sj=1 are independent Bernoulli variables with mean 0.5. For each 23 i ∈ G ∗
+
+> 1,m
+
+, we generate X(1)  
+
+> i·
+
+, the transposed ith row of X(1) , from the multivariate normal distribution N (μ(1)  
+
+> m
+
+, Is), for m ∈ [2] . For the second informative group, let X(2) be an n × s
+
+informative data matrix consisting of three clusters G∗
+
+> 2,1
+
+, G∗
+
+> 2,2
+
+, and G∗ 
+
+> 2,3
+
+with cluster sizes 3:3:4. For the m-th cluster, its center is denoted by μ(2)  
+
+> m
+
+= ( μ(2) 
+
+> m, 1
+
+, . . . , μ (2) 
+
+> m,s
+
+) with μ(2) 1,j = (2 V (2)  
+
+> j
+
+−
+
+1) × U (2) 1j , μ(2) 2,j = U (2) 2j , and μ(2) 3,j = −(2 V (2)  
+
+> j
+
+− 1) × U (2) 3j , where {U (2) 1j }j∈[7 s/ 8] , {U (2) 3j }j∈[3 s/ 4] ,and {U (2) 3j }j∈[s]\[7 s/ 8] are independent uniform variables with U(2 , 2.5) , {U (2) 1j }j∈[s]\[7 s/ 8] , and 
+
+{U (2) 3j }j∈[7 s/ 8] \[3 s/ 4] are independent uniform variables with U(1 , 1.5) , and {U (2) 2j }j∈[s] are independent uniform variables with U(−0.25 , 0.25) , and {V (2)  
+
+> j
+
+}sj=1 are independent Bernoulli variables with mean 0.5. For i ∈ G ∗
+
+> 2,m
+
+, we generate X(2)  
+
+> i·
+
+from the multivariate normal distribution N (μ(2)  
+
+> m
+
+, Is), for m ∈ [3] . Similarly, let X(3) be an n × s informative data matrix with four equally sized clusters G∗
+
+> 3,1
+
+, G∗
+
+> 3,2
+
+, G∗
+
+> 3,3
+
+, and G∗
+
+> 3,4
+
+. For the m-th cluster, its center is denoted by μ(3)  
+
+> m
+
+= ( μ(3) 
+
+> m, 1
+
+, . . . , μ (3) 
+
+> m,s
+
+) with μ(3) 1,j = (2 V (3)  
+
+> j
+
+− 1) × U (3) 1j , μ(3) 2,j = (2 V (3)  
+
+> j
+
+− 1) × U (3) 2j ,
+
+μ(3) 3,j = −(2 V (3)  
+
+> j
+
+− 1) × U (3) 3j , and μ(3) 4,j = −(2 V (3)  
+
+> j
+
+− 1) × U (3) 4j , where {U (3) 1j }j∈[7 s/ 8] , {U (3) 4j }j∈[3 s/ 4] ,and {U (3) 4j }j∈[s]\[7 s/ 8] are independent uniform variables with U(4 , 4.5) , {U (3) 1j }j∈[s]\[7 s/ 8] , and 
+
+{U (3) 4j }j∈[7 s/ 8] \[3 s/ 4] are independent uniform variables with U(2 , 2.5) , and {U (3) 2j }j∈[s] and 
+
+{U (3) 3j }j∈[s] are independent uniform variables with U(1 , 1.5) , and {V (3)  
+
+> j
+
+}sj=1 are independent Bernoulli variables with mean 0.5. For i ∈ G ∗
+
+> 3,m
+
+, we generate X(3)  
+
+> i·
+
+from the multivariate normal distribution N (μ(3)  
+
+> m
+
+, Is) for m ∈ [4] . Finally, let X(4) be an n × (p − 3s) non-informative feature group, whose entries are independently drawn from standard normal distribution N (0 , 1) . The full data matrix is then constructed as X = ( X(1) , . . . , X(4) ).We set p = 500 , s ∈ { 16 , 24 , 32 }, and n ∈ { 100 , 200 , 400 }. Figure 2 depicts the heatmaps for the four feature groups. Panels (a) – (c) correspond to the three informative groups with distinct clustering structures, while panel (d) displays a representative subgroup of 24 features from the non-informative group. 24 −4 −2 024(a) G∗ 
+
+> 1−4 −2 024
+
+(b) G∗ 
+
+> 2−6 −4 −2 0246
+
+(c) G∗ 
+
+> 3−3 −2 −1 0123
+
+(d) G∗
+
+> 4
+
+Figure 2: Heatmaps of the 4 feature groups with different clustering structures. For each setting, we generate 100 Monte Carlo replicates, except for the NBLC method, which is repeated 50 times due to its substantial computational burden as a Bayesian approach. We evaluate the performance of each method from two perspectives: feature group partitioning and sample clustering. The accuracy of feature group selection is measured using two metrics: (a) fARI, the adjusted Rand index (Rand 1971) between the true feature grouping and the estimated group partition, computed over all informative features; and (b) TNR (True Negative Rate), defined as the proportion of all non-informative features correctly assigned to the non-informative group. The quality of sample clustering is assessed by three measures: (c) ̂ Mg, the average number of clusters identified within the g-th feature group; (d) sARI, the average adjusted Rand index between the true and estimated sample clustering structures across all informative feature groups; and (e) MAE, the average mean absolute error of the clustering matrices for informative features, defined as MAE = |A ∗|−1 ∑ 
+
+> j∈A ∗
+
+∥̂P̂g j − P∗ 
+
+> g∗
+> j
+
+∥1.
+
+4.2 Simulation results 
+
+We provide a detailed illustration based on the simulation results. The performance of feature group partitioning is summarized in Figures 4 and 6, while the sample clustering accuracy is reported in Table 1 and Figures 5 and 3. We begin by comparing the proposed 25 LSC method with the Oracle benchmark to further validate our theoretical results. As shown in Figure 4, the median fARI of the Oracle method remains at 1 due to its idealized design. For the LSC method, when s = 16 , the median fARI does not exhibit a clear improvement with increasing sample size. In contrast, for s ∈ { 24 , 32 }, the median fARI tend to 1 as the sample size increases, indicating that the true feature group structure can be consistently recovered when each group contains a sufficiently large number of features. This finding is in line with Theorem 2. Turning to sample clustering performance, Figure 5 shows that the LSC method exhibits a similar pattern in terms of sARI. When the sample size is fixed (e.g. n = 100 ), the median sARI of the LSC method increases substantially as s
+
+rises from 16 to 24, but stabilizes when s further increases to 32. This pattern suggests that when the number of features is small (e.g., s = 16 ), clustering accuracy is primarily limited by insufficient feature information. However, when the number of features is larger (e.g., 
+
+s = 24 ), the improvement in clustering accuracy becomes constrained by the smaller sample sizes, reflecting the trade-off characterized in Theorems 1 and 3. Consistent evidence is provided by Table 1 and Figure 3, which show that as both s and n increase, the performance of the LSC method converges to that of the Oracle method. Table 1: Estimated number of sample clusters within each informative feature group.      
+
+> s= 16 s= 24 s= 32
+> Method
+
+̂ M1̂ M2̂ M3̂ M1̂ M2̂ M3̂ M1̂ M2̂ M3                                                                                                                                                               
+
+> n= 100 LSC 2.07 2.13 3.91 1.95 2.90 4.02 1.94 2.95 4.00 (0.39) (0.56) (0.45) (0.11) (0.45) (0.20) (0.05) (0.20) (0.00) Oracle 2.00 2.96 4.00 2.00 3.00 4.00 2.00 3.00 4.00 (0.00) (0.20) (0.00) (0.00) (0.00) (0.00) (0.00) (0.00) (0.00) mLSC 1.53 1.63 1.80 1.54 1.65 1.96 1.56 1.67 2.05 (0.15) (0.13) (0.41) (0.17) (0.15) (0.51) (0.17) (0.14) (0.51)
+> n= 200 LSC 1.99 2.44 4.02 1.96 2.96 4.00 1.98 3.03 4.02 (0.34) (0.86) (0.49) (0.05) (0.20) (0.00) (0.03) (0.30) (0.20) Oracle 2.00 2.99 4.00 2.00 3.00 4.00 2.00 3.00 4.00 (0.00) (0.10) (0.00) (0.00) (0.00) (0.00) (0.00) (0.00) (0.00) mLSC 1.47 1.61 1.70 1.55 1.58 1.84 1.56 1.61 1.85 (0.19) (0.20) (0.43) (0.21) (0.12) (0.47) (0.23) (0.18) (0.50)
+> n= 400 LSC 2.06 2.64 4.08 1.99 2.97 4.00 1.99 3.00 4.00 (0.44) (0.94) (0.49) (0.04) (0.17) (0.00) (0.01) (0.00) (0.00) Oracle 2.00 3.00 4.00 2.00 3.00 4.00 2.00 3.00 4.00 (0.00) (0.00) (0.00) (0.00) (0.00) (0.00) (0.00) (0.00) (0.00) mLSC 1.53 1.63 1.74 1.61 1.60 1.70 1.57 1.59 1.66 (0.29) (0.31) (0.43) (0.31) (0.23) (0.35) (0.30) (0.25) (0.36)
+
+26 We compare the LSC method with alternative approaches in terms of feature group selection and sample clustering performance. Overall, the NBLC method is the only competitor that achieves performance comparable to our proposed LSC method, while the remaining methods perform substantially worse. Specifically, the SKM and SCFS methods always exhibit poor performance under our settings, as both are designed for scenarios with a single homogeneous feature group ( G = 1 ). Although the multi-step designed mLSC method can be extended to cases with G > 1, it fails to effectively aggregate within-group feature signals, like LSC and NBLC do. Instead, it relies on individual feature-level information for both feature screening and sample clustering, resulting in poor performance in practice. Comparing the LSC and NBLC methods, we find that the NBLC method performs slightly better when the sample size is small (e.g., n = 100 ). However, it performs significantly worse than the LSC method when the number of features is not large enough (e.g., s = 16 
+
+or 24) and the sample size is fixed at n = 200 or 400. Moreover, as shown in Figure 3, the NBLC method consistently underperforms the LSC method in terms of TNR. In addition, the Bayesian nature of NBLC incurs significantly higher computational cost compared to the proposed LSC method. Taken together, these results demonstrates that the LSC method outperforms the NBLC method and other competing methods either in accuracy or computational efficiency. 0.0 0.1 0.2 0.3 0.4 0.5 0.6    
+
+> s = 16 n = 100 s = 16 n = 200 s = 16 n = 400 s = 24 n = 100 s = 24 n = 200 s = 24 n = 400 s = 32 n = 100 s = 32 n = 200 s = 32 n = 400
+> MAE
+> Method Oracle LSC mLSC
+
+Figure 3: Boxplots of MAE across methods under different settings. 27 s = 32 
+
+s = 24 
+
+s = 16 
+
+n = 100 n = 200 n = 400 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+> fARI
+
+Method Oracle 
+
+LSC 
+
+NBLC 
+
+mLSC 
+
+SKM(M=2) 
+
+SKM(M=3) 
+
+SKM(M=4) 
+
+SCFS(M=2) 
+
+SCFS(M=3) 
+
+SCFS(M=4) Figure 4: Boxplots of fARI across methods under different settings. 28 s = 32 
+
+s = 24 
+
+s = 16 
+
+n = 100 n = 200 n = 400 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+> sARI
+
+Method Oracle 
+
+LSC 
+
+NBLC 
+
+mLSC 
+
+SKM(M=2) 
+
+SKM(M=3) 
+
+SKM(M=4) 
+
+SCFS(M=2) 
+
+SCFS(M=3) 
+
+SCFS(M=4) Figure 5: Boxplots of sARI across methods under different settings. 29 s = 32 
+
+s = 24 
+
+s = 16 
+
+n = 100 n = 200 n = 400 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+0.0 0.2 0.4 0.6 0.8 1.0 
+
+> TNR
+
+Method Oracle 
+
+LSC 
+
+NBLC 
+
+mLSC 
+
+SKM(M=2) 
+
+SKM(M=3) 
+
+SKM(M=4) 
+
+SCFS(M=2) 
+
+SCFS(M=3) 
+
+SCFS(M=4) Figure 6: Boxplots of TNR across methods under different settings.. 30 5 Real Data Analysis 
+
+Acute Myeloid Leukemia (AML) remains a highly fatal malignancy, especially among elderly patients (Yilmaz et al. 2019). Since the 1970s, anthracycline combined with cytosine arabinoside (AraC), commonly referred to as conventional chemotherapy (CC), has been the standard of care in AML induction therapy (Yates et al. 1973). More recently, increasing evidence has demonstrated that some patients with newly diagnosed AML benefit from the combination of venetoclax (VEN) and hypomethylating agents (HMA), referred to as VH therapy. However, due to the pronounced heterogeneity of AML, the benefits of VH therapy are not universal across patients (de Camargo Magalhães et al. 2024). Therefore, accurately identifying patients who are more likely to benefit from one regimen over the other is crucial for maximizing outcomes with existing therapies. In this section, we analyze Reverse-phase Protein Array (RPPA)-based proteomics for AML. This dataset, generated by de Camargo Magalhães et al. (2024) and publicly available on GitHub (https://github.com/escmagalhaes/23-LEU-1445), contains protein expression measurements for 411 proteins across 146 patients. In prior work, de Camargo Magalhães et al. (2024) applied exploratory analyses to this dataset and stratified patients into two clusters based on Protein Set 3 (29 proteins). One cluster (61 patients) exhibited no significant benefit from either VH or CC therapy, whereas the other cluster of patients showed a markedly better response to CC compared to VH. Based on this result, we have reason to suspect that Protein Set 3 does not contain sufficient discriminative information to help determine whether VH or CC is more effective in the first cluster. Therefore, we apply our proposed method to re-partition the full set of 411 proteins. Our goal is to identify new protein group partition under which patients can be more finely stratified, thereby revealing significant differences in treatment response that were previously indistinguishable. 31 Protein Group 1 (PG1) Patients (n=146) 
+
+JUNB VIM PXN JAG1 SOX17 TGM2 PDL1 BBC3 BTK STK11 PRKCB PAX6 SF3B1.pT313 AKT1_2_3 SMAD5.pS463_465 NOTCH1.cle CASP9 NFE2L2 PIM2 PIK3CB HSF1 STAT1.pY701 SPP1 ITGB1 PEA15 SGK1 SPARC CHEK2 ITGA2 SPI1 PLK1 SMARCA2 IKB VTCN1 DLST WTAP PTK2 CREB1 DLX1 CDK9 DPF2 KMT2D SF3B1 CDX2 WDR5 FOXM1 PRMT1 FLI1 ARAF KMT2A NCL AIFM1 EEF2K HDAC2 XPA CTCF RPA32 OMA1 SMARCB1 AKT1S1 STAT5A MEN1 CDKN1B.pT198 NUP98 AURKA LMNB1 PTEN TFRC MSH6 TP53BP1 FN1 
+
+Cluster Cluster 
+
+C1 C2 
+
+−2 −1 012(a) Heatmap of the Protein Group 1. Protein Group 2 (PG2) Patients (n=146) 
+
+AKT1_2_3.pT308 S100A4 GYS1.pS641 VASP PKM2 BID RPS6.pS240_244 MYH9.pS1943 NDRG1.pT346 NCSTN ATG3 HEXIM1 PRKCB.pS660 MTOR.pS2448 STK4 SRC.pY527 SDHA G6PD ETS1 TSC2 RICTOR.pT1135 RAF1.pS338 STAT3.pS727 RPS6KB1.pT389 PYK2.pY402 HSP90AA1_B1 AKT1_2_3.pS473 EIF4G1 PRKAR1A GATA3 PTPN11 YAP1.pS127 EP300 PIK3CA LYN PDHK1 GRP78 BAK1 H3K4Me1 CLPP EIF2S1.pS51 PRMT5 PRKAA1_2 FOXO3.pS318_321 EIF4EBP1 BRAF H3K4Me2 EPHA2.pY588 H3K27Me3 SNAI1 EIF2S1 COPS5 PHLPP NUMB HNRNPK CDC25C CRM1 DVL3 GAPDH SUZ12 NDUFB4 HIST3H3 ERG MAPK14.pT180_Y182 TRAP1 VHL DAPK1.pS308 SOD2 MSH2 HSP60 DNM1L TAPBP EIF4G2 VCP BRD4 EIF2AK2 SSBP2 GRP75 BCL2 MSI2 HSPB1.pS82 DNMT1 CCNB1 
+
+Cluster Cluster 
+
+C1 C2 
+
+−2 −1 012 (b) Heatmap of the Protein Group 2. ++ + + + ++++ + + + + + + ++ +++++ ++++++ ++++ + +++ ++ + + + ++ + + + ++++ + + ++++ + + + + + + ++ +++++ ++++ ++ + + +++ + + + + + ++ ++ + + ++ + + p < 0.0001 
+
+0.00 0.25 0.50 0.75 1.00 
+
+0 1 2 3 4 5 6 7 8 9 10 
+
+Time (years) 
+
+> Cumulative Survival probability
+
++ + +Overall C1 CC C2 CC C1 VH C2 VH 
+
+Overall Survival PG1 
+
+(c) Kaplan–Meier plots under Protein Group 1. ++ + + + ++++ + + + + + + ++ +++++ ++++++ ++++ + +++ ++ + + + ++ + + + ++ ++ + ++ + + +++ + + + ++ + +++ + + + + + + ++++ + ++++ ++ + + + ++ + + + + + +p = 0.00038 
+
+0.00 0.25 0.50 0.75 1.00 
+
+0 1 2 3 4 5 6 7 8 9 10 
+
+Time (years) 
+
+> Cumulative Survival probability
+
++ + +Overall C1 CC C2 CC C1 VH C2 VH 
+
+Overall Survival PG2 (d) Kaplan–Meier plots under Protein Group 2. 
+
+Figure 7: Heatmpas and KM plots for two identified protein groups. Building on previous analysis, patients who exhibit differential responses to different treatment regimens may be identified through two distinct protein groups; therefore, we set G = 2 . The application of our method partitions the 411 proteins into three groups: 32 Protein Group 1 (PG1) with 71 proteins, Protein Group 2 (PG2) with 83 proteins, and Protein Group 3 (the non-informative group) with 257 proteins. Based on PG1 and PG2, respectively, the 146 patients can each be classified into two clusters. Figure 2(a) presents the heatmap of the identified proteins in PG1. Based on PG1, patients can be divided into two clusters: Cluster C1 (108 patients) and Cluster C2 (38 patients). Figure 2(c) shows the Kaplan–Meier plots for OS (Overall Survival), stratified by cluster and treatment under PG1. As shown in Figure 2(c), patients in Cluster C1 (red) exhibit a favorable prognosis when treated with CC (dashed line), with an MS (median survival) of 39.7 months, but a very poor outcome when treated with VH (solid line), having an MS of 9.8 months. In contrast, patients in Cluster C2 (orange color) have similarly poor OS under both treatment regimens. This pattern closely resembles the survival curves reported in Figure 1(F) of de Camargo Magalhães et al. (2024). Notably, PG1 contains 9 proteins ( EEF2K, LMNB1, PDL1, PEA15, PIM2, PTEN, SMARCA2, SPI1, TP53BP1 ) that exactly match those proteins in Protein Set 3 identified by de Camargo Magalhães et al. (2024). Furthermore, 82 of the 108 patients in Cluster C1 overlap with the C1 cluster (85 patients) shown in Figure 1(F) of de Camargo Magalhães et al. (2024). Taken together, these results provide strong external validation for the biological and clinical relevance of the PG1 identified by our method. Figure 2(b) shows the heatmap of the identified proteins in PG2. Based on PG2, the 146 patients can be divided into two clusters: Cluster C1 (43 patients) and Cluster C2 (103 patients). Figure 2(d) displays Kaplan–Meier curves for OS, stratified by cluster and treatment modality under PG2. As shown in Figure 2(d), patients in Cluster C1 (orange) had better survival prognosis when treated with CC (dashed line), with an MS of 13.8 months, compared to VH (solid line), which yields an MS of 8.0 months. Similarly, patients in Cluster C2 (green) also showed a good prognosis when treated with CC (dashed line), with 33 an MS of 19.1 months, and a poor outcome when treated with VH (solid line), having an MS of 9.1 months. Notably, in Figure 1(F) of de Camargo Magalhães et al. (2024), no significant difference between the two treatment approaches was observed within the corresponding cluster. In contrast, according to the results in Figure 2(d), our PG2-based clustering reveals clear treatment heterogeneity between patients receiving CC and those receiving VH within both clusters. In addition, PG2 only contains 4 proteins ( EIF2AK2, EIF4G1, H3K27Me3, HSPB1.pS82 ), which are also included in Protein Set 3 of de Camargo Magalhães et al. (2024). Among the 61 patients classified as C2 in de Camargo Magalhães et al. (2024), 22 are assigned to C1 and 39 to C2 under our method. Taken together, these results indicate that our proposed method can identify a new set of proteins, under which a previously indistinguishable cluster in terms of treatment effects can be further divided into two new clusters with clearly differentiated treatment outcomes. This provides additional evidence for the advantage of our approach in capturing complex heterogeneity in AML proteomic profiles. 
+
+# 6 Conclusion 
+
+In this paper, we develop a frequentist framework for local clustering in high-dimensional data with heterogeneous feature-specific clustering structures. In contrast to conventional clustering methods, which assume that all informative features support a common partition of the observations, our framework allows different subsets of features to induce distinct sample partitions. The proposed formulation, therefore, provides a flexible approach to analyzing data in which multiple clustering structures coexist across the feature space. Several directions merit further investigation. First, the current framework assumes that each informative feature belongs to a single feature group and therefore supports one underlying sample partition. In some applications, however, a feature may be related to 34 multiple biological pathways, clinical mechanisms, or latent data-generating processes (Ni et al. 2020). Extending the proposed formulation to overlapping feature groups would allow a single feature to contribute to multiple clustering structures and would provide a more flexible representation of complex high-dimensional data. Second, the present formulation focuses on feature groups that induce common sample partitions. A natural extension is to allow the partitions within a feature group to be similar but not necessarily identical. Such a relaxation would be useful when related features support approximately shared clustering structures but exhibit feature-specific deviations due to measurement error, weak secondary signals, or biological heterogeneity. Developing suitable distances or regularization schemes for clustering matrices may provide a principled way to quantify and estimate such approximate structural similarity. Finally, further work is needed on the data-driven selection of the number of feature groups. In practice, this quantity may be unknown and may differ substantially across various datasets. Penalized optimization criteria, stability-based methods, cross-validation procedures, or information criteria could be incorporated into the proposed framework. Establishing the corresponding model selection consistency for the number of feature groups is particularly important for providing a fully adaptive local clustering procedure. Overall, the proposed framework provides a new perspective on local clustering by explicitly treating heterogeneous sample partitions as estimable statistical structures. By jointly recovering feature groups and their associated sample partitions, it offers both a practical methodology and a theoretical foundation for identifying multiple clustering structures in modern high-dimensional data. 35 References 
+
+Amini, A. A. & Razaee, Z. S. (2021), ‘Concentration of kernel matrices with application to kernel spectral clustering’, The Annals of Statistics 49 (1), 531–556. Arcones, M. A. (1995), ‘A bernstein-type inequality for u-statistics and u-processes’, Statis-tics & probability letters 22 (3), 239–247. Arthur, D. & Vassilvitskii, S. (2007), k-means++ the advantages of careful seeding, in 
+
+‘Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms’, pp. 1027–1035. Banerjee, T., Mukherjee, G. & Radchenko, P. (2017), ‘Feature screening in large scale cluster analysis’, Journal of Multivariate Analysis 161 , 191–212. Chan, J. Y. & Leung, A. P. (2017), Efficient k-means++ with random projection, in ‘2017 international joint conference on neural networks (IJCNN)’, IEEE, pp. 94–100. Cheng, Y. & Church, G. (2000), Biclustering of expression data., in ‘Proceedings. Interna-tional Conference on Intelligent Systems for Molecular Biology’, Vol. 8, pp. 93–103. Chi, E. C., Allen, G. I. & Baraniuk, R. G. (2017), ‘Convex biclustering’, Biometrics 
+
+73 (1), 10–19. de Camargo Magalhães, E. S., Hubner, S. E., Brown, B. D., Qiu, Y. & Kornblau, S. M. (2024), ‘Proteomics for optimizing therapy in acute myeloid leukemia: venetoclax plus hypomethylating agents versus conventional chemotherapy’, Leukemia 38 (5), 1046–1056. Dombowsky, A. & Dunson, D. B. (2025), ‘Bayesian clustering via fusing of localized densities’, 
+
+Journal of the American Statistical Association 120 (551), 1775–1786. Flynn, C. & Perry, P. (2020), ‘Profile likelihood biclustering’, Electronic Journal of Statistics 
+
+14 , 731–768. 36 Gormley, I. C., Murphy, T. B. & Raftery, A. E. (2023), ‘Model-based clustering’, Annual Review of Statistics and Its Application 10 (1), 573–595. Hao, Y., Hao, S., Andersen-Nissen, E., Mauck, W. M., Zheng, S., Butler, A., Lee, M. J., Wilk, A. J., Darby, C., Zager, M. et al. (2021), ‘Integrated analysis of multimodal single-cell data’, Cell 184 (13), 3573–3587. Jain, A. K. (2010), ‘Data clustering: 50 years beyond k-means’, Pattern recognition letters 
+
+31 (8), 651–666. Kumar, A., Sabharwal, Y. & Sen, S. (2004), A simple linear time (1+/spl epsiv/)-approximation algorithm for k-means clustering in any dimensions, in ‘45th Annual IEEE Symposium on Foundations of Computer Science’, IEEE, pp. 454–462. Lazzeroni, L. & Owen, A. (2002), ‘Plaid models for gene expression data’, Statistica sinica 
+
+pp. 61–86. Lee, J., Müller, P., Zhu, Y. & Ji, Y. (2013), ‘A nonparametric bayesian model for local clustering with application to proteomics’, Journal of the American Statistical Association 
+
+108 (503), 775–788. Liu, T., Lu, Y., Zhu, B. & Zhao, H. (2023), ‘Clustering high-dimensional data via feature selection’, Biometrics 79 (2), 940–950. MacQueen, J. et al. (1967), Some methods for classification and analysis of multivariate observations, in ‘Proceedings of the fifth Berkeley symposium on mathematical statistics and probability’, Vol. 1, Oakland, CA, USA, pp. 281–297. Murtagh, F. & Contreras, P. (2012), ‘Algorithms for hierarchical clustering: an overview’, 
+
+Wiley interdisciplinary reviews: data mining and knowledge discovery 2(1), 86–97. Ni, Y., Müller, P. & Ji, Y. (2020), ‘Bayesian double feature allocation for phenotyping with 37 electronic health records’, Journal of the American Statistical Association 115 (532), 1620– 1634. Raftery, A. E. & Dean, N. (2006), ‘Variable selection for model-based clustering’, Journal of the American Statistical Association 101 (473), 168–178. Rand, W. M. (1971), ‘Objective criteria for the evaluation of clustering methods’, Journal of the American Statistical association 66 (336), 846–850. Rodriguez, A., Dunson, D. B. & Gelfand, A. E. (2008), ‘The nested dirichlet process’, 
+
+Journal of the American statistical Association 103 (483), 1131–1154. Shi, T., Belkin, M. & Yu, B. (2009), ‘Data spectroscopy: Eigenspaces of convolution operators and clustering’, The Annals of Statistics pp. 3960–3984. Srivastava, P. R., Sarkar, P. & Hanasusanto, G. A. (2023), ‘A robust spectral clustering algorithm for sub-gaussian mixture models with outliers’, Operations Research 71 (1), 224– 244. Subramanian, A., Tamayo, P., Mootha, V. K., Mukherjee, S., Ebert, B. L., Gillette, M. A., Paulovich, A., Pomeroy, S. L., Golub, T. R., Lander, E. S. et al. (2005), ‘Gene set enrichment analysis: a knowledge-based approach for interpreting genome-wide expression profiles’, Proceedings of the national academy of sciences 102 (43), 15545–15550. Sun, D., Toh, K.-C. & Yuan, Y. (2021), ‘Convex clustering: Model, theoretical guarantee and efficient algorithm’, Journal of Machine Learning Research 22 (9), 1–32. Tan, K. M. & Witten, D. M. (2014), ‘Sparse biclustering of transposable data’, Journal of Computational and Graphical Statistics 23 (4), 985–1008. Von Luxburg, U. (2007), ‘A tutorial on spectral clustering’, Statistics and computing 
+
+17 , 395–416. 38 Witten, D. M. & Tibshirani, R. (2010), ‘A framework for feature selection in clustering’, 
+
+Journal of the American Statistical Association 105 (490), 713–726. Xie, J., Ma, A., Fennell, A., Ma, Q. & Zhao, J. (2019), ‘It is time to apply biclustering: a comprehensive review of biclustering applications in biological and biomedical data’, 
+
+Briefings in bioinformatics 20 (4), 1450–1465. Xu, Y., Lee, J., Yuan, Y., Mitra, R., Liang, S., Müller, P. & Ji, Y. (2013), ‘Nonparametric bayesian bi-clustering for next generation sequencing count data’, Bayesian analysis (online) 8(4), 759. Yagishita, S. & Gotoh, J.-y. (2024), ‘Pursuit of the cluster structure of network lasso: Recovery condition and non-convex extension’, Journal of Machine Learning Research 
+
+25 (21), 1–42. Yan, B. & Sarkar, P. (2021), ‘Covariate regularized community detection in sparse graphs’, 
+
+Journal of the American Statistical Association 116 (534), 734–745. Yates, J., Wallace Jr, H., Ellison, R. & Holland, J. (1973), ‘Cytosine arabinoside (nsc-63878) and daunorubicin (nsc-83142) therapy in acute nonlymphocytic leukemia’, Cancer chemotherapy reports 57 (4), 485–488. Yilmaz, M., Wang, F., Loghavi, S., Bueso-Ramos, C., Gumbs, C., Little, L., Song, X., Zhang, J., Kadia, T., Borthakur, G. et al. (2019), ‘Late relapse in acute myeloid leukemia (aml): clonal evolution or therapy-related leukemia?’, Blood cancer journal 9(2), 7. Zhong, Y. & Huang, J. Z. (2022), ‘Biclustering via structured regularized matrix decompo-sition’, Statistics and Computing 32 (3), 37. Zhou, Z. & Amini, A. A. (2019), ‘Analysis of spectral clustering algorithms for community detection: the general bipartite setting’, The Journal of Machine Learning Research 
+
+20 (1), 1774–1820. 39 Appendix 7 Proofs 
+
+Definition A.1 (M-means matrices) Let Hn×M be the set of hard (cluster) labels: 
+
+{0, 1}-valued n × M matrices where each row has exactly a single 1. Then, we can define one class of M-means matrices as follows 
+
+MMn,n ′ := {
+
+X ∈ Rn×n′
+
+: X has at most M distinct rows }
+
+= {
+
+ZR : Z ∈ Hn×M , R ∈ RM ×n′ }
+
+.
+
+Note that, there is a one-to-one correspondence between X ∈ MMn,n ′ and (Z, R) ∈ Hn×M ×
+
+RM ×n′
+
+, up to label permutations. Thus, if X1, X2 ∈ MMn,n ′ with the corresponding membership matrices Z1, Z2 ∈ Hn×M , respectively, we define Mis( X1, X2) := Mis( Z1, Z2).
+
+Definition A.2 (Center separation) For any X ∈ MMn,n ′ , we denote its distinct rows, referred to centers, as {qm(X), m ∈ [M ]} and define 
+
+δm(X) = min   
+
+> l:l̸=m
+
+∥ql(X), q m(X)∥2.
+
+In addition, let nm(X) be the number of observations in cluster m according to X.
+
+Lemma A.1 If there exists a constant 0 < γ < 1 such that min g∈[G] ξin  
+
+> g
+
+> γ > max g∈[G] ξout  
+
+> g
+
+,then taking τ = γ and the estimation error of ̂ Por  
+
+> g
+
+can be bounded by 
+
+> ∥∥∥̂
+
+Por  
+
+> g
+
+− P∗ 
+
+> g
+> ∥∥∥1
+
+≤
+
+> 〈
+
+Rg − τ En, P∗ 
+
+> g
+
+−̂ Por 
+
+> g
+> 〉
+
+min {νg, 1 − νg} (ξin  
+
+> g
+
+− ξout  
+
+> g
+
+),
+
+where νg ∈ (0 , 1) , and Rg is defined in (A.2) for g ∈ [G].Proof. The proof is similar to the proof of Lemma 2 in Srivastava et al. (2023) and is therefore omitted here. □
+
+Lemma A.2 Recall the definition that Kor  
+
+> g
+
+= |A ∗
+
+> g
+
+|−1 ∑ 
+
+> j∈A ∗
+> g
+
+Kj for each g ∈ [G], then we 
+
+40 have 
+
+> 〈
+
+Rg − τ En, P∗ 
+
+> g
+
+−̂ Por 
+
+> g
+> 〉
+
+≤ 2 ∥∥∥Kor  
+
+> g
+
+− Rg 
+
+> ∥∥∥1
+
+.
+
+Proof. The proof is similar to that of Lemma 3 in Srivastava et al. (2023) and is therefore omitted here. □
+
+Lemma A.3 (Zhou & Amini (2019), Corollary 1) Let X∗ ∈ MMn,n ′ be a M-means ma-trix, and write nm = nm(X∗) and δm = δm(X∗). Assume that ̂ X ∈ Rn×n′
+
+satisfies that 
+
+∥̂ X − X∗∥F ≤ ζ and (a) X∗ has exactly M nonempty clusters; (b) c−2 
+
+> m
+
+(1 + ω)2ζ2/(δ2
+
+> m
+
+nm) < 1 for m ∈ [M ], and constants cm > 0 such that cm + cm′ ≤ 1
+
+for any m̸ = m′.Then, any ˜X ∈ P ω(̂X) has exactly M clusters and 
+
+Mis m(X∗; ˜X) ≤ c−2 
+
+> m
+
+(1 + ω)2ζ2
+
+nmδ2
+
+> m
+
+, ∀m ∈ [M ].
+
+Proof of Theorem 1. Motivated by Srivastava et al. (2023), to show the results in Theorem 1, we should construct the corresponding reference matrices Rg such that the solution to (A.1) is some coarsening clustering matrix P∗
+
+> g
+
+, which corresponds to a coarsening of G∗ 
+
+> g
+
+.
+
+arg max ⟨Rg − τ En, Pg⟩
+
+subject to 0 ≤ Pg,ii ′ ≤ 1 for any i, i ′ ∈ [n].
+
+(A.1) Specifically, for g ∈ [G], let Rg be a random matrix whose (i, i ′)-th element is defined as follows, 
+
+Rg,ii ′ := 
+
+> 
+
+max {
+
+Kor  
+
+> g,ii ′
+
+, ξ in 
+
+> g
+> }
+
+if i, i ′ ∈ G ∗ 
+
+> g,l
+
+(l ∈ [Lg]) ,
+
+min {
+
+Kor  
+
+> g,ii ′
+
+, ξ out 
+
+> g
+> }
+
+if i ∈ G ∗
+
+> g,l
+
+, i ′ ∈ G ∗ 
+
+> g,l ′
+
+(l̸ = l′ ∈ [Lg]) .
+
+(A.2) Here ξin  
+
+> g
+
+and ξout  
+
+> g
+
+are two thresholds defined for the within-cluster elements (distributed within diagonal blocks) and between-cluster elements (distributed within off-diagonal blocks), 41 respectively. Note that, when ξin  
+
+> g
+
+> ξ out  
+
+> g
+
+, there exists a γ such that ξout  
+
+> g
+
+< γ < ξ in  
+
+> g
+
+. Thus, taking τ = γ ensures the solution to (A.1) is some coarsening clustering matrix P∗
+
+> g
+
+.According to Lemmas A.1 and A.2, if we want to bound ∥̂Por  
+
+> g
+
+− P∗
+
+> g
+
+∥1, it suffices to bound 
+
+∥Kor  
+
+> g
+
+− Rg∥1. Recall the definition of R(g), we have 
+
+∥∥∥Kor  
+
+> g
+
+− Rg
+
+∥∥∥1 ≤ ∑ 
+
+> l∈[Lg]
+
+∑
+
+> i,i ′∈G ∗
+> g,l
+
+1{Kor   
+
+> g,ii ′<ξ in
+> g}
+
+ξin  
+
+> g
+
++ ∑  
+
+> l̸=l′∈[Lg]
+
+∑
+
+> i∈G ∗
+> g,l ,i ′∈G ∗
+> g,l ′
+
+1{Kor   
+
+> g,ii ′>ξ out
+> g}
+
+(1 − ξout  
+
+> g
+
+)
+
+≤ ∑ 
+
+> l∈[Lg]
+
+I(l) 
+
+> g
+
++ ∑  
+
+> l̸=l′∈[Lg]
+
+I(l,l ′) 
+
+> g
+
+,
+
+(A.3) where I(l) 
+
+> g
+
+and I(l,l ′) 
+
+> g
+
+are the number of corruptions for the l-th diagonal block and (l, l ′)-th off-diagonal block, respectively. Recall that Kor  
+
+> g
+
+= s−1
+
+> g
+
+∑ 
+
+> j∈A ∗
+> g
+
+Kj and 0 < K j,ii ′ ≤ 1, then by Hoeffding’s inequality, 
+
+P [∣ ∣∣Kor  
+
+> g,ii ′
+
+− E(Kor  
+
+> g,ii ′
+
+)∣∣∣ ≤ t]
+
+≥ 1 − 2 exp {
+
+−2sgt2}
+
+. (A.4) We let θj = θj′ = ϑg for any j, j ′ ∈ A ∗
+
+> g
+
+. When i ∈ G ∗
+
+> g,m
+
+, i ′ ∈ G ∗ 
+
+> g,m ′
+
+, m, m ′ ∈ T l, l ∈ [Lg], we have 
+
+E(Kor  
+
+> g,ii ′
+
+) = E
+
+s−1
+
+> g
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(μ(g) 
+
+> m,j
+
++ ϵij − μ(g) 
+
+> m′,j
+
+− ϵi′j )2
+
+2ϑ2
+
+> g
+
+
+
+≥ s−1
+
+> g
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−E(μ(g) 
+
+> m,j
+
+− μ(g) 
+
+> m′,j
+
++ ϵij − ϵi′j )2
+
+2ϑ2
+
+> g
+
+
+
+≥ s−1
+
+> g
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+ ,
+
+(A.5) where the first inequality follows from Jensen’s inequality and the last inequality follows from the fact that ϵij and ϵi′j are independent sub-Gaussian random variables with the same sub-Gaussian norm σ. Combining (A.4) and (A.5), we can have 
+
+P
+
+Kor  
+
+> g,ii ′
+
+≥ s−1
+
+> g
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+ − t
+
+ ≥ 1 − 2 exp {
+
+−2sgt2}
+
+.
+
+42 Moreover, let t = ( κ1,g /s g) ∑ 
+
+> j∈A ∗
+> g
+
+exp 
+
+{
+
+−(d(g)max ,j )2+2 σ2
+
+> 2ϑ2
+> g
+
+}
+
+with 0 < κ 1,g < 1 and then 
+
+P
+
+K(g)or ,ii ′ ≥ (1 − κ1,g )
+
+sg
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+
+
+≥ 1 − 2 exp 
+
+−2[ κ21,g /s g]
+
+ ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+
+
+> 2
+
+ .
+
+(A.6) Under (A.6), we let ξin  
+
+> g
+
+= [(1 − κ1,g )/s g] · ∑ 
+
+> j∈A ∗
+> g
+
+exp 
+
+{
+
+−(d(g)max ,j )2+2 σ2
+
+> 2ϑ2
+> g
+
+}
+
+and then 
+
+P [
+
+Kor  
+
+> g,ii ′
+
+< ξ in 
+
+> g
+
+]
+
+≤ 2 exp 
+
+−2( κ21,g /s g)
+
+ ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+
+
+> 2
+
+ . (A.7) Besides, when i ∈ G ∗ 
+
+> g,m
+
+and i′ ∈ G ∗ 
+
+> g,m ′
+
+, where m ∈ T l, m′ ∈ T l′ , and l̸ = l′, we define 
+
+∆(g) 
+
+> mm ′,j
+
+= μ(g) 
+
+> m,j
+
+− μ(g) 
+
+> m′,j
+
+, ηii ′,j = ϵij − ϵi′j .
+
+For each j ∈ A ∗
+
+> g
+
+, define the events 
+
+Aj =
+
+|ηii ′,j | ≤ d(g)min ,j 
+
+2
+
+ , and Acj =
+
+|ηii ′,j | > d(g)min ,j 
+
+2
+
+ .
+
+By the law of total expectation, 
+
+E
+
+exp 
+
+−(∆ (g) 
+
+> mm ′,j
+
++ ηii ′,j )2
+
+2ϑ2
+
+> g
+
+
+
+= E
+
+exp 
+
+−(∆ (g) 
+
+> mm ′,j
+
++ ηii ′,j )2
+
+2ϑ2
+
+> g
+
+∣∣∣∣∣∣Aj
+
+ P(Aj ) + E
+
+exp 
+
+−(∆ (g) 
+
+> mm ′,j
+
++ ηii ′,j )2
+
+2ϑ2
+
+> g
+
+∣∣∣∣∣∣Acj
+
+ P(Acj )
+
+≤ E
+
+exp 
+
+−(∆ (g) 
+
+> mm ′,j
+
++ ηii ′,j )2
+
+2ϑ2
+
+> g
+
+∣∣∣∣∣∣Aj
+
+ + P(Acj ).
+
+(A.8) On the event Aj , by the triangle inequality, 
+
+∣∣∣∆(g) 
+
+> mm ′,j
+
++ ηii ′,j 
+
+∣∣∣ ≥ ∣∣∣∆(g)
+
+> mm ′,j
+
+∣∣∣ − | ηii ′,j | ≥ d(g)min ,j − d(g)min ,j 
+
+2 = d(g)min ,j 
+
+2 ,
+
+where the last inequality follows from |∆(g) 
+
+> mm ′,j
+
+| ≥ d(g)min ,j . Therefore, 
+
+(∆ (g) 
+
+> mm ′,j
+
++ ηii ′,j )2 ≥ (d(g)min ,j )2
+
+4 .
+
+43 Hence, 
+
+E
+
+exp 
+
+−(∆ (g) 
+
+> mm ′,j
+
++ ηii ′,j )2
+
+2ϑ2
+
+> g
+
+∣∣∣∣∣∣Aj
+
+ ≤ exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ . (A.9) By the definition of the sub-Gaussian norm, ηii ′,j is also a sub-Gaussian variable with sub-Gaussian norm √2σ. Then we have 
+
+P
+
+|ηii ′,j | > d(g)min ,j 
+
+2
+
+ ≤ 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+ . (A.10) Combining (A.8) – (A.10), 
+
+E
+
+exp 
+
+−(∆ (g) 
+
+> mm ′,j
+
++ ηii ′,j )2
+
+2ϑ2
+
+> g
+
+ ≤ exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+ (A.11) Recall that 
+
+Kor  
+
+> g,ii ′
+
+= 1
+
+sg
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(∆ (g) 
+
+> mm ′,j
+
++ ηii ′j )2
+
+2ϑ2
+
+> g
+
+ ,
+
+by (A.11), we have 
+
+E(Kor  
+
+> g,ii ′
+
+) ≤ 1
+
+sg
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+ . (A.12) Combining (A.4) and (A.12), 
+
+P
+
+Kor  
+
+> g,ii ′
+
+≤ s−1
+
+> g
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+ + t
+
+ ≥ 1 − 2 exp {
+
+−2sgt2}
+
+.
+
+Similarly, let 
+
+t = ( κ1,g /s g) ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+ ,
+
+and then 
+
+P
+
+Kor  
+
+> g,ii ′
+
+≤ 1 + κ1,g 
+
+sg
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+
+
+≥ 1 − 2 exp 
+
+−2( κ21,g /s g)
+
+ ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+
+
+> 2
+
+ .
+
+(A.13) 44 Under (A.13) , we let ξout  
+
+> g
+
+= [(1 + κ1,g )/s g] · ∑
+
+> j∈A ∗
+> g
+
+(
+
+exp 
+
+{
+
+−(d(g)min ,j )2
+
+> 8ϑ2
+> g
+
+}
+
++ 2 exp 
+
+{
+
+−(d(g)min ,j )2
+
+> 16 σ2
+
+}) 
+
+and then 
+
+P [
+
+Kor  
+
+> g,ii ′
+
+> ξ out 
+
+> g
+
+]
+
+≤ 2 exp 
+
+−2( κ21,g /s g)
+
+ ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+
+
+> 2
+
+ .
+
+(A.14) Next, we let pg,l = P[Kor  
+
+> g,ii ′
+
+< ξ in 
+
+> g
+
+∣∣∣i, i ′ ∈ G ∗
+
+> g,l
+
+]. Note that 
+
+Ug,l := 
+
+∑ 
+
+> {(i,i ′): i<i ′∈G ∗
+> g,l }
+
+1{Kor   
+
+> g,ii ′<ξ in
+> g}
+
+n(g) 
+
+> l
+
+(n(g) 
+
+> l
+
+− 1) /2
+
+is an unbiased estimator for pg,l with n(g) 
+
+> l
+
+:= |G ∗
+
+> g,l
+
+|. By Bernstein’s inequality for one-sample U-statistic (Arcones 1995), 
+
+P [Ug,l − pg,l > t 1] ≤ exp 
+
+− (n(g) 
+
+> l
+
+/2) t21
+
+c1νg,l + c2t1
+
+ , (A.15) where νg,l is the variance of the indicator random variable 1{Kor    
+
+> g,ii ′<ξ in
+> g}
+
+with i, i ′ ∈ G ∗ 
+
+> g,l
+
+and 
+
+c1, c 2 > 0 are constants. Taking t1 = max {pg,l , c 3 log n(g)min /n (g)min } where c3 = 2( c1 + c2) and 
+
+n(g)min := min l∈[Lg ] n(g) 
+
+> l
+
+. Note that νg,l = pg,l (1 − pg,l ) ≤ pg,l ≤ t1, we can simplify (A.15) to 
+
+P [Ug,l − pg,l > t 1] ≤ exp 
+
+−n(g) 
+
+> l
+
+t1
+
+c3
+
+ . (A.16) Thus, with probability at least 1 − 1/n (g)min ,
+
+I(l) 
+
+> g
+
+≤ 2 × n(g) 
+
+> l
+
+(n(g) 
+
+> l
+
+− 1) 2 × [
+
+pg,l + max {
+
+pg,l , c 3 log n(g)min /n (g)min 
+
+}] 
+
+≤ 2 max {
+
+pg,l , c 3 log n(g)min /n (g)min 
+
+}
+
+(n(g) 
+
+> l
+
+)2.
+
+(A.17) Similarly, let pg,ll ′ = P[Kor  
+
+> g,ii ′
+
+> ξ out 
+
+> g
+
+∣∣∣i ∈ G ∗
+
+> g,l
+
+, i ′ ∈ G ∗ 
+
+> g,l ′
+
+] and then 
+
+Ug,ll ′ := 
+
+∑  
+
+> {(i,i ′): i∈G ∗
+> g,l ,i ′∈G ∗
+> g,l ′}
+
+1{Kor   
+
+> g,ii ′>ξ out
+> g}
+
+n(g) 
+
+> l
+
+n(g)
+
+> l′
+
+is also a U-statistic for pg,ll ′ . By the simplified Bernstein’s inequality for two-sample U-statistic ((E.14) in Srivastava et al. (2023)), we have 
+
+P [Ug,ll ′ − pg,ll ′ > t 2] ≤ exp 
+
+−min {n(g) 
+
+> l
+
+, n (g) 
+
+> l′
+
+}t22
+
+c4νg,ll ′ + c5t2
+
+ , (A.18) 45 where νg,ll ′ is the variance of the indicator random variable 1{Kor    
+
+> g,ii ′>ξ out
+> g}
+
+with i ∈ G ∗
+
+> g,l
+
+, i ′ ∈ G ∗ 
+
+> g,l ′
+
+,and c4, c 5 > 0 are constants. Putting t2 = max {pg,ll ′ , c 6 log n(g)min /n (g)min } where c6 = 2( c4 + c5)
+
+and noting that νg,ll ′ = pg,ll ′ (1 − pg,ll ′ ) ≤ pg,ll ′ ≤ t2, we have that with probability at least 
+
+1 − 1/(n(g)min )2,
+
+I(l,l ′) 
+
+> g
+
+≤ n(g) 
+
+> l
+
+n(g) 
+
+> l′
+
+× [
+
+pg,ll ′ + max {
+
+pg,ll ′ , c 6 log n(g)min /n (g)min 
+
+}] 
+
+≤ 2 max {
+
+pg,ll ′ , c 6 log n(g)min /n (g)min 
+
+}
+
+n(g) 
+
+> l
+
+n(g) 
+
+> l′
+
+.
+
+(A.19) Combining Lemmas A.1, A.2, and the union bound, as well as (A.3) , (A.17) , and (A.19) , let 
+
+ρg = min {νg, 1 − νg} (ξin  
+
+> g
+
+− ξout  
+
+> g
+
+) and we have that with probability at least 1 − 2Mmax /n min ,
+
+∥∥∥̂ Por  
+
+> g
+
+− P∗
+
+> g
+
+∥∥∥1 ≤ 2
+
+ρg
+
+∥∥∥Kor  
+
+> g
+
+− Rg
+
+∥∥∥1 ≤ 4n2
+
+ρg
+
+· max 
+
+{
+
+max    
+
+> l̸=l′∈[Lg]
+
+pg,ll ′ , max   
+
+> l∈[Lg]
+
+pg,l , C1 log nmin 
+
+nmin 
+
+}
+
+, (A.20) where C1 = max {c3, c 6} and nmin = min g∈[G],m ∈[Mg ] n(g) 
+
+> m
+
+. By (A.7) and (A.14), 
+
+max    
+
+> l̸=l′∈[Lg]
+
+pg,ll ′ ≤ 2 exp 
+
+−2( κ21,g sg)
+
+ 1
+
+sg
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+
+
+> 2
+
+ ,
+
+max   
+
+> l∈[Lg]
+
+pg,l ≤ 2 exp 
+
+−2( κ21,g sg)
+
+ 1
+
+sg
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+
+
+> 2
+
+ .
+
+(A.21) Next, we show that ρg > 0 when Condition 1 holds for some g ∈ [G]. To see this, it suffices to show that ξin  
+
+> g
+
+− ξout  
+
+> g
+
+> 0. Since ξin  
+
+> g
+
+> 0 and ξout  
+
+> g
+
+> 0, Condition 1 implies 
+
+ξin 
+
+> g
+
+ξout 
+
+> g
+
+=
+
+[(1 − κ1,g )/s g] · ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+[(1 + κ1,g )/s g] · ∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+
+
+> −1
+
+> 1.
+
+In (A.20), note that there exists a constant Cs > 0 such that 
+
+ 1
+
+sg
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)min ,j )2
+
+8ϑ2
+
+> g
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+
+
+> 2
+
+≤ Cs,
+
+ 1
+
+sg
+
+∑
+
+> j∈A ∗
+> g
+
+exp 
+
+−(d(g)max ,j )2 + 2 σ2
+
+2ϑ2
+
+> g
+
+
+
+> 2
+
+≤ Cs
+
+46 Based on this result, we combine (A.20) , (A.21) and Condition 1, after taking C =max {2, C 1} × 4/ρ g, then with probability at least 1 − 2Mmax /n min 
+
+> ∥∥∥̂
+
+Por  
+
+> g
+
+− P∗ 
+
+> g
+> ∥∥∥1
+
+≤ Cn 2 · max 
+
+> {
+
+exp {− κs g} , log nmin 
+
+nmin 
+
+> }
+
+, (A.22) where κ > 0 is a constant depending on {κ1,g , κ 2,g }Gg=1 . We finish the proof of Theorem 1 by applying the union bound over G feature groups. □
+
+47 Proof of Theorem 2. To show the results in Theorem 2, we consider the neighborhood of 
+
+P∗ as follows, 
+
+Θ =
+
+> {
+
+P ∈ [0 , 1] n×nG : sup 
+
+> g∈[G]
+> ∥∥∥
+
+Pg − P∗ 
+
+> g
+> ∥∥∥1
+
+≤ rn
+
+> }
+
+.
+
+Recall the definition of (1), let 
+
+L(P, g) = 
+
+> p∑
+> j=1
+> 〈
+
+Kj − τ En, Pgj
+
+> 〉
+
+. (A.23) Under Θ, given g ∈ [G + 1] , if there exists some j ∈ A ∗ 
+
+> g
+
+such that we can get a larger 
+
+L(P, g) in (A.23) by assigning it from its true group A∗ 
+
+> g
+
+to any other group A∗ 
+
+> g′
+
+with g̸ = g′,then the oracle estimator ̂ Por is no longer the strictly local maximizer of L(P, g). In other words, if we can show that no such j ∈ A ∗ 
+
+> g
+
+exists for any g ∈ [G + 1] with high probability, then ̂ Por is the strictly local maximizer of L(P, g) for any P ∈ Θ with high probability. As a result, we can perfectly recover the true feature group partition with high probability. Given g, g ′ ∈ [G + 1] , for any j ∈ A ∗ 
+
+> g
+
+and g′̸ = g, we have 
+
+⟨Kj − τ En, Pg⟩ − ⟨ Kj − τ En, Pg′ ⟩
+
+= 〈
+
+Kj − τ En, P∗ 
+
+> g
+
+− P∗
+
+> g′
+> 〉
+
+− [〈 
+
+Kj − τ En, Pg′ − P∗
+
+> g′
+> 〉
+
+− 〈
+
+Kj − τ En, Pg − P∗
+
+> g
+> 〉]
+
+≥ 〈
+
+Kj − τ En, P∗ 
+
+> g
+
+− P∗
+
+> g′
+> 〉
+
+− 2rn,
+
+(A.24) where the last inequality follows from ∥Kj − τ En∥max ≤ 1 and P ∈ Θ. To obtain the lower bound of 〈
+
+Kj − τ En, P∗ 
+
+> g
+
+− P∗
+
+> g′
+> 〉
+
+, we should discuss Kj − τ En and P∗ 
+
+> g
+
+− P∗ 
+
+> g′
+
+, respectively. By the definitions of P∗ 
+
+> g
+
+and P∗ 
+
+> g′
+
+, the elements of P∗ 
+
+> g
+
+− P∗ 
+
+> g′
+
+exhibit three different distribution patterns listed below. 
+
+• If xi,j and xi′,j belong to the same sample cluster or two different clusters in both the 
+
+g-th feature group and the g′-th feature group, then P ∗ 
+
+> g,ii ′
+
+− P ∗ 
+
+> g′,ii ′
+
+= 0 ;
+
+• If xi,j and xi′,j belong to the same sample cluster in the g-th feature group, while they belong to two different clusters in the g′-th feature group, then P ∗ 
+
+> g,ii ′
+
+−P ∗ 
+
+> g′,ii ′
+
+= 1 −0 = 1 ;48 • If xi,j and xi′,j belong to two different sample clusters in the g-th feature group, while they belong to the same cluster in the g′-th feature group, then P ∗ 
+
+> g,ii ′
+
+− P ∗ 
+
+> g′,ii ′
+
+= 0 − 1 = 
+
+−1.Firstly, given a pair of (g, g ′) with g̸ = g′ ∈ [G + 1] and a pair of (h, h ′) ∈ D gg ′ 
+
+> 1
+
+∩ D gg ′ 
+
+> I
+
+, we consider ∆(gg ′) 
+
+> j,hh ′
+
+= E(Kj,ii ′ |i ∈ H (gg ′) 
+
+> h
+
+, i ′ ∈ H (gg ′) 
+
+> h′
+
+) with j ∈ A ∗
+
+> g
+
+. Then, ̂
+
+∆(gg ′) 
+
+> j,hh ′
+
+=
+
+∑ 
+
+> i∈H (gg ′)
+> h,i ′∈H (gg ′)
+> h′
+
+Kj,ii ′
+
+n(gg ′) 
+
+> h
+
+· n(gg ′)
+
+> h′
+
+is an unbiased estimator for ∆(gg ′) 
+
+> j,hh ′
+
+. By Bernstein’s inequality for two-sample U-statistics ((E.14) in Srivastava et al. (2023)), we have 
+
+P [̂ 
+
+∆(gg ′) 
+
+> j,hh ′
+
+− ∆(gg ′) 
+
+> j,hh ′
+
+< −t]
+
+≤ exp 
+
+−min {
+
+n(gg ′) 
+
+> h
+
+, n (gg ′)
+
+> h′
+
+}
+
+t2
+
+c′
+
+> 1
+
+v(gg ′) 
+
+> j,hh ′
+
++ c′
+
+> 2
+
+t
+
+ , (A.25) where v(gg ′) 
+
+> j,hh ′
+
+= Var (Kj,ii ′ |i ∈ H (gg ′) 
+
+> h
+
+, i ′ ∈ H (gg ′) 
+
+> h′
+
+) and c′
+
+> 1
+
+, c ′ 
+
+> 2
+
+> 0 are constants. Since there exists some m ∈ [Mg] such that H(gg ′) 
+
+> h
+
+, H(gg ′) 
+
+> h′
+
+⊂ G ∗
+
+> g,m
+
+, we have 
+
+∆(gg ′) 
+
+> j,hh ′
+
+= E
+
+exp 
+
+−(μ(g) 
+
+> m,j
+
++ ϵi,j − μ(g) 
+
+> m,j
+
+− ϵi′,j )2
+
+2θ2
+
+> j
+
+
+
+≥ exp 
+
+{
+
+−E(ϵi,j − ϵi′,j )2
+
+2θ2
+
+> j
+
+}
+
+≥ exp 
+
+{
+
+−σ2
+
+θ2
+
+> j
+
+}
+
+,
+
+= exp 
+
+− 1
+
+κ2 
+
+> j
+
+(SNR (g)min ,j )2
+
+ ,
+
+(A.26) where the first inequality follows from Jensen’s inequality, and the last inequality follows from the fact that ϵij and ϵi′j are independent sub-Gaussian random variables with the same sub-Gaussian norm σ. Moreover, due to 0 < K j,ii ′ ≤ 1, we have 
+
+v(gg ′) 
+
+> j,hh ′
+
+= E(K2 
+
+> j,ii ′
+
+|i ∈ H (gg ′) 
+
+> h
+
+, i ′ ∈ H (gg ′) 
+
+> h′
+
+) − (∆ (gg ′) 
+
+> j,hh ′
+
+)2 ≤ 1 − exp 
+
+− 2
+
+κ2 
+
+> j
+
+(SNR (g)min ,j )2
+
+ . (A.27) Let t1 = ∆ (gg ′) 
+
+> j,hh ′
+
+−ζin  
+
+> j
+
+. By (A.26) and the definition of ζin  
+
+> j
+
+, we have 0 < ∆(gg ′) 
+
+> j,hh ′
+
+−ζin  
+
+> j
+
+< ∆(gg ′) 
+
+> j,hh ′
+
+≤ 1.Now we should discuss two cases: t1 ≥ v(gg ′) 
+
+> j,hh ′
+
+or t1 < v (gg ′) 
+
+> j,hh ′
+
+. Specifically, if t1 ≥ v(gg ′) 
+
+> j,hh ′
+
+, (A.25) 49 can be rewritten as 
+
+P [̂ 
+
+∆(gg ′)
+
+j,hh ′ < ζ in 
+
+j
+
+∣∣∣t1 ≥ v(gg ′)
+
+j,hh ′
+
+]
+
+≤ exp 
+
+−min {
+
+n(gg ′)
+
+h , n (gg ′)
+
+h′
+
+}
+
+t21
+
+c′
+
+1v(gg ′)
+
+j,hh ′ + c′
+
+2t1
+
+
+
+≤ exp 
+
+−min {
+
+n(gg ′)
+
+h , n (gg ′)
+
+h′
+
+}
+
+· (∆ (gg ′)
+
+j,hh ′ − ζin 
+
+j )
+
+c′
+
+1 + c′
+
+2
+
+
+
+≤ exp {
+
+−C′
+
+1,j ndiff min 
+
+}
+
+,
+
+(A.28) where C′
+
+1,j = (1 − κ′
+
+j ) exp 
+
+{
+
+− 1
+
+κ2 
+
+> j
+
+(SNR (g)min ,j )2
+
+}
+
+/(c′
+
+1 + c′
+
+2) > 0 is a constant. Besides, if t1 < v (gg ′)
+
+j,hh ′ ,under (A.25), (A.27), we can have 
+
+P [̂ 
+
+∆(gg ′)
+
+j,hh ′ < ζ in 
+
+j
+
+∣∣∣t1 < v (gg ′)
+
+j,hh ′
+
+]
+
+≤ exp 
+
+−min {
+
+n(gg ′)
+
+h , n (gg ′)
+
+h′
+
+}
+
+t21
+
+c′
+
+1v(gg ′)
+
+j,hh ′ + c′
+
+2t1
+
+
+
+≤ exp 
+
+
+
+− min {
+
+n(gg ′)
+
+h , n (gg ′)
+
+h′
+
+}
+
+· (∆ (gg ′)
+
+j,hh ′ − ζin 
+
+j )2
+
+(c′
+
+1 + c′
+
+2)
+
+(
+
+1 − exp 
+
+{
+
+− 2
+
+κ2 
+
+> j
+
+(SNR (g)min ,j )2
+
+}) 
+
+≤ exp {
+
+−C′
+
+2,j ndiff min 
+
+}
+
+,
+
+(A.29) where C′
+
+2,j =
+
+[
+
+(1 − κ′
+
+j ) exp 
+
+{
+
+− 1
+
+κ2 
+
+> j
+
+(SNR (g)min ,j )2
+
+}] 2 / [
+
+(c′
+
+1 + c′
+
+2)
+
+(
+
+1 − exp 
+
+{
+
+− 2
+
+κ2 
+
+> j
+
+(SNR (g)min ,j )2
+
+})] 
+
+> 0
+
+is a constant. Consequently, given g̸ = g′ ∈ [G + 1] , j ∈ A ∗
+
+g and a pair of (h, h ′) ∈ D gg ′
+
+1 ,
+
+P [̂ 
+
+∆(gg ′)
+
+j,hh ′ < ζ in 
+
+j
+
+]
+
+= P [̂ 
+
+∆(gg ′)
+
+j,hh ′ < ζ in 
+
+j
+
+∣∣∣t1 < v (gg ′)
+
+j,hh ′
+
+]
+
+P [
+
+t1 < v (gg ′)
+
+j,hh ′
+
+]
+
++ P [̂ 
+
+∆(gg ′)
+
+j,hh ′ < ζ in 
+
+j
+
+∣∣∣t1 ≥ v(gg ′)
+
+j,hh ′
+
+]
+
+P [
+
+t1 ≥ v(gg ′)
+
+j,hh ′
+
+]
+
+≤ P [̂ 
+
+∆(gg ′)
+
+j,hh ′ < ζ in 
+
+j
+
+∣∣∣t1 < v (gg ′)
+
+j,hh ′
+
+]
+
++ P [̂ 
+
+∆(gg ′)
+
+j,hh ′ < ζ in 
+
+j
+
+∣∣∣t1 ≥ v(gg ′)
+
+j,hh ′
+
+]
+
+≤ exp {
+
+−C′
+
+2,j ndiff min 
+
+}
+
++ exp {
+
+−C′
+
+1,j ndiff min 
+
+}
+
+.
+
+As a result, given g ∈ [G + 1] and j ∈ A ∗
+
+g,
+
+P
+
+ min 
+
+g′̸ =g∈[G+1] ,(h,h ′)∈D gg ′
+
+> 1
+
+̂
+
+∆(gg ′)
+
+j,hh ′ ≥ ζin 
+
+j
+
+ ≥ 1 − G|D 1| × [
+
+exp {
+
+−C′
+
+1,j ndiff min 
+
+}
+
++ exp {
+
+−C′
+
+2,j ndiff min 
+
+}] 
+
+,
+
+where |D 1| := max g′̸ =g∈[G+1] |D gg ′
+
+1 |. Let ζin min := min j∈[p] ζin 
+
+j and C′
+
+12 := min j∈[p] min {C′
+
+1,j , C ′
+
+2,j },then 
+
+P
+
+ min 
+
+g∈[G+1] ,j ∈A ∗
+
+> g
+
+min 
+
+g′̸ =g∈[G+1] ,(h,h ′)∈D gg ′
+
+> 1
+
+̂
+
+∆(gg ′)
+
+j,hh ′ ≥ ζin min 
+
+ ≥ 1−2pG |D 1|× [
+
+exp {
+
+−C′
+
+12 ndiff min 
+
+}] 
+
+. (A.30) 50 Secondly, given a pair of (g, g ′) with g̸ = g′ ∈ [G + 1] and a pair of (h, h ′) ∈ D gg ′ 
+
+> −1
+
+, we also consider ∆(gg ′) 
+
+> j,hh ′
+
+= E(Kj,ii ′ |i ∈ H (gg ′) 
+
+> h
+
+, i ′ ∈ H (gg ′) 
+
+> h′
+
+) with j ∈ A ∗
+
+> g
+
+. Then, ̂
+
+∆(gg ′) 
+
+> j,hh ′
+
+=
+
+∑ 
+
+> i∈H (gg ′)
+> h,i ′∈H (gg ′)
+> h′
+
+Kj,ii ′
+
+n(gg ′) 
+
+> h
+
+· n(gg ′)
+
+> h′
+
+is an unbiased estimator for ∆(gg ′) 
+
+> j,hh ′
+
+. In this case, we can find that there exist m̸ = m′ ∈ [Mg]
+
+such that H(gg ′) 
+
+> h
+
+⊂ G ∗ 
+
+> g,m
+
+and H(gg ′) 
+
+> h′
+
+⊂ G ∗ 
+
+> g,m ′
+
+. By arguments analogous to those used in deriving (A.8) – (A.12), we have 
+
+∆(gg ′) 
+
+> j,hh ′
+
+= E
+
+exp 
+
+−(μ(g) 
+
+> m,j
+
++ ϵi,j − μ(g) 
+
+> m′,j
+
+− ϵi′,j )2
+
+2θ2
+
+> j
+
+
+
+≤ exp 
+
+−(d(g)min ,j )2
+
+8θ2
+
+> j
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+
+
+= exp 
+
+{
+
+− 18κ2
+
+> j
+
+}
+
++ 2 exp 
+
+−(SNR (g)min ,j )2
+
+16 
+
+ .
+
+(A.31) Similarly, we can show that 
+
+v(gg ′) 
+
+> j,hh ′
+
+≤ E(K2 
+
+> j,ii ′
+
+|i ∈ H (gg ′) 
+
+> h
+
+, i ′ ∈ H (gg ′) 
+
+> h′
+
+) ≤ exp 
+
+−(d(g)min ,j )2
+
+4θ2
+
+> j
+
+ + 2 exp 
+
+−(d(g)min ,j )2
+
+16 σ2
+
+ . (A.32) Let t2 = ζout  
+
+> j
+
+− ∆(gg ′) 
+
+> j,hh ′
+
+. By (A.31) and the definition of ζout  
+
+> j
+
+, we have t2 > 0. Now we should discuss two cases: t2 ≥ v(gg ′) 
+
+> j,hh ′
+
+or t2 < v (gg ′) 
+
+> j,hh ′
+
+. Specifically, if t2 ≥ v(gg ′) 
+
+> j,hh ′
+
+, by (A.25) , we can have 
+
+P [̂ 
+
+∆(j) 
+
+> hh ′
+
+> ζ out 
+
+> j
+
+∣∣∣t2 ≥ v(gg ′)
+
+> j,hh ′
+
+]
+
+≤ exp 
+
+−min {
+
+n(gg ′) 
+
+> h
+
+, n (gg ′)
+
+> h′
+
+}
+
+t22
+
+c′
+
+> 1
+
+v(gg ′) 
+
+> j,hh ′
+
++ c′
+
+> 2
+
+t2
+
+
+
+≤ exp 
+
+−min {
+
+n(gg ′) 
+
+> h
+
+, n (gg ′)
+
+> h′
+
+}
+
+· (ζout  
+
+> j
+
+− ∆(gg ′) 
+
+> j,hh ′
+
+)
+
+c′ 
+
+> 1
+
++ c′
+
+> 2
+
+
+
+≤ exp {
+
+−C′ 
+
+> 3,j
+
+ndiff min 
+
+}
+
+,
+
+(A.33) where C′ 
+
+> 3,j
+
+= ( ζout  
+
+> j
+
+− ∆(gg ′) 
+
+> j,hh ′
+
+)/(c′ 
+
+> 1
+
++ c′
+
+> 2
+
+) > 0 is a constant. Besides, if t2 < v (gg ′) 
+
+> j,hh ′
+
+, under (A.25) 51 and (A.32), we can have 
+
+P [̂ 
+
+∆(gg ′)
+
+j,hh ′ > ζ out 
+
+j
+
+∣∣∣t2 < v (gg ′)
+
+j,hh ′
+
+]
+
+≤ exp 
+
+−min {
+
+n(gg ′)
+
+h , n (gg ′)
+
+h′
+
+}
+
+t22
+
+c′
+
+1v(gg ′)
+
+j,hh ′ + c′
+
+2t2
+
+
+
+≤ exp 
+
+
+
+− min {
+
+n(gg ′)
+
+h , n (gg ′)
+
+h′
+
+}
+
+· (ζout 
+
+j − ∆(gg ′)
+
+j,hh ′ )2
+
+(c′
+
+1 + c′
+
+2)
+
+(
+
+exp 
+
+{
+
+−(d(g)min ,j )2
+
+4θ2
+
+> j
+
+}
+
++ 2 exp 
+
+{
+
+−(d(g)min ,j )2
+
+16 σ2
+
+}) 
+
+≤ exp {
+
+−C′
+
+4,j ndiff min 
+
+}
+
+,
+
+(A.34) where C′
+
+4,j = ( ζout 
+
+j − ∆(gg ′)
+
+j,hh ′ )2/
+
+[
+
+(c′
+
+1 + c′
+
+2)
+
+(
+
+exp 
+
+{
+
+−(d(g)min ,j )2
+
+4θ2
+
+> j
+
+}
+
++ 2 exp 
+
+{
+
+−(d(g)min ,j )2
+
+16 σ2
+
+})] 
+
+> 0 is a constant. Consequently, given g̸ = g′ ∈ [G + 1] , j ∈ A ∗
+
+g and a pair of (h, h ′) ∈ D gg ′
+
+−1 ,
+
+P [̂ 
+
+∆(gg ′)
+
+j,hh ′ > ζ out 
+
+j
+
+]
+
+= P [̂ 
+
+∆(gg ′)
+
+j,hh ′ > ζ out 
+
+j
+
+∣∣∣t2 < v (gg ′)
+
+j,hh ′
+
+]
+
+P [
+
+t2 < v (gg ′)
+
+j,hh ′
+
+]
+
++ P [̂ 
+
+∆(gg ′)
+
+j,hh ′ > ζ out 
+
+j
+
+∣∣∣t2 ≥ v(gg ′)
+
+j,hh ′
+
+]
+
+P [
+
+t2 ≥ v(gg ′)
+
+j,hh ′
+
+]
+
+≤ P [̂ 
+
+∆(gg ′)
+
+j,hh ′ > ζ out 
+
+j
+
+∣∣∣t2 < v (gg ′)
+
+j,hh ′
+
+]
+
++ P [̂ 
+
+∆(gg ′)
+
+j,hh ′ > ζ out 
+
+j
+
+∣∣∣t2 ≥ v(gg ′)
+
+j,hh ′
+
+]
+
+≤ exp {
+
+−C′
+
+4,j ndiff min 
+
+}
+
++ exp {
+
+−C′
+
+3,j ndiff min 
+
+}
+
+.
+
+As a result, given g ∈ [G + 1] and j ∈ A ∗
+
+g,
+
+P
+
+ max 
+
+g′̸ =g∈[G+1] ,(h,h ′)∈D gg ′−1̂
+
+∆(gg ′)
+
+j,hh ′ ≤ ζout 
+
+j
+
+ ≥ 1 − G|D −1| × [
+
+exp {
+
+−C′
+
+3,j ndiff min 
+
+}
+
++ exp {
+
+−C′
+
+4,j ndiff min 
+
+}] 
+
+,
+
+where |D −1| := max g∈[G+1] max g′̸ =g∈[G+1] |D gg ′
+
+−1 |. Let ζout max := max j∈[p] ζout 
+
+j and C′
+
+34 := min j∈[p] min {C′
+
+3,j , C ′
+
+4,j }, then 
+
+P
+
+ max 
+
+g∈[G+1] ,j ∈A ∗
+
+> g
+
+max 
+
+g′̸ =g∈[G+1] ,(h,h ′)∈D gg ′
+
+> 1
+
+̂
+
+∆(gg ′)
+
+j,hh ′ ≤ ζout max 
+
+ ≥ 1 − 2pG |D −1| × [
+
+exp {
+
+−C′
+
+34 ndiff min 
+
+}] 
+
+.
+
+(A.35) Therefore, combining (A.30) , (A.35) , and taking C′ = min {C′
+
+12 , C ′
+
+34 }, then with probability 52 at least 1 − 2pG (|D 1| + |D −1|) exp {
+
+−C′ndiff min 
+
+}
+
+,
+
+inf  
+
+> g̸=g′∈[G+1] ,j ∈A ∗
+> g
+
+〈
+
+Kj − τ En, P∗ 
+
+> g
+
+− P∗
+
+> g′
+
+〉
+
+≥ min {ζin min − τ, τ − ζout max } ∑
+
+> (h,h ′)∈D (gg ′)I
+
+∥∥∥P∗ 
+
+> g,hh ′
+
+− P∗
+
+> g′,hh ′
+
+∥∥∥1
+
+− max {τ, 1 − τ } ∑
+
+> (h,h ′)∈D (gg ′)II
+
+∥∥∥P∗ 
+
+> g,hh ′
+
+− P∗
+
+> g′,hh ′
+
+∥∥∥1
+
+Consequently, if Λgg ′ > 2rn hold for any g̸ = g′ ∈ [G + 1] . Then, for any g̸ = g′ ∈ [G + 1] and 
+
+j ∈ A ∗
+
+> g
+
+, assigning Kj from A∗ 
+
+> g
+
+to A∗ 
+
+> g′
+
+is certain to decrease L(A, P) with high probability, which concludes the proof. □
+
+53 Proof of Theorem 3. To show the result in Theorem 3, if suffices to verify the conditions in Lemma A.3 hold with high probability. Recall Definitions A.1 and A.2. Specifically, for g ∈ [G], it is easy to show that P∗ 
+
+> g
+
+∈ MMg
+
+> n,n
+
+, nmg (P∗
+
+> g
+
+) = n(g) 
+
+> mg
+
+and δmg (P∗
+
+> g
+
+) ≥ √2nmin .Let ̂ P(Mg ) 
+
+> g
+
+be the Mg-truncated eigenvalue decomposition (EVD) of ̂ Pg and λk(̂ Pg) be the 
+
+k-th largest eigenvalue of ̂ Pg. Note that, for squared matrix, the k-th singular value is the corresponding k-th absolute eigenvalue, then we have 
+
+∥∥∥̂ P(Mg ) 
+
+> g
+
+− P∗
+
+> g
+
+∥∥∥2 ≤ ∥∥∥̂ P(Mg ) 
+
+> g
+
+−̂ Pg
+
+∥∥∥2 + ∥∥∥̂ Pg − P∗
+
+> g
+
+∥∥∥2
+
+=
+
+∣∣∣λMg +1 (̂ Pg)
+
+∣∣∣ +
+
+∥∥∥̂ Pg − P∗
+
+> g
+
+∥∥∥2
+
+≤ 2 ∥∥∥̂ Pg − P∗
+
+> g
+
+∥∥∥2 ,
+
+where the equality follows from (33) in Zhou & Amini (2019) and the last inequality follows from Weyl’s theorem on the perturbation of singular values, that is, ∣∣∣|λi(̂Pg)| − | λi(P∗
+
+> g
+
+)|∣∣∣ ≤∥̂ Pg − P∗
+
+> g
+
+∥2 as well as λMg +1 (̂P∗
+
+> g
+
+) = 0 . Since ̂ P(Mg ) 
+
+> g
+
+− P∗ 
+
+> g
+
+is of rank at most 2Mg, we can have ∥∥∥̂ P(Mg ) 
+
+> g
+
+− P∗
+
+> g
+
+∥∥∥F ≤
+
+√
+
+2Mg
+
+∥∥∥̂ P(Mg ) 
+
+> g
+
+− P∗
+
+> g
+
+∥∥∥2
+
+≤ 2
+
+√
+
+2Mg
+
+∥∥∥̂ Pg − P∗
+
+> g
+
+∥∥∥2
+
+≤ 2
+
+√
+
+2Mg
+
+∥∥∥̂ Pg − P∗
+
+> g
+
+∥∥∥F
+
+= 2 
+
+√
+
+2Mg
+
+∥∥∥̂ Pg − P∗
+
+> g
+
+∥∥∥1/21
+
+≤ 2
+
+√
+
+2Mgr1/2
+
+> n
+
+with probability at least 1 − 2GM max /n min − 2pG (|D 1| + |D −1|) · exp {− C′ndiff min }, where the equality holds due to the fact that all elements of ̂ Pg, P∗ 
+
+> g
+
+are 0 or 1, and the last inequality follows from Theorems 1 and 2. Now we are going to check Condition (b) in Lemma A.3. Let cmg = 1 /2 for each mg ∈ [Mg],since n → ∞ and smin → ∞ , with probability at least 1 − 2GM max /n min − 2pG (|D 1| +
+
+|D −1|) · exp {− C′ndiff min }, we have 
+
+c−2 
+
+> mg
+
+(1 + ω)2ζ2
+
+[δmg (P∗
+
+> g
+
+)] 2nmg (P∗
+
+> g
+
+) ≤ 4(1 + ω)2 · 8Mgrn
+
+2n2min 
+
+≤ 16 Mmax (1 + ω)2rn/n 2min ≤ 1
+
+54 for sufficiently large n and smin . Accordingly, with probability at least 1 − 2GM max /n min −
+
+2pG (|D 1| + |D −1|) · exp {− C′ndiff min }, we have 
+
+sup 
+
+> g∈[G]
+
+Mis (
+
+P∗
+
+> g
+
+; Pω(̂P(Mg ) 
+
+> g
+
+))
+
+≤ 16 Mmax (1 + ω)2C′′ · max 
+
+> {
+
+exp[ −κs min ], log nmin 
+
+nmin 
+
+> }
+
+,
+
+where C′′ > 0 is a constant. 
+
+# 8 Additional remarks for Section 3.2 
+
+Figure 8 is provided as a toy example to help readers understand the definitions involved in measuring the discrepancy between two clustering matrices. Figures 8(1) and 8(2) illustrate the true clustering matrices associated with two distinct clustering structures. An occupied entry at position (i, j ) indicates that observations i and j are assigned to the same cluster, while an empty entry indicates that they belong to different clusters. Figure 8(3) visualizes the entrywise difference between the two clustering matrices. Red entries correspond to locations where the difference equals 1, green entries correspond to locations where the difference equals -1, and blank entries indicate no discrepancy between the two clustering matrices (i.e., a difference of 0). For ease of theoretical analysis, we can permute the rows and columns of the clustering matrix in Figure 8(2), leading to a rearranged clustering matrix in Figure 8(5). As a result, a explicit separation matrix with block-wise 1’s, -1’s or 0’s are obtained. In Figure 8(6), hgg ′ = 4 , the red-dot region represents a subset of Dgg ′ 
+
+> 1
+
+,whereas the green-dot region represents a subset of Dgg ′ 
+
+> −1
+
+.55 1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10 
+
+11 
+
+12 
+
+13 
+
+14 
+
+15 
+
+16 
+
+17 
+
+18 
+
+19 
+
+20 
+
+21 
+
+22 
+
+23 
+
+24 
+
+25 
+
+26 
+
+27 
+
+28 
+
+29 
+
+30 
+
+(1) 
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10 
+
+11 
+
+12 
+
+13 
+
+14 
+
+15 
+
+16 
+
+17 
+
+18 
+
+19 
+
+20 
+
+21 
+
+22 
+
+23 
+
+24 
+
+25 
+
+26 
+
+27 
+
+28 
+
+29 
+
+30 
+
+(2) 
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10 
+
+11 
+
+12 
+
+13 
+
+14 
+
+15 
+
+16 
+
+17 
+
+18 
+
+19 
+
+20 
+
+21 
+
+22 
+
+23 
+
+24 
+
+25 
+
+26 
+
+27 
+
+28 
+
+29 
+
+30 
+
+(3) 
+
+1
+
+3
+
+5
+
+7
+
+9
+
+2
+
+4
+
+6
+
+8
+
+10 
+
+12 
+
+14 
+
+16 
+
+18 
+
+20 
+
+22 
+
+24 
+
+26 
+
+28 
+
+30 
+
+11 
+
+13 
+
+15 
+
+17 
+
+19 
+
+21 
+
+23 
+
+25 
+
+27 
+
+29 
+
+(4) 
+
+1
+
+3
+
+5
+
+7
+
+9
+
+2
+
+4
+
+6
+
+8
+
+10 
+
+12 
+
+14 
+
+16 
+
+18 
+
+20 
+
+22 
+
+24 
+
+26 
+
+28 
+
+30 
+
+11 
+
+13 
+
+15 
+
+17 
+
+19 
+
+21 
+
+23 
+
+25 
+
+27 
+
+29 
+
+(5) 
+
+1
+
+3
+
+5
+
+7
+
+9
+
+2
+
+4
+
+6
+
+8
+
+10 
+
+12 
+
+14 
+
+16 
+
+18 
+
+20 
+
+22 
+
+24 
+
+26 
+
+28 
+
+30 
+
+11 
+
+13 
+
+15 
+
+17 
+
+19 
+
+21 
+
+23 
+
+25 
+
+27 
+
+29 
+
+(6) 
+
+Figure 8: A toy example illustrating the key definitions in the theoretical analysis. 56
