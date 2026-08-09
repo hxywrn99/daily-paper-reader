@@ -1,0 +1,354 @@
+Title: Deep Multimodal Fusion Detection through Spatial Mask and Channel Fusion
+
+URL Source: https://arxiv.org/pdf/2608.02092v1
+
+Published Time: Tue, 04 Aug 2026 02:50:28 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+> arXiv:2608.02092v1 [cs.CV] 3 Aug 2026
+
+WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 1
+
+# Deep Multimodal Fusion Detection through Spatial Mask and Channel Fusion 
+
+Guandi Wang 
+
+guandi@kth.se 
+
+Ming Li 
+
+liming@umary.edu 
+
+Yunsen Xing 
+
+yunsen@kth.se 
+
+Junle Liu 
+
+junle@kth.se 
+
+1, KTH Royal Institute of Technology Stockholm, Sweden 2, University of Maryland, College Park,USA 
+
+Abstract 
+
+Deep multimodal fusion for object detection has demonstrated good performance through mining modal characteristics. However, existing feature-level fusion methods mainly weigh between two modalities and unify them in a unified representation space. This can lead to overfitting or over-specialization of the statistical properties of a single modality within a dual-backbone architecture. This paper proposes an Attention-Driven Complementarity Resampling framework for robust improvement of cross-modality ob-ject detection. Based on a shared channel spatial attention mechanism, we first introduce the semantic mask exchange to actively mix the boundaries of the modalities during the training phase, forcing the backbone network to learn generalized features without rely-ing on fixed modal labels. Then we propose a learnable channel competition to sample and aggregate features in a channel-wise and learnable way. Our experiments on mul-tiple datasets demonstrate that the proposed method is effective and yields competitive results among existing state-of-the-art approaches. The source code is provided in the supplementary material. 
+
+# 1 Introduction 
+
+Multimodal object detection, specifically leveraging visible and infrared data, has emerged as a critical component for robust perception systems in surveillance [12] and autonomous driving [20]. The core advantage of integrating visible and thermal information lies in the complementary nature of different modalities: RGB sensors provide rich texture and color details in favorable lighting conditions, while infrared sensors capture thermal signatures impervious to illumination changes or camouflage. Driven by the demand for robust percep-tion, existing fusion methods have evolved along two primary trajectories: shallow heuristic aggregation, which relies on designed weights or gating mechanisms such as addition and concatenation, and parametric dense aggregation, which employs cross-attention [27] [8] or state space models [7] to map heterogeneous features into a joint representational space. 
+
+© 2026. The copyright of this document resides with its authors. It may be distributed unchanged freely in print or electronic forms. 2WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 
+
+Despite their differences in complexity, existing methods share a common underlying as-sumption that the two modalities can and should be harmonized into a unified representation by exploiting their respective modal characteristics [18]. However, visible and infrared im-ages are fundamentally heterogeneous signals, and they arise from entirely different physical sensing mechanisms and encode scene information in intrinsically different ways [22]. Di-rectly harmonizing such heterogeneous signals through feature mixing, whether via shallow weighting or deep attentional entanglement, is essentially a passive compromise that treats modality characteristics as the primary basis for fusion decisions. This observation motivates a fundamentally different perspective on multimodal fusion mechanism. Rather than harmonizing modality-specific characteristics, we explore the mech-anism that the networks were trained to make fusion decisions without relying on modality identity. Inspired by the regularization success of spatial augmentation strategies such as CutMix [35] in unimodal settings, we propose to internalize a semantically guided feature exchange mechanism within the backbone network, actively circulating modality-specific spatial features between branches during training. This partial mixing of modality sources can reduce the network’s dependence on the inherent characteristics of a particular modality. Consequently, the downstream fusion module can perform pure channel-level competition without needing to reason about modality characteristics, selecting the more informative channel regardless of its modal origin. Building on this insight, we propose Attention-Driven Complementary Resampling (ADCR), a training-inference decoupled fusion framework consisting of two complementary modules. The Semantic Mask Enhancement (SME) module operates exclusively during training, per-forming semantics-guided spatial feature exchange between modality branches to prevent over-specialization to single-modality statistics. The Learnable Channel Competition (LCC) module then performs channel-level arbitration at inference via a differentiable competi-tion mechanism, selecting the more reliable channel from each modality without additional supervision signals. Together, SME and LCC form a principled decoupling of the where-to-complement and how-to-aggregate sub-problems in multimodal fusion. The main contribu-tions of this work are as follows: • We propose a training-time semantically-guided spatial exchange mechanism that pre-vents backbone over-specialization by actively circulating cross-modal features during training, with zero inference overhead. • We propose an inference-time channel competition module that performs modality-agnostic channel arbitration via a differentiable Entmax-based mechanism, requiring no additional loss functions. • We conduct comprehensive experiments on five public benchmarks LLVIP, M 3FD, FLIR, VEDAI, and DroneVehicle, demonstrating consistent improvements over state-of-the-art (SOTA) methods, with particularly substantial gains on datasets character-ized by severe modality asymmetry and spatial misalignment. 
+
+# 2 Related Work 
+
+## 2.1 Multi spectral Information Fusion 
+
+Multi-spectral information fusion has shown considerable advantages in practical engineer-ing applications, like autonomous driving, robotics and drones [11, 22]. Recent advance-WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 3
+
+ments in multimodal object detection have increasingly adopted Transformer-based archi-tectures to model long-range dependencies [1, 4, 23]. Methods [8, 27] leverage multi-head self-attention mechanisms to interactively fuse features across different scales, achieving sig-nificant performance gains over traditional convolutional neural networks(CNN)-based fu-sion. To further refine the fusion process, some works have focused on introducing specific inductive biases into the specific mechanism in their fusion paradigms. For instance, Cross-Fuse [19] addresses the potential redundancy in standard attention by incorporating a reverse softmax constraint, which explicitly guides the network to focus on complementary infor-mation between modalities. Similarly, IF-USOD [33] introduces a cross-scale interactive embedding bias, utilizing a hybrid CNN-transformer structure to facilitate effective infor-mation flow between high-level semantics and low-level details. Though existing methods have successfully enhanced feature representation through dense interactions, they generally model scale variations and modality characteristics in a coupled manner. This leads to a passive compromise that ignores the fundamental physical heterogeneity between thermal radiation and reflected light [38]. However, a notable challenge for these coupled mixing strategies emerges in real-world scenarios characterized by significant semantic asymmetry, such as dense smoke or extreme low-light conditions [14, 21]. When the information distribution between modalities is highly imbalanced, direct feature mixing often results in an undesirable feature compromise. Rather than explicitly identifying and compensating for spatial representation deficiencies, dense attention mechanisms may inadvertently propagate unreliable cues from the less in-formative modality into the robust counterpart. This interaction tends to attenuate the sharp, high-frequency edges that are crucial for precise bounding box regression [20]. Therefore, exploring disentangled paradigms that explicitly diagnose and correct spatial imbalances before performing lightweight, parameter-efficient aggregation remains a highly valuable research direction. 
+
+## 2.2 Cross-Modal Feature Exchange and Regularization 
+
+To achieve explicit spatial correction without the massive computational overhead of dense attention, alternative approaches have explored non-parametric feature exchange. Inspired by the regularization success of multimodal spatial augmentations like CutMix [35], recent multispectral methods have introduced cross-modal swapping mechanisms. CDC-YOLO Fusion [32] and LRAF-Net [10] propose image-level data augmentation strategies that ran-domly exchange or mask local patches between visible and infrared inputs to force mul-timodal learning. Concurrently, at the feature level, methods like Channel Exchange Net-works [31] and the State Space Channel Swapping module in FusionMamba [7] perform fixed exchanges along the channel dimension. Though previous works mainly focus on predefined exchange patterns and symmetric feature interaction, refining the exchange granularity worth exploring. Extending the concept of image-level swapping into the deep feature extraction phase offers a promising pathway to dynamically capture semantic imbalances. Furthermore, inspired by the interaction pro-moted by channel-level swapping, shifting towards a spatially targeted exchange can effec-tively prevent the propagation of unreliable cues under asymmetric degradation. Motivated by these insights, we aim to design a spatially-aware, directional exchange strategy that fos-ters deep cross-modal co-adaptation while meticulously preserving representation integrity. 4WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 
+
+# 3 Method 
+
+In multimodal dense prediction, the objective of fusion is to integrate complementary in-formation while suppressing noise from a specific modality. Given a pair of input features 
+
+Fvis , Fir ∈ RC×H×W , a conventional fusion function Φ(·) aims to produce a unified represen-tation: 
+
+Ff used = Φ(Fvis , Fir ). (1) Under the attention-weighted feature transformation F′ = F ⊙ W , the attention weight 
+
+W ∈ (0, 1) directly scales the gradient flow to the input feature, making it a natural proxy for information density rather than a mere mixing coefficient: regions where features are task-irrelevant or corrupted are naturally suppressed through optimization. However, we ob-serve a fundamental optimization conflict in static fusion paradigms. In scenarios where both modalities are reliable, the fusion paradigm Φ should achieve comprehensive information re-tention to capture subtle complementary details across modalities. Conversely, under asym-metric modal performance, where one modality is corrupted by environmental noise, ideally 
+
+Φ should function as a principled isolator to binary-truncate the compromised pathways and prevent noise leakage. Forcing a single mapping function to simultaneously satisfy these two divergent objectives often leads to gradient ambiguity and sub-optimal convergence. 
+
+Figure 1: Pipeline of our proposed method. The dashed arrows indicate control flow and the solid arrows indicate the direction of network feature transmission. We select a dual-backbone feature extraction network as the backbone, and ADCR modules are embedded in three different stages of the network. The two branches do not share their parameters; the channel spatial attention is shared for two modalities. The CSA module employs a parallel two-branch architecture: the spatial branch generates a spatial mask Wspatial through 1 × 1convolutions and tensor multiplication; the channel branch introduces parallel 3 ×3 and 5 ×5depthwise separable convolutions to extract multi-scale context, generating a channel mask 
+
+Wchannel while smoothing potential spatial misalignments. Finally, the original features are element-wise multiplied with both masks and then summed to output a doubly refined unified representation F′.As shown in Fig. 1, we design our proposed Attention-Driven Complementarity Resam-pling module in three stages of a dual-backbone network. Firstly, we propose a modality-sharing Spatial-Channel Attention (CSA) to extract spatial and channel weights as the the-oretical confidence metric W into a computable and cross-modal comparable scale. Given WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 5
+
+the visible feature Fvis ∈ RC×H×W and infrared feature Fir ∈ RC×H×W , both modalities are projected into a unified geometric space through the Spatial Attention (SA) module with identical convolutional weights and normalization parameters. Through channel-only and spatial-only branches, we extract the channel confidence mask Wch ∈ RC×1×1 and the spa-tial confidence mask Wsp ∈ R1×H×W .Heterogeneous modalities such as visible and infrared images exhibit fundamentally dif-ferent photometric distributions. By enforcing identical convolutional weights and normal-ization statistics across both modalities, the CSA projects Fvis and Fir into a unified geometric space where the sole source of variation in W is the information content of the input rather than parametric bias. Under this constraint, the discrepancy between Wvis and Wir reflects purely content-driven divergence, enabling the subsequent methods to operate on a dimen-sionless, cross-modal comparable scale. 
+
+## 3.1 Semantic Mask Exchange via Spatial-Semantic Discrepancy 
+
+Wch and Wsp serve to quantify intra-modal feature utility. By comparing these confidence maps across modalities, we can identify regions where information density is spatially im-balanced. In regions where one modality exhibits overwhelming superiority, characterized by a large gap between Wvis ,sp and Wir ,sp , a structured cross-modal spatial exchange can enrich feature representation of the weaker modality. We propose SME to utilize this insight during training as a complementarity-driven spatial augmentation. 
+
+Figure 2: Semantic Mask Exchange Mechanism. The exchange score ( N × N)is calculated by Semantic Cosine Distance (SSD), and is subsequently sparsified through a top-K selec-tion. The exchange is operated during the training stage, and we set a Bernoulli sampling to regularize the distribution of exchanged features. It utilizes continuous exchange scores si, j
+
+as activation probabilities, ensuring that the fusion boundary remains fluid while prioritizing the exchange of highly complementary regions. As illustrated in Fig. 2, we first discritize the spatial confidence maps into a block-level representation. Given W in blocks and input weight Wsp ∈ RB×1×H×W , we aggregate global features into a block-level representation V ∈ RB×N×N . Let the height of each block be 6WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 
+
+h = ⌊H/N⌋, and the width be w = ⌊W /N⌋. For the b-th sample in the batch, the weight Vb,i, j
+
+of its aggregated (i, j)-th block can be expressed as: 
+
+Vb,i, j = 1
+
+c · h · w
+
+> C
+
+# ∑
+
+> c=1
+> (i+1)h−1
+
+# ∑ 
+
+> x=i·h
+> (j+1)w−1
+
+# ∑ 
+
+> y=j·w
+
+Wb,c,x,y (2) For each block (i, j), we define the exchange score as Semantic Cosine Distance(SSD), a product of two complementary terms: 
+
+si, j = V (i, j) 
+
+> ir
+
+−V (i, j)
+
+> vis
+
+2 · max m,n V (m,n) 
+
+> ir
+
+−V (m,n) 
+
+> vis
+
++ ε
+
+| {z }
+
+> Spatial Attention Gap
+
+· 1 − V (i, j) 
+
+> ir
+
+·V (i, j)
+
+> vis
+
+∥V (i, j) 
+
+> ir
+
+∥2 ∥V (i, j) 
+
+> vis
+
+∥2
+
+!| {z }
+
+> Semantic Cosine Distance
+
+(3) where: • Semantic Cosine Distance adaptively adjusts feature representation during the fusion process by measuring the semantic consistency of features between modalities. When visible light and infrared features are highly homogeneous, the distance approaches 0, thus fundamentally suppressing meaningless feature oscillations; conversely, when there is strong inconsistency between modalities, their feature descriptors will exhibit high orthogonality in the semantic space, and the distance will approach 1. • Spatial Attention Gap is smoothed and continuously modulated. It can simultane-ously represent the degree of difference in activation features between modes and the difference in cross-modal features of spatial blocks (i, j) in the network. (m, n) repre-sents traversing all local grids of the current feature map. Given the exchange scores {si, j}, we select the top-K blocks as candidates and apply stochastic selection via Bernoulli sampling [28]: 
+
+mi, j ∼ Bernoulli  si, j · I(( i, j) ∈ I K ), (4) where IK denotes the index set of the top-K blocks ranked by si, j.For selected blocks, the corresponding spatial regions of Fvis and Fir are symmetrically swapped, yielding the spatially mixed features ˜ Fvis and ˜ Fir . Semantic Mask Exchange (SME) is applied exclusively during training with a probability of p, enforcing each modality branch to incorporate complementary spatial context from the other modality and preventing over-specialization. In the inference phase, SME is deactivated with no additional computational overhead. 
+
+## 3.2 Learnable Channel Competition 
+
+From an optimization perspective, the parallel maintenance of dual-modality channels cre-ates bifurcated gradient pathways. For any channel c where both modalities encode re-dundant information, the optimizer receives coupled gradient signals, leading to feature co-adaptation and inefficient representation; when one modality is corrupted, its gradient path continues to propagate noise into the shared backbone. A channel-level competition mecha-nism collapses these bifurcated paths into a single, trustworthy gradient conduit per channel. WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 7
+
+Figure 3: Learnable Channel Competition Mechanism. Previous spatially mixed features undergo per-channel arbitration based on the inter-modal confidence discrepancy ∆c. The channel competition branch is controlled by an indicator function I(∆c > 0) that executes a discrete decision. To overcome the non-differentiability of the indicator function, an Adap-tive Boundary Proxy is constructed using a convex interpolation of a soft sigmoid ( Pso f t c )and a sparse clip ( Psparse c ) component, regulated by a learnable parameter αc. The adaptive boundary proxy (ABP) allows the error gradients to intelligently bypass the discrete indica-tor and flow exclusively through the continuous proxy, ensuring end-to-end optimizability for the upstream modules. Let ˜ Fvis , ˜Fir ∈ RB×C×H×W be the spatially mixed features from SME. For each channel c,we define a binary selection variable zc ∈ { 0, 1}, where zc = 1 retains the visible modality and zc = 0 retains the infrared modality. The fused output is expressed as: 
+
+F f use  
+
+> :,c,:,:
+
+= zc · ˜Fvis ,:,c,:,: + ( 1 − zc) · ˜Fir ,:,c,:,:. (5) Based on the unified projection of CSA, these weights are inherently comparable across modalities, allowing us to define the channel-level discrepancy as: 
+
+∆c = W(c) 
+
+> vis ,ch
+
+− W (c)
+
+> ir ,ch
+
+. (6) Following the ordinal interpretation, ∆c > 0 indicates higher information density in the visible modality, while ∆c < 0 favors the infrared stream. Ideally, zc = I(∆c > 0), but this in-dicator function yields zero gradients almost everywhere, severing the backpropagation path to the CSA parameters and α. To restore differentiability while preserving hard forward-pass decisions, we construct an adaptive boundary proxy(ABP) πvis c ∈ [0, 1] to approximate the se-lection probability of the visible modality. It is formulated as a convex interpolation between a soft component and a sparse component. The soft component uses a scaled sigmoid to maintain dense gradient flow: 
+
+pso f t c = σ (s · ∆c), (7) where s is a predefined logit scale. The sparse component uses a piece-wise linear clip that maps directly to {0, 1} outside the sensitive region [−1/s, 1/s]:
+
+psparse c = clip 
+
+
+
+0.5 + s·∆c 
+
+> 2
+
+, 0, 1
+
+
+
+. (8) 8WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 
+
+A per-channel learnable parameter αc ∈ [1.01 , 2.0] controls the interpolation stiffness via 
+
+τc = αc − 1: 
+
+πvis c = ( 1 − τc) · pso f t c + τc · psparse c . (9) Inspired by α-Entmax [24], the ABP will function as below: τc → 0, where the proxy reduces to sigmoid (dense gradients); as τc → 1, it approaches sparsemax (sparse, boundary-polarized gradients). This adaptation ensures that the selection remains differentiable while possessing the structural capacity for absolute truncation. The indicator function is piece-wise constant and yields zero gradients almost everywhere, and it effectively severs the back-propagation path, preventing the joint optimization of the CSA parameters and the entropy modulator αc. To bridge this gap between discrete semantic arbitration and continuous gra-dient descent, we employ the Straight-Through Estimator [2]. We formulate the final routing mask Mvis c by decoupling its forward-pass value from its backward-pass derivative as: 
+
+zc = I(∆c > 0)
+
+| {z }
+
+> forward
+
+− sg (πvis c ) + πvis c , (10) where sg (·) denotes the stop-gradient operator. During the forward pass, zc is numeri-cally identical to the discrete decision I(∆c > 0). During backpropagation, gradients bypass the non-differentiable indicator and flow through πvis c as: 
+
+∂ L
+
+∂ ∆c
+
+= ∂ L
+
+∂ zc
+
+· ∂ π vis c
+
+∂ ∆c
+
+. (11) In inference, the soft proxy is discarded; only the hard decision zc = I(∆c > 0) is retained. 
+
+# 4 Experiment 
+
+Dataset. To comprehensively evaluate the performance of our proposed methods, we con-duct experiments on five public benchmarks: M 3FD [21], LLVIP [14], FLIR [9], DroneVe-hicle [30], and VEDAI [26]. 
+
+Implementation. Our method uses untrained CSPdarknet [3] as the backbone for feature extraction. The training was conducted on a NVIDIA A40 GPU with the SGD optimizer; the environment setting is PyTorch-2.5.0-NGC-24.09 . The spatial partition number N and top-k
+
+selection ratio in SME are fixed to 10 and 50% respectively throughout all experiments. It ensures that each block contains sufficient spatial context information covers a wide range of candidate swap regions, while avoiding redundant swaps in highly similar regions. The batch size is set as 16, and we ran 200 epochs to obtain the final result. The training hyper-parameters are set as follows: learning rate is set as 0.01 for both initial learning rate and final learning rate, and momentum is set as 0.937. 
+
+## 4.1 Comparison with other methods 
+
+We evaluate our method on five benchmark datasets against both single-modality baselines and multi-modal fusion methods. On the dataset of LLVIP and M 3FD, shown in Tab. 1, our ADCR model achieves compet-itive performance, indicating ADCR outperforms other models in pedestrian and multi-class WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 9
+
+detection under relatively controlled capture conditions. On LLVIP, the CSPDarknet53-v8 backbone variant achieves 65.1 mAP 95 , with a 0.8% gain over the second-best method. On M3FD, ADCR reaches 88.2% mAP 50 and 61.0 mAP 95 , consistent with the trend that decou-pled channel reasoning offers steady improvement even when modality quality is relatively balanced. In particular, the advantage becomes more pronounced when modality asymmetry is inherent to the capture conditions. On FLIR, where unstable visible-light quality causes infrared to dominate scene semantics, our ADCR model achieves 79.1% mAP 50 and 43.0 mAP 95 , exceeding the next best result by 0.9% and 3.1 points, respectively. This denotes that LCC’s inference-time channel arbitration is particularly effective when one modality consistently contributes more reliable cues, allowing the model to selectively amplify rather than uniformly fuse cross-modal information. Table 1: Comparison with state-of-the-art methods across four benchmarks. Bold and underline indicate the best and second-best performances. 
+
+Method Backbone LLVIP M3FD FLIR VEDAI mAP 50 mAP 95 mAP 50 mAP 95 mAP 50 mAP 95 mAP 50 mAP 95 
+
+Single-modality baselines 
+
+YOLOv5 [17] (RGB) CSPDarknet53-v5 90.8 50.0 83.5 55.2 67.8 31.8 74.3 64.2 YOLOv5 [17] (IR) CSPDarknet53-v5 94.6 61.9 84.2 56.1 73.9 39.5 74.0 64.2 YOLOv8 [16] (RGB) CSPDarknet53-v8 91.9 54.0 80.9 52.5 66.3 28.2 52.1 31.0 YOLOv8 [16] (IR) CSPDarknet53-v8 95.2 62.1 79.5 53.1 72.9 38.3 56.9 35.3 
+
+Multi-modal fusion methods 
+
+GAFF [36] ResNet18 94.0 55.8 – – 72.7 37.3 72.9 37.5 CFT [8] CSPDarknet53-v5 96.8 62.9 83.2 52.2 74.5 36.5 74.6 44.1 CFR [36] CSPDarknet53-v5 – – 82.7 50.3 72.4 – – –ICAFusion [27] CSPDarknet53-v5 97.0 62.4 86.6 56.9 77.3 38.1 75.7 46.2 MCOR [13] CSPDarknet53-v5 97.6 64.9 87.2 57.3 78.2 39.9 76.2 46.3 TarDAL [21] CSPDarknet53-v5 – – 78.0 46.9 – – – –CMAFF [25] CSPDarknet53-v5 – – – – – – 68.0 42.6 multimodal DINO [29] CSPDarknet53-v5 – – – – – – 83.6 53.8 
+
+Fusion-Mamba [7] CSPDarknet53-v5 96.8 62.8 85.0 57.5 – – – –Fusion-Mamba [7] CSPDarknet53-v8 97.0 64.3 88.0 61.0 – – – –ADCR (Ours) CSPDarknet53-v8 97.5 65.1 88.2 61.0 79.1 43.0 82.7 49.5 ADCR (Ours) CSPDarknet53-v5 97.7 64.2 85.9 58.6 78.2 41.8 81.9 50.2 
+
+Table 2: Comparison with state-of-the-art methods on the DroneVehicle benchmark. Bold 
+
+and underline indicate the best and second-best results. 
+
+Method Backbone mAP 50 mAP 
+
+Single-modality baselines 
+
+YOLOv5 [17] (RGB) CSPDarknet53-v5 65.2 37.7 YOLOv5 [17] (IR) CSPDarknet53-v5 76.9 53.3 YOLOv8 (RGB) [16] CSPDarknet53-v8 71.7 43.3 YOLOv8 (IR) [16] CSPDarknet53-v8 80.4 57.6 
+
+Multi-modal fusion methods 
+
+AR-CNN [37] VGG-16 71.6 40.5 UA-CMDet [30] ResNet50 64.0 48.2 TSFADet [34] ResNet50 73.1 44.1 SLBAF-Net [6] CSPDarknet53-v5 77.0 49.5 CSOM-ODAF [5] CSPDarknet53-v5 77.5 52.5 CMAFF [25] CSPDarknet53-v5 82.0 57.6 CMA [15] CSPDarknet53-v8 76.8 52.4 Fusion-Mamba [7] CSPDarknet53-v8 79.2 56.0 
+
+ADCR (Ours) CSPDarknet53-v5 84.4 64.5 ADCR (Ours) CSPDarknet53-v8 84.1 64.3 
+
+The most substantial gains appear on DroneVehicle, shown as Tab. 2, where aerial 10 WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 
+
+viewpoints introduce compounded challenges: large-scale spatial misalignment and severe modality-asymmetric appearance variation co-occur across the same scene. ADCR achieves 84.1% mAP 50 and 64.5 mAP 95 , with margins of 4.9% and 8.5 points over the strongest com-peting baseline. We attribute this to the complementary effect of SME’s training-time spatial resampling, which encourages robustness to geometric inconsistency, and LCC’s inference-time arbitration, as further validated in the ablation study ( Tab. 3). On VEDAI, ADCR surpasses all evaluated multi-modal fusion methods with 82.7% mAP 50 and 49.5 mAP 95 ,further confirming the generalizability of the decoupled design across aerial detection sce-narios. 
+
+## 4.2 Ablation Experiments 
+
+To validate the effectiveness of the proposed modules in the model, we conduct an evaluation on the FLIR dataset. As shown in Tab. 3, we evaluate each component’s effectiveness. To justify the design of LCC, we compare four alternative fusion strategies of increasing com-plexity. Add performs direct element-wise summation without any selection mechanism. 
+
+ConcatConv concatenates the two modality features and applies a 1 × 1 convolution for lin-ear channel mixing. LCC(w/o ABP) is the basic architecture without the adaptive boundary proxy(ABP) mechanism, and CompeteFusion is the method that directly conducts channel competition without gradient backpropagation and other components. Table 3: Ablation results. The baseline is Add fu-sion operation. Added Params means the amount of in-creased parameters compared to baseline for each ex-perimental case. The colored section in table is detailed ablation evaluation for LCC.                            
+
+> Model mAP 50 (%) mAP 95 (%) Added Params(M)
+> Baseline 77.3 41.9 –CSA(w/o SME, w/o LCC) 77.6 41.3 +1.090 w/o SME 78.2 42.6 +1.091 w/o LCC(add) 78.1 41.4 +1.090 ADCR (full) 79.1 43.0 +1.091 w/o LCC(ConcatConv) 77.5 42.1 +3.187 LCC (CompeteFusion Only) 78.7 42.6 –LCC (w/o ABP) 78.7 42.5 –
+
+Our evaluation basically fo-cuses on two proposed modules: the SME and the LCC, The results are presented in Tab. 3, where w/o 
+
+m denotes the model without part 
+
+m.Effects of SME and LCC mod-ules: we recorded the results of re-moving the SME and LCC mod-ules. When SME is removed, the network’s performance decreases by 0.9% in mAP 50 and 0.4% in mAP 95 , respectively. This is due to the lack of spatial interaction between modalities, and SME encourages robustness to spa-tial misalignment during training. When LCC is removed, the performance decreases by 1.0% and 1.6% in mAP 50 and mAP 95 , respectively.LCC achieves physical truncation, effec-tively preventing noise propagation between modes. Simultaneously, LCC enables the entire network to be jointly optimized with adaptive polarization sparse parameters. Ultimately, the edge information required for high-precision positioning is preserved. Each component contributes positively to the final performance. We also further evaluate internal designs in LCC. Regarding another fusion strategy, we remove the channel competition and build ConcatConv instead, and the performance de-creases to 77.7% in mAP 50 and 42.1% in mAP 95 . Then we set CompeteFusion as the only fusion mechanism, the performance increases by 1.2% and 0.5% in mAP 50 and mAP 95 com-pared to ConcatConv. Based on CompeteFusion, we add the STE(straight-through estimator) architecture. Contrary to our expectation, while it reconnects the backward gradient flow, it yields no improvement in mAP 50 and mAP 95 . Because the derivative of a sigmoid function never reaches strictly zero, it continuously leaks update signals to the suppressed modal-WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 11 
+
+ity branch during backpropagation and causes implicit cross-modal gradient interference. This fully justifies the necessity of our Adaptive Boundary Proxy (ABP) in the full ADCR model. By incorporating a piece-wise linear clip component, ABP strictly zeroes out the gradients for decisively suppressed channels. This absolute optimization sparsity perfectly aligns the backward gradient flow with the forward discrete routing, eliminating interference and driving the performance to peak bounds. To comprehensively evaluate the efficiency of our design, we calculate the net additional parameter and computational overhead intro-duced by the fusion mechanisms, excluding the base parameters of the zero-reference back-bone.Taking the deepest feature stage ( C = 1024) as a representative example, a conventional ConcatConv fusion operation incurs a substantial additional burden of 2.10M parameters and 26.84 GFLOPs relative to the baseline. In contrast, our full ADCR framework requires a net increment of 1.09M parameters and 21.27 GFLOPs, achieving a 20.8% reduction in compu-tational complexity. Furthermore, internal analysis shows that most of parameters and com-putational resources are dedicated to the necessary CSA spatial channel alignment. Built upon this aligned representation, our core cross-modal interaction mechanisms add virtually no overhead: SME introduces no learnable parameters and incurs no inference-time cost, as it is entirely bypassed during the forward pass, while LCC contributes merely 0.001M parameters with a negligible computational footprint of 19.66 MFLOPs, occupies 0.09% of total. This confirms that ADCR achieves a good balance between foundational alignment and highly efficient cross-modal interaction. 
+
+## 4.3 Sensitivity to the Bernoulli Sampling Probability 
+
+As illustrated in Fig. 4, we report the sensitivity analysis of the Bernoulli sampling probabil-ity p across both the FLIR and M 3FD datasets to evaluate its impact on mAP 50 and mAP 95 .The experimental curves reveal a consistent behavior trend between the two distinct bench-marks. Specifically, the detection performance does not change monotonically but peaks distinctively at p = 0.6 on both datasets. The pattern presents that balanced cross-modal spatial exchange helps optimize cross-modal spatial regularizations without disrupting the learned backbone representations. 77.0 77.5 78.0 78.5 79.0 79.5 80.0           
+
+> (a) FLIR
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Bernoulli Sampling Probability
+> 41.0 41.5 42.0 42.5 43.0 43.5 44.0
+> mAP50 mAP95 87.0 87.5 88.0 88.5 89.0
+> (b) M3FD
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Bernoulli Sampling Probability
+> 60.0 60.5 61.0 61.5 62.0
+> mAP50 mAP95
+
+Figure 4: Sensitivity Analysis of the Bernoulli Sampling Probability. The consistent per-formance peak observed at the intermediate value ( p = 0.6) robustly validates the necessity of our proposed semantics-guided feature circulation during training. 12 WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 
+
+While minor localized fluctuations are observed at adjacent probability points (such as 
+
+p = 0.4 and p = 0.8), the overall stable boundary performance at p = 1.0 demonstrates the general robustness of the framework. Across the entire continuous spectrum of p ∈
+
+[0.0, 1.0], the proposed ADCR framework consistently outperforms the baseline variant ( p =
+
+0.0), further substantiating that introducing controlled cross-modal feature circulation during training brings steady optimization benefits regardless of minor parameter variations. 
+
+## 4.4 Visualization Results 
+
+We visualize the outcomes of SME across four scenes from multiple datasets. As shown in 
+
+Fig. 5, For each scene, we present a block-level exchange score map, the original RGB and infrared(IR) image pairs, and the feature maps before and after SME is applied. 
+
+Figure 5: Visualization of SME mechanism. The labeled boxes represent the locations of key targets in figures. The exchange score map reflects the spatial distribution of complementarity between modalities: higher-score regions where the two modalities exhibit greater semantic diver-gence and thus higher exchange priority. The exchange score map identifies blocks of maxi-mum cross-modal semantic divergence, which are selected for bidirectional feature exchange regardless of whether they correspond to foreground objects or background regions. As shown in the highlighted areas, the exchange produces two distinct observable effects: in some regions, previously ambiguous activations become more structured after receiving fea-tures from the complementary modality, while the donor branch correspondingly absorbs the divergent context; in others, modality-specific noise patterns are redistributed between branches rather than suppressed. SME does not remediate a weak modality with a strong one, but instead exposes each backbone branch to cross-modal feature patterns it would not encounter under normal training, preventing over-specialization to single-modality statis-tics. The downstream LCC module consequently faces a harder channel arbitration problem during training, where modality provenance is deliberately obfuscated, making the network more robust to the modality asymmetry encountered at inference. WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 13 
+
+Figure 6: Per channel α deviation from initialization. (a) is the result of VEDAI, (b) is the result of FLIR. α − αinit is the offset of learnable parameter α.
+
+Fig. 6 visualizes the per-channel α deviation from initialization across three network stages. A consistent trend across both datasets is that the distribution of α deviation pro-gressively sharpens with network depth: the broad, diffuse distribution at Stage 1 gradually concentrates into increasingly narrow, high-density peaks at Stage 3. This reflects a polar-ization process, channels that initially occupy ambiguous intermediate states progressively commit to a more definitive modality suppression strengths as the network deepens. Rather than forming new groups, the existing preference structure becomes increasingly resolved, with fewer channels remaining in uncertain suppression states. This suggests that LCC’s channel arbitration becomes more decisive in deeper layers, consistent with the higher se-mantic abstraction that deep features encode. Second, the direction and magnitude of devi-ation differ systematically between datasets. On VEDAI (a), the mean deviation is approxi-mately −0.156 across all stages, indicating moderate channel suppression. On FLIR (b), the deviation is substantially larger at approximately −0.362, reflecting the more severe modal-ity asymmetry inherent to FLIR’s unstable visible-light conditions. Furthermore, Stage 1 on FLIR exhibits a markedly wider distribution (std = 0.0071) compared to VEDAI (std = 0.0029), suggesting that low-level features already exhibit stronger per-channel differenti-ation when modality imbalance is more pronounced. Together, these confirm observations that LCC adaptively learns dataset-specific suppression strategies rather than applying a fixed fusion policy. 
+
+# 5 Conclusion 
+
+This paper addresses the fundamental challenge of multimodal fusion under modality asym-metry, where direct feature mixing leads to gradient ambiguity when one modality is de-graded by environmental conditions. In the context of RGB-infrared object detection, we identify that existing fusion paradigms face an inherent optimization conflict: a single fu-sion function cannot simultaneously act as a soft integrator under balanced modalities and a 14 WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 
+
+hard isolator under asymmetric ones. The proposed solution decouples this conflict into two complementary mechanisms operating at different stages. As opposed to previous work that performs feature mixing directly, SME circulates semantically divergent spatial features be-tween backbone branches during training, preventing modality over-specialization without introducing additional supervision signals. LCC then performs channel arbitration at infer-ence via a differentiable competition mechanism, selecting the more informative modality per channel. Together, the two modules form a plug-and-play training-inference decoupled fusion paradigm. Experiments on five benchmark datasets demonstrate continuous performance improve-ments. The most significant improvements occur on datasets with severe modal asymmetry and spatial misalignment. Future research may include addressing temporal modal asym-metry in video sequences and exploring interaction mechanisms for more modal inputs. We hope to further extend the method to more multimodal tasks. 
+
+# 6 Acknowledgment 
+
+Computational resources are supported by the National Academic Infrastructure for Super-computing in Sweden (NAISS) with Project No. NAISS 2026/4-674. 
+
+# References 
+
+[1] Xuyang Bai, Zeyu Hu, Xinge Zhu, Qingqiu Huang, Yilun Chen, Hongbo Fu, and Chiew-Lan Tai. Transfusion: Robust lidar-camera fusion for 3d object detection with transformers. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 1090–1099, 2022. [2] Yoshua Bengio, Nicholas Léonard, and Aaron Courville. Estimating or propagat-ing gradients through stochastic neurons for conditional computation. arXiv preprint arXiv:1308.3432 , 2013. [3] Alexey Bochkovskiy, Chien-Yao Wang, and Hong-Yuan Mark Liao. Yolov4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934 , 2020. [4] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kir-illov, and Sergey Zagoruyko. End-to-end object detection with transformers. In Euro-pean conference on computer vision , pages 213–229. Springer, 2020. [5] Chen Chen, Jiahao Qi, Xingyue Liu, Kangcheng Bin, Ruigang Fu, Xikun Hu, and Ping Zhong. Weakly misalignment-free adaptive feature alignment for uavs-based multi-modal object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 26836–26845, 2024. [6] Xiaolong Cheng, Keke Geng, Ziwei Wang, Jinhu Wang, Yuxiao Sun, and Pengbo Ding. Slbaf-net: Super-lightweight bimodal adaptive fusion network for uav detection in low recognition environment. Multimedia Tools and Applications , 82(30):47773–47792, 2023. WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 15 
+
+[7] Wenhao Dong, Haodong Zhu, Shaohui Lin, Xiaoyan Luo, Yunhang Shen, Guodong Guo, and Baochang Zhang. Fusion-mamba for cross-modality object detection. IEEE Transactions on Multimedia , 2025. [8] Qingyun Fang, Dapeng Han, and Zhaokui Wang. Cross-modality fusion transformer for multispectral object detection. arXiv preprint arXiv:2111.00273 , 2021. [9] Muhammad Ali Farooq, Peter Corcoran, Cosmin Rotariu, and Waseem Shariff. Ob-ject detection in thermal spectrum for advanced driver-assistance systems (adas). Ieee Access , 9:156465–156481, 2021. [10] Haolong Fu, Shixun Wang, Puhong Duan, Changyan Xiao, Renwei Dian, Shutao Li, and Zhiyong Li. Lraf-net: Long-range attention fusion network for visible–infrared object detection. IEEE Transactions on Neural Networks and Learning Systems , 35 (10):13232–13245, 2023. [11] Soonmin Hwang, Jaesik Park, Namil Kim, Yukyung Choi, and In So Kweon. Multi-spectral pedestrian detection: Benchmark dataset and baseline. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 1037–1045, 2015. [12] Summaira Jabeen, Xi Li, Muhammad Shoib Amin, Omar Bourahla, Songyuan Li, and Abdul Jabbar. A review on methods and applications in multimodal deep learning. 
+
+ACM Trans. Multimedia Comput. Commun. Appl. , 19(2s), February 2023. ISSN 1551-6857. doi: 10.1145/3545572. URL https://doi.org/10.1145/3545572 .[13] Junbo Jang, Chanyeong Park, Heegwang Kim, Jiyoon Lee, and Joonki Paik. Mul-tispectral object detection enhanced by cross-modal information complementary and cosine similarity channel resampling modules. In 2025 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) , pages 9437–9446. IEEE, 2025. [14] Xinyu Jia, Chuang Zhu, Minzhen Li, Wenqi Tang, and Wenli Zhou. Llvip: A visible-infrared paired dataset for low-light vision. In Proceedings of the IEEE/CVF interna-tional conference on computer vision , pages 3496–3504, 2021. [15] Chenchen Jiang, Huazhong Ren, Hong Yang, Hongtao Huo, Pengfei Zhu, Zhaoyuan Yao, Jing Li, Min Sun, and Shihao Yang. M2fnet: Multi-modal fusion network for object detection from visible and thermal infrared images. International Journal of Applied Earth Observation and Geoinformation , 130:103918, 2024. [16] Glenn Jocher, Jing Qiu, and Ayush Chaurasia. Ultralytics yolo, January 2023. URL 
+
+https://github.com/ultralytics/ultralytics . AGPL-3.0 license. [17] Glenn Jocher et al. ultralytics/YOLOv5: v6.0, 2021. [18] Hui Li and Xiao-Jun Wu. Densefuse: A fusion approach to infrared and visible images. 
+
+IEEE transactions on image processing , 28(5):2614–2623, 2018. [19] Hui Li and Xiao-Jun Wu. Crossfuse: A novel cross attention mechanism based infrared and visible image fusion approach. Information Fusion , 103:102147, 2024. 16 WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 
+
+[20] Chunmian Lin, Daxin Tian, Xuting Duan, Jianshan Zhou, Dezong Zhao, and Dongpu Cao. 3d-dfm: Anchor-free multimodal 3-d object detection with dynamic fusion mod-ule for autonomous driving. IEEE Transactions on Neural Networks and Learning Systems , 34(12):10812–10822, 2022. [21] Jinyuan Liu, Xin Fan, Zhanbo Huang, Guanyao Wu, Risheng Liu, Wei Zhong, and Zhongxuan Luo. Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 5802– 5811, 2022. [22] Jiayi Ma, Yong Ma, and Chang Li. Infrared and visible image fusion methods and applications: A survey. Information fusion , 45:153–178, 2019. [23] Jiayi Ma, Linfeng Tang, Fan Fan, Jun Huang, Xiaoguang Mei, and Yong Ma. Swinfu-sion: Cross-domain long-range learning for general image fusion via swin transformer. 
+
+IEEE/CAA Journal of Automatica Sinica , 9(7):1200–1217, 2022. [24] Ben Peters, Vlad Niculae, and André FT Martins. Sparse sequence-to-sequence mod-els. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics , pages 1504–1519, 2019. [25] Fang Qingyun and Wang Zhaokui. Cross-modality attentive feature fusion for object detection in multispectral remote sensing imagery. Pattern Recognition , 130:108786, 2022. [26] Sebastien Razakarivony and Frederic Jurie. Vehicle detection in aerial imagery: A small target detection benchmark. Journal of Visual Communication and Image Rep-resentation , 34:187–203, 2016. [27] Jifeng Shen, Yifei Chen, Yue Liu, Xin Zuo, Heng Fan, and Wankou Yang. Icafusion: It-erative cross-attention guided feature fusion for multispectral object detection. Pattern Recognition , 145:109913, 2024. [28] Nitish Srivastava, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan Salakhutdinov. Dropout: a simple way to prevent neural networks from overfitting. 
+
+The journal of machine learning research , 15(1):1929–1958, 2014. [29] Xu Sun, Yinhui Yu, and Qing Cheng. Adaptive multimodal feature fusion with fre-quency domain gate for remote sensing object detection. Remote Sensing Letters , 15 (2):133–144, 2024. [30] Yiming Sun, Bing Cao, Pengfei Zhu, and Qinghua Hu. Drone-based rgb-infrared cross-modality vehicle detection via uncertainty-aware learning. IEEE Transactions on Cir-cuits and Systems for Video Technology , 32(10):6700–6713, 2022. [31] Yikai Wang, Wenbing Huang, Fuchun Sun, Tingyang Xu, Yu Rong, and Junzhou Huang. Deep multimodal fusion by channel exchanging. Advances in neural infor-mation processing systems , 33:4835–4845, 2020. [32] Zian Wang, Xianghui Liao, Jin Yuan, You Yao, and Zhiyong Li. Cdc-yolofusion: Leveraging cross-scale dynamic convolution fusion for visible-infrared object detec-tion. IEEE Transactions on Intelligent Vehicles , 2024. WANG: MULTIMODAL FUSION DETECTION VIA SPATIAL MASK AND CHANNEL FUSION 17 
+
+[33] Genji Yuan, Jintao Song, and Jinjiang Li. If-usod: Multimodal information fusion interactive feature enhancement architecture for underwater salient object detection. 
+
+Information Fusion , 117:102806, 2025. [34] Maoxun Yuan, Yinyan Wang, and Xingxing Wei. Translation, scale and rotation: cross-modal alignment meets rgb-infrared vehicle detection. In European Conference on Computer Vision , pages 509–525. Springer, 2022. [35] Sangdoo Yun, Dongyoon Han, Seong Joon Oh, Sanghyuk Chun, Junsuk Choe, and Youngjoon Yoo. Cutmix: Regularization strategy to train strong classifiers with local-izable features. In Proceedings of the IEEE/CVF international conference on computer vision , pages 6023–6032, 2019. [36] Heng Zhang, Elisa Fromont, Sébastien Lefèvre, and Bruno Avignon. Guided attentive feature fusion for multispectral pedestrian detection. In Proceedings of the IEEE/CVF winter conference on applications of computer vision , pages 72–80, 2021. [37] Lu Zhang, Xiangyu Zhu, Xiangyu Chen, Xu Yang, Zhen Lei, and Zhiyong Liu. Weakly aligned cross-modal learning for multispectral pedestrian detection. In Proceedings of the IEEE/CVF international conference on computer vision , pages 5127–5137, 2019. [38] Zixiang Zhao, Haowen Bai, Jiangshe Zhang, Yulun Zhang, Shuang Xu, Zudi Lin, Radu Timofte, and Luc Van Gool. Cddfuse: Correlation-driven dual-branch feature decom-position for multi-modality image fusion. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 5906–5916, 2023.

@@ -1,0 +1,240 @@
+Title: DRPFNet: Dual-domain Residual Progressive Fusion Network for RGB-Thermal Object Detection
+
+URL Source: https://arxiv.org/pdf/2608.03370v1
+
+Published Time: Wed, 05 Aug 2026 00:47:54 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# DRPFNet: Dual-domain Residual Progressive Fusion Network for RGB-Thermal Object Detection 
+
+Zian Wang, Changchun Li ∗
+
+College of Computer Science and Technology, Jilin University, China wangza2124@mails.jlu.edu.cn, changchunli93@gmail.com 
+
+Abstract —RGB-thermal (RGB-T) object detection aims to fuse complementary information from visible and thermal modalities to achieve robust detection under varying illumination and weather conditions. Current methods typically employ attention mechanisms or transformers to perform cross-modal fusion independently at each feature scale, directly combining RGB and thermal features in the spatial domain. However, they still face significant limitations: cross-level knowledge inheritance caused by independent fusion at each scale, suppressing noise continu-ously due to the lack of bidirectional optimization, and informa-tion degradation induced by the absence of frequency-spatial collaboration. To address these issues, we propose DRPFNet, a Dual-domain Residual Progressive Fusion Network that con-structs a unified information flow optimization system from three synergistic levels: structure, feature, and enhancement. At the structural level, we establish cross-scale propagation through bottom-up knowledge accumulation and bidirectional enhancement, ensuring smooth information flow. At the feature level, we collaboratively extract RGB high-frequency edges and thermal low-frequency structures via frequency band separation and edge guidance, guaranteeing representation quality. At the enhancement level, we enhance foreground-background discrim-ination through edge-guided dual-domain refinement, achieving precise object localization. Extensive experiments on two public RGB-T datasets demonstrate that our method achieves com-petitive performance with competitive efficiency, validating the effectiveness of this hierarchical collaborative strategy. 
+
+Index Terms —RGB-thermal detection, dual-domain fusion, progressive learning, multi-modal detection, object detection 
+
+I. I NTRODUCTION 
+
+RGB-thermal (RGB-T) object detection has emerged as a critical technology for all-weather autonomous systems, leveraging complementary information from visible and ther-mal modalities to achieve robust performance across varying illumination and weather conditions [1]. In recent years, it has witnessed substantial progress in multi-scale fusion and hierarchical feature interaction. Despite these advances, current RGB-T detection methods still face several fundamental challenges that limit their ef-fectiveness. A primary concern lies in the isolated nature of multi-scale fusion. Existing approaches [2]–[4] typically perform cross-modal fusion operations independently at each feature level, treating different scales as separate entities rather than components of a unified hierarchical system. While these works establish solid foundations, this design philosophy inherently restricts the flow of information across scales—low-level geometric details cannot effectively propagate upward 
+
+∗ Corresponding author. 
+
+to enrich high-level semantic representations, and conversely, high-level global context remains unable to guide the selection and refinement of low-level features. Building upon this, another critical limitation emerges from the predominantly unidirectional nature of current fusion-to-detection pipelines. Although various enhancement mecha-nisms have been proposed [5]–[8], these methods generally follow a forward-only paradigm where fusion features flow directly into detection heads without mechanisms for iterative refinement. This unidirectional design constrains the system’s ability to leverage detection-stage insights for improving fu-sion quality, ultimately limiting its capacity to continuously suppress modality-specific noise while preserving discrimina-tive cross-modal information. Additionally, most existing methods overlook the inher-ent spectral characteristics that distinguish RGB and thermal modalities. As established in prior work [1], these two modali-ties exhibit natural complementarity in the frequency domain: RGB images predominantly capture high-frequency compo-nents containing fine-grained edge and texture details, while thermal images encode primarily low-frequency structural and contour information. However, prevalent fusion strategies [9]– [11] operate exclusively in the spatial domain through attention mechanisms or Transformers, bypassing explicit frequency-domain processing. Recent empirical evidence suggests that such spatial-only approaches yield suboptimal feature repre-sentations [12] and struggle to effectively preserve the comple-mentary frequency components inherent to each modality [13], resulting in unintended information degradation during cross-modal integration. To address these interrelated challenges, we propose DRPFNet, a Dual-domain Residual Progressive Fusion Net-work that establishes a unified information flow optimiza-tion framework through three synergistic components. At the architectural level, we introduce the Multi-level Resid-ual Fusion with Bidirectional Feature Enhancement (MRF-BFE) module to enable cross-scale knowledge propagation. This design implements progressive residual fusion where downsampled representations from preceding levels serve as geometric priors to guide semantic fusion at subsequent levels, while bidirectional enhancement pathways allow fused repre-sentations and modality-specific features to mutually refine each other through bidirectional feature refinement. At the feature extraction level, we develop the Dual-domain Adaptive Fusion (DFAF) module to jointly leverage frequency and arXiv:2608.03370v1 [cs.CV] 4 Aug 2026 spatial characteristics. This module employs learnable band separation to adaptively partition RGB high-frequency edges and thermal low-frequency structures in the frequency domain, while simultaneously applying Scharr operator-based edge guidance to preserve object contours in the spatial domain, with channel-wise gating dynamically balancing their respec-tive contributions. At the detection enhancement level, we design the Edge-Guided Multi-scale Kernel (EGMK) mod-ule to enhance foreground-background discrimination. This component extends the dual-domain collaborative philoso-phy to the detection stage, utilizing edge-extracted attention maps to guide direction-sensitive convolutions toward object boundaries, while frequency-domain processing provides com-plementary structural information for effective foreground-background separation. In a nutshell, the main contributions of this work are summarized as follows:  
+
+> •
+
+We propose DRPFNet, a dual-domain residual progres-sive fusion network, to addresses cross-scale propagation, bidirectional optimization, and frequency-spatial collabo-ration for RGB-T object detection.  
+
+> •
+
+We design three key modules: Multi-level Residual Fu-sion with Bidirectional Feature Enhancement (MRF-BFE), Dual-domain Adaptive Fusion (DFAF), and Edge-Guided Multi-scale Kernel (EGMK).  
+
+> •
+
+Extensive experiments on two public RGB-T datasets demonstrate that DRPFNet achieves competitive perfor-mance with competitive efficiency. II. R ELATED WORK 
+
+Cross-modal information interaction and fusion strate-gies. The core challenge in RGB-T detection is effectively fusing complementary modality features. Early attention-based methods established the foundation [2], [3], [5]–[7], [9], with CIAN [2] introducing cross-modality interactive atten-tion and MBNet [3] addressing modality imbalance through differential fusion. Subsequently, channel-based fusion strate-gies [14], [15] emerged to dynamically select informative features from different modalities. Transformer adoption fur-ther enhanced global modeling capability [10], [16], [17], with CDDFuse [16] pioneering dual-branch correlation-driven fusion and CrossFormer [17] proposing cross-guided attention mechanisms. Recently, advanced fusion architectures demon-strate superior performance [11], [18], [19], with MMFN [11] proposing multidimensional fusion and Fusion-Mamba [18] achieving linear complexity through state-space models. These methods demonstrate that cross-modal interaction capability continues to strengthen, yet still lacks cross-level knowledge propagation and bidirectional optimization mechanisms. 
+
+Multi-domain feature representation and enhance-ment. Frequency methods exploit inherent spectral differ-ences between RGB and thermal [12], [13], [19]. MCFu-sion [12] demonstrates that explicit frequency-domain process-ing yields superior features compared to spatial-only fusion, while SGFNet [13] validates that frequency-domain separa-tion effectively preserves complementary information. Wave-Mamba [19] employs wavelet transforms for multi-scale fre-quency decomposition, and subsequent works establish spatial-frequency learning frameworks via FFT-based approaches. For spatial alignment, existing works address geometric transfor-mation and redundant spectrum removal [20], [21]. However, collaborative complementarity mechanisms between frequency and spatial domains remain insufficiently established. III. M ETHODOLOGY 
+
+A. Overview of DRPFNet 
+
+DRPFNet adopts a dual-stream architecture consisting of three synergistic stages: feature extraction, progressive fusion with bidirectional enhancement, and detection, with our well-designed three key modules: Multi-level Residual Fusion with Bidirectional Feature Enhancement (MRF-BFE), Dual-domain Adaptive Fusion (DFAF), and Edge-Guided Multi-scale Kernel (EGMK), respectively. Specifically, in the feature extraction stage, two parallel YOLO11 backbones equipped with DFAF modules process RGB and thermal images separately, extracting modality-specific multi-scale features with both frequency and spatial domain information. In the progressive fusion stage, MRF performs bottom-up cross-modal fusion across four levels, where each stage concatenates dual-modality features with downsampled fusion results from the previous level for cross-scale knowledge accumulation. BFE then establishes recipro-cal refinement at P3 and P4 levels by fusing original modality-specific features with corresponding fusion results. In the detection stage, the FPN-PAN pathway propagates features while incorporating bidirectional enhanced representations from both modalities, with the EGMK module deployed at P3 for foreground-background discrimination enhancement. The overall architecture is illustrated in Fig. 1. 
+
+B. Dual-domain Adaptive Fusion Module (DFAF) 
+
+The DFAF module integrates into the YOLO11 backbone to extract complementary information from both frequency and spatial domains (illustrated in Figure 1). In the spatial domain, we employ the Scharr operator [22] to extract edge features that capture object contours. We adopt the Scharr operator due to its superior rotational symmetry and reduced directional bias compared to the Sobel operator. The normalized edge features are processed through two convolutional layers to obtain spatial features Fspatial .In the frequency domain, we apply 2D FFT to the input and separate the spectrum into low-frequency and high-frequency components through a learnable radius parameter. The low-frequency component contains global structural information, while the high-frequency component captures edge and texture details. Both frequency bands are transformed back to spatial domain via inverse FFT and fused through learnable weights: 
+
+Ffreq = W [0] ⊙ Low + W [1] ⊙ High (1) Finally, we fuse spatial and frequency features through a channel-wise gating mechanism. The concatenated features are processed by global average pooling and two 1 × 12
+
+> F u se
+
+F1  
+
+> RGB F2
+> RGB F3
+> RGB F4
+> RGB F5
+> RGB F1
+> IR F2
+> IR F3
+> IR F4
+> IR F5
+> IR FProgressive
+> Fusion Spine
+> IR Backbone
+> W/DFAF W/DFAF
+> W/DFAF W/DFAF
+> Head (P5) Head (P4) Head (P4) EGMK Block EGMK Block Head (P3) Head (P3)
+> (3) EGMK Block
+> Input Feature Input Feature Dilated Conv d=2,4 Dilated Conv d=2,4 Local Conv 1× 1Local Conv 1× 1Freq Enhance Freq Enhance Vert Conv 15× 1Vert Conv 15× 1Horiz Conv 1× 15 Horiz Conv 1× 15
+> Residual
+> Scharr Edge Scharr Edge Conv 3× 3Conv 3× 3Edge Weight Edge Weight
+> Edge-Guided Attention 
+> BFE BFE
+> BFE BFE RGB Backbone
+> Residual
+> Input FFT Scharr Conv  Low/Hi gh Gate Conv (2) DFAF Block
+> (1) MRF-BFE 3
+> F u se
+
+F4
+
+> F u se
+
+F5
+
+> F u se
+
+FFig. 1: Overview of the proposed DRPFNet for RGB-thermal object detection. The network consists of three main components: (1) Dual-stream backbones with DFAF modules at each feature level for multi-scale feature extraction (simplified representation shown), (2) Progressive residual fusion with bidirectional enhancement (MRF-BFE) for cross-scale knowledge accumulation, and (3) Edge-guided multi-scale kernel (EGMK) module at P3 for foreground-background discrimination enhancement. convolutions to generate gating weights G. The output is computed as: 
+
+Y = G ⊙ Fspatial + (1 − G) ⊙ Ffreq + X (2) where the residual connection X stabilizes training. 
+
+C. Multi-level Residual Fusion and Bidirectional Feature En-hancement (MRF-BFE) 
+
+Progressive Residual Fusion. Existing methods perform cross-modal fusion independently at each scale, lacking inter-scale information exchange. However, low-level features are rich in geometric details while high-level features contain semantic information—allowing low-level fusion results to participate in high-level fusion enables semantic understanding to be guided by geometric correspondences. Based on this insight, at each fusion stage i ∈ { 2, 3, 4, 5} (corresponding to feature pyramid levels P2 through P5), we not only fuse the dual-modality features at the current level, but also introduce downsampled fusion results from the previous stage as prior knowledge: 
+
+Fi+1  
+
+> input
+
+= Concat (Fi+1 
+
+> RGB
+
+, Fi+1  
+
+> T
+
+, DownSample (Fi
+
+> fused
+
+)) (3) The concatenated features are then enhanced through the C3k2 module [23]. 
+
+Bidirectional Feature Enhancement. In unidirectional fusion-to-detection pipelines, fused features cannot continu-ously leverage modality-specific discriminative information. To address this, we design bidirectional optimization path-ways: in the forward path, fused features are concatenated with original modality features and enhanced, allowing fusion information to reinforce modality representations; in the back-ward path, the enhanced modality features are fed back to the FPN [24] structure, achieving three-way fusion: 
+
+F3 
+
+> head
+
+= C3k2 (Concat (Upsample (F4
+
+> head
+
+), F3,enh RGB , F3,enh T )) (4) BFE is applied at P3 and P4 levels where modality-specific details are most discriminative, while P5 features are already highly semantic and benefit less from low-level enhancement. This design enables detection heads to simultaneously ex-ploit high-level semantics, fusion information, and modality-specific details, forming a bidirectional refinement mechanism. 
+
+D. Edge-Guided Multi-scale Kernel (EGMK) 
+
+To extend the dual-domain collaborative philosophy from feature extraction to detection and enhance foreground-background discrimination, we deploy the EGMK module at the P3 detection level. While DFAF in the backbone focuses on modality-specific feature extraction, EGMK targets pre-detection refinement of the fused features. In the spatial pathway, the Scharr operator extracts edge features to guide direction-sensitive strip convolutions [25] (1 × 15 , 15 × 1) toward object boundaries. In the frequency pathway, we employ learnable band separation unified with DFAF to extract low-frequency structural information. Cas-caded dilated convolutions (dilation rates of 2 and 4) provide contextual information for distinguishing foreground from background regions. EGMK is deployed specifically at P3 because this level contains the richest spatial details for boundary discrimination, while higher levels (P4, P5) are dominated by semantic features where edge-based refinement provides diminishing returns. The final features are aggregated as: 
+
+Fout = ( Fh + Fv) ⊙ Aedge + Fdilated + Flocal + Ffreq (5) where Aedge denotes edge-guided attention maps, and Fh, Fv
+
+represent horizontal and vertical convolution features. 
+
+E. Complexity Analysis 
+
+Let the input feature map size be H × W with C channels. The FFT/IFFT operations in DFAF have time complexity TABLE I: Performance Comparison on LLVIP Dataset. * denotes results from original papers.                                              
+
+> Method Venue mAP 50 mAP
+> CFT [26] arXiv’22 97.5 ∗63.6 ∗
+> MetaFusion [27] CVPR’23 91.0 56.9 CSAA [14] CVPRW’23 94.3 ∗59.2 ∗
+> Diff-IF [28] IF’24 93.3 ∗59.5 ∗
+> ICAFusion [10] PR’24 95.2 60.1 CAMF [29] TMM’24 89.0 ∗55.6 ∗
+> YOLO-Adaptor [30] TIV’24 96.5 ∗–∗
+> ACDF-YOLO [31] RS’24 96.5 ∗61.3 ∗
+> RsDet [21] arXiv’24 95.8 ∗61.3 ∗
+> MDMDet [32] ICHMS’24 96.5 ∗61.2 ∗
+> TFDet [33] TNNLS’25 96.0 ∗59.4 ∗
+> Fusion-Mamba [18] TMM’25 96.8 ∗62.8 ∗
+> MMFN [11] TCSVT’25 97.2 ∗–∗
+> DRPFNet (Ours) –97.8 64.4
+
+O(CHW log( HW )) and space complexity O(CHW ); the re-maining convolutions are O(CHW ). MRF-BFE only involves feature concatenation and 1 × 1 convolutions with complexity 
+
+O(CHW ). EGMK employs depthwise separable convolu-tions, reducing the standard k × k convolution complexity from O(Ck 2HW ) to O(C(k + C)HW ); cascaded dilated convolutions achieve large receptive fields at O(CHW ). The overall complexity remains at the same order as the baseline detector. IV. E XPERIMENTS 
+
+A. Experimental Setup 
+
+Datasets. We evaluate our method on two RGB-thermal detection benchmarks: M3FD [7]: Contains 4,200 image pairs across 6 object categories. We follow the train/test splits from Liang et al. [34]. LLVIP [35]: A challenging low-light visible-infrared paired dataset with 15,488 image pairs, containing a single category. 
+
+Implementation Details. DRPFNet is implemented in Py-Torch and trained on a single NVIDIA RTX 3090 GPU with 24GB memory. We employ the SGD optimizer with an initial learning rate of 0.01, momentum of 0.937, and weight decay of 0.0005. The learning rate follows a cosine annealing schedule. The batch size is set to 4, with gradient accumulation applied. Input images are resized to 640 ×640 pixels. Training epochs are set to 300 for M3FD and 100 for LLVIP. Standard data augmentation techniques are applied. 
+
+Evaluation Metrics. We adopt two standard metrics: mAP 50 is the mean Average Precision at IoU threshold of 0.5, and mAP is the mean Average Precision averaged over IoU thresholds from 0.5 to 0.95 with a step size of 0.05. 
+
+B. Comparison with State-of-the-Art Methods 1) Results on LLVIP Dataset: DRPFNet achieves 97.8% mAP 50 and 64.4% mAP on LLVIP, outperforming ICAFusion and other recent methods. This improvement stems from DFAF’s ability to decouple modality-specific frequency char-acteristics: when visible light degrades in low-light scenarios, DFAF’s learnable band separation preserves thermal low-frequency structures that encode object shapes independent TABLE II: Performance Comparison on M3FD Dataset. * denotes results from original papers.                                              
+
+> Method Venue mAP 50 mAP
+> SuperFusion [36] JAS’22 83.5 56.0 CFT [26] arXiv’22 88.2 ∗59.0 ∗
+> TarDAL [7] CVPR’22 80.5 54.1 CDDFuse [16] CVPR’23 81.1 ∗54.3 ∗
+> IGNet [37] MM’23 81.5 ∗54.5 ∗
+> ICAFusion [10] PR’24 87.1 57.0 KCDNet [38] TIM’24 83.2 56.3 MRD-YOLO [39] Sensors’24 86.6 ∗59.3 ∗
+> CRSIOD [40] TGRS’24 84.0 ∗57.2 ∗
+> EMMA [41] CVPR’24 82.9 ∗55.4 ∗
+> RI-YOLO [42] YAC’24 83.6 ∗56.6 ∗
+> Fusion-Mamba [18] TMM’25 85.0 ∗57.5 ∗
+> MMFN [11] TCSVT’25 86.2 ∗–∗
+> DRPFNet (Ours) –88.7 61.8
+
+TABLE III: Efficiency Comparison.             
+
+> Method Params (M) Time (ms)
+> ICAFusion [10] 120.2 26
+> MMFN [11] 176.4 –CFT [26] 206.3 31 Fusion-Mamba [18] 287.6 78
+> DRPFNet (Ours) 134.9 30
+
+of illumination. Simple spatial concatenation fails to exploit this spectral complementarity, causing information loss when RGB features become unreliable. 
+
+2) Results on M3FD Dataset: On M3FD, DRPFNet achieves 88.7% mAP 50 and 61.8% mAP, substantially out-performing ICAFusion [10] and other recent methods. The improvement in mAP indicates better localization precision at higher IoU thresholds, which we attribute to MRF-BFE’s progressive fusion: downsampled low-level features provide geometric priors that constrain high-level semantic fusion, reducing false positives from ambiguous detections. Bidirec-tional enhancement further refines object boundaries by allow-ing detection-stage gradients to back-propagate to modality-specific features, enabling continuous noise suppression. The advantage over Fusion-Mamba [18] stems from archi-tectural differences: progressive fusion explicitly propagates cross-scale features through residual connections, while state-space models process scales sequentially without geometric guidance. Similarly, the gains over transformer methods like CDDFuse and IGNet reveal that frequency-domain decom-position better preserves complementary information than spatial-only self-attention, which uniformly mixes modalities without exploiting spectral characteristics. 
+
+C. Efficiency Analysis 
+
+Table III compares model efficiency. Compared to CFT, DRPFNet uses fewer parameters while maintaining compara-ble inference speed. Although requiring slightly more param-eters and inference time than ICAFusion, DRPFNet achieves substantially better performance on both datasets as shown in Tables I and II. Notably, it requires substantially fewer parameters than MMFN and Fusion-Mamba, demonstrating TABLE IV: Ablation Study on M3FD and LLVIP Datasets. MRF: Multi-level Residual Fusion, BFE: Bidirectional Feature Enhancement, DFAF: Dual-domain Adaptive Fusion, EGMK: Edge-Guided Multi-scale Kernel. Baseline employs dual-stream YOLO11 backbones with simple concatenation fusion at P3, P4, and P5 levels using independent C3k2 modules.                                                        
+
+> MRF BFE DFAF EGMK M3FD LLVIP Params Time mAP 50 mAP mAP 50 mAP
+> ××××84.8 57.2 94.2 61.6 101.2M 12ms
+> ✓×××85.6 58.8 95.1 62.1 94.9M 11ms
+> ✓✓××86.7 60.3 95.7 62.9 99.9M 12ms
+> ✓✓✓×87.8 61.1 96.7 63.8 123.0M 26ms
+> ✓✓✓✓88.7 61.8 97.8 64.4 134.9M 30ms
+
+TABLE V: Ablation Study on Bidirectional Enhancement Strategies on M3FD Dataset. Baseline configuration includes MRF, DFAF, and EGMK but without any bidirectional en-hancement.                
+
+> RGB Enhancement Thermal Enhancement mAP 50 mAP
+> ××88.0 61.2
+> ✓×88.2 61.2
+> ×✓88.5 61.6
+> ✓✓88.7 61.8
+
+an effective balance between model capacity and detection performance. 
+
+D. Ablation Studies 1) Component-level Ablation Analysis: To validate the con-tribution of each proposed component, we conduct ablation ex-periments on both M3FD and LLVIP datasets by progressively removing modules from the full model. Table IV presents the results, where the baseline employs dual-stream YOLO11 backbones with simple concatenation fusion at P3, P4, and P5 levels. At each level, the concatenated RGB and thermal features are processed through independent C3k2 refinement modules. This baseline configuration lacks progressive residual connections across scales, bidirectional feature enhancement, dual-domain adaptive fusion, and edge-guided multi-scale ker-nels. 
+
+Analysis. The baseline has more parameters than the pro-gressive configuration because it performs independent fusion at each scale with separate C3k2 modules, while progres-sive residual fusion employs lightweight residual connections. Starting from the baseline, progressive residual fusion with bidirectional enhancement brings substantial improvements in mAP, indicating better localization accuracy through geometric constraint propagation. Adding DFAF yields further gains via frequency-domain separation: RGB high-frequency edges guide localization while thermal low-frequency structures pro-vide illumination-invariant shapes. EGMK contributes addi-tional improvements through edge-guided refinement at P3, particularly effective for partially visible or occluded objects where edge precision is critical. 
+
+2) Bidirectional Enhancement Ablation: Table V analyzes bidirectional enhancement strategies. Thermal-only enhance-ment outperforms RGB-only, confirming that thermal features remain reliable when visible light degrades. Full bidirectional RGB Input  IR Input  Baseline  DRPFNet    
+
+> (a) LLVIP dataset RGB Input IR Input Baseline DRPFNet
+> (b) M3FD dataset
+
+Fig. 2: Grad-CAM visualization comparing baseline and full DRPFNet. On LLVIP, the baseline incorrectly focuses on elec-tric scooters, while full DRPFNet shifts attention to pedestrian bodies. On M3FD, the baseline misses the partially visible car on the left, while full DRPFNet activates all targets. enhancement achieves the best performance by enabling RGB features to refine object edges in well-lit regions while thermal features stabilize detections in dark areas. 
+
+E. Visualization Analysis 
+
+Figure 2 compares Grad-CAM activations between the baseline configuration and full DRPFNet, isolating DFAF and EGMK contributions. On LLVIP, the baseline incorrectly activates electric scoot-ers rather than riders. This occurs because spatial-only fusion cannot distinguish between thermally similar objects when RGB features degrade. DFAF resolves this by extracting ther-mal low-frequency structures that encode human body shapes distinct from vehicle geometries, enabling correct pedestrian localization. On M3FD, the baseline misses occluded targets and weakly responds to distant objects. EGMK’s edge-guided strip convo-lutions recover these targets by concentrating receptive fields along object boundaries, where edge features provide stronger discrimination than region-based features for partially visible objects. V. C ONCLUSION 
+
+In this work, we propose DRPFNet, a dual-domain residual progressive fusion network that addresses three fundamental limitations in RGB-thermal object detection: isolated multi-scale fusion, unidirectional optimization, and frequency-spatial collaboration deficiency. Through the synergistic design of MRF-BFE for cross-scale knowledge propagation, DFAF for dual-domain adaptive learning, and EGMK for foreground-background discrimination enhancement, our method achieves competitive performance on M3FD and LLVIP datasets while maintaining computational efficiency. However, performance may degrade when both modalities are simultaneously de-graded, and evaluation on additional benchmarks remains future work. ACKNOWLEDGMENT 
+
+This work was supported by the College Students’ Inno-vation and Entrepreneurship Training Program (Grant No. S202510183475). REFERENCES [1] Y. Ma et al. , “Infrared and visible image fusion methods and applica-tions: A survey,” Inf. Fusion , vol. 45, pp. 153–178, 2019. [2] L. Zhang, Z. Liu, S. Zhang, X. Yang, H. Qiao, K. Huang et al. , “Cross-modality interactive attention network for multispectral pedestrian de-tection,” Inf. Fusion , vol. 50, pp. 20–29, 2019. [3] K. Zhou, L. Chen, and X. Cao, “Improving multispectral pedestrian detection by addressing modality imbalance problems,” in ECCV , 2020, pp. 787–803. [4] Q. Fang, D. Han, and Z. Wang, “Cross-modality fusion transformer for multispectral object detection,” arXiv preprint arXiv:2111.00273 , 2022. [5] C. Li, D. Song, R. Tong, and M. Tang, “Illumination-aware faster R-CNN for robust multispectral pedestrian detection,” Pattern Recognit. ,vol. 85, pp. 161–171, 2019. [6] P. Peng, T. Xu, B. Huang, and J. Li, “HAFNet: Hierarchical attentive fusion network for multispectral pedestrian detection,” Remote Sens. ,vol. 15, no. 8, p. 2041, 2023. [7] J. Liu, X. Fan, Z. Huang, G. Wu, R. Liu, W. Zhong et al. , “Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection,” in CVPR , 2022, pp. 5792–5801. [8] Q. Wang, Z. Tu, C. Li, and J. Tang, “High performance RGB-thermal video object detection via hybrid fusion with progressive interaction and temporal-modal difference,” Inf. Fusion , vol. 114, p. 102665, 2025. [9] H. Zhang, E. Fromont, S. Lef` evre, and B. Avignon, “Guided attentive feature fusion for multispectral pedestrian detection,” in WACV , 2021, pp. 72–80. [10] J. Shen, Y. Chen, Y. Liu, X. Zuo, H. Fan, and W. Yang, “ICAFusion: Iterative cross-attention guided feature fusion for multispectral object detection,” Pattern Recognit. , vol. 145, p. 109913, 2024. [11] F. Yang, B. Liang, W. Li, and J. Zhang, “Multidimensional fusion network for multispectral object detection,” IEEE Trans. Circuits Syst. Video Technol. , vol. 35, no. 1, pp. 547–560, 2025. [12] Y. Gao, Z. Liao, Y. Liu, A. Yi, and G. Zhang, “MCFusion: Frequency domain characteristics enhancement and feature compensation fusion network for RGB-T object detection,” IEEE Sens. J. , vol. 25, no. 11, pp. 20 880–20 893, 2025. [13] C. Zhang, Z. Wan, S. Stepputtis, K. Sycara, and Y. Xie, “Spectral-aware global fusion for RGB-thermal semantic segmentation,” arXiv preprint arXiv:2505.15491 , 2025. [14] Y. Cao, J. Bin, J. Hamari, E. Blasch, and Z. Liu, “Multimodal object detection by channel switching and spatial attention,” in CVPRW , 2023, pp. 403–411. [15] S. You, X. Xie, Y. Feng, C. Mei, and Y. Ji, “Multi-scale aggregation transformers for multispectral object detection,” IEEE Signal Process. Lett. , vol. 30, pp. 1172–1176, 2023. [16] Z. Zhao, H. Bai, J. Zhang, Y. Zhang, S. Xu, Z. Lin et al. , “CDDFuse: Correlation-driven dual-branch feature decomposition for multi-modality image fusion,” in CVPR , 2023, pp. 5906–5916. [17] S. Lee, J. Park, and J. Park, “CrossFormer: Cross-guided attention for multi-modal object detection,” Pattern Recognit. Lett. , vol. 179, pp. 144– 150, 2024. [18] W. Dong, H. Zhu, S. Lin, X. Luo, Y. Shen, G. Guo et al. , “Fusion-Mamba for cross-modality object detection,” IEEE Trans. Multimedia ,vol. 27, pp. 7392–7406, 2025. [19] H. Zhu, W. Dong, L. Yang, H. Li, Y. Yang, Y. Ren et al. , “WaveMamba: Wavelet-driven mamba fusion for RGB-infrared object detection,” in 
+
+ICCV , 2025, pp. 11 219–11 229. [20] M. Yuan, X. Shi, N. Wang, Y. Wang, and X. Wei, “Improving RGB-infrared object detection with cascade alignment-guided transformer,” 
+
+Inf. Fusion , vol. 105, p. 102246, 2024. [21] T. Zhao, M. Yuan, F. Jiang, N. Wang, and X. Wei, “Removal then selection: A coarse-to-fine fusion perspective for RGB-infrared object detection,” arXiv preprint arXiv:2401.10731 , 2024. [22] H. Scharr, “Optimal operators in digital image processing,” Ph.D. dissertation, University of Heidelberg, 2000. [23] G. Jocher, A. Chaurasia, and J. Qiu, “YOLO11 by ultralytics,” https: //github.com/ultralytics/ultralytics, 2024. [24] T.-Y. Lin, P. Doll´ ar, R. Girshick, K. He, B. Hariharan, and S. Belongie, “Feature pyramid networks for object detection,” in CVPR , 2017, pp. 936–944. [25] X. Yuan, Z. Zheng, Y. Li, X. Liu, L. Liu, X. Li, Q. Hou, and M.-M. Cheng, “Strip R-CNN: Large strip convolution for remote sensing object detection,” arXiv preprint arXiv:2501.03775 , 2025. [26] Q. Fang, D. Han, and Z. Wang, “Cross-modality fusion transformer for multispectral object detection,” 2022. [Online]. Available: https: //arxiv.org/abs/2111.00273 [27] W. Zhao, S. Xie, F. Zhao, Y. He, and H. Lu, “MetaFusion: Infrared and visible image fusion via meta-feature embedding from object detection,” in CVPR , 2023, pp. 13 955–13 965. [28] X. Yi, L. Tang, H. Zhang, H. Xu, and J. Ma, “Diff-IF: Multi-modality image fusion via diffusion model with fusion knowledge prior,” Inf. Fusion , p. 102450, 2024. [29] L. Tang, Z. Chen, J. Huang, and J. Ma, “CAMF: An interpretable infrared and visible image fusion network based on class activation mapping,” IEEE Trans. Multimedia , vol. 26, pp. 4776–4791, 2024. [30] H. Fu, H. Liu, J. Yuan, X. He, J. Lin, and Z. Li, “YOLO-Adaptor: A fast adaptive one-stage detector for non-aligned visible-infrared object detection,” IEEE Trans. Intell. Veh. , vol. 9, no. 11, pp. 7070–7083, 2024. [31] X. Fei, M. Guo, Y. Li, R. Yu, and L. Sun, “ACDF-YOLO: Attentive and cross-differential fusion network for multimodal remote sensing object detection,” Remote Sens. , vol. 16, no. 18, p. 3532, 2024. [32] H. Yang, W. Bian, J. Wang, Y. Bo, and Y. Mi, “A dual-modality pedestrian detection method based on multi-scale feature fusion,” in 
+
+ICHMS , 2024, pp. 1–6. [33] X. Zhang, X. Zhang, J. Wang, J. Ying, Z. Sheng, H. Yu et al. , “TFDet: Target-aware fusion for RGB-T pedestrian detection,” IEEE Trans. Neural Netw. Learn. Syst. , vol. 36, no. 7, pp. 13 276–13 290, 2025. [34] M. Liang, J. Hu, C. Bao, H. Feng, F. Deng, and T. L. Lam, “Explicit attention-enhanced fusion for RGB-thermal perception tasks,” IEEE Robot. Autom. Lett. , vol. 8, pp. 4060–4067, 2023. [35] X. Jia, C. Zhu, M. Li, W. Tang, and W. Zhou, “LLVIP: A visible-infrared paired dataset for low-light vision,” in ICCV , 2021, pp. 3496–3504. [36] L. Tang, Y. Deng, Y. Ma, J. Huang, and J. Ma, “SuperFusion: A ver-satile image registration and fusion network with semantic awareness,” 
+
+IEEE/CAA J. Autom. Sin. , vol. 9, no. 12, pp. 2121–2137, 2022. [37] J. Li, J. Chen, J. Liu, and H. Ma, “Learning a graph neural network with cross modality interaction for image fusion,” in ACM MM , 2023, pp. 4471–4479. [38] H. Wang, S. Qu, Z. Qiao, and X. Liu, “KCDNet: Multimodal object detection in modal information imbalance scenes,” IEEE Trans. Instrum. Meas. , vol. 73, pp. 1–13, 2024. [39] C. Sun, Y. Chen, X. Qiu, R. Li, and L. You, “MRD-YOLO: A multi-spectral object detection algorithm for complex road scenes,” Sensors ,vol. 24, no. 10, p. 3222, 2024. [40] H. Wang, C. Wang, Q. Fu, D. Zhang, R. Kou, Y. Yu, and J. Song, “Cross-modal oriented object detection of UAV aerial images based on image feature,” IEEE Trans. Geosci. Remote Sens. , vol. 62, pp. 1–21, 2024. [41] Z. Zhao, H. Bai, J. Zhang, Y. Zhang, K. Zhang, S. Xu, D. Chen, R. Timofte, and L. V. Gool, “Equivariant multi-modality image fusion,” in CVPR , 2024, pp. 25 912–25 921. [42] Y. Chen, B. Wang, W. Zhu, and J. Yuan, “RGB-IR YOLO combining modality-specific reconstruction and information integration,” in YAC ,2024, pp. 2045–2050.

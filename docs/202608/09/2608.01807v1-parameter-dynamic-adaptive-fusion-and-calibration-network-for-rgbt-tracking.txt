@@ -1,0 +1,339 @@
+Title: Parameter-Dynamic Adaptive Fusion and Calibration Network for RGBT Tracking
+
+URL Source: https://arxiv.org/pdf/2608.01807v1
+
+Published Time: Tue, 04 Aug 2026 02:24:56 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# Parameter-Dynamic Adaptive Fusion and Calibration Network for RGBT Tracking 
+
+## Zhaoding Ding 1, Chenglong Li 2∗, Jiandong Jin 3, Keiwei Ying 1, Wentao Wu 1
+
+> 1
+
+School of Artificial Intelligence, Anhui University 
+
+> 2
+
+State Key Laboratory of Opt-Electronic Information Acquisition and Protection Technology, Anhui University 
+
+> 3
+
+School of Computer Science and Technology, Anhui University 
+
+Abstract 
+
+Existing RGBT trackers typically employ fusion functions with fixed parameters across different targets and scenarios. Although dynamic-architecture methods improve fusion flexi-bility by selecting among predefined operations, they still can-not adapt the fusion parameters to the evolving target state. To address these issues, we propose a Parameter-Dynamic Adap-tive Fusion and Calibration Network (PAFCNet) for RGBT tracking. PAFCNet dynamically generates target-conditioned parameters for multimodal fusion and temporal calibration, enabling the tracking process to adapt to target appearance variations and modality quality fluctuations. Specifically, we introduce a Target-Adaptive Hypernetwork (TA-HyperNet) that leverages template representations, which preserve sta-ble target identity and recent appearance changes with less background interference, to generate target-conditioned pa-rameters for subsequent fusion and calibration. Based on TA-HyperNet, we design a target-aware parameter-dynamic fu-sion module that uses the generated parameters to modulate the fusion process. This enables the fusion module to adapt to changes in target appearance and complex scene conditions. Furthermore, since spatio-temporal information propagation may accumulate tracking noise, we propose a dynamic spatio-temporal calibration module that employs TA-HyperNet to generate calibration parameters for spatio-temporal tokens. By dynamically calibrating historical information before propa-gation, the module improves the reliability of temporal rep-resentations. Experimental results demonstrate that PAFCNet achieves competitive performance on multiple RGBT tracking benchmarks. 
+
+## Introduction 
+
+RGBT tracking exploits the complementary strengths of visible-light (RGB) and thermal-infrared (TIR) modalities to achieve robust all-day target tracking (Ding et al. 2025b; Hui et al. 2023; Jin et al. 2026). Existing methods typically design fusion architectures with fixed parameters, applying the same fusion function across different targets and tracking scenar-ios. They have limited ability to adapt to variations in target appearance and environmental conditions. Although recent dynamic-architecture methods improve fusion flexibility by selecting or combining predefined fusion operations, their adaptability remains constrained by a fixed candidate space, and the fusion parameters cannot be directly adjusted ac-cording to the evolving target state. Therefore, dynamically adapting the parameters of the multimodal fusion function 
+
+> ∗
+
+Corresponding author. (a) (b) (c)    
+
+> Weight calculation  Weight1 Weight2
+> F
+> Feature Extraction Feature Extraction
+> FFConcatenation or Addition M ultimodal Tokens Fusion Unit Spatio-temporal features Static Parameters Dynamic Parameters
+> TIR  RGB TIR  RGB TIR  RGB
+> Weight calculation  Weight1 Weight2
+> F
+> TA-HyperNet Generated Parameters
+> M
+> Parameter Modulation MTPDFM TPDFM Target-aware Parameter-Dynamic Fusion M odule
+
+Figure 1: (a) Multimodal fusion with fixed parameters and a static architecture. (b) Multimodal fusion with a dynamic ar-chitecture. (c) Our proposed parameter-dynamic multimodal fusion method. to the evolving target state remains insufficiently explored in RGBT tracking. Existing RGBT tracking methods can be broadly catego-rized into cross-modal interaction, quality-aware fusion, and dynamic-architecture fusion. Cross-modal interaction meth-ods (Hui et al. 2023; Cao et al. 2024; Lu et al. 2025b) integrate information from RGB and TIR modalities through atten-tion mechanisms, feature enhancement, or multi-level infor-mation propagation. For instance, AINet (Lu et al. 2025b) introduces a linear-complexity differential Mamba module for multimodal fusion and hierarchical interaction. Quality-aware methods (Liu et al. 2023; Ding et al. 2025b) estimate modality reliability and adaptively regulate modality contri-butions. For example, QAT (Liu et al. 2023) employs a qual-ity assessment network to predict reliability weights under pseudo-label supervision, as shown in Fig. 1(a). Dynamic-arXiv:2608.01807v1 [cs.CV] 3 Aug 2026 architecture methods (Lu et al. 2025a; Li et al. 2024) instead use routing mechanisms to select or combine fusion paths from predefined candidate operations. AFTER (Lu et al. 2025a) adaptively constructs fusion paths according to in-put features, as shown in Fig. 1(b). Despite these advances, existing methods either share fixed fusion parameters across targets and scenarios or search within a limited predefined operation space, making it difficult to adapt the fusion strat-egy to dynamic scene and target appearance variations. In addition, existing tracking methods (Wang et al. 2024; Ding et al. 2025b; Hu et al. 2025) have begun to exploit spatio-temporal information to enhance target representation and tracking performance. For example, QSTNet (Ding et al. 2025b) introduces a multimodal spatio-temporal token prop-agation mechanism to continuously propagate multimodal spatio-temporal information. However, spatio-temporal in-formation is inevitably affected by noise during propagation, but this issue remains overlooked by existing methods. To address the above issues, we propose a novel Parameter-Dynamic Adaptive Fusion and Calibration Network (PAFC-Net), which introduces a target-adaptive hypernetwork that dynamically generates multimodal fusion parameters condi-tioned on template representations, enabling the fusion pro-cess to adapt to the target state, as shown in Fig. 1(c). PAFC-Net consists of three core components: a Target-adaptive Hypernetwork (TA-HyperNet), a Target-aware Parameter-Dynamic Fusion Module (TPDFM), and a Dynamic Spatio-temporal Calibration Module (DSCM). Specifically, TA-HyperNet is designed to dynamically generate target-related parameters for multimodal fusion and spatio-temporal cali-bration in RGBT tracking. Within TPDFM, multimodal tem-plate features are fed into TA-HyperNet as target-aware cues to generate fusion-specific parameters. These parameters dy-namically modulate the multimodal fusion process, allowing it to accommodate target appearance variations and mitigate interference in complex dynamic scenes. Meanwhile, DSCM is proposed to ensure the reliability of spatio-temporal infor-mation during propagation, which generates calibration pa-rameters from template representations and calibrates the spatio-temporal features before propagation, thereby sup-pressing noise interference and preserving accurate target information. Our contributions are summarized as follows: 
+
+• We propose a novel parameter-dynamic adaptive fusion and calibration network for RGBT tracking, which em-ploys a target-adaptive hypernetwork to generate multi-modal fusion parameters, enabling the fusion process to adapt to target appearance variations and interference in complex dynamic scenes. 
+
+• We design a target-aware parameter-dynamic multimodal fusion module that employs TA-HyperNet to generate the parameters of the fusion module, enabling the fusion process to adapt to the target state and predict reliable modality weights. 
+
+• We design a dynamic spatio-temporal calibration module that employs TA-HyperNet to dynamically generate cal-ibration parameters, enabling the spatio-temporal tokens to be adaptively calibrated before propagation, thereby suppressing noise interference and preserving reliable tar-get information. 
+
+• Extensive experiments on multiple RGBT tracking bench-marks demonstrate that our method achieves competitive performance. 
+
+## Related Work 
+
+RGBT Tracking Methods 
+
+Existing RGBT tracking methods can be broadly catego-rized into cross-modal interaction, quality-aware fusion, and dynamic-architecture fusion (Lu et al. 2025a; Xiang et al. 2025; Tang et al. 2025). Cross-modal interaction meth-ods (Liu et al. 2024; Zhang et al. 2021; Li et al. 2024) ex-ploit RGB–TIR complementarity through feature disentan-glement, enhancement, or multi-level information exchange. For example, CAT++ (Liu et al. 2024) decomposes target rep-resentation learning into multiple challenge-aware branches. Quality-aware methods (Liu et al. 2023; Ding et al. 2025b,a) estimate modality reliability and adaptively regulate modal-ity contributions. TUMFNet (Ding et al. 2025a), for in-stance, models modality uncertainty and evaluates dynamic-template reliability. Dynamic-architecture methods (Lu et al. 2025a; Li et al. 2024; Tang et al. 2025) improve fusion flex-ibility by selecting fusion paths, fusion units, or experts ac-cording to the input. AFTER (Lu et al. 2025a) constructs a candidate fusion space and dynamically organizes fusion units through a router. Despite these advances, existing methods either retain fixed fusion parameters or select from predefined operations, limiting their ability to adapt the fusion function to target-specific state variations. In contrast, our method uses tem-plate features as target-state cues to dynamically generate fusion parameters, enabling target-conditioned multimodal fusion. 
+
+Hypernetworks 
+
+HyperNetworks are typically used to generate all or part of the parameters of a model based on contextual information, thereby enhancing its performance on the current task. In recent years, hypernetworks have attracted widespread at-tention due to their efficiency and flexibility, with numerous works across different domains leveraging them to improve model performance (Gwilliam et al. 2026; Xu et al. 2025; Lv et al. 2024). For example, in natural language processing, Hy-perLoRA (Lv et al. 2024) is proposed to generate LoRA pa-rameters from task-oriented information, thereby improving cross-task generalization. Text-to-LoRA (Charakorn et al. 2025) is further introduced, where natural-language task de-scriptions are mapped to task-specific LoRA adapters in a sin-gle forward pass. In the medical domain, HyperFusion (Due-nias et al. 2025) employs a hypernetwork to generate param-eters conditioned on tabular clinical information, thereby adapting image processing for multimodal integration. Although existing hypernetwork-based methods have demonstrated strong flexibility in parameter generation and task adaptation, their potential for addressing the unique challenges of RGBT tracking remains underexplored. Unlike other works, RGBT tracking requires adaptive cross-modal Patch Embedding    
+
+> C
+> Prediction Head
+> #I #I #15
+> Prediction Head
+> #I #N
+> Dynamic Spatio-temporal Calibration Module Spatio-temporal tokens
+> Self-Attention
+> QKV
+> TA-HyperNet #N #N Concatenation TA-HyperNet Target-adaptive Hypernetwork CCMultimodal Token Spatio-temporal Tokens
+
+γ +βxN= xN-1 
+
+γ β Dynamic Parameters   
+
+> Srgb
+> Stir
+> Tf
+> TAM Linear  Linear
+> C
+> TA-HyperNet TA-HyperNet
+> Wrgb
+> Wtir
+> Srgb
+> Stir
+> Target-aware Parameter-Dynamic Fusion Module
+> β1β2
+> Linear Sigmoid γ1 γ2
+> ViT(1-9)
+
+Transformer TPDFM ViT(1-9) 10~12 Layers Transformer    
+
+> Element-wise Multiplication Addition Matrix Multiplication
+> Wrgb Wtir Fused Weight TAM Token Aggregator Module TRAM Template Representation Aggregation Module Head βTA-HyperNet γLinear Softmax
+> Learnable Query
+> Matmul Softmax
+> C
+> MLP
+> Transpose Fusion
+
+Figure 2: The overall framework of our method. TRAM denotes the template representation aggregation module. fusion and reliable spatio-temporal modeling. To this end, we design a target-adaptive hypernetwork to generate the key pa-rameters required for multimodal fusion and spatio-temporal information calibration. 
+
+## Methodology 
+
+Overview 
+
+The overall architecture of the proposed PAFCNet is illus-trated in Fig. 2. PAFCNet comprises three core components: the Target-adaptive Hypernetwork (TA-HyperNet), the Target-aware Parameter-Dynamic Fusion Module (TPDFM), and the Dynamic Spatio-temporal Calibration Module (DSCM). TA-HyperNet provides a unified target-conditioned parameter-generation mechanism for TPDFM and DSCM, supporting adaptive multimodal fusion and reliable spatio-temporal information propagation, respectively. Building on TA-HyperNet, we propose a simple yet effective TPDFM to adapt the multimodal fusion process to evolving target states. TPDFM employs TA-HyperNet to generate target-conditioned fusion parameters, which dynamically modulate multimodal feature integration. TPDFM is inserted into the 10th, 11th, and 12th Transformer layers of the ViT backbone. Furthermore, to ensure the reliability of spatio-temporal to-kens, we develop DSCM based on TA-HyperNet, which cal-ibrates spatio-temporal information during tracking to sup-press noise interference and preserve accurate target repre-sentations. 
+
+Target-adaptive Hypernetwork 
+
+Existing multimodal fusion methods commonly employ shared parameters across different targets and tracking sce-narios (Lu et al. 2025a; Ding et al. 2025b). However, target appearance and modality reliability may vary substantially throughout tracking, making fixed fusion parameters insuf-ficient for modeling target-specific variations. To address this limitation, we introduce a Target-adaptive Hypernet-work (TA-HyperNet), as illustrated in Fig. 2. TA-HyperNet extracts complementary global and local target representa-tions from template tokens and generates target-conditioned modulation parameters for multimodal fusion and spatio-temporal calibration. Given the initial template tokens Ti ∈ RNi×C and dy-namic template tokens Td ∈ RNd×C , we construct and nor-malize the template representation as 
+
+T = [ Ti; Td] ∈ RNt×C , T = LN( T), (1) where Nt = Ni + Nd and C denotes the feature dimension. For clarity, the batch dimension is omitted. Directly averaging all template tokens may introduce back-ground noise and weaken discriminative target cues. We therefore design a Template Representation Aggregation Module (TRAM), consisting of a global content-aware ag-gregation branch and a multi-query local aggregation branch. In the global branch, a learnable projection estimates token importance and aggregates the normalized template tokens: 
+
+α = Softmax( TW g ), zg = αTT ∈ RC , (2) where Wg ∈ RC×1 is a learnable projection matrix and α ∈
+
+RNt denotes the normalized token-level importance weights. This branch summarizes the overall target appearance while emphasizing informative template tokens. To preserve diverse local target cues, the local branch in-troduces K learnable summary queries and performs query-guided aggregation: 
+
+Q ∈ RK×C , A = Softmax QT T
+
+√C
+
+!
+
+,
+
+Zl = AT ∈ RK×C .
+
+(3) where A ∈ RK×Nt denotes the query-to-template attention weights. Different queries attend to complementary target patterns, allowing TRAM to preserve multiple local appear-ance summaries. The global and local representations are concatenated and mapped into a compact latent representation: 
+
+u = [ zg ; Zl] ∈ R(K+1) C ,
+
+h = ϕs (ϕf (u)) , (4) where ϕf (·) and ϕs(·) denote linear projections. Finally, parameter-generation heads produce two groups of channel-wise modulation parameters: 
+
+γj = tanh  ϕγj (h) ,
+
+βj = tanh  ϕβj (h) , j ∈ { 1, 2}. (5) where γj , βj ∈ RH , H denotes the hidden feature di-mension. This bounded parameterization prevents excessive target-conditioned perturbations and stabilizes optimization. In our implementation, we set K = 4 and H = 256 .Thus, TA-HyperNet transforms the global and local appear-ance cues encoded in the initial and dynamic templates into target-conditioned parameters, enabling subsequent modules to adapt their feature modeling to the current target state. 
+
+Target-aware Parameter-Dynamic Fusion Module 
+
+Building upon TA-HyperNet, we develop a Target-Aware Parameter-Dynamic Fusion Module (TPDFM), as illustrated in Fig. 2. TPDFM conditions the multimodal fusion pro-cess on the template representation and uses the dynami-cally generated parameters to modulate the hidden features of the fusion network. The resulting target-conditioned fea-tures are subsequently used to predict token-wise RGB and TIR weights. Therefore, although the basic fusion network is shared across different targets, its effective feature transfor-mation is dynamically adapted to the current target state. Let Srgb , Stir ∈ RNs×C denote the RGB and TIR search features, respectively, and let Tf ∈ RNt×C denote the mul-timodal template tokens. We first project the two search fea-tures into a low-dimensional interaction space: 
+
+eSrgb = ϕrgb (Srgb ) ∈ RNs×Cp , (6) 
+
+eStir = ϕtir (Stir ) ∈ RNs×Cp , (7) where ϕrgb (·) and ϕtir (·) are modality-specific linear projec-tions and Cp denotes the projected feature dimension. To explicitly incorporate target information into each search token, we employ a Token Aggregator Module (TAM). TAM first predicts normalized importance weights for the multimodal template tokens: 
+
+η = Softmax ( Tf Wt) ∈ RNt , (8) where Wt ∈ RC×1 is a learnable projection matrix. The compact template representation is further projected into a lightweight target embedding: 
+
+tf = ηTTf ∈ RC , etf = ϕt(tf ) ∈ RDt , (9) where Dt denotes the target-embedding dimension. The target embedding is replicated along the search-token dimension and concatenated with the projected modality fea-tures: 
+
+X =
+
+heSrgb ; eStir ; Expand Ns
+
+etf
+
+i 
+
+. (10) This construction allows every spatial token to jointly model its RGB feature, TIR feature, and target condition. TA-HyperNet takes Tf as input and jointly generates two groups of modulation parameters: 
+
+γj , βj 
+
+> 2
+> j=1
+
+= H(Tf ), (11) where γj , βj ∈ RH . Unlike dynamically generating the complete weights of the fusion network, TA-HyperNet only predicts channel-wise scaling and shifting parameters. The two target-conditioned transformations are formulated as H1 = ϕ1(X) ⊙ (1 + γ1) + β1,
+
+H2 = ϕ2(H1) ⊙ (1 + γ2) + β2, (12) where ϕ1(·) and ϕ2(·) denote linear projections, and the modulation parameters are broadcast along the token di-mension. The residual scaling form 1 + γj preserves the original feature transformation while introducing bounded target-conditioned adjustments. The transformed features are mapped to two modality-specific logits, from which the token-wise modality weights are obtained: 
+
+W = Sigmoid ( ϕ3(H2)) = [ wrgb , wtir ] ∈ (0 , 1) Ns×2.
+
+(13) where wrgb , wtir ∈ (0 , 1) Ns . We employ independent Sig-moid functions rather than a Softmax operation, such that the two modality weights are not forced to compete or sum to one. This design allows both modalities to be simultaneously emphasized when they provide complementary information, or jointly suppressed when their local responses are unreli-able. Finally, the fused search representation is obtained by 
+
+Sf = wrgb ⊙ Srgb + wtir ⊙ Stir , (14) where the modality weights are broadcast along the chan-nel dimension. In our implementation, Cp = 64 and Dt =8. Through target-conditioned modulation and token-wise modality weighting, TPDFM adaptively preserves target-relevant multimodal cues while suppressing unreliable local responses. 
+
+Dynamic Spatio-temporal Calibration Module 
+
+Existing methods (Hu et al. 2025; Li et al. 2026b) propa-gate spatio-temporal tokens to exploit historical target cues. However, recurrent propagation may also accumulate track-ing noise, thereby degrading the reliability of temporal rep-resentations. To address these issues, we propose a Dynamic Spatio-Temporal Calibration Module (DSCM), which inde-pendently calibrates and propagates the spatio-temporal to-kens of each modality, as illustrated in Fig. 2. Let M = {rgb , tir } denote the modality set. For each modality m ∈ M , Tim ∈ RNi×C , Tdm ∈ RNd×C , and 
+
+Stm ∈ RNs×C denote the initial-template tokens, dynamic-template tokens, and search tokens at frame t, respectively. At the first frame, the modality-specific spatio-temporal state is initialized from the corresponding initial template. Following the global–local aggregation strategy of TRAM, a global target representation and multiple query-guided local target representations are extracted and projected into the initial spatio-temporal tokens: 
+
+(z0
+
+> g,m
+
+, Z0
+
+> l,m
+
+) = TRAM p(Tim),
+
+P0 
+
+> m
+
+= ϕp
+
+
+
+[z0
+
+> g,m
+
+; Z0
+
+> l,m
+
+]
+
+
+
+∈ RNp×C . (15) Here, z0 
+
+> g,m
+
+∈ RC and Z0 
+
+> l,m
+
+∈ R(Np−1) ×C denote the global and local target representations of modality m, respectively, while ϕp(·) denotes a token-wise projection. Their concate-nation produces Np initial spatio-temporal tokens for each modality. At frame t, TA-HyperNet takes the initial and dynamic template tokens of each modality as target conditions and generates modality-specific channel-wise scaling and shifting parameters. The corresponding historical spatio-temporal tokens are then calibrated as 
+
+(γtm, βtm) = Hs
+
+ [Tim; Tdm] ,
+
+bPtm = Pt−1 
+
+> m
+
+⊙ (1 + γtm) + βtm. (16) where γtm, βtm ∈ RC and Hs(·) denotes the parameter-generation head used by DSCM. The modulation parameters are broadcast along the token dimension. This residual mod-ulation preserves the historical representation while adapting its channel responses to the current target appearance of the corresponding modality. For each modality, the initial-template tokens, dynamic-template tokens, calibrated historical tokens, and current search tokens are concatenated into an independent se-quence: 
+
+Xtm = [ Tim; Tdm; bPtm; Stm] ∈ RL×C , (17) where L = Ni + Nd + Np + Ns. The RGB and TIR tokens are processed separately throughout DSCM, preventing the historical information of one modality from interfering with the temporal propagation of the other modality. A self-attention layer is independently applied to each modality-specific sequence: 
+
+Atm = Softmax 
+
+ (XtmWQ)( XtmWK )T
+
+√C
+
+
+
+,
+
+Ytm = Xtm + ϕo
+
+ AtmXtmWV
+
+ ,
+
+(18) where WQ, WK , and WV denote the query, key, and value projections, respectively, and ϕo(·) denotes the output pro-jection. Finally, the updated historical tokens Ptm and propa-gated search features eStm are separated from Ytm. The former is propagated to the next frame as the modality-specific tem-poral state, while the latter is forwarded to the subsequent multimodal fusion and prediction stages. In this way, DSCM suppresses unreliable historical information while avoiding mutual interference between RGB and TIR temporal repre-sentations. 
+
+## Experiments 
+
+Implementation Details 
+
+We adopt OSTrack (Ye et al. 2022) as the baseline and initial-ize the model with the pretrained weights provided by Drop-MAE (Wu et al. 2023). PAFCNet is implemented in PyTorch and trained on the LasHeR training set using two NVIDIA RTX 4090 GPUs. The model is trained for 30 epochs using the AdamW optimizer with a learning rate of 1 × 10 −4 and a weight decay of 1 × 10 −4. The batch size is set to 12 and 4 for search-region resolutions of 256 × 256 and 384 × 384 ,respectively. The tracker takes an initial template, a dynami-cally updated template, and a single search region as inputs, and is optimized using the same training objective as OS-Track (Ye et al. 2022). The number Np of spatio-temporal tokens is set to 64. Further details on the training setup and other hyperparameters used by the tracker will be provided in the supplementary material. 
+
+Comparison with State-of-the-Art Trackers 
+
+We compare PAFCNet with recent state-of-the-art RGBT trackers on GTOT (Li et al. 2016), RGBT210 (Li et al. 2017), RGBT234 (Li et al. 2019) and LasHeR (Li et al. 2022). Fol-lowing standard evaluation protocols, we report Maximum Precision Rate (MPR) and Maximum Success Rate (MSR) on GTOT and RGBT234, Precision Rate (PR) and Success Rate (SR) on RGBT210, and PR, Normalized Precision Rate (NPR), and SR on LasHeR. The quantitative results are sum-marized in Table 1. 
+
+Evaluation on GTOT. On the GTOT dataset, PAFCNet-256 achieves 95.0% MPR and 81.1% MSR, while PAFCNet-384 obtains 95.3% MPR and 80.2% MSR. Notably, PAFCNet-256 achieves the best MSR among all compared methods, surpassing the strongest competing result of 80.5% reported by VCT by 0.6%, while maintaining a competitive MPR of 95.0%. The improvement in MSR indicates that the proposed method provides more accurate target-region over-lap and stable scale estimation under challenging conditions. 
+
+Evaluation on RGBT210. As shown in Table 1, PAFCNet-256 achieves 92.4% PR and 67.2% SR. It obtains the best SR among the compared trackers, surpassing RAGTrack by 0.1%. Compared with UATrack, PAFCNet-256 improves PR and SR by 0.4% and 0.6%, respectively. These results demon-strate that the proposed TPDFM and DSCM enable robust target localization under diverse unseen tracking conditions. 
+
+Evaluation on RGBT234. As reported in Table 1, PAFCNet-256 achieves 94.1% MPR and 70.1% MSR, rank-ing first on both metrics among all compared methods. Com-pared with RAGTrack, PAFCNet-256 improves MPR and MSR by 0.3% and 0.6%, respectively. Compared with UA-Track, the corresponding improvements are 0.8% in MPR Method Source Resolution GTOT RGBT210 RGBT234 LasHeR MPR ↑ MSR ↑ PR ↑ SR ↑ MPR ↑ MSR ↑ PR ↑ NPR ↑ SR ↑
+
+TBSI (Hui et al. 2023) CVPR 2023 256 × 256 – – 85.3 62.5 – – 69.2 65.7 55.6 CKD (Lu et al. 2024) ACM MM 2024 256 × 256 93.2 77.2 88.4 65.2 90.0 67.4 73.2 69.3 58.1 BAT (Cao et al. 2024) AAAI 2024 256 × 256 – – – – 86.8 64.1 70.2 – 56.3 TATrack (Wang et al. 2024) AAAI 2024 256 × 256 – – 85.3 61.8 – – 70.2 66.7 56.1 US-Track (Xia et al. 2024) IJCAI 2024 256 × 256 93.4 78.3 – – – – – – –AINet (Lu et al. 2025b) AAAI 2025 384 × 384 – – 87.5 64.8 – – 74.2 70.1 59.1 STTrack (Hu et al. 2025) AAAI 2025 256 × 256 – – – – 89.8 66.7 76.0 – 60.3 SUTrack (Chen et al. 2025) AAAI 2025 384 × 384 – – – – 92.1 69.2 75.8 – 60.9 TUMFNet (Ding et al. 2025a) IJCAI 2025 256 × 256 95.5 80.2 90.7 65.8 90.8 67.8 76.4 72.7 61.4 XTrack (Tan et al. 2025) ICCV 2025 256 × 256 – – – – 87.4 64.9 69.1 – 55.7 VCT (Deng et al. 2026) TMM 2026 384 × 384 94.8 80.5 91.4 64.5 92.4 68.8 77.6 – 62.0 UATrack (Ding et al. 2026) IJCV 2026 256 × 256 95.8 80.2 92.0 66.6 93.3 69.5 78.5 74.7 62.6 RAGTrack (Li et al. 2026a) CVPR 2026 256 × 256 – – 93.2 67.1 93.8 69.5 76.8 73.0 61.1 SCDT (Lu et al. 2026) CVPR 2026 256 × 256 – – – – 93.1 69.6 77.4 – 61.0 CADTrack (Li et al. 2026b) AAAI 2026 256 × 256 – – 91.2 65.4 92.8 67.7 77.7 73.3 61.3 
+
+PAFCNet-256 Ours 256 × 256 95.0 81.1 92.4 67.2 94.1 70.1 79.8 75.7 63.4 
+
+PAFCNet-384 Ours 384 × 384 95.3 80.2 92.6 66.8 94.0 69.5 80.3 76.4 63.9 
+
+Table 1: Performance on four RGBT tracking benchmarks. The best results are in bold .and 0.6% in MSR. Moreover, PAFCNet-256 surpasses CAD-Track by 1.3% in MPR and 2.4% in MSR. The consistent improvements in both localization precision and overlap ac-curacy demonstrate the effectiveness of the proposed method. NO (68.5,75.5) PO (50.4,62.4) TO (46.2,58.6) HO (43.4,58.9) MB (46.0,57.9) LI (41.2,54.3) HI (54.2,65.3) AIV (34.2,54.3) LR (41.8,54.0) DEF (55.8,67.2) BC (51.4,63.3) SA (46.3,60.4) CM (50.0,62.6) TC (46.0,59.4) FL (43.2,58.9) OV (55.9,66.0) FM (51.5,62.2) SV (52.5,63.9) ARC (49.5,59.6) 
+
+# SR 
+
+> Ours AINet BAT DFNet SDSTrack STTrack TBSI ViPT
+
+Figure 3: Attribute-based evaluation on the LasHeR dataset. 
+
+Evaluation on LasHeR. As shown in Table 1, PAFCNet-384 achieves 80.3% PR, 76.4% NPR, and 63.9% SR, ranking first across all three metrics among the compared methods. Compared with UATrack, the strongest competing tracker with complete results, PAFCNet-384 improves PR, NPR, and SR by 1.8%, 1.7%, and 1.3%, respectively. It also sur-passes CADTrack by 2.6% in PR, 3.1% in NPR, and 2.6% in SR. We further present the attribute-based evaluation re-sults on the LasHeR dataset, as shown in Fig. 3. TPDFM effectively exploits complementary multimodal information, yielding notable gains under low illumination (LI), high il-lumination (HI), and abrupt illumination variation (AIV). Meanwhile, DSCM improves the reliability of propagated spatio-temporal information, thereby enhancing robustness against similar appearance (SA), partial occlusion (PO), to-tal occlusion (TO), and motion blur (MB). Method RGBT234 LasHeR MPR ↑ MSR ↑ PR ↑ NPR ↑ SR ↑
+
+Baseline 89.4 66.5 71.9 68.3 57.8 + Template update 90.5 67.5 75.4 71.5 59.9 + DSCM 92.1 69.2 77.9 73.8 61.6 + TPDFM (Full Model) 94.1 70.1 79.8 75.7 63.4 
+
+Table 2: Component ablation studies on RGBT234 and LasHeR. 
+
+Ablation Studies 
+
+Component Analysis. As shown in Table 2, progressively introducing template updating, DSCM, and TPDFM consis-tently improves tracking performance on both benchmarks. Compared with the template-update variant, DSCM im-proves MPR and MSR on RGBT234 by 1.6% and 1.7%, respectively, while increasing PR, NPR, and SR on LasHeR by 2.5%, 2.3%, and 1.7%. Further incorporating TPDFM yields additional gains of 2.0% MPR and 0.9% MSR on RGBT234, together with improvements of 1.9%, 1.9%, and 1.8% in PR, NPR, and SR on LasHeR. Overall, the full model outperforms the baseline by 4.7% MPR and 3.6% MSR on RGBT234, and by 7.9% PR, 7.4% NPR, and 5.6% SR on LasHeR, demonstrating the effectiveness and complemen-tarity of DSCM and TPDFM. Paradigm PR ↑ NPR ↑ SR ↑ Params ↓ FLOPs ↓ FPS ↑
+
+SF 77.6 73.4 61.7 106.3M 70.9G 50 
+
+DAF 78.4 74.5 62.5 108.7M 71.4G 45 TPDFM 79.8 75.7 63.4 111.9M 70.9G 49 Table 3: Comparison of different fusion paradigms on LasHeR. 
+
+Comparison of Multimodal Fusion Paradigms. We compare the proposed TPDFM with static fusion (SF) and dynamic-architecture fusion (DAF), as shown in Table 3. SF replaces the target-conditioned parameters generated by TA-HyperNet with fixed learnable parameters. DAF adopts a router-controlled mechanism similar to AFTER (Lu et al. 2025a), which dynamically selects and combines predefined fusion paths. TPDFM achieves the best performance with 79.8% PR, 75.7% NPR, and 63.4% SR, outperforming SF by 2.2%, 2.3%, and 1.7%, and DAF by 1.4%, 1.2%, and 0.9%, respectively. These results demonstrate the advantage of target-conditioned dynamic parameterization over fixed-parameter fusion and dynamic path selection. More experi-mental details are provided in the supplementary material. Inserting Layers RGBT234 LasHeR 10 11 12 MPR ↑ MSR ↑ PR ↑ NPR ↑ SR ↑
+
+90.5 67.5 75.4 71.5 59.9 
+
+✓ 92.8 69.4 77.3 73.5 61.7 
+
+✓ ✓ 93.1 69.6 79.0 75.1 62.9 
+
+✓ ✓ ✓ 94.1 70.1 79.8 75.7 63.4 
+
+Table 4: Effect of inserting TPDFM into different Trans-former layers on RGBT234 and LasHeR. 
+
+Effect of Insertion Layers. We investigate the effect of inserting TPDFM into different Transformer layers on RGBT234 and LasHeR test set. As shown in Table 4, pro-gressively inserting TPDFM into the final three Transformer layers consistently improves tracking performance. Using TPDFM only in the 10th layer increases PR, NPR, and SR by 1.9%, 2.0%, and 1.8%, respectively. Extending it to the 10th and 11th layers further improves the results to 79.0% PR, 75.1% NPR, and 62.9% SR. The best performance is achieved by inserting TPDFM into all three layers, yielding 79.8% PR, 75.7% NPR, and 63.4% SR. Number of Tokens PR ↑ NPR ↑ SR ↑
+
+16 78.9 74.8 62.8 32 79.3 75.4 63.1 64 79.8 75.7 63.4 
+
+128 78.6 74.7 62.6 Table 5: Effect of the Number of Spatio-Temporal Tokens. 
+
+Effect of the Number of Spatio-Temporal Tokens. We investigate the effect of the number of spatio-temporal to-kens on the LasHeR test set. As shown in Table 5, increas-ing the token number from 16 to 64 consistently improves tracking performance, with 64 tokens achieving the best re-sults of 79.8% PR, 75.7% NPR, and 63.4% SR. However, further increasing the number to 128 degrades all three met-rics, suggesting that excessive tokens may introduce redun-dant temporal information and increase modeling difficulty. Therefore, we adopt 64 spatio-temporal tokens as the default setting, which provides the best balance between representa-tion capability and tracking performance. 
+
+Figure 4: Attention evolution for RGB (top) and TIR (bot-tom). 
+
+Visualization Analysis. To qualitatively analyze the ef-fects of TPDFM and DSCM, we visualize the attention maps of the RGB and TIR branches in Fig. 4. The baseline produces dispersed responses and is easily affected by background in-terference. With TPDFM, the attention responses become more concentrated on the target, demonstrating that target-conditioned fusion effectively enhances target-relevant mul-timodal information. DSCM further suppresses distracting responses and produces more compact target activation by calibrating the propagated spatio-temporal tokens. 
+
+## Conclusion 
+
+In this work, we propose PAFCNet, a Parameter-Dynamic Adaptive Fusion and Calibration Network for RGBT track-ing. Unlike conventional methods with fixed fusion func-tions, we first develop a Target-adaptive Hypernetwork (TA-HyperNet) to generate target-conditioned parameters from template representations. Building on TA-HyperNet, the pro-posed target-aware parameter-dynamic fusion module adap-tively adjusts multimodal fusion according to variations in target appearance and scene conditions. We further introduce a dynamic spatio-temporal calibration module to calibrate propagated spatio-temporal tokens and suppress unreliable historical information. Extensive experiments on multiple benchmarks demonstrate the effectiveness of the proposed framework. 
+
+## References 
+
+Cao, B.; Guo, J.; Zhu, P.; and Hu, Q. 2024. Bi-directional Adapter for Multimodal Tracking. In AAAI Conference on Artificial Intelligence , 927–935. Charakorn, R.; Cetin, E.; Tang, Y.; and Lange, R. T. 2025. Text-to-LoRA: Instant Transformer Adaption. In arXiv preprint arXiv:2506.06105 .Chen, X.; Kang, B.; Geng, W.; Zhu, J.; Liu, Y.; Wang, D.; and Lu, H. 2025. SUTrack: Towards Simple and Unified Single Object Tracking. In Proceedings of the AAAI Conference on Artificial Intelligence , 2239–2247. Deng, J.; Chen, S.; Wang, D.-H.; Zhang, X.-Y.; and Yan, Y. 2026. Video-Level Cross-Modal Temporal-Navigation for RGBT Tracking. IEEE Transactions on Multimedia .Ding, Z.; Li, C.; Miao, S.; and Tang, J. 2025a. Template-Based Uncertainty Multimodal Fusion Network for RGBT Tracking. In Proceedings of the Thirty-Fourth International Joint Conference on Artificial Intelligence , 909–917. Ding, Z.; Li, C.; Wang, F.; and Tang, J. 2026. Uncertainty-Aware RGBT Tracking. In International Journal of Com-puter Vision , volume 134, 290. Ding, Z.; Li, C.; Wang, T.; and Wang, F. 2025b. Quality-Aware Spatio-Temporal Transformer Network for RGBT Tracking. In IEEE Transactions on Image Processing , 7845– 7858. Duenias, D.; Nichyporuk, B.; Arbel, T.; Raviv, T. R.; et al. 2025. Hyperfusion: A hypernetwork approach to multimodal integration of tabular and medical imaging data for predictive modeling. In Medical Image Analysis , 103503. Gwilliam, M.; Zhang, R.; Padmanabhan, N.; Du, H.; and Shrivastava, A. 2026. How to design and train your implicit neural representation for video compression. In Proceed-ings of the IEEE/CVF Winter Conference on Applications of Computer Vision .Hu, X.; Tai, Y.; Zhao, X.; Zhao, C.; Zhang, Z.; Li, J.; Zhong, B.; and Yang, J. 2025. Exploiting Multimodal Spatial-temporal Patterns for Video Object Tracking. In Proceed-ings of the AAAI Conference on Artificial Intelligence, 39(4). ,3581–3589. Hui, T.; Xun, Z.; Peng, F.; Huang, J.; Wei, X.; Wei, X.; Dai, J.; Han, J.; and Liu, S. 2023. Bridging Search Region Interac-tion With Template for RGB-T Tracking. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 13630–13639. Jin, J.; Li, C.; Feng, H.; Lu, A.; Huang, L.; and Tang, J. 2026. Progressive Multi-cue Alignment for Unaligned RGBT Tracking. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 35207– 35216. Li, C.; Cheng, H.; Hu, S.; Liu, X.; Tang, J.; and Lin, L. 2016. Learning Collaborative Sparse Representation for Grayscale-Thermal Tracking. In IEEE Transactions on Image Process-ing , 5743–5756. Li, C.; Liang, X.; Lu, Y.; Zhao, N.; and Tang, J. 2019. RGB-T Object Tracking:Benchmark and Baseline. In Pattern Recog-nition , 106977. Li, C.; Wang, T.; Ding, Z.; Xiao, Y.; and Tang, J. 2024. Dynamic Disentangled Fusion Network for RGBT Tracking. In arXiv preprint arXiv:2412.08441 .Li, C.; Xue, W.; Jia, Y.; Qu, Z.; Luo, B.; Tang, J.; and Sun, D. 2022. LasHeR: A Large-Scale High-Diversity Bench-mark for RGBT Tracking. In IEEE Transactions on Image Processing , 392–404. Li, C.; Zhao, N.; Lu, Y.; Zhu, C.; and Tang, J. 2017. Weighted Sparse Representation Regularized Graph Learn-ing for RGB-T Object Tracking. In Proceedings of the 25th ACM International Conference on Multimedia , 1856–1864. Li, H.; Wang, Y.; Hao, W.; Zhang, P.; Wang, D.; and Lu, H. 2026a. RAGTrack: Language-Aware RGBT Tracking with Retrieval-Augmented Generation. In Proceedings of the Computer Vision and Pattern Recognition Conference .Li, H.; Wang, Y.; Hu, X.; Hao, W.; Zhang, P.; Wang, D.; and Lu, H. 2026b. Cadtrack: Learning contextual aggregation with deformable alignment for robust rgbt tracking. In Pro-ceedings of the AAAI Conference on Artificial Intelligence ,6109–6117. Liu, L.; Li, C.; Xiao, Y.; Ruan, R.; and Fan, M. 2024. RGBT Tracking via Challenge-Based Appearance Disentanglement and Interaction. In IEEE Transactions on Image Processing .Liu, L.; Li, C.; Xiao, Y.; and Tang, J. 2023. Quality-Aware RGBT Tracking via Supervised Reliability Learning and Weighted Residual Guidance. In Proceedings of the 31st ACM International Conference on Multimedia , 3129–3137. Lu, A.; Wang, W.; Li, C.; Tang, J.; and Luo, B. 2025a. AF-TER: Attention-Based Fusion Router for RGBT Tracking. In 
+
+IEEE Transactions on Image Processing , 4386–4401. Lu, A.; Wang, W.; Li, C.; Tang, J.; and Luo, B. 2025b. RGBT Tracking via All-layer Multimodal Interactions with Progressive Fusion Mamba. In Proceedings of the AAAI Conference on Artificial Intelligence , 5793–5801. Lu, A.; Zha, Z.; Jin, J.; Li, S.; Li, C.; Tang, J.; and Luo, B. 2026. Spatio-Temporal Conditional Denoising Transformer for Modality-Missing RGBT Tracking. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 13584–13593. Lu, A.; Zhao, J.; Li, C.; Xiao, Y.; and Luo, B. 2024. Break-ing Modality Gap in RGBT Tracking: Coupled Knowledge Distillation. In Proceedings of the 32nd ACM International Conference on Multimedia , 9291–9300. Lv, C.; Li, L.; Zhang, S.; Chen, G.; Qi, F.; Zhang, N.; and Zheng, H.-T. 2024. HyperLoRA: Efficient Cross-task Gener-alization via Constrained Low-Rank Adapters Generation. In 
+
+Findings of the Association for Computational Linguistics: EMNLP 2024 , 16376–16393. Tan, Y.; Wu, Z.; Fu, Y.; Zhou, Z.; Sun, G.; Zamfir, E.; Ma, C.; Paudel, D.; Van Gool, L.; and Timofte, R. 2025. Xtrack: Multimodal training boosts rgb-x video object trackers. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , 5734–5744. Tang, Z.; Xu, T.; Wu, X.-J.; Zhu, X.; Cheng, C.; Feng, Z.; and Kittler, J. 2025. Revisiting rgbt tracking benchmarks from the perspective of modality validity: A new benchmark, problem, and solution. In IEEE Transactions on Image Processing .Wang, H.; Liu, X.; Li, Y.; Sun, M.; Yuan, D.; and Liu, J. 2024. Temporal Adaptive RGBT Tracking with Modality Prompt. In Proceedings of the AAAI Conference on Artificial Intelligence , 5436–5444. Wu, Q.; Yang, T.; Liu, Z.; Wu, B.; Shan, Y.; and Chan, A. B. 2023. DropMAE: Masked Autoencoders with Spatial-Attention Dropout for Tracking Tasks. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 14561–14571. Xia, J.; Shi, D.; Song, K.; Song, L.; Wang, X.; Jin, S.; Zhao, C.; Cheng, Y.; Jin, L.; Zhu, Z.; Li, J.; Wang, G.; Xing, J.; and Zhao, J. 2024. Unified Single-Stage Transformer Net-work for Efficient RGB-T Tracking. In Proceedings of the Thirty-Third International Joint Conference on Artificial In-telligence , 1471–1479. Xiang, X.; Yan, Q.; Zhang, H.; Ding, J.; Xu, H.; Wang, Z.; and Ma, J. 2025. Cross-modal stealth: A coarse-to-fine attack framework for rgb-t tracker. In Proceedings of the AAAI Conference on Artificial Intelligence , 8620–8627. Xu, M.; Wen, S.; Jiang, L.; Qiao, M.; Li, S.; and Xu, T. 2025. SportSal: Hypernetwork-based Saliency Prediction for Sports Videos. In IEEE Transactions on Circuits and Systems for Video Technology .Ye, B.; Chang, H.; Ma, B.; Shan, S.; and Chen, X. 2022. Joint feature learning and relation modeling for tracking: A one-stream framework. In European conference on computer vision , 341–357. Zhang, P.; Wang, D.; Lu, H.; and Yang, X. 2021. Learning adaptive attribute-driven representation for real-time RGB-T tracking. In International Journal of Computer Vision ,2714–2729.

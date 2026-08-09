@@ -1,0 +1,798 @@
+Title: Similarity Weighted Aggregation with Global Differential Privacy for Federated Brain Lesion Segmentation
+
+URL Source: https://arxiv.org/pdf/2608.00872v1
+
+Published Time: Tue, 04 Aug 2026 00:55:40 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+> Preprint. This work has been submitted for peer review.
+> Digital Object Identifier
+
+# Similarity Weighted Aggregation with Global Differential Privacy for Federated Brain Lesion Segmentation 
+
+MUHAMMAD IRFAN KHAN 1, EERO LEHTONEN 1, JONI OBRADOVIC 1, ELINA KONTIO 1, ESA ALHONIEMI 1, SULEIMAN A. KHAN 1, AND MOJTABA JAFARITADI 1 
+
+> 1Turku University of Applied Sciences, Turku 20520, Finland (e-mail: irfan.khan@turkuamk.fi, eero.lehtonen@turkuamk.fi, joni.p.obradovic@turkuamk.fi, elina.kontio@turkuamk.fi, esa.alhoniemi@turkuamk.fi, suleiman.alikhan@turkuamk.fi, mojtaba.jafaritadi@turkuamk.fi)
+
+Corresponding author: Muhammad Irfan Khan (e-mail: irfan.khan@turkuamk.fi). This work was carried out as part of a research project at Turku University of Applied Sciences. This work was supported by Business Finland under Grant 1337/31/2024. 
+
+ABSTRACT Federated Learning (FL) enables collaborative training of machine learning models across multiple institutions without sharing sensitive data, making it particularly suitable for medical imaging applications. However, heterogeneous data distributions across institutions and potential information leakage through model updates remain important challenges. In this work, we propose DP-SimAgg, a privacy-preserving federated learning framework that integrates similarity-weighted aggregation with a server-side differential privacy mechanism. The proposed method applies L2 clipping to bound collaborator updates, computes similarity-based aggregation weights to mitigate the effects of non-IID data distributions, and injects calibrated Gaussian noise at the central server and provides per-round privacy guarantees under the assumed sensitivity bound. The framework is implemented using Intel’s OpenFL platform and evaluated on the FeTS 2022 dataset consisting of 1251 multi-modal MRI scans for brain tumor segmentation. Experimental results demonstrate that DP-SimAgg maintains competitive segmentation performance while providing privacy protection. For instance, under a strict per-round privacy budget ( ϵ = 1 , cumulative ϵtotal = 20 over 20 rounds), the method achieves Dice scores of 0.6357, 0.5305, and 0.5274 for the enhancing tumor (ET), tumor core (TC), and whole tumor (WT) regions, respectively. With a more relaxed per-round budget ( ϵ = 10 ,cumulative ϵtotal = 200 ), performance approaches that of the non-private baseline while incorporating a central Gaussian mechanism with per-round (ϵ, δ )-DP accounting under the assumed sensitivity bound. These results highlight the potential of DP-SimAgg for enabling privacy-preserving collaborative learning in medical imaging applications. 
+
+INDEX TERMS differential privacy, federated learning, medical imaging, brain tumor segmentation, aggregation 
+
+I. INTRODUCTION 
+
+Collaborative machine learning across medical institutions holds great promise for improving diagnostic accuracy and clinical decision support, yet it is fundamentally constrained by two intertwined challenges: data scarcity and privacy regulation. In medical imaging, developing high-performance deep learning models requires large, heterogeneous, and carefully annotated datasets [1]. Brain tumor segmentation is a clinically critical example: early and precise delineation of glioblastoma (GBM) sub-regions from multi-parametric MRI is strongly associated with treatment planning quality and patient outcomes [2], [3]. Yet patient data are tightly protected under legislation such as HIPAA and GDPR [4], [5], making centralized data pooling across institutions legally restricted or outright prohibited. Within a single institution, annotated datasets are often too small and insufficiently diverse to train generalizable models, especially for rare pathologies [6]. Federated learning (FL) was introduced precisely to rec-oncile this tension [7]. In the standard FL protocol, a central server distributes a global model to a set of collaborating institutions, each of which trains locally on its private data and returns only model parameter updates to the server. The server aggregates these updates, most commonly via weighted averaging, and broadcasts the refined global model for the next  
+
+> VOLUME 4, 2016 1arXiv:2608.00872v1 [cs.AI] 1 Aug 2026 IEEE Access
+
+round. At no point is raw patient data transmitted, offering a principled alternative to centralized training under privacy constraints [8], [9]. Despite this, FL in its standard form faces two persistent challenges that are particularly severe in the medical imaging domain. The first is statistical heterogeneity: patient popula-tions, imaging protocols, scanner hardware, and annotation conventions differ substantially across institutions, producing non-independent and non-identically distributed (non-IID) local datasets [10], [11]. When local data distributions diverge significantly, standard federated averaging (FedAvg) is prone to client drift [12], a phenomenon where locally optimized up-dates pull the global model in conflicting directions, slowing convergence and degrading final model quality. The second challenge is privacy leakage: transmitting model gradients or parameters can expose sensitive information about the underlying training data. Gradient inversion attacks [13] and membership inference attacks [14] have demonstrated that an adversarial server or eavesdropper can recover private patient attributes or even approximate training samples from shared model updates alone. Vanilla FL thus provides no formal privacy guarantee [13], [15], [16]. Addressing both challenges simultaneously requires mecha-nisms that are sensitive to update quality across heterogeneous collaborators while also providing mathematically certified privacy guarantees. In this work, we propose DP-SimAgg , a federated learning framework that directly addresses these two challenges through a tightly integrated design: a similarity-weighted aggregation (SimAgg) [17] scheme that down-weights divergent collaborator updates to mitigate client drift under non-IID conditions, combined with a server-side Gaussian differential privacy mechanism that provides formal (ϵ, δ )-DP guarantees under an empirically estimated sensitivity per communication round. The key insight is that these two components are empirically observed to be mutually reinforcing: L2 norm clipping, required for bounding the DP sensitivity, simultaneously prevents outlier updates from corrupting the global model, and the similarity weights are computed after clipping, ensuring that the DP guarantee is not undermined by the weighting scheme. Our prior work demonstrated that SimAgg significantly outperforms FedAvg and related methods in non-IID medical imaging settings, including winning multiple benchmarking challenges [18], [19]. However, its effectiveness under differential privacy constraints has not been studied. This work fills that gap by systematically evaluating the robustness of similarity-weighted aggregation under varying privacy budgets, and by integrating it with a global differential privacy mechanism to analyze the trade-off between model utility and privacy in federated brain tumor segmentation. The framework is implemented within Intel’s OpenFL platform [20] and evaluated on the FeTS 2022 federated brain tumor segmentation benchmark [18], comprising 1251 multi-institutional multi-parametric MRI scans across 33 collaborating sites. Experiments demonstrate that DP-SimAgg achieves competitive segmentation performance across a range of privacy budgets, with near-baseline Dice scores at a per-round budget of ϵ0 = 10 (cumulative ϵtotal = 200 over 20 rounds) and meaningful segmentation quality even under strict privacy ( ϵ0 = 1 , ϵtotal = 20 ), at computational cost comparable to non-private training. The specific contributions of this paper are as follows:  
+
+> •
+
+We propose DP-SimAgg , a federated aggregation frame-work that unifies similarity-weighted update selection with central Gaussian differential privacy for multi-institutional medical image segmentation.  
+
+> •
+
+We design a server-side, empirically sensitivity-aware privacy mechanism combining per-collaborator L2 norm clipping, similarity-based aggregation weighting, empir-ical L2 sensitivity estimation via neighboring-dataset simulation, and calibrated Gaussian noise injection — all applied without modifying collaborator-side training.  
+
+> •
+
+We provide complete algorithmic specifications (Al-gorithms 1–3) with formal (ϵ0, δ 0)-DP guarantees per round and explicit sequential composition accounting for the multi-round training setting.  
+
+> •
+
+We conduct an empirical evaluation on the FeTS 2022 benchmark, quantifying the privacy–utility trade-off across privacy budgets and demonstrating computational parity with non-private federated training. The remainder of this paper is organized as follows. Section II surveys related work on FL aggregation, differ-ential privacy in FL, and privacy-preserving medical imaging. Section III describes the proposed framework and algorithmic design. Section IV presents the experimental evaluation, and Section V discusses the results, limitations, and future directions. 
+
+> II. RELATED WORK
+> FEDERATED LEARNING AGGREGATION AND HETEROGENEITY
+
+The canonical FL aggregation algorithm, FedAvg [7], com-putes a weighted average of collaborator updates proportional to local dataset size. While effective under IID conditions, FedAvg degrades under non-IID data distributions due to client drift, where heterogeneous local optima cause diverging update directions [10], [11]. Numerous aggregation strategies have been proposed to address this. FedProx [21] adds a prox-imal regularization term to each collaborator’s local objective to limit divergence from the global model. SCAFFOLD [12] uses control variates to correct for client drift directly in the gradient update. FedNova [22] normalizes local updates by the number of local steps to eliminate objective inconsistency. These methods, however, operate on the collaborator side and require modifications to local training procedures, which may be impractical in heterogeneous clinical environments where institutions use different software stacks or lack the infrastructure for custom training loops. Server-side aggregation strategies offer a more deployment-friendly alternative. Krum and Multi-Krum [23] select up-dates that are closest to other received updates, providing   
+
+> 2VOLUME 4, 2016 Khan et al. : DP-SimAgg for Privacy-Preserving Federated Brain Lesion Segmentation
+
+robustness against Byzantine collaborators. FedMedian [24] uses coordinate-wise median aggregation for similar effect. Similarity-based aggregation, as developed in our prior work [9] and [25], weights collaborator contributions by their distance from the global consensus, assigning higher influence to updates that are consistent with the aggregate direction. This approach is purely server-side and requires no modification to local training, making it well-suited for real-world federated medical imaging deployments. The present work extends this line to incorporate formal differential privacy guarantees. 
+
+DIFFERENTIAL PRIVACY IN FEDERATED LEARNING 
+
+Differential privacy (DP) provides a rigorous mathematical framework for limiting information leakage from published model outputs [26]–[28]. A mechanism M satisfies (ϵ, δ )-DP if its output distribution changes by at most a multiplicative factor eϵ (plus additive slack δ) when any single individual’s data is added or removed from the input. The Gaussian mechanism [29] achieves this by adding isotropic Gaussian noise calibrated to the L2 sensitivity of the target function. The integration of DP with FL was formalized by McMahan et al. [29] in DP-FedAvg, which clips per-sample gradients and adds Gaussian noise at the server, using the moments ac-countant for tight privacy composition. However, DP-FedAvg was designed for the local DP setting and applies clipping and noise at the collaborator level during local training, which requires access to per-sample gradients and imposes significant computational overhead. Geyer et al. [30] proposed an alternative user-level DP scheme that clips and noises full model updates at the server rather than per-sample gradients, reducing collaborator-side complexity. Subsequent work has explored local DP [31], where collaborators independently perturb their updates before transmission, at the cost of substantially higher noise and reduced utility compared to central DP for the same privacy budget. In this work, we adopt the central (server-side) DP model, consistent with Geyer et al. [30], which provides stronger utility guarantees under the standard trusted-aggregator assumption. Privacy accounting for multi-round FL is a non-trivial problem. Naive sequential composition yields a linear budget growth of T ϵ 0 over T rounds. The moments accountant [29] and Rényi DP [32] provide substantially tighter bounds. In this work we report the basic sequential composition bound for transparency, and note that tighter accounting via these methods is a straightforward improvement. 
+
+PRIVACY-PRESERVING FEDERATED MEDICAL IMAGING 
+
+The application of FL to medical image segmentation has grown substantially since Sheller et al. [2] demonstrated FL for brain tumor segmentation without centralizing data. Sub-sequent work has addressed non-IID challenges in multi-site medical imaging [19], collaborator selection strategies [33], [34], and the FeTS benchmark for standardized federated evaluation [18]. The intersection of DP and medical FL has received increasing attention. Kaissis et al. [35] demonstrated DP-                          
+
+> TABLE 1. Comparison of related federated learning methods along key design axes. Server-side only indicates no modification to collaborator training is required. Non-IID robust indicates explicit mechanism for heterogeneous data. Formal DP indicates (ϵ, δ )-DP guarantee.
+> Method Server-side only Non-IID robust Formal DP FedAvg [7] ✓××
+> FedProx [21] ×✓×
+> SCAFFOLD [12] ×✓×
+> DP-FedAvg [29] ××✓
+> Geyer et al. [30] ✓×✓
+> SimAgg [9] ✓✓×
+> DP-SimAgg (ours) ✓✓✓
+
+FL for chest radiograph classification and highlighted the sensitivity of medical imaging models to noise injection. Bernstein et al. [36] and Jin et al. [37] studied signSDG and DP for imaging datasets, noting that high-dimensional inputs complicate sensitivity estimation. Critically, neither work addresses the interaction between aggregation strategy and DP: they apply noise to standard FedAvg aggregates, leaving the non-IID problem unaddressed. Roth et al. [38] reviewed privacy challenges in biomedical image analysis competitions, noting that gradient-based attacks remain viable against standard FL in medical settings. Our work differs from all of the above in that it jointly optimizes the aggregation scheme for non-IID robustness and applies calibrated DP noise, treating both problems as inseparable within a single server-side mechanism. 
+
+POSITIONING OF THIS WORK 
+
+Table 1 summarizes the key design choices of the most closely related methods. Relative to prior work, DP-SimAgg is, to our knowledge, the first federated aggregation framework to ex-plicitly combine server-side similarity-weighted aggregation with server-side central Gaussian DP in the context of multi-institutional medical image segmentation, without requiring any modification to collaborator-side training procedures. 
+
+III. METHODS 
+
+A. DATASET OVERVIEW 
+
+All experiments are conducted using the training split of the FeTS 2022 federated segmentation challenge [18], specifically Partitioning 2, which distributes 1251 patients with confirmed glioblastoma (GBM) diagnoses across 33 institutions. This partitioning was designed to reflect realistic inter-institutional data heterogeneity, with institutions contributing between 4 and 171 patients each (see Fig. 1), making it a suitable benchmark for evaluating federated learning under non-IID conditions. Glioblastoma multiforme is classified as a WHO Grade IV primary brain tumour arising from astrocytes [39]. It is characterised by rapid infiltrative growth, typically localised to the frontal or temporal lobes, and carries a median survival of 14–16 months even with standard treatment [40]. Precise sub-region delineation from pre-operative MRI is therefore clinically critical for surgical planning, radiotherapy targeting,   
+
+> VOLUME 4, 2016 3IEEE Access
+> FIGURE 1. Official partitioning of the training set and patient distribution per institution.
+
+and treatment monitoring. Each patient’s imaging data consists of four co-registered, skull-stripped structural MRI volumes of size 240 ×240 ×155 
+
+voxels at 1 mm isotropic resolution, stored in NIfTI format (.nii.gz ): native T1-weighted (T1), contrast-enhanced T1-weighted (T1Gd), T2-weighted (T2), and T2 Fluid-Attenuated Inversion Recovery (FLAIR). Representative examples of each modality and their corresponding tumor sub-regions are shown in Fig. 2. Expert annotations provide three tumor sub-region labels following the BraTS convention [3]: the necrotic tumor core (NCR, label 1), the peritumoral oedematous tissue (ED, label 2), and the GD-enhancing tumor (ET, label 4). Three clinically relevant composite regions are defined from these labels for evaluation: the enhancing tumor (ET, label 4), the tumor core (TC = NCR ∪ ET, labels 1 + 4), and the whole tumor (WT = NCR ∪ ED ∪ ET, labels 1 + 2 + 4). All imaging volumes were pre-processed centrally prior to federated distribution. The pipeline includes rigid co-registration of all modalities to the T1Gd volume, affine registration to the SRI24 anatomical atlas, resampling to 1 mm 3 isotropic resolution, and automated skull stripping, following the procedure detailed in [3], [41], [42]. 
+
+> B. FEDERATED LEARNING FRAMEWORK
+
+Federated training is conducted using Intel’s OpenFL frame-work [20], an open-source FL platform designed for secure, distributed model training across institutional boundaries without raw data exchange. OpenFL organises training around two roles: collaborators, each holding a private local dataset and executing model training on their own hardware; and an aggregator, which coordinates the training schedule, collects parameter updates from active collaborators, and produces an updated global model at the end of each communication round. No patient data or raw images are transmitted at any stage; instead, only model tensors are exchanged. The segmentation model is a residual U-Net [43] with 95 layers and approximately 33 million parameters, provided by the FeTS 2022 challenge organisers [44] as the standard benchmark architecture for this task. The network follows an encoder–decoder design with skip connections that preserve spatial resolution across scales, which is particularly important for delineating small sub-regions such as the necrotic core. Training is conducted over 20 communication rounds. At each round, a subset of collaborators trains the current global model locally on their private data for a fixed number of local epochs, then transmits their updated model tensors to the aggregator. The aggregator applies the DP-SimAgg procedure (Section III) to produce the next global model, which is then broadcast to all collaborators for the subsequent round. All experiments are executed on a cluster node equipped with an NVIDIA Tesla V100 GPU and 350 GB of system memory. 
+
+> C. COLLABORATOR SELECTION STRATEGY
+
+Let K denote the total number of available collaborators and 
+
+ρ ∈ (0 , 1] the participation ratio. In each communication round t, a subset St of |S t| = ⌊ρK ⌋ collaborators is selected to participate in training. In our experiments, K = 33 
+
+and ρ = 0 .2, yielding |S t| = 6 active collaborators per round. The selected set St is passed to Algorithm 1 as the 
+
+collaborators_chosen parameter, which determines the local tensors aggregated in that round. Full participation ( ρ = 1) is impractical in realistic federated deployments due to system heterogeneity, commu-nication constraints, and variable device availability. However, naive independent random sampling at each round can result in uneven participation frequencies: some collaborators may be selected far more often than others over the course of training, introducing a systematic bias in the aggregated model toward over-represented data distributions. To address this, we use a sliding window selection mech-anism over a randomly permuted collaborator list. At the beginning of each cycle, a uniformly random permutation   
+
+> 4VOLUME 4, 2016 Khan et al. : DP-SimAgg for Privacy-Preserving Federated Brain Lesion Segmentation
+
+# (A) (B) (C) (D)  
+
+> FIGURE 2. Representative glioblastoma (GBM) lesions across four mpMRI modalities: native T1 (A), contrast-enhanced T1Gd (B), T2 (C), and FLAIR (D). Tumor sub-regions are colour-coded: whole tumor including oedema (yellow), GD-enhancing tumor (blue), and necrotic core (green).
+
+π of all K collaborators is generated. Across consecutive rounds, a non-overlapping window of |S t| collaborators is read sequentially from π. Once the window reaches the end of the permuted list (after ⌈K/ |S t|⌉ rounds), a new random permutation is generated and the process repeats. This guarantees that each collaborator appears approximately once per cycle, with at most a few collaborators appearing in two consecutive windows at cycle boundaries due to integer rounding. Over the 20 training rounds used in our experiments, this yields 4 cycles, ensuring balanced participation across all institutions. As illustrated in Fig. 3, this approach differs from: (a) static selection, which fixes the same subset across all rounds and risks systematic overfitting to a data subset; and (b) ran-domized order, which visits all collaborators in a fixed random sequence without refreshing the permutation, limiting stochasticity across cycles. The proposed sliding window combines the coverage guarantee of ordered selection with the stochasticity of fresh permutations each cycle. This mechanism provides two key properties:  
+
+> •
+
+Fairness: Each collaborator participates approximately once per cycle, preventing any institution from dominat-ing or being systematically excluded from training.  
+
+> •
+
+Diversity: Exposing the model to all data distributions in a structured, stochastic order improves generalization under non-IID conditions.  
+
+> FIGURE 3. Illustration of the collaborator selection strategies: (a) Static Selection, (b) Randomized Order, and (c) Sliding Window approach, which ensures diversity and fairness in collaborator participation during federated learning.
+
+D. DIFFERENTIAL PRIVACY-ENABLED ADAPTIVE WEIGHT AGGREGATION 
+
+The proposed DP-SimAgg aggregation procedure combines similarity-aware weighting with a global differential privacy mechanism to address both statistical heterogeneity and privacy risks in federated learning environments. In hetero-geneous medical datasets, collaborator updates may vary significantly due to differences in imaging protocols, patient populations, and institutional data distributions. To ensure robust aggregation while maintaining privacy guarantees, the proposed method incorporates four key stages: (i) bound-ing collaborator updates using L2 clipping, (ii) computing similarity-based aggregation weights, (iii) estimating aggre-gation sensitivity through a simulated neighboring dataset, and (iv) injecting calibrated Gaussian noise according to differential privacy parameters. Prior to aggregation, each collaborator’s model update 
+
+vi is projected onto an L2 ball of radius C via ˜vi = vi ·
+
+min(1 , C/ ∥vi∥2), ensuring ∥˜vi∥2 ≤ C for all i. This bounds the influence of any single collaborator on the global model. From a differential privacy perspective, clipping is essential because it establishes a finite upper bound on the L2 sensitivity of the aggregation function. Without this norm constraint, the difference between aggregation outputs on neighboring datasets could grow arbitrarily large, requiring excessive noise injection that would degrade model utility. After clipping, a similarity-weighted aggregation mecha-nism is applied. Unlike standard federated averaging, which typically assigns average weights of participating collabora-tors, the proposed method considers the similarity between each collaborator update and the global average update. The distance between local updates and the averaged global esti-mate is computed, and collaborators whose updates are closer to the consensus receive larger weights. This strategy improves  
+
+> VOLUME 4, 2016 5IEEE Access
+
+robustness in non-IID federated learning environments by reducing the influence of highly divergent updates that may arise from skewed data distributions across institutions. To estimate the sensitivity ∆f , we simulate a neighboring dataset by replacing one collaborator update with a bounded adversarial tensor constrained by the clipping threshold C.This procedure provides an empirical approximation of the aggregation perturbation under worst-case bounded deviations. Although this approach does not yield a formal tight upper bound on the sensitivity, it offers a practical and tractable estimate for calibrating the Gaussian noise in our setting. Finally, Gaussian noise is injected into the aggregated tensor using the estimated sensitivity ∆f and the per-round privacy budget parameters (ϵ0, δ 0), ensuring that the aggrega-tion satisfies (ϵ0, δ 0)-differential privacy for that round. 
+
+> E. GLOBAL DIFFERENTIAL PRIVACY (GDP) IN FEDERATED LESION SEGMENTATION
+
+Global Differential Privacy (GDP) in federated learning protects the privacy of individual participants by introducing calibrated noise into the aggregated model updates at the central server. This centralized approach provides a practical balance between data utility and privacy preservation while avoiding the excessive noise accumulation often associated with local differential privacy mechanisms. By applying privacy protection only at the aggregation stage, GDP allows collaborators to train models locally without modifying their training procedures, while still safeguarding sensitive information. The privacy guarantee follows the standard definition of 
+
+(ϵ, δ )-differential privacy [26], [27]. In the federated setting, two dataset profiles D1 and D2 are considered neighboring if they differ in the contribution of exactly one collaborator (i.e., one collaborator’s local model update is replaced or removed). A randomized mechanism M satisfies (ϵ, δ )-DP if, for all such neighboring profiles and all measurable output sets S ⊆ Range( M),
+
+Pr[ M(D1) ∈ S] ≤ eϵ · Pr[ M(D2) ∈ S] + δ. (1) Here, ϵ > 0 is the privacy budget (smaller values yield stronger privacy), and δ ∈ [0 , 1) is a small additive slack term representing the probability of the privacy guarantee failing to hold. For a function f with L2 sensitivity ∆f =max D1∼D2 ∥f (D1) − f (D2)∥2, adding noise ξ ∼ N (0 , σ 2I)
+
+with σ = ∆fϵ0
+
+p2 ln(1 .25 /δ 0) yields an (ϵ0, δ 0)-differentially private mechanism [27], [29]. DP-SimAgg instantiates this mechanism at each round using the empirically estimated sensitivity ∆f from the neighboring dataset simulation described above. In the proposed framework, GDP is implemented directly at the aggregation server. After receiving the local model tensors from collaborators, the server first applies L2 clipping to ensure that all updates lie within a bounded norm. The clipped updates are then aggregated using the similarity-based weighting scheme described previously. To estimate the sensi-tivity ∆f of the aggregation function, a simulated neighboring dataset is constructed by replacing one collaborator update with a adversarial tensor bounded by the clipping threshold 
+
+C. The L2 difference between the aggregation outputs for the original and simulated datasets provides an empirical estimate of ∆f .Once the sensitivity ∆f has been determined, Gaussian noise is sampled and added to the aggregated tensor accord-ing to the calibrated differential privacy mechanism. This centralized privacy protection minimizes cumulative noise during training while mitigating risks associated with model inversion, membership inference, and related inference-based attacks [13], [14]. 
+
+> F. PRIVACY BUDGET AND NOISE-ACCURACY TRADE-OFF
+
+The level of privacy protection is controlled by the per-round privacy budget ϵ0 > 0, which governs the trade-off between privacy and model accuracy. Smaller values of ϵ0 correspond to stronger per-round privacy guarantees, but require injecting larger noise, which may reduce model performance. The parameter δ0 ∈ (0 , 1) denotes the per-round probability of a privacy guarantee violation and is chosen to be negligibly small in practice. The noise magnitude is calibrated to the L2 sensitivity ∆f
+
+of the aggregation function and the per-round parameters 
+
+(ϵ0, δ 0). By the Gaussian mechanism [27], [29], the noise standard deviation is set to 
+
+σ = ∆fϵ0
+
+s
+
+2 ln 
+
+ 1.25 
+
+δ0
+
+
+
+,
+
+which guarantees that injecting noise ξ ∼ N (0 , σ 2I) into the aggregated tensor yields an (ϵ0, δ 0)-differentially private mechanism for that round. Algorithms 1–3 implement the complete privacy-preserving aggregation procedure. Algorithm 1 (DP-SimAgg) orches-trates the full aggregation pipeline, calling Algorithm 3 (L2Clip) to bound collaborator updates and Algorithm 2 (AddGaussianNoise) to inject calibrated Gaussian noise. To-gether, these components ensure that all collaborator tensors are constrained within a predefined L2 norm ball of radius C
+
+prior to aggregation, thereby bounding sensitivity, limiting the influence of outlier updates, and stabilizing training. In our experiments, federated training was conducted for 20 communication rounds. Each round applies one invo-cation of the Gaussian mechanism with per-round budget 
+
+(ϵ0, δ 0). By the sequential composition theorem for differen-tial privacy [27], the total privacy cost after T rounds is at most (T ϵ 0, T δ 0)-differential privacy under basic composition. Tighter bounds can be obtained via advanced composition or the moments accountant [29], but we report the basic sequen-tial bound here for transparency. Specifically, when ϵ0 = 1 
+
+per round, the total budget after 20 rounds is ϵtotal = 20 ; when 
+
+ϵ0 = 10 , the total budget is ϵtotal = 200 for the monitored   
+
+> 6VOLUME 4, 2016 Khan et al. : DP-SimAgg for Privacy-Preserving Federated Brain Lesion Segmentation
+
+weight tensor. The failure probability parameter δ0 was fixed at 10 −5 per round (total δtotal ≤ 20 ×10 −5 = 2 ×10 −4), while the L2 clipping bound was set to C = 100 . These parameters provide a practical balance between privacy protection and segmentation performance for the considered medical imaging task. 
+
+> IV. RESULTS
+
+We assess the performance of a 3D U-Net model trained on the FeTS 2022 dataset in a federated setting using our proposed DP-SimAgg methodology. For comparison, we trained for 20 federation rounds using the non-private SimAgg baseline and DP-SimAgg with per-round budgets ϵ0 ∈ { 1, 10 }. The total simulation training time per FL run is approximately 16–18 hours for both DP-SimAgg and SimAgg. Notably, in-corporating differential privacy through DP-SimAgg does not significantly increase the computational overhead, confirming that the noise injection step is computationally inexpensive relative to the local model training cost. Figure 4 illustrates the performance of DP-SimAgg with per-round privacy budgets ϵ0 ∈ { 1.0, 10 } compared to the non-private SimAgg baseline. All methods achieve stable per-formance within approximately 10 federated rounds. Table 2 details the computational and performance metrics after 20 rounds of training. The segmentation labels follow the BraTS convention: label 1 denotes the necrotic tumor core (NCR), label 2 the peritumoral edema (ED), and label 4 the GD-enhancing tumor (ET); label 0 is background (non-tumor). For reporting, the composite regions are: enhancing tumor (ET, label 4), tumor core (TC = NCR ∪ ET, labels 1 +4), and whole tumor (WT = NCR ∪ ED ∪ ET, labels 1 +2+4). DP-SimAgg with ϵ0 = 1.0 demonstrates competitive segmentation accuracy, achieving Dice scores of 0.9967 for background (label 0), 0.6357 for enhancing tumor (ET, label 4), 0.5305 for tumor core (TC), and 0.5274 for whole tumor (WT). Increasing the per-round privacy budget to ϵ0 = 10 
+
+substantially improves the Dice scores for all lesion regions, closely matching the baseline SimAgg performance. Compu-tationally, DP-SimAgg demonstrates efficiency comparable to SimAgg, with minor variations in memory usage ( ≈305 GB), training duration (16–18 hours), and energy consumption (≈3400 Wh), validating its practicality for privacy-preserving federated learning applications. The experimental evaluation highlights the practical ap-plicability of our DP-SimAgg methodology for privacy-preserving federated learning in medical image segmentation tasks. By incorporating differential privacy and leveraging the SimAgg algorithm, we achieve a balance between privacy preservation and model accuracy, enabling the development of robust and generalizable segmentation models while ensuring the protection of sensitive patient data. 
+
+> V. DISCUSSION
+> PRIVACY–UTILITY TRADE-OFF
+
+The results from Figure 4 and Table 2 confirm that DP-SimAgg maintains competitive segmentation performance 
+
+Algorithm 1 DP-S IM AGG : Similarity-Weighted Aggregation with Central (ϵ, δ )-Differential Privacy 
+
+Require: local _tensors , db _iterator ,
+
+tensor _name , f l _round , collaborators _chosen ,
+
+collaborator _times , per-round ϵ0 > 0, per-round 
+
+δ0 ∈ (0 , 1) , clipping bound C > 0
+
+Ensure: Aggregated tensor ˜pm satisfying (ϵ0, δ 0)-DP for this round  
+
+> 1:
+
+if tensor _name corresponds to weight or bias then  
+
+> 2:
+
+ϵsaf e ← 10 −8 
+
+> 3:
+
+Extract tensor values: T ← [t. tensor for t ∈
+
+local _tensors ] 
+
+> 4:
+
+Extract volume weights: W ← [t. weight for t ∈
+
+local _tensors ]
+
+▷ Step 1: Apply L2 Clipping (Algorithm 3) with bound C 
+
+> 5:
+
+for each i do  
+
+> 6:
+
+T [i] ← L2C LIP (T [i], C ) 
+
+> 7:
+
+end for 
+
+▷ Step 2: Compute Similarity-Weighted Aggregate  
+
+> 8:
+
+¯T ← 1 
+
+> |T|
+
+P 
+
+> i
+
+T [i] ▷ unweighted mean for distance reference  
+
+> 9:
+
+Compute L2 distances: di ← ∥ ¯T − T [i]∥2 for each i 
+
+> 10:
+
+Compute total distance: total _dist ← P 
+
+> i
+
+di 
+
+> 11:
+
+for each collaborator i do  
+
+> 12:
+
+Similarity factor: si ← total _dist ϵsaf e +di 
+
+> 13:
+
+end for  
+
+> 14:
+
+Combined weights: ˆwi ← W [i] + si for each i 
+
+> 15:
+
+Normalize: Wnorm [i] ← ˆwi  
+
+> ϵsaf e +P
+> jˆwj
+> 16:
+
+Weighted aggregate: pm ← P 
+
+> i
+
+Wnorm [i] · T [i]
+
+▷ Step 3: Estimate L2 Sensitivity via Neighboring Dataset  
+
+> 17:
+
+Copy T ′ ← T ; substitute T ′[0] ← 1 · C ▷ worst-case neighbor  
+
+> 18:
+
+Compute neighboring aggregate: pm ′ ←P 
+
+> i
+
+Wnorm [i] · T ′[i] 
+
+> 19:
+
+Estimate sensitivity: ∆f ← ∥ pm − pm ′∥2
+
+▷ Step 4: Inject Gaussian Noise for Differential Privacy  
+
+> 20:
+
+˜pm ← ADD GAUSSIAN NOISE (pm, ∆f, ϵ 0, δ 0) 
+
+> 21:
+
+return ˜pm  
+
+> 22:
+
+else  
+
+> 23:
+
+Compute data-volume-weighted average: pm ←P      
+
+> iW[i]·T[i]
+> P
+> iW[i]
+> 24:
+
+Set ∆f ← C ▷ conservative sensitivity bound for non-weight tensors  
+
+> 25:
+
+Apply noise: ˜pm ←
+
+ADD GAUSSIAN NOISE (pm, ∆f, ϵ 0, δ 0) 
+
+> 26:
+
+return ˜pm  
+
+> 27:
+
+end if  
+
+> VOLUME 4, 2016 7
+
+IEEE Access 0 4 9 14 19 
+
+Rounds 
+
+> 2000 4000 6000 8000
+> Value
+
+Simulation Time (minutes) across Rounds 
+
+Experiments DP-SimAgg ( =1) 
+
+DP-SimAgg ( =10) 
+
+SimAgg     
+
+> 04914 19
+
+Rounds 
+
+> 0.3 0.4 0.5 0.6 0.7
+> Value
+
+Projected Convergence Score across Rounds 
+
+Experiments DP-SimAgg ( =1) 
+
+DP-SimAgg ( =10) 
+
+SimAgg     
+
+> 04914 19
+
+Rounds 
+
+> 0.95 0.96 0.97 0.98 0.99 1.00
+> Value
+
+DICE Label 0 across Rounds 
+
+Experiments DP-SimAgg ( =1) 
+
+DP-SimAgg ( =10) 
+
+SimAgg     
+
+> 04914 19
+
+Rounds 
+
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7
+> Value
+
+DICE Label 1 across Rounds 
+
+Experiments DP-SimAgg ( =1) 
+
+DP-SimAgg ( =10) 
+
+SimAgg     
+
+> 04914 19
+
+Rounds 
+
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7
+> Value
+
+DICE Label 2 across Rounds 
+
+Experiments DP-SimAgg ( =1) 
+
+DP-SimAgg ( =10) 
+
+SimAgg     
+
+> 04914 19
+
+Rounds 
+
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8
+> Value
+
+DICE Label 4 across Rounds 
+
+Experiments DP-SimAgg ( =1) 
+
+DP-SimAgg ( =10) 
+
+SimAgg 
+
+FIGURE 4. DP-SimAgg with per-round budgets ϵ0 ∈ { 1.0, 10 } and non-private SimAgg across multiple segmentation metrics over 20 federated training rounds. 8 VOLUME 4, 2016 Khan et al. : DP-SimAgg for Privacy-Preserving Federated Brain Lesion Segmentation           
+
+> TABLE 2. Performance comparison of DP-SimAgg and SimAgg on the internal validation dataset after 20 training rounds. ϵvalues are per-round budgets; cumulative budgets under basic sequential composition are ϵtotal = 20 and ϵtotal = 200 , respectively. DICE Label 0: background; Label 1: necrotic core (NCR); Label 2: peritumoral edema (ED) / tumor core (TC); Label 4: GD-enhancing tumor (ET) / whole tumor (WT) composite.
+
+METRICS DP-S IM AGG (ϵ0=1 , ϵTOT =20 ) DP-S IM AGG (ϵ0=10 , ϵTOT =200 ) SIM AGG (NO DP) JOB WALL -CLOCK TIME 16:08:53 17:55:35 18:01:56 MEMORY UTILIZED (GB) 305.43 305.88 305.32 ENERGY (W H) 3393.88 3780.68 3396.47 SIMULATION TIME (MIN ) 8291.95 8781.74 8484.11 PROJECTED CONV . S CORE 0.5799 0.7318 0.7380 
+
+DICE L ABEL 0 0.9967 0.9984 0.9981 DICE L ABEL 1 0.6357 0.6757 0.6685 DICE L ABEL 2 0.5305 0.6872 0.6851 DICE L ABEL 4 0.5274 0.7962 0.7896 
+
+Algorithm 2 ADD GAUSSIAN NOISE : Gaussian Noise Injec-tion for (ϵ, δ )-DP 
+
+Require: Aggregated tensor pm , L2 sensitivity ∆f , privacy budget ϵ > 0, failure probability δ ∈ (0 , 1) 
+
+Ensure: Noisy aggregated tensor ˜pm satisfying (ϵ, δ )-DP 
+
+▷ Step 1: Compute Noise Standard Deviation (Gaussian Mechanism) 
+
+> 1:
+
+σ = ∆fϵ · p2 ln(1 .25 /δ )
+
+▷ Step 2: Sample Gaussian Noise 
+
+> 2:
+
+ξ ∼ N  0, σ 2I
+
+▷ Step 3: Add Noise to Aggregated Tensor 
+
+> 3:
+
+˜pm = pm + ξ 
+
+> 4:
+
+return ˜pm 
+
+while providing per-round (ϵ0, δ 0)-DP guarantees under the chosen sensitivity bound All methods converge within ap-proximately 10 federated rounds, demonstrating the practical efficiency of the framework. Under a strict per-round budget (ϵ0 = 1 .0), noise injection reduces Dice scores by roughly 10–15 percentage points relative to non-private SimAgg, particularly for the tumor core and whole tumor regions. Relaxing the budget to ϵ0 = 10 closes most of this gap, with Dice scores closely matching SimAgg across all lesion classes. Computational overhead is negligible: wall-clock time, memory, and energy consumption differ by less than 5% between DP-SimAgg and SimAgg regardless of privacy setting. The Dice reductions observed under ϵ0 = 1 warrant careful clinical interpretation. Performance differences of this mag-nitude fall within the range of inter-rater variability reported in multi-institutional glioblastoma segmentation studies [3], suggesting that the framework may remain practically useful for research-oriented or decision-support settings even at strict privacy budgets, particularly in screening or pre-operative 
+
+Algorithm 3 L2C LIP : L2 Norm Clipping for Differential Privacy 
+
+Require: Input tensor v, clipping bound C > 0
+
+Ensure: Clipped tensor ˜v with ∥˜v∥2 ≤ C▷ Step 1: Convert input to array  
+
+> 1:
+
+v ← asarray (v)
+
+▷ Step 2: Handle Scalar Case  
+
+> 2:
+
+if v is a scalar then  
+
+> 3:
+
+return v ▷ scalars need no clipping  
+
+> 4:
+
+end if 
+
+▷ Step 3: Flatten for Norm Computation  
+
+> 5:
+
+vf lat ← flatten (v)
+
+▷ Step 4: Compute L2 Norm  
+
+> 6:
+
+∥vf lat ∥2 ←
+
+qP 
+
+> j
+
+vf lat [j]2
+
+▷ Step 5: Clip if Norm Exceeds Bound  
+
+> 7:
+
+if ∥vf lat ∥2 > C then  
+
+> 8:
+
+vf lat ← C
+
+∥vf lat ∥2
+
+· vf lat  
+
+> 9:
+
+˜v ← reshape (vf lat , shape (v))  
+
+> 10:
+
+return ˜v 
+
+> 11:
+
+else  
+
+> 12:
+
+return v 
+
+> 13:
+
+end if 
+
+planning contexts. That said, deployment in fully automated clinical pipelines would require prospective validation on institution-specific data. 
+
+CENTRAL VS. LOCAL DIFFERENTIAL PRIVACY 
+
+DP-SimAgg employs central (server-side) DP, which differs fundamentally from local DP in both its trust model and noise characteristics. In local DP, each collaborator indepen-dently perturbs its update before transmission, requiring noise calibrated to the per-collaborator sensitivity. This results in substantially higher total noise at the server after aggregation. Central DP, by contrast, applies a single calibrated noise injection at the aggregator after receiving all local tensors, with noise scaled to the global L2 sensitivity ∆f of the aggregation function. For a fixed (ϵ0, δ 0) target, this yields a lower noise magnitude and better model utility [35]. The  
+
+> VOLUME 4, 2016 9IEEE Access
+
+near-baseline performance at ϵ0 = 10 directly reflects this efficiency. The trade-off is the requirement for a trusted aggregator is a standard assumption in central DP but one that may not hold in all federated deployments. Gaussian noise injection also reduces risk or offers princi-pled protection against information leakage, including model inversion and membership inference [13], [14]. By obscuring individual collaborator contributions in the aggregated tensor, DP-SimAgg reduces the risk of patient re-identification, supporting compliance with privacy regulations such as GDPR and HIPAA. 
+
+> LIMITATIONS AND FUTURE DIRECTIONS
+
+Two methodological limitations warrant particular attention. First, DP-SimAgg requires a trusted central aggregator. This is standard in the central DP model but may be unacceptable in fully decentralized or adversarial-aggregator settings. Future work could combine DP-SimAgg with secure aggregation pro-tocols [45] or investigate hybrid schemes that apply local DP at the collaborator level with a lighter central post-processing step. Second, the sensitivity ∆f is estimated empirically via a simulated neighboring dataset rather than derived analytically from the specific SimAgg weight structure. As shown in the Supplementary Material (Section S1, Proposition S1), a conservative analytical bound of 4C holds for aggregator, but is empirically loose. Beyond these core issues, additional practical limitations include: (i) evaluation is restricted to a single brain tumour segmentation task — broader validation across imaging modal-ities and pathologies is needed; (ii) the fixed 20% collaborator sampling rate may be suboptimal, so adaptive selection based on update divergence or data quality could accelerate convergence; and (iii) scalability to larger collaborator pools or higher-dimensional models has not been assessed. Tighter privacy accounting via the moments accountant [29] or Rényi DP composition could also reduce the reported cumulative budget without changing the per-round mechanism. While prior work has extensively demonstrated the su-periority of SimAgg over standard federated optimization methods such as FedAvg in non-IID medical imaging settings, the primary focus of this study is to investigate its behavior under differential privacy constraints. We acknowledge that direct comparisons with differentially private baselines (e.g., DP-FedAvg) and a detailed ablation study isolating the contributions of similarity-weighted aggregation and privacy mechanisms would further strengthen the empirical analysis. Additionally, although standard techniques such as L2 norm clipping and Gaussian noise injection are employed, a more rigorous treatment of privacy accounting—such as tighter bounds using Rényi DP remains an important direction for future work. The observed degradation in segmentation performance with stricter privacy budgets is consistent with the expected privacy–utility trade-off, with varying sensitivity across tumor subregions suggesting the influence of structural complexity and class imbalance. Despite these limitations, this work provides, to our knowledge, the first empirical study of similarity-weighted aggregation within a differentially private federated learning framework for brain tumor segmentation, demonstrating that the proposed approach maintains compet-itive performance even under strong privacy constraints and highlighting its potential for privacy-preserving medical AI applications. 
+
+> VI. CONCLUSION
+
+We proposed DP-SimAgg, a federated learning framework that integrates similarity-weighted aggregation with server-side Gaussian differential privacy for brain lesion segmentation. The method bounds collaborator influence via L2 clipping, adapts aggregation weights to non-IID data distributions through a similarity-based scheme, and injects calibrated Gaussian noise at the central aggregator to provide formal 
+
+(ϵ0, δ 0)-DP guarantees per communication round. Evaluated on the FeTS 2022 dataset with 1251 multi-institutional MRI scans, DP-SimAgg achieves competitive Dice scores even under a strict per-round budget ( ϵ0 = 1 , ϵtotal = 20 ), and approaches non-private SimAgg performance at ϵ0 = 10 ,with minor additional overhead computational cost. Key open directions include: deriving a tighter analytical sensitivity bound to replace the current empirical estimate; extending the framework to untrusted-aggregator settings via secure aggregation; applying tighter composition accountants to reduce the reported cumulative privacy cost; and validating across broader clinical imaging tasks and collaborator scales. 
+
+> AUTHOR BIOGRAPHIES
+
+Muhammad Irfan Khan, M.Sc. , is a Senior Researcher in Turku University of Applied Sciences, Finland. His research focuses on bayesian machine learning and federated learning. 
+
+Eero Lehtonen, D.Sc. (Tech.) , (Electronics), is a Principal Lecturer and the leader of the INSIGHT research group at Turku University of Applied Sciences, Finland. His research focuses on computer vision, applied machine learning, and AI-based methods for medical imaging. 
+
+Joni Obradovic, B.Eng , Health Tech (ICT), has experience in research and development of AI solutions using privacy-preserving federated learning and agentic workflows. He has expertise in leveraging supercomputing resources for AI solutions and works as a developer in the proposed project, with an emphasis on federated and remotely orchestrated components of the software. 
+
+Elina Kontio, PhD is currently the Head of Education and Research in Data Engineering and AI Technologies at Turku University of Applied Sciences, Finland. She has over 20 years of experience in higher education, research leadership, and curriculum development in health technology and ICT. Her research interests include privacy-preserving artificial intelligence, federated learning, medical image analysis, and data-driven decision-making in healthcare. 
+
+Esa Alhoniemi, PhD is an Adjunct Professor and Senior Data Scientist with over three decades of experience in academia and industry. He worked at Helsinki University of Technology and the University of Turku, where his research   
+
+> 10 VOLUME 4, 2016 Khan et al. : DP-SimAgg for Privacy-Preserving Federated Brain Lesion Segmentation
+
+focused on data mining and algorithmics. Since 2008, he has held senior industry roles in bioinformatics, predictive analytics, data automation, and data science. He is currently a Senior Advisor at Turku University of Applied Sciences, working on data science applications in business. 
+
+Suleiman A. Khan, PhD has expertise in artificial in-telligence, machine learning, and data-driven systems. He is currently affiliated with Turku University of Applied Sciences, Finland, where he works in ICT, data engineering, and AI technologies. His research interests include applied machine learning, federated learning, medical image analysis, privacy-preserving AI, and intelligent software systems. He has contributed to academic and applied research projects involving AI-based healthcare and data science applications. 
+
+Mojtaba Jafaritadi, PhD received the doctoral degree in Medical Physics and Engineering from the University of Turku, Finland. He is an Adjunct Professor of Health AI at the University of Turku and previously worked as a Postdoctoral Research Fellow at Stanford University and Principal Lecturer at Turku University of Applied Sciences. His research focuses on generative AI, privacy-preserving machine learning, biomedical signal and image processing, medical imaging, and multimodal learning systems. 
+
+ACKNOWLEDGEMENTS 
+
+This work was partially supported by the Business Finland under grants 10882/31/2022 and 1337/31/2024 and by the EU Horizon project Phase IV AI (grant number 101095384) . We also thank CSC-Puhti super-computer for the computational resources. All sections were improved by using AI including chatGPT and Claude. 
+
+REFERENCES 
+
+[1] G. Varoquaux and V. Cheplygina, “Machine learning for medical imaging: Methodological failures and recommendations for the future,” NPJ Digital Medicine, vol. 5, no. 1, p. 48, 2022. [2] M. J. Sheller, B. Edwards, G. A. Reina, J. Martin, S. Pati, A. Kotrotsou, M. Milchenko, W. Xu, D. Marcus, R. R. Colen et al., “Federated learning in medicine: Facilitating multi-institutional collaborations without sharing patient data,” Scientific Reports, vol. 10, no. 1, p. 12598, 2020. [3] S. Bakas, H. Akbari, A. Sotiras, M. Bilello, M. Rozycki, J. S. Kirby, J. B. Freymann, K. Farahani, and C. Davatzikos, “Advancing The Cancer Genome Atlas glioma MRI collections with expert segmentation labels and radiomic features,” Scientific Data, vol. 4, no. 1, p. 170117, 2017. [4] M. May, “Hipaa legislation means more delicate handling of data,” Nature Medicine, vol. 16, no. 3, pp. 250–251, 2010. [5] T. Pitkämäki, T. Pahikkala, I. M. Perez, P. Movahedi, V. Nieminen, T. Southerington, J. Vaiste, M. Jafaritadi, M. I. Khan, E. Kontio, P. Ranttila, J. Pajula, H. Pölönen, A. Degerli, J. Plomp, and A. Airola, “Finnish perspective on using synthetic health data to protect privacy: The privasa project,” Applied Computing and Intelligence, vol. 4, no. 2, pp. 138–163, 2024. [6] D. Ng, X. Lan, M. M.-S. Yao, W. P. Chan, and M. Feng, “Federated learning: A collaborative effort to achieve better medical imaging models for individual sites that have small labelled datasets,” Quantitative Imaging in Medicine and Surgery, vol. 11, no. 2, p. 852, 2021. [7] H. B. McMahan, E. Moore, D. Ramage, S. Hampson, and B. A. y Arcas, “Communication-efficient learning of deep networks from decentralized data,” in Proceedings of the 20th International Conference on Artificial Intelligence and Statistics, 2017, pp. 1273–1282. [8] H. Wang, M. Yurochkin, Y. Sun, D. Papailiopoulos, and Y. Khazaeni, “Fed-erated learning with matched averaging,” arXiv preprint arXiv:2002.06440, 2020. [9] M. I. Khan, M. A. Azeem, E. Alhoniemi, E. Kontio, S. A. Khan, and M. Jafaritadi, “Regularized weight aggregation in networked federated learning for glioblastoma segmentation,” arXiv preprint arXiv:2301.12617, 2023. [10] Y. Zhao, M. Li, L. Lai, N. Suda, D. Civin, and V. Chandra, “Federated learning with non-iid data,” arXiv preprint arXiv:1806.00582, 2018. [11] P. Kairouz, H. B. McMahan, B. Avent, A. Bellet, M. Bennis, A. N. Bhagoji, K. Bonawitz, Z. Charles, G. Cormode, R. Cummings et al., “Advances and open problems in federated learning,” Foundations and Trends in Machine Learning, vol. 14, no. 1–2, pp. 1–210, 2021. [12] S. P. Karimireddy, S. Kale, M. Mohri, S. Reddi, S. Stich, and A. T. Suresh, “SCAFFOLD: Stochastic controlled averaging for federated learning,” in ICML, 2020, pp. 5132–5143. [13] J. Geiping, H. Bauermeister, H. Dröge, and M. Moeller, “Inverting gradients – how easy is it to break privacy in federated learning?” arXiv preprint arXiv:2003.14053, 2020. [14] R. Shokri, M. Stronati, and V. Shmatikov, “Membership inference attacks against machine learning models,” CoRR, vol. abs/1610.05820, 2016. [15] N. Truong, K. Sun, S. Wang, F. Guitton, and Y. Guo, “Privacy preservation in federated learning: An insightful survey from the GDPR perspective,” arXiv preprint arXiv:2011.05411, 2021. [16] N. Rodríguez-Barroso, D. Jiménez-López, M. V. Luzón, F. Herrera, and E. Martínez-Cámara, “Survey on federated learning threats: Concepts, taxonomy on attacks and defences, experimental study and challenges,” Information Fusion, vol. 90, pp. 148–173, 2023. [17] M. I. Khan, M. Jafaritadi, E. Alhoniemi, E. Kontio, and S. A. Khan, “Adap-tive weight aggregation in federated learning for brain tumor segmentation,” in International MICCAI Brainlesion Workshop. Springer, 2021, pp. 455–469. [18] M. Zenk, U. Baid, S. Pati, A. Linardos, B. Edwards, M. Sheller, P. Foley, A. Aristizabal, D. Zimmerer, A. Gruzdev et al., “Towards fair decentralized benchmarking of healthcare AI algorithms with the federated tumor segmentation (FeTS) challenge,” Nature Communications, vol. 16, no. 1, p. 6274, 2025. [19] A. Linardos, S. Pati, U. Baid, B. Edwards, P. Foley, K. Ta, V. Chung, M. Sheller, M. I. Khan, M. Jafaritadi, E. Kontio, S. Khan, L. Machler, I. Ezhov, S. Shit, J. C. Paetzold, G. Grimberg, M. A. Nickel, D. Naccache, V. Siomos, J. Passerat-Palmbach, G. Tarroni, D. Kim, L. L. Klausmann, P. Shah, B. Menze, D. Makris, and S. Bakas, “The MICCAI federated tumor segmentation (FeTS) challenge 2024: Efficient and robust aggregation methods,” Machine Learning for Biomedical Imaging, vol. 3, pp. 757–774, 2025. [20] G. A. Reina, A. Gruzdev, P. Foley, O. Perepelkina, M. Sharma, I. Davidyuk, I. Trushkin, M. Radionov, A. Mokrov, D. Agapov, J. Martin, B. Edwards, M. J. Sheller, S. Pati, P. N. Moorthy, S.-h. Wang, P. Shah, and S. Bakas, “Openfl: An open-source framework for federated learning,” Physics in Medicine and Biology, 2022. [21] T. Li, A. K. Sahu, M. Zaheer, M. Sanjabi, A. Talwalkar, and V. Smith, “Federated optimization in heterogeneous networks,” in MLSys, 2020. [22] J. Wang, Q. Liu, H. Liang, G. Joshi, and H. V. Poor, “Tackling the objective inconsistency problem in heterogeneous federated optimization,” in Advances in Neural Information Processing Systems, vol. 33, 2020, pp. 7611–7623. [23] P. Blanchard, E. M. El Mhamdi, R. Guerraoui, and J. Stainer, “Machine learning with adversaries: Byzantine tolerant gradient descent,” in Advances in Neural Information Processing Systems, vol. 30, 2017. [24] D. Yin, Y. Chen, R. Kannan, and P. Bartlett, “Byzantine-robust distributed learning: Towards optimal statistical rates,” in Proceedings of the 35th In-ternational Conference on Machine Learning, ser. Proceedings of Machine Learning Research, vol. 80, 2018, pp. 5650–5659. [25] M. I. Khan, M. Jafaritadi, E. Alhoniemi, E. Kontio, and S. A. Khan, “Adap-tive weight aggregation in federated learning for brain tumor segmentation,” in Brainlesion: Glioma, Multiple Sclerosis, Stroke and Traumatic Brain Injuries, A. Crimi and S. Bakas, Eds. Cham: Springer International Publishing, 2022, pp. 455–469. [26] C. Dwork, “Differential privacy,” in Automata, Languages and Program-ming, 2006, pp. 1–12. [27] C. Dwork and A. Roth, “The algorithmic foundations of differential privacy,” Foundations and Trends in Theoretical Computer Science, vol. 9, no. 3–4, pp. 211–407, 2014. [28] C. Dwork, “A firm foundation for private data analysis,” Communications of the ACM, vol. 54, no. 1, pp. 86–95, 2011. [29] M. Abadi, A. Chu, I. Goodfellow, H. B. McMahan, I. Mironov, K. Talwar, and L. Zhang, “Deep learning with differential privacy,” in Proceedings of  
+
+> VOLUME 4, 2016 11 IEEE Access
+
+the 2016 ACM SIGSAC Conference on Computer and Communications Security, 2016, pp. 308–318. [30] R. C. Geyer, T. Klein, and M. Nabi, “Differentially private federated learning: A client level perspective,” in NIPS Workshop on Private Multi-Party Machine Learning, 2017. [31] J. Dong, A. Roth, and W. J. Su, “Gaussian differential privacy,” CoRR, vol. abs/1905.02383, 2019. [32] I. Mironov, “Rényi differential privacy,” in 2017 IEEE 30th Computer Security Foundations Symposium (CSF). IEEE, 2017, pp. 263–275. [33] M. I. Khan, E. Kontio, S. A. Khan, and M. Jafaritadi, “Election of collabo-rators via reinforcement learning for federated brain tumor segmentation,” arXiv preprint arXiv:2412.20253, 2024. [34] ——, “Recommender engine driven client selection in federated brain tumor segmentation,” arXiv preprint arXiv:2412.20250, 2024. [35] G. A. Kaissis, M. R. Makowski, D. Rückert, and R. F. Braren, “Secure, privacy-preserving and federated machine learning in medical imaging,” Nature Machine Intelligence, vol. 2, no. 6, pp. 305–311, 2020. [36] J. Bernstein, Y.-X. Wang, K. Azizzadenesheli, and A. Anandkumar, “signsgd: Compressed optimisation for non-convex problems,” in Inter-national conference on machine learning. PMLR, 2018, pp. 560–569. [37] R. Jin and H. Dai, “Noisy signsgd is more differentially private than you (might) think,” in Forty-second International Conference on Machine Learning, 2025. [38] L. Maier-Hein et al., “Biomedical image analysis competitions: The state of current participation practice,” arXiv preprint arXiv:2212.08568, 2023. [39] P. Kleihues, P. C. Burger, and B. W. Scheithauer, “The new WHO classification of brain tumours,” Brain Pathology, vol. 3, no. 3, pp. 255–268, 1993. [40] F. Hanif, K. Muzaffar, K. Perveen, S. M. Malhi, and S. U. Simjee, “Glioblastoma multiforme: A review of its epidemiology and pathogenesis through clinical presentation and treatment,” Asian Pacific Journal of Cancer Prevention, vol. 18, no. 1, p. 3, 2017. [41] S. Bakas, H. Akbari, A. Sotiras, M. Bilello, M. Rozycki, J. Kirby, J. Freymann, K. Farahani, and C. Davatzikos, “Segmentation labels for the pre-operative scans of the TCGA-GBM collection,” 2017, dataset. [42] ——, “Segmentation labels for the pre-operative scans of the TCGA-LGG collection,” 2017, dataset. [43] O. Ronneberger, P. Fischer, and T. Brox, “U-net: Convolutional networks for biomedical image segmentation,” in Medical Image Computing and Computer-Assisted Intervention (MICCAI), 2015, pp. 234–241. [44] S. Bakas, S. Pati, M. Sheller, A. Karargyris, P. Mattson, B. Edwards, U. Baid, Y. Chen, R. T. Shinohara, J. Martin, B. Menze, M. Zenk, K. Maier-Hein, R. Floca, A. Reinke, L. Maier-Hein, F. Isensee, D. Zimmerer, and Y. Chen, “The federated tumor segmentation (FeTS) challenge 2022,” 2022, zenodo / challenge description. [45] V. Mugunthan, A. Peraire-Bueno, and L. Kagal, “Privacyfl: A simulator for privacy-preserving and secure federated learning,” arXiv preprint arXiv:2002.08423, 2020.   
+
+> 12 VOLUME 4, 2016 Khan et al. : DP-SimAgg for Privacy-Preserving Federated Brain Lesion Segmentation
+
+SUPPLEMENTARY MATERIAL 
+
+This section provides the formal sensitivity analysis for the DP-SimAgg aggregation mechanism and additional architectural diagrams and workflow illustrations. 
+
+S1. SENSITIVITY ANALYSIS OF DP-SIMAGG 
+
+The following proposition establishes a closed-form conservative upper bound on the L2 sensitivity of the clipped similarity-weighted aggregation, valid for any normalized weight function. This bound characterises the worst-case change in the aggregated output when one collaborator’s contribution is replaced, and provides the theoretical grounding for the noise calibration performed in Algorithm 1. 
+
+Proposition VI.1 (Conservative sensitivity bound for clipped similarity-weighted aggregation) . Let 
+
+A(T1, . . . , T n) = 
+
+> n
+
+X
+
+> i=1
+
+αi(T ) Ti
+
+denote the aggregation output, where each clipped collaborator update satisfies ∥Ti∥2 ≤ C, and the normalized weights satisfy 
+
+αi(T ) ≥ 0,
+
+> n
+
+X
+
+> i=1
+
+αi(T ) = 1 .
+
+Define two neighboring datasets T = ( T1, . . . , T n) and T ′ = ( T1, . . . , T ′
+
+> k
+
+, . . . , T n) differing only in the contribution of collaborator k, with ∥T ′
+
+> k
+
+∥2 ≤ C. Then the ℓ2-sensitivity of A satisfies 
+
+∆f = max    
+
+> T∼T′
+
+∥A(T ) − A(T ′)∥2 ≤ 4C. 
+
+Proof. Decompose the difference by adding and subtracting P 
+
+> i
+
+αi(T ) T ′ 
+
+> i
+
+:
+
+A(T ) − A(T ′) = 
+
+> n
+
+X
+
+> i=1
+
+αi(T )( Ti − T ′ 
+
+> i
+
+)
+
+| {z }
+
+> (I)
+
++
+
+> n
+
+X
+
+> i=1
+
+ αi(T ) − αi(T ′) T ′
+
+> i
+
+| {z }
+
+> (II)
+
+.
+
+Since Ti = T ′ 
+
+> i
+
+for all i̸ = k, term (I) reduces to αk(T )( Tk − T ′
+
+> k
+
+). Applying the triangle inequality to both terms: 
+
+∥A(T ) − A(T ′)∥2 ≤ αk(T )∥Tk − T ′
+
+> k
+
+∥2
+
+| {z }
+
+> bound (I)
+
++
+
+> n
+
+X
+
+> i=1
+
+|αi(T ) − αi(T ′)| ∥ T ′ 
+
+> i
+
+∥2
+
+| {z }
+
+> bound (II)
+
+.
+
+Bounding term (I). Using ∥Tk∥2 ≤ C, ∥T ′
+
+> k
+
+∥2 ≤ C, and αk(T ) ≤ 1:
+
+αk(T )∥Tk − T ′
+
+> k
+
+∥2 ≤ αk(T ) ∥Tk∥2 + ∥T ′
+
+> k
+
+∥2
+
+ ≤ 2C α k(T ) ≤ 2C. 
+
+Bounding term (II). Since ∥T ′ 
+
+> i
+
+∥2 ≤ C and |αi(T ) − αi(T ′)| ≤ αi(T ) + αi(T ′):
+
+> n
+
+X
+
+> i=1
+
+|αi(T ) − αi(T ′)| ∥ T ′ 
+
+> i
+
+∥2 ≤ C
+
+> n
+
+X
+
+> i=1
+
+(αi(T ) + αi(T ′)) = 2 C. 
+
+Combining both bounds: ∥A(T ) − A(T ′)∥2 ≤ 2C + 2 C = 4 C.
+
+Remark VI.2 (Conservative nature of the bound and relation to Algorithm 1) . Algorithm 1 does not use the 4C bound for noise calibration. Instead, it estimates ∆f empirically at each round by evaluating ∥A(T ) − A(T ′)∥2 for a simulated neighboring dataset T ′ formed by replacing one collaborator tensor with a bounded adversarial tensor. This data-dependent estimate is substantially tighter and yields the noise levels underlying the privacy–utility results in Section IV. The analytical 4C bound provides a complementary guarantee.

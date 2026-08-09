@@ -1,0 +1,161 @@
+Title: RadYOLO: Computationally Efficient 3D Object Detection and Segmentation in CT and MRI
+
+URL Source: https://arxiv.org/pdf/2608.00508v1
+
+Published Time: Tue, 04 Aug 2026 00:30:39 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# RadYOLO: Computationally Efficient 3D Object Detection and Segmentation in CT and MRI 
+
+Kai Geissler [0009 −0008 −9709 −0335] , Laurens Müller-Groh [0009 −0000 −1934 −5365] ,and Hans Meine [0000 −0002 −7557 −5007] 
+
+Fraunhofer Institute for Digital Medicine MEVIS, Max-von-Laue-Str. 2, 28359 Bremen, Germany 
+
+kai.geissler@mevis.fraunhofer.de 
+
+Abstract. Object detection and segmentation in three-dimensional med-ical images is a very active area of research. However, most proposed deep learning models carry a high computational cost, and only few aim to be broadly applicable, achieve high detection performance, and remain fast to execute on resource-constrained hardware. To address this gap, we present RadYOLO, a 3D extension of YOLO11 tailored to medical images. We compare it with nnU-Net and nnDetection on five datasets comprising CT and MRI data with varying object sizes and prevalence. RadYOLO’s detection performance surpasses that of nnDetection on four of five datasets and is comparable on one. Compared to nnU-Net, RadY-OLO performs better on lesion detection tasks, while nnU-Net excels at detecting large organs when precise localization is required. When rough object localization is sufficient, RadYOLO matches or outperforms nnU-Net on all five datasets. Regarding inference time, RadYOLO is 8–46× faster than nnU-Net on a GPU. Compared to nnDetection the speedup is even higher. When executed on a CPU, RadYOLO’s inference runs within seconds (still faster than nnU-Net on a GPU) offering a signifi-cant advantage for clinical and edge-device deployment. RadYOLO repository: github.com/FraunhoferMEVIS/RadYOLO 
+
+Keywords: Efficient medical object detection · Computationally effi-cient medical image analysis · Efficient segmentation medical 
+
+## 1 Introduction 
+
+Numerous architectures for object detection and segmentation in 3D medical im-ages have been proposed, with new ones appearing continuously. However, most focus purely on detection or segmentation accuracy and either neglect compu-tational efficiency entirely or treat it as a side note. For real-world deployment, however, computational cost is a critically important model property. It directly determines the serving cost, prediction latency, and the range of hardware on which a model can run within acceptable time. In the 2D image analysis field, the YOLO model family dominates efficient object detection. After the original YOLO [17], many modifications and im-proved versions have been proposed, with YOLO11 [14] and YOLO26 [15] being two of the most recent ones. arXiv:2608.00508v1 [cs.CV] 1 Aug 2026 2 K. Geissler et al. 
+
+The literature on efficient object detection for 3D medical imaging is compar-atively sparse. MedYOLO [21] extended YOLOv5 [13] to 3D medical images but exhibited limited detection performance on some datasets, an issue subsequently investigated and addressed by RevisedMedYOLO [7]. Other approaches use pseudo 3D models (or 2+1 models) for efficient object detection [4,22] that can partially leverage models from the 2D image processing field. A recent Transformer-based model for object detection in radiological volu-metric images, Organ-DETR [8], can process several large 3D patches per second on a strong GPU, but has not been evaluated on CPU. In the field of biomedical imaging, Mask R-CNN was extended to 3D Mask R-CNN [5]. However its in-ference time was reported to be 13 hours for 100 samples using an Nvidia V100 GPU. In the field of medical image segmentation, efficient architectures are also investigated. For example UNETR++ [20] can process patches of size 128 3 in 1.5 seconds on a CPU. However, as it operates on restricted patches, the total inference time for a whole imaging volume can quickly grow large. In this work we present RadYOLO, an extension of the YOLO11 model to 3D medical images. RadYOLO is fast on both GPU and CPU, accurate, and provides joint detection, classification, and segmentation of diverse anatomical structures in medical images. We evaluate it on five different datasets to showcase its broad applicability. 
+
+## 2 Methods 
+
+2.1 Data 
+
+We use five public datasets to evaluate RadYOLO and compare it against other deep learning architectures. These datasets were selected to represent different imaging modalities, image sizes, and types of anatomical targets. AMOS22 [12] comprises 300 CT and 60 MRI scans (which are publicly available) with seg-mentation masks for 15 abdominal organs. Liver Lesions [16] is a dataset of 842 CT scans with segmentation masks for liver lesions. LUNA16 [19] consists of 888 CTs with lung nodule masks. MAMA-MIA [6] is a dynamic contrast-enhanced breast MRI dataset with annotations of the primary tumor in each volume. The VerSe [18] dataset offers vertebra segmentations for 355 CT scans. Table 1 provides an overview of these datasets. All datasets were split 60/20/20% into training, validation, and test sets for model training, model selection, and final evaluation, respectively. 
+
+2.2 RadYOLO 
+
+RadYOLO is an extension of YOLO11 [14] to three dimensional radiological images and also uses some design choices of the more recent YOLO26 [15]. In the transition from 2D to 3D, we retained the core architecture and training scheme of YOLO11 while replacing 2D convolutions, batch normalization, and max pooling layers with their 3D counterparts. Fig. 1 shows an overview of the RadYOLO: Efficient 3D object detection 3                            
+
+> Table 1. Dataset overview. Objects shows the average number of objects per image. Name Modality Train/Val/Test Cases Target structures Classes Objects AMOS22 [12] CT&MR 216 / 72 / 72 Abdominal organs 15 14.5 Liver Lesions [16] CT 498 / 167 / 167 Liver lesions 19.0 LUNA16 [19] CT 532 / 178 / 178 Lung nodules 11.8 MAMA-MIA [6] MR 903 / 301 / 302 Breast lesions 11.0 VerSe [18] CT 213 / 71 / 71 Vertebrae 26 12.3
+
+RadYOLO model architecture which consists of a feature extraction backbone, a feature pyramid neck and a detection and segmentation head. We kept the anchor-free design and adapted the bounding box parametriza-tion to predict the bounding box extent and center offset relative to its respective grid cell. This allows RadYOLO to parametrize small objects more accurately than the original YOLO11 formulation, which predicts box face offsets relative to the grid cell. We replaced the distribution focal loss (DFL) for bounding box prediction with an L1 loss, like it was done in YOLO26, and removed the respective DFL module to directly predict the box extent and center offset. We added a small-object fallback to the task-aligned assigner (TAL), ensuring that small objects with zero overlap with any predicted box are still assigned to a box as a training target. To allow simultaneous object detection and instance segmentation, we added a layer to predict prototype segmentation masks on half the input image reso-lution per axis and to predict mask coefficients for each prototype mask to the object detections. The prototype masks are multiplied by the mask coefficients, and a sigmoid activation is applied to produce instance segmentations, following Bolya et al. [3]. To obtain full-resolution segmentation masks, we upsample the half-resolution mask logits via trilinear interpolation and then binarize them. As resampling strategy, RadYOLO supports both resampling to a fixed image extent for whole-image prediction in one pass, as well as resampling to a fixed voxel size for patch-based training and inference to handle large imaging volumes. For input normalization, we apply image-wise z-score normalization to MRI or mixed datasets and dataset-wise z-score normalization to CT datasets (using precomputed mean, standard deviation, and clipping thresholds). For model selection, we use an exponential moving average of the mean aver-age precision (mAP) computed at intersection-over-union (IoU) thresholds from 0.1 to 0.95. In 2D image processing, IoU thresholds typically start at 0.5. How-ever, for 3D imaging, we found that an IoU of 0.1 still reflects acceptable bound-ing box localization for small objects with ill-defined boundaries (like lesions). For data augmentation, we employ transformations specific to the medical imaging domain. Specifically, RadYOLO incorporates random mirroring, zoom, rotation, cutout, and intensity augmentation, where the latter is implemented using the batchgenerators library [10]. The hyperparameters of RadYOLO were optimized using random hyperpa-rameter search on datasets from the Medical Segmentation Decathlon [1]. Like 4 K. Geissler et al. Detect Neck Features CBS CBS PW-Conv CBS CBS PW-Conv DW-Conv PW-Conv DW-Conv PW-Conv PW-Conv Sigmoid Mask Coeff. Boxes Classes Overview Backbone Neck Head Input CBS CBS C3k2 CBS C3k2 CBS C3k2 CBS C3k2 SPPF C2PSA Upsample Concat C3k2 Upsample Concat C3k2 CBS Concat C3k2 CBS Concat C3k2 Detect Detect Detect Segment 
+
+> 121418116 132
+> Segment
+> In 2In 4In 8In 16
+> Upsample Conv Upsample Conv Upsample Conv Proto.
+
+Fig. 1. RadYOLO architecture overview. It consists of a backbone for feature extrac-tion, a neck to create a feature pyramid and detect and segment blocks for final predic-tions. CBS: Convolution, Batch normalization, SiLU activation. C3k2: Special combi-nation of CBS layers [15]. SPPF: Spatial Pyramid Pooling Fast layer. C2PSA: Convo-lution and Partial Spatial Attention. PW-Conv: Point-Wise Convolution. DW-Conv: Depth-Wise Convolution. Mask Coeff.: Mask Coefficients. Proto.: Prototype Masks. 
+
+YOLO11, RadYOLO offers multiple model sizes: nano (n), small (s), medium (m), large (l), and extra-large (x). They define the channel count and depth of the backbone, neck, and head. In this study we only evaluate the nano and small variants. Both share the same depth, but the small variant uses twice as many channels per layer as the nano variant. 
+
+2.3 Experiments 
+
+We compared RadYOLO with two other models: nnDetection [2] and nnU-Net [9]. Both are self-configuring deep learning pipelines for medical image anal-ysis. They use a dataset fingerprint together with heuristics to define the pre-processing, model architecture and hyperparameters for a given dataset. While nnDetection is a detection model that predicts bounding boxes with confidence scores, nnU-Net predicts full segmentation masks. We used the updated ResEnc M presets [11] to train nnU-Net and selected the low resolution models for AMOS22 and VerSe while we used the full reso-RadYOLO: Efficient 3D object detection 5
+
+lution model for Liver Lesions, LUNA16 and MAMA-MIA. To derive bounding boxes with confidence scores from nnU-Net for detection metric calculation, we performed connected component analysis on its predicted segmentation masks and used each component’s volume (in liters) as the confidence score. RadYOLO resamples the input images to a fixed, dataset-specific image ex-tent (number of voxels, see patch size in Table 3) and performs a one-pass pre-diction for all datasets except for LUNA16. For LUNA16, RadYOLO resampled images to a fixed voxel size and a patch-based inference scheme was employed, analogous to that of nnU-Net and nnDetection. The voxel size was chosen as the same as nnU-Net and nnDection, namely 0.7 × 0.7 × 1.3 mm 3. The other voxel sizes for nnU-Net and nnDetection were 0.8 × 0.8 × 1.0 mm 3 (Liver Lesions), 
+
+0.7 × 0.7 × 1.2 mm 3 (MAMA-MIA), 0.8 × 0.8 × 2.0 mm 3 (AMOS22, nnDetec-tion), 1.7 × 1.7 × 3.3 mm 3 (AMOS22, nnU-Net), 1.0 × 0.9 × 1.0 mm 3 (VerSe, nnDetection), and 1.9 × 1.8 × 2.0 mm 3 (VerSe, nnU-Net). While RadYOLO and nnU-Net use only one trained model for prediction, nnDetection uses an ensemble of four different model checkpoints. In addition it employs test-time-augmentation by flipping the inputs once along each axis, yielding eight combinations. In preliminary experiments, disabling nnDetection’s ensembling and test-time augmentation drastically decreased its detection per-formance. We therefore retained these settings despite their substantially in-creased inference time. We used the mean average precision at an intersection-over-union threshold of 0.1 (mAP@0.1) and the mean over mAP@0.1 to mAP@0.95 in steps of 0.05 (mAP@0.1-0.95) as evaluation metrics. In addition, we report a FROC score, computed as the average sensitivity at false-positive rates of 1/8, 1/4, 1/2, 1, 2, 4, and 8 per image. Metrics are reported without confidence intervals or statistical testing. The inference with its associated inference time measurements for all models was executed as batch processing. Thus, the inference time measurements in-clude image loading, preprocessing, model inference, and writing results to disk. They do not include pipeline startup time or model loading time. The time mea-surements were taken on a deep learning cluster with Nvidia A100 GPUs and Intel Xeon Gold 5320 CPUs. We did not compare model training times because they were trained on differing hardware and are therefore not comparable. 
+
+## 3 Results 
+
+Table 2 presents the detection and segmentation metrics. Regarding object detec-tion, RadYOLO consistently outperforms nnDetection across all datasets except LUNA16, where there performance is on par for rough localization. Compared to nnU-Net, RadYOLO achieves higher or equal mAP@0.1 and FROC scores on all five datasets, indicating superior detection sensitivity when rough localization is sufficient. Fig. 2 shows the corresponding FROC curves. On the lesion detection tasks (Liver Lesions, LUNA16, MAMA-MIA), RadYOLO outperforms nnU-Net across all detection metrics. For example, on LUNA16, RadYOLO (s) achieves 6 K. Geissler et al. 
+
+Table 2. Detection and segmentation metrics on test data. mAP@.1, mAP@.1-.95 and FROC are calculated on bounding boxes with confidence scores. Dice and HD-95 are computed for segmentation predictions and show mean ± standard deviation over the test cases, where HD-95 is the Hausdorff-95 distance. Best results per dataset are bold. Dataset Model mAP@.1 mAP@.1-.95 FROC Dice HD-95 [mm] AMOS22 nnDetection 0.93 0.39 0.32 - -nnU-Net 0.99 0.84 0.96 0.89 ± 0.05 4.4 ± 3.8
+
+RadYOLO (n) 0.99 0.61 0.99 0.77 ± 0.06 9.0 ± 3.4
+
+RadYOLO (s) 0.99 0.65 0.99 0.78 ± 0.06 8.2 ± 3.4
+
+Liver Lesions nnDetection 0.67 0.35 0.52 - -nnU-Net 0.72 0.51 0.49 0.75 ± 0.28 38 ± 51 
+
+RadYOLO (n) 0.76 0.42 0.61 0.69 ± 0.28 27 ± 36 
+
+RadYOLO (s) 0.79 0.46 0.64 0.71 ± 0.26 26 ± 36 
+
+LUNA16 nnDetection 0.71 0.27 0.71 - -nnU-Net 0.52 0.26 0.54 0.34 ± 0.26 121 ± 82 
+
+RadYOLO (n) 0.67 0.33 0.66 0.46 ± 0.31 88 ± 80 
+
+RadYOLO (s) 0.69 0.36 0.69 0.49 ± 0.31 87 ± 81 
+
+MAMA-MIA nnDetection 0.91 0.50 0.94 - -nnU-Net 0.85 0.50 0.92 0.77 ± 0.20 43 ± 65 
+
+RadYOLO (n) 0.96 0.59 0.96 0.75 ± 0.22 12 ± 22 
+
+RadYOLO (s) 0.96 0.59 0.97 0.75 ± 0.21 13 ± 23 
+
+VerSe nnDetection 0.89 0.52 0.72 - -nnU-Net 0.92 0.81 0.89 0.83 ± 0.13 3.4 ± 4.6
+
+RadYOLO (n) 0.92 0.65 0.91 0.65 ± 0.22 4.8 ± 5.7
+
+RadYOLO (s) 0.91 0.67 0.93 0.66 ± 0.25 4.7 ± 6.0
+
+a mAP@0.1 of 0.69 versus 0.52 for nnU-Net, and on MAMA-MIA 0.96 versus 0.85. On datasets with larger anatomical structures (AMOS22, VerSe), nnU-Net achieves substantially higher mAP@0.1-0.95 (0.84 vs. 0.65 on AMOS22; 0.81 vs. 0.67 on VerSe), reflecting its more precise bounding box localization for organs and vertebrae. For segmentation, nnU-Net achieves higher Dice scores on AMOS22 (0.89 vs. 0.78) and VerSe (0.83 vs. 0.66). On lesion datasets, the gap is smaller (e.g., 0.75 vs. 0.71 on Liver Lesions), and RadYOLO achieves lower Hausdorff-95 distances on Liver Lesions (26 vs. 38 mm) and MAMA-MIA (13 vs. 43 mm), as well as 1/16 1/8 1/4 1/2 1 2 4 8Average false positives per image 0.0 0.2 0.4 0.6 0.8 1.0 Sensitivity                             
+
+> AMOS22
+> 1/16 1/8 1/4 1/2 1248Average false positives per image
+> Liver Lesions
+> 1/16 1/8 1/4 1/2 1248Average false positives per image
+> LUNA16
+> 1/16 1/8 1/4 1/2 1248Average false positives per image
+> MAMA-MIA
+> 1/16 1/8 1/4 1/2 1248Average false positives per image
+> VerSe
+> nnDetection nnU-Net RadYOLO (n) RadYOLO (s)
+
+Fig. 2. FROC curves for IoU threshold of 0.1. nnU-Net reaches equal or higher sensi-tivity than RadYOLO only in the regime of 0.5–2 false positives or more per image. RadYOLO: Efficient 3D object detection 7
+
+Table 3. Computational efficiency metrics. Time GPU and Time CPU are the inference time to process a whole input volume using either GPU or CPU for model inference showing the mean ± standard deviation. Param. is the number of model parameters (M for million parameters). T.Mem. is the estimated (nnU-Net, nnDetection) or measured (RadYOLO) GPU memory spike during training. I.Mem. is the measured peak memory of one model inference pass using ONNX Runtime. MACs is the number of Multiply-Accumulate operations for one model inference pass (FLOPs = 2 × MACs) as estimated with onnx-tools.                                                                                                                                                                                                                                         
+
+> Dataset Model Time GPU Time CPU Param. T.Mem. I.Mem. MACs Patch Size AMOS22 nnDetection 330 ±149 s-20 M 11 GB 1.5 GB 540 G 160 ×160 ×80
+> nnU-Net 29 ±23 s8.9±5.5m192 M 8 GB 1.6 GB 732 G 160 ×160 ×80
+> RadYOLO(n) 1.8±1.2s2.0±1.4s10 M 13 GB 0.9 GB 77 G 352 ×352 ×128
+> RadYOLO(s) 1.8±1.2s2.3±1.5s38 M 14 GB 1.0 GB 147 G 352 ×352 ×128
+> LiverLesions nnDetection 65 ±25 s-19 M 11 GB 0.9 GB 320 G 160 ×128 ×96
+> nnU-Net 23 ±12 s22 ±12 m192 M 8 GB 1.8 GB 878 G 160 ×160 ×96
+> RadYOLO(n) 0.8±1.0s1.2±0.7s10 M 43 GB 0.8 GB 71 G 320 ×288 ×160
+> RadYOLO(s) 0.5±0.6s1.8±1.0s38 M 25 GB 1.0 GB 137 G 320 ×288 ×160
+> LUNA16 nnDetection 300 ±85 s-19 M 11 GB 1.0 GB 333 G 160 ×160 ×80
+> nnU-Net 48 ±17 s94 ±43 m192 M 8 GB 1.8 GB 878 G 160 ×192 ×80
+> RadYOLO(n) 6.3±6.3s24 ±14 s10 M 10 GB 0.9 GB 78 G 320 ×320 ×160
+> RadYOLO(s) 5.8±5.4s33 ±16 s37 M 11 GB 1.1 GB 150 G 320 ×320 ×160
+> MAMA-MIA nnDetection 118 ±85 s-19 M 11 GB 1.0 GB 335 G 160 ×160 ×80
+> nnU-Net 10 ±11 s18 ±18 m192 M 8 GB 1.8 GB 880 G 160 ×160 ×96
+> RadYOLO(n) 0.5±0.5s1.0±0.3s10 M 5 GB 0.6 GB 51 G 256 ×256 ×160
+> RadYOLO(s) 0.4±0.5s1.2±0.3s38 M 6 GB 0.7 GB 98 G 256 ×256 ×160
+> VerSe nnDetection 360 ±360 s-21 M 11 GB 1.0 GB 419 G 112 ×112 ×160
+> nnU-Net 68 ±86 s11 ±15 m192 M 8 GB 1.7 GB 821 G 112 ×128 ×160
+> RadYOLO(n) 4.3±4.9s4.8±4.9s10 M 19 GB 0.9 GB 81 G 256 ×256 ×256
+> RadYOLO(s) 4.5±5.0s4.1±4.0s38 M 19 GB 1.1 GB 156 G 256 ×256 ×256
+
+higher Dice on LUNA16 (0.49 vs. 0.34). RadYOLO (s) generally performs slightly better than RadYOLO (n) across metrics. Table 3 reports the efficiency metrics. On GPU, RadYOLO achieves speedups of 8–46 × over nnU-Net and 36–236 × over nnDetection depending on dataset. On CPU, RadYOLO processes cases in 1.0–33 s, still outperforming the GPU run-times of nnU-Net and nnDetection, while nnU-Net inference takes several min-utes per case on CPU and nnDetection CPU inference times were prohibitively slow and thus not measured. RadYOLO uses 10 M (n) or 38 M (s) parameters compared to 192 M for nnU-Net and 20 M for nnDetection. Despite processing substantially larger patch sizes, RadYOLO’s training GPU memory usage ranges from 5.1–42.7 GB, comparable to the other models for most datasets. The models with high training memory requirements occur on datasets with many objects per image because RadYOLO performs instance segmentation. During train-ing, it predicts segmentation masks for each reference object for each assigned grid cell, which can accumulate to a large amount of memory if many reference objects are present. 
+
+## 4 Discussion 
+
+RadYOLO demonstrates strong detection performance across diverse datasets while achieving substantial inference speedups. Its superiority over nnDetection 8 K. Geissler et al. 
+
+is notable given that nnDetection relies on ensembling four model checkpoints with test-time augmentation, without which its performance degrades. This de-pendency makes nnDetection impractical for time-sensitive applications. The detection results reveal a task-dependent trade-off between RadYOLO and nnU-Net. For lesion detection (Liver Lesions, LUNA16, MAMA-MIA), RadY-OLO consistently outperforms nnU-Net across all detection metrics, likely be-cause its explicit objectness prediction and confidence scoring are better suited to detect small, focal abnormalities than relying on post-hoc connected compo-nent analysis of segmentation masks. More sophisticated post-processing might improve nnU-Net’s detection results but would introduce additional complexity. Conversely, for large anatomical structures (AMOS22, VerSe), nnU-Net achieves higher mAP@0.1-0.95, indicating more precise bounding box localization. No-tably, at mAP@0.1, RadYOLO matches nnU-Net even on these datasets, con-firming reliable detection when exact boundary delineation is less critical. The segmentation gap on AMOS22 and VerSe can be attributed to RadY-OLO’s prototype mask approach, which predicts masks at half input resolution and relies on a limited set of learned prototypes. This approach is inherently less expressive than nnU-Net’s full-resolution, voxel-wise prediction. However, on le-sion datasets, RadYOLO achieves comparable or lower Hausdorff-95 distances (e.g., 13 vs. 43 mm on MAMA-MIA), suggesting that for compact objects with ill-defined boundaries, prototype-based segmentation is sufficient and may even produce fewer catastrophic outliers. RadYOLO’s efficiency gains are clinically relevant: CPU inference times of 1–33 seconds enable deployment without GPU hardware, which is critical for point-of-care or resource-constrained clinical environments. The 5–19× reduc-tion in parameters compared to nnU-Net further facilitates deployment on edge devices. However, training memory requirements remain a limitation for datasets with many objects per image due to the instance segmentation head. This could be mitigated by omitting segmentation when only detection is needed. 
+
+## 5 Conclusion 
+
+We presented RadYOLO, a publicly available 3D extension of YOLO11 for joint object detection, classification, and segmentation in medical images. Across five diverse datasets, RadYOLO matches or exceeds the detection performance of nnU-Net and consistently outperforms nnDetection, while being 8–46× faster on GPU and enabling CPU-only inference within seconds, even on large input volumes. For lesion detection tasks, RadYOLO offers both superior detection sensitivity and competitive segmentation quality. When precise localization of large organs is required, nnU-Net remains advantageous, suggesting the two approaches are complementary. RadYOLO’s combination of accuracy, speed, and broad applicability makes it a strong candidate for efficient clinical deployment of 3D medical image analysis.  
+
+> Acknowledgments. This preprint has not undergone peer review or any post-submission improvements or corrections. The Version of Record of this contribution is published in
+
+RadYOLO: Efficient 3D object detection 9[insert volume title when published], and is available online at https://doi.org/[insert DOI when published] 
+
+Disclosure of Interests. The authors have no competing interests to declare that are relevant to the content of this article. 
+
+## References 
+
+1. Antonelli, M., Reinke, A., Bakas, S., Farahani, K., Kopp-Schneider, A., Landman, B.A., Litjens, G., Menze, B., Ronneberger, O., Summers, R.M., et al.: The medical segmentation decathlon. Nature communications 13 (1), 4128 (2022) 2. Baumgartner, M., Jäger, P.F., Isensee, F., Maier-Hein, K.H.: nndetection: a self-configuring method for medical object detection. In: International conference on medical image computing and computer-assisted intervention. pp. 530–539. Springer (2021) 3. Bolya, D., Zhou, C., Xiao, F., Lee, Y.J.: YOLACT: Real-time instance segmen-tation. In: Proceedings of the IEEE/CVF international conference on computer vision. pp. 9157–9166 (2019) 4. Cai, J., Yan, K., Cheng, C.T., Xiao, J., Liao, C.H., Lu, L., Harrison, A.P.: Deep volumetric universal lesion detection using light-weight pseudo 3d convolution and surface point regression. In: International Conference on Medical Image Computing and Computer-Assisted Intervention. pp. 3–13. Springer (2020) 5. David, G., Faure, E.: End-to-end 3d instance segmentation of synthetic data and embryo microscopy images with a 3d mask r-cnn. Frontiers in Bioinformatics 4,1497539 (2025) 6. Garrucho, L., Kushibar, K., Reidel, C.A., Joshi, S., Osuala, R., Tsirikoglou, A., Bobowicz, M., Del Riego, J., Catanese, A., Gwoździewicz, K., et al.: A large-scale multicenter breast cancer dce-mri benchmark dataset with expert segmentations. Scientific data 12 (1), 453 (2025) 7. Geissler, K., Moltz, J.H., Meine, H., Wenzel, M.: Revisedmedyolo: Unlocking model performance by careful training code inspection. In: Medical Imaging with Deep Learning-Short Papers (2025) 8. Ghahremani, M., Ernhofer, B.R., Wang, J., Makowski, M., Wachinger, C.: Organ-detr: Organ detection via transformers. IEEE Transactions on Medical Imaging (2025) 9. Isensee, F., Jaeger, P.F., Kohl, S.A., Petersen, J., Maier-Hein, K.H.: nnu-net: a self-configuring method for deep learning-based biomedical image segmentation. Nature methods 18 (2), 203–211 (2021) 10. Isensee, F., Jäger, P., Wasserthal, J., Zimmerer, D., Petersen, J., Kohl, S., Schock, J., Klein, A., Roß, T., Wirkert, S., Neher, P., Dinkelacker, S., Köhler, G., Maier-Hein, K.: batchgenerators - a Python framework for data augmentation (Jan 2020). https://doi.org/10.5281/zenodo.3632567 , https://doi.org/10.5281/ zenodo.3632567 
+
+11. Isensee, F., Wald, T., Ulrich, C., Baumgartner, M., Roy, S., Maier-Hein, K., Jaeger, P.F.: nnu-net revisited: A call for rigorous validation in 3d medical image segmen-tation. In: International Conference on Medical Image Computing and Computer-Assisted Intervention. pp. 488–498. Springer (2024) 10 K. Geissler et al. 12. Ji, Y., Bai, H., Ge, C., Yang, J., Zhu, Y., Zhang, R., Li, Z., Zhanng, L., Ma, W., Wan, X., et al.: Amos: A large-scale abdominal multi-organ benchmark for versatile medical image segmentation. Advances in neural information processing systems 
+
+35 , 36722–36732 (2022) 13. Jocher, G.: Ultralytics yolov5 (2020). https://doi.org/10.5281/zenodo. 3908559 , https://github.com/ultralytics/yolov5 
+
+14. Jocher, G., Qiu, J.: Ultralytics YOLO11 (2024), https://github.com/ ultralytics/ultralytics 
+
+15. Jocher, G., Qiu, J., Liu, M., Lyu, S., Akyon, F.C., Kalfaoglu, M.E.: Ul-tralytics yolo26: Unified real-time end-to-end vision models. arXiv preprint arXiv:2606.03748 (2026) 16. Nicoli, A.P., Bach, M., Wasserthal, J., Indrakanti, A.K., Segeroth, M., Yang, S., Cyriac, J., Boll, D., Wilder-Smith, A.J.: Liver segment and lesion segmentation on ct and mri: An open-source contribution to totalsegmentator. Journal of Imaging Informatics in Medicine pp. 1–16 (2025) 17. Redmon, J., Divvala, S., Girshick, R., Farhadi, A.: You only look once: Unified, real-time object detection. In: Proceedings of the IEEE conference on computer vision and pattern recognition. pp. 779–788 (2016) 18. Sekuboyina, A., Husseini, M.E., Bayat, A., Löffler, M., Liebl, H., Li, H., Tetteh, G., Kukačka, J., Payer, C., Štern, D., et al.: Verse: a vertebrae labelling and segmen-tation benchmark for multi-detector ct images. Medical image analysis 73 , 102166 (2021) 19. Setio, A.A.A., Traverso, A., De Bel, T., Berens, M.S., Van Den Bogaard, C., Cerello, P., Chen, H., Dou, Q., Fantacci, M.E., Geurts, B., et al.: Validation, com-parison, and combination of algorithms for automatic detection of pulmonary nod-ules in computed tomography images: the luna16 challenge. Medical image analysis 
+
+42 , 1–13 (2017) 20. Shaker, A., Maaz, M., Rasheed, H., Khan, S., Yang, M.H., Khan, F.S.: Unetr++: delving into efficient and accurate 3d medical image segmentation. IEEE Transac-tions on Medical Imaging 43 (9), 3377–3390 (2024) 21. Sobek, J., Medina Inojosa, J.R., Medina Inojosa, B.J., Rassoulinejad-Mousavi, S., Conte, G.M., Lopez-Jimenez, F., Erickson, B.J.: Medyolo: a medical image object detection framework. Journal of imaging informatics in medicine 37 (6), 3208–3216 (2024) 22. Zhang, S., Xu, J., Chen, Y.C., Ma, J., Li, Z., Wang, Y., Yu, Y.: Revisiting 3d context modeling with supervised pre-training for universal lesion detection in ct slices. In: International Conference on Medical Image Computing and Computer-Assisted Intervention. pp. 542–551. Springer (2020)

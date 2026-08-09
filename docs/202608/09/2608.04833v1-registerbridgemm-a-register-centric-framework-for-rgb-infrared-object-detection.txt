@@ -1,0 +1,356 @@
+Title: RegisterBridgeMM: A Register-Centric Framework for RGB-Infrared Object Detection
+
+URL Source: https://arxiv.org/pdf/2608.04833v1
+
+Published Time: Thu, 06 Aug 2026 00:58:38 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+> 1
+
+# RegisterBridgeMM: A Register-Centric Framework for RGB–Infrared Object Detection 
+
+Zian Wang 1∗, Hangchuan Liang 1∗, Yuehua Chen 1∗, Changchun Li 1, Chaoyi Guo 2, Mingzhe Liu 3, Fangming Gu 1†
+
+> 1
+
+Jilin University, China 2Taiyuan University of Technology, China 3Shenzhen University, China 
+
+> ∗
+
+Equal contribution. †Corresponding author. 
+
+Abstract —RGB–infrared (RGB–IR) object detection benefits from complementary visible and thermal cues, but effective fusion remains challenging under illumination changes, weather variation, and cluttered scenes. Existing RGB–IR fusion methods often trade expressive patch-level interaction for lighter but more constrained adaptation mechanisms. We empirically observe that pretrained register tokens contain both modality-shared and modality-specific information on paired RGB–IR inputs, suggesting that they can serve as a compact substrate for cross-modal communication. Building on this observation, we propose RegisterBridgeMM, a register-mediated fusion frame-work organized as a three-stage register lifecycle. Aggregate 
+
+preserves per-modality register summarization inherited from pretraining; Bridge performs bidirectional register-to-patch read-ing with consensus-residual regulation; and Project translates the resulting register summary into spatially adaptive calibration of patch features. This register pathway avoids dense patch-to-patch cross-modal interaction while preserving the pretrained patch representation. With both backbone streams frozen, Register-BridgeMM achieves the highest mAP 50 -95 among the evaluated methods on all four benchmarks: LLVIP, M3FD, DroneVehicle, and FLIR-Aligned. 
+
+Index Terms —Multimodal object detection, RGB–infrared fu-sion, Vision Transformer, register tokens, frozen foundation model, all-weather perception. 
+
+I. I NTRODUCTION 
+
+# MULTIMODAL object detection that combines RGB and infrared (IR) imagery has become indispensable for all-weather perception in scenarios such as traffic mon-itoring, low-light surveillance, and autonomous driving. The two modalities are highly complementary: RGB provides rich texture and color cues but degrades sharply under low illumination, fog, or rain; IR captures thermal radiation and remains stable across illumination conditions, yet lacks fine-grained texture and category-discriminative detail [30]–[33]. Empirical evidence shows that single-modality detectors lose 
+
+10 –20 mAP at night, while properly fused models largely recover this gap [5], [6], [9]. Designing the cross-modal fusion mechanism is, therefore, a central question in this field. The mainstream trajectory of RGB–IR fusion has largely focused on patch tokens as the primary fusion substrate. From early CNN-based methods that exchange feature maps spatially [6], [7], [34], to recent ViT-based methods built on patch-wise cross-attention [5], [9], [15], [18], [19], the underlying assumption has often been that cross-modal inter-action should occur at the spatial granularity of patches. Two representative strategies have emerged under this assumption, each with practical limitations. The first, high-fidelity fusion ,computes dense O(N 2) patch-to-patch cross-attention between the two streams, whose cost grows quadratically with the number of patches N and becomes a dominant overhead at detection-scale resolutions. The second, lightweight injection ,reduces this cost by injecting features from one modality into the other in a master–slave configuration [24], [25], but its asymmetric structure can be less robust when the auxiliary modality becomes more informative, such as IR at night. These limitations motivate a different design space in which cross-modal communication is routed through compact global tokens rather than dense patch-token interactions. DINOv2 [2] and DINOv3 [3] introduce a small set of 
+
+register tokens alongside patch tokens, originally as a remedy for high-norm artifacts in ViT self-attention [4]. Throughout large-scale pretraining, registers absorb global context from patch tokens at every layer, ultimately functioning as compact summaries of the input image. Their potential role in RGB–IR fusion, however, remains underexplored. We make a related empirical observation: when paired RGB and IR images of the same scene are fed through two independent DINOv3 streams without multimodal training , the four register tokens do not behave uniformly across modalities. Three register positions produce closely aligned embeddings (cosine simi-larity > 0.97 ), while the fourth produces a more divergent embedding (cosine ≈ 0.63 ). This pattern indicates a 3+1 
+
+modality-shared / modality-specific organization (Fig. 1(a), blue bars), suggesting a pretrained representation geometry that is compatible with consensus-residual fusion. We further diagnose the trained register-to-patch bridge at the multi-scale feature readout layers. When registers query the patch tokens of the opposite modality, the attention entropy ratio drops from 26% at layer 5 to under 1% at layer 11 (Fig. 1(b)), showing coarse-to-fine selectivity that is symmetric in both directions (RGB →IR and IR →RGB). This layer-11 behavior indicates that deeper registers provide highly selective cross-modal readout; it does not imply that the final layer should be used as a bridge-injection point. Because an updated register must pass through subsequent self-attention blocks to influence patch features, RegisterBridgeMM injects bridges before the deepest readout layer and later verifies this choice by layer-placement ablation. Motivated by these observations, we propose Register-BridgeMM, a register-centric framework for RGB–IR object detection that organizes register tokens into a three-stage register lifecycle. In the Aggregate stage, the frozen DINOv3 streams preserve per-modality register summarization inher-ited from pretraining. In the Bridge stage, RWPR (Register-Write Patch-Read) lets registers read opposite-modality arXiv:2608.04833v1 [cs.CV] 5 Aug 2026 2Token 0 Token 1 Token 2 Token 3   
+
+> 0.5 0.6 0.7 0.8 0.9 1.0 1.1
+> RGB–IR Cosine Similarity  -0.09 -0.08 -0.08 +0.25
+> Modality-shared (sim > 0.97) Modality-specific (sim = 0.63)
+> Pretrained After RWPR+RCRS
+
+(a) Per-token modality similarity: pretrained vs. trained. Layer 5 Layer 8 Layer 11    
+
+> 0.00 0.05 0.10 0.15 0.20 0.25 0.30
+> Entropy Ratio (actual / max)  0.265 0.258 0.110 0.113 0.007 0.006
+> < 1% entropy budget (highly selective)
+> Coarse → Fine
+> RGB → IR IR → RGB
+
+(b) Cross-attention selectivity across layers.                     
+
+> Fig. 1. A pretrained register diagnostic and the learned bridge behavior of RegisterBridgeMM. (a) Per-token cosine similarity between corresponding RGB and IR register embeddings of paired validation images. We compute the diagnostic by forwarding each RGB–IR pair through two independent DINOv3-B streams, extracting the four register positions, computing the RGB–IR cosine similarity at each corresponding register position, and aver-aging the values over the evaluated pairs. Without multimodal training (blue), three of the four register tokens align closely across modalities (similarity
+> >0.97 ), while the fourth is more divergent (similarity ≈0.63 ), revealing a3+1 modality-shared /modality-specific partition. After training with RWPR +RCRS under the same diagnostic protocol (orange), the highly aligned tokens become less collapsed ( −0.08 similarity on average), while the divergent token moves closer to the regulated consensus ( +0 .25 ). (b)
+> Entropy ratio (actual / uniform-attention maximum) of a trained register-to-patch attention diagnostic at the feature readout layers. The ratio drops from
+> 26% at layer 5 to under 1% at layer 11, showing coarse-to-fine selectivity; the two directions are nearly symmetric. Layer 11 therefore provides evidence of selective deep readout, whereas bridge injection is placed earlier so the updated registers can propagate through subsequent self-attention.
+
+patches, while RCRS (Register-Consensus / Residual-Split) decomposes the bridged registers into consensus and modality-specific residual components. In the Project stage, MAC (Modality-Aware Calibration) converts the register summary into spatially adaptive affine parameters that calibrate each modality’s pyramid features before fusion. Concretely, bridges are inserted at shallow-to-intermediate layers ( {2, 5, 8}) rather than at the final readout layer, al-lowing updated registers to pass through subsequent frozen self-attention blocks before detection features are extracted. Throughout the backbone, cross-modal attention is routed through register queries only: patch tokens provide read-only keys and values and are never directly updated by cross-modal attention. With k=4 registers, the full three-layer bidirectional bridge uses a small fraction of the pairwise terms of one dense patch-wise cross-attention layer. The contributions of this paper are summarized as follows.  
+
+> •
+
+A pretrained-register observation for RGB–IR fusion. 
+
+We identify a modality-shared and modality-specific or-ganization in pretrained DINOv3 register tokens on paired RGB–IR inputs before multimodal training (Fig. 1(a)), motivating registers as a structured communication sub-strate rather than generic latent queries.  
+
+> •
+
+A register-mediated fusion framework. Building on this observation, we propose RegisterBridgeMM, instantiat-ing a three-stage register lifecycle— Aggregate , Bridge ,and Project —through RWPR, RCRS, and MAC. RWPR performs efficient bidirectional register-to-patch reading, while RCRS explicitly regulates the consensus-residual trade-off.  
+
+> •
+
+Strong empirical performance with parameter-efficient adaptation. With both DINOv3 streams frozen and only a lightweight set of trainable bridge modules, RegisterBridgeMM achieves competitive or superior per-formance compared with the evaluated methods on all four RGB–IR benchmarks: LLVIP [30], M3FD [31], DroneVehicle [32], and FLIR-Aligned [33]. II. R ELATED WORK 
+
+A. RGB–IR Object Detection 
+
+RGB–IR object detection exploits the complementary sens-ing properties of visible and infrared imagery. RGB images provide texture, color, and category-discriminative appearance, whereas infrared images remain informative under weak illu-mination and adverse weather. Early multispectral detectors usually fused the two modalities at the image or feature-map level with convolutional backbones and hand-designed fusion blocks [34]. Subsequent work refines this local fu-sion paradigm along several axes, including modality relia-bility estimation [6], [7], modality-imbalance mitigation [8], and target- or alignment-aware feature aggregation [11]–[14]. These methods established the value of cross-modal comple-mentarity, but their local fusion operations provide limited control over long-range dependencies and modality-dependent reliability. Recent work has moved from local convolutional fusion toward attention-, token-, and sequence-based interaction. Transformer-style detectors exchange or calibrate visible and infrared features through cross-attention modules [5], [9], [10], [15], [16], while broader multimodal ViT methods route or replace patch tokens across modalities [17]. Sequence-modeling approaches such as Fusion-Mamba and WaveMamba use state-space operators to capture long-range dependencies with improved efficiency [18], [19]. Benchmarking studies also show that training recipes and evaluation protocols can strongly influence multispectral detection comparisons [20]. Despite these advances, the primary fusion substrate remains feature maps or patch tokens. Dense patch-level interaction can be expressive, but its cost grows quickly with resolution; 3
+
+lighter designs often reduce the interaction to asymmetric injection or local feature modulation. RegisterBridgeMM differs from these fusion paradigms by moving the primary cross-modal communication path-way from dense patch tokens to pretrained register tokens. Rather than applying cross-stream attention directly to all patch locations, RegisterBridgeMM lets a small set of register tokens query opposite-modality patches and then projects the resulting cross-modal summary back to patch features through calibration. This design preserves the benefits of patch-level evidence while routing communication through a compact register bottleneck. 
+
+B. Frozen Vision Foundation Models and Adapter-Style Adap-tation 
+
+Large pretrained vision models provide strong representa-tions for downstream dense prediction, but full fine-tuning can be parameter-intensive and may overwrite useful pretrained structure. Adapter-style adaptation addresses this by freezing most of the backbone and inserting lightweight trainable mod-ules, as exemplified by parameter-efficient low-rank adapta-tion [21] and ViT-Adapter for dense prediction [23]. In RGB– IR perception, this direction is particularly attractive because paired multispectral datasets are smaller and more domain-specific than the data used to train modern visual foundation models. UniRGB-IR demonstrates frozen-backbone adapter tuning for visible–infrared semantic tasks [24], and SLGNet introduces structural priors and language-guided modulation for multimodal detection [25]. These methods adapt strong pretrained representations with limited trainable capacity, but they still add cross-modal interaction outside the internal token organization of the pretrained backbone. This leaves open a structural question: whether the pre-trained model already contains a compact pathway that can be reused for cross-modal communication. RegisterBridgeMM answers this question by freezing the DINOv3 streams and learning only parameter-efficient modules around their register tokens. The goal is not only a small trainable parameter count, but also preservation of the pretrained patch representation and the register specialization observed before multimodal training. 
+
+C. Register Tokens in Vision Transformers 
+
+Vision Transformers represent images as patch-token se-quences [1]. DINOv2 and DINOv3 extend this formulation with register tokens, a small set of additional tokens that absorb global information during self-attention [2], [3]. Darcet 
+
+et al. showed that such registers help remove high-norm artifacts and improve the behavior of self-supervised ViT features [4]. In their original use, registers are primarily viewed as a stabilizing mechanism for visual representation learning: they collect global context and prevent patch tokens from carrying spurious artifacts. Subsequent studies have begun to explore registers beyond artifact suppression, for example as features for robust adap-tation, as test-time tokens that mimic trained registers, or as compact summaries for efficient vision–language models [26]– [28]. The downstream role of register tokens in multimodal de-tection, however, remains much less explored. Existing RGB– IR fusion methods generally treat pretrained ViT backbones as providers of patch features, while cross-modal interaction is performed by additional fusion blocks. Under this view, registers are either ignored or treated as implementation details of the backbone. Our empirical observation suggests a dif-ferent interpretation. Before multimodal training, paired RGB and IR inputs passed through two independent frozen DI-NOv3 streams reveal a modality-shared and modality-specific organization in the register embeddings. After training the proposed bridge, the register-query attention over opposite-modality patches becomes increasingly selective across depth. These two findings play different roles: the former motivates registers as a pretrained communication substrate, whereas the latter analyzes the behavior learned by RWPR. RegisterBridgeMM builds directly on this interpretation. RWPR uses registers as bidirectional cross-modal queries, RCRS makes their consensus-residual structure explicit, and MAC transfers the resulting register-level summary back to patch features before detection. In this way, the proposed framework turns registers from a passive component of pre-trained ViTs into the organizing substrate of RGB–IR fusion. III. M ETHOD 
+
+A. Overview 
+
+The forward pipeline of RegisterBridgeMM follows a dual-stream RGB–IR design organized around register-mediated communication. Given a pair of spatially-aligned RGB and infrared (IR) inputs IR, IT ∈ R3×H×W , the two modalities are fed into a dual-stream backbone instantiated from a pre-trained DINOv3 ViT [3]. The two streams are initialized from the same pretrained weights and run independently, with all backbone parameters frozen throughout training. Following the DINOv3 input format, each stream represents an image as a token sequence consisting of one [CLS ] token, k=4 register 
+
+tokens, and N patch tokens. Throughout the paper we use 
+
+rm,ℓ ∈ Rk×D and pm,ℓ ∈ RN ×D to denote, respectively, the register and patch tokens of modality m∈{ R, T } at layer ℓ,with D the embedding dimension. RegisterBridgeMM organizes the role of register tokens throughout the network as a three-stage register lifecycle .Section III-B describes Aggregate , the inherited unimodal register summarization in the frozen streams. Section III-C introduces Bridge , where RWPR and RCRS perform bidirec-tional register-to-patch reading and consensus-residual regula-tion. Section III-D presents Project , where MAC converts the register summary into spatially adaptive feature calibration. An overview of the full architecture is shown in Fig. 2. 
+
+B. Stage I: Aggregate 
+
+The Aggregate stage spans the early layers of each frozen DINOv3 stream and introduces no new module. At every encoder layer ℓ, the k register tokens of a stream jointly participate in self-attention with the N patch tokens of the same modality. Because registers carry no spatial location and 4SPB Full Embedding 
+
+Vision Transformer    
+
+> VIT Block VIT Block VIT Block VIT Block
+> layer 2 layer 5 layer 8 layer 11
+> Embedding
+
+Vision Transformer       
+
+> VIT Block VIT Block VIT Block VIT Block
+> layer 2 layer 5 layer 8 layer 11
+> SPB SPB SPB SPB SPB SPB
+> RWPR+ RCRS RWPR+ RCRS RWPR+ RCRS
+> Modality-Adaptive Calibration
+
+Task Decoder      
+
+> Input Image
+> Stem Conv Conv Conv  C2 C3 C4
+> Fig. 2. Overview of RegisterBridgeMM. The three-stage register lifecycle: Aggregate (frozen DINOv3 streams accumulate per-modality register summaries),
+> Bridge (RWPR performs bidirectional register-to-patch cross-attention; RCRS decomposes the result into consensus and modality-specific residuals), and
+> Project (MAC translates the register-level CR summary into spatially adaptive affine calibration of the patch feature pyramids, followed by multi-scale fusion and the RT-DETR detection head). Dashed lines indicate frozen parameters.
+
+were trained at scale to absorb high-norm artifacts that would otherwise affect patch tokens [4], they act as compact sum-marizers: from a sequence of N spatially anchored patches, they distill a k-slot global digest of the modality. Formally, the per-layer update of a register reads 
+
+rm,ℓ +1 = SA ℓ
+
+ [cm,ℓ ; rm,ℓ ; pm,ℓ ]
+
+> reg
+
+, (1) where SA ℓ is the frozen self-attention block of layer ℓ, cm,ℓ is the [CLS ] token, and |reg extracts the k register positions from the output sequence. After the first L0 layers (with L0=2 in our configuration, the index of the first injection layer), each stream’s registers already encode a unimodal global summary that is independent of the other stream. The motivation for keeping this stage parameter-free is structural rather than only economical. As shown in Fig. 1(a), the registers produced by the pretrained Aggregate process already carry a latent modality-shared / modality-specific partition. A learnable intervention at this stage could weaken this partition before cross-modal bridging is introduced. We therefore freeze it and use the output {rR,L 0 , rT,L 0 } as the starting representation of the cross-modal pathway. 
+
+C. Stage II: Bridge 
+
+After Aggregate, the two streams’ registers each summarize their own modality, but they have never communicated. The Bridge stage addresses this at three shallow-to-intermediate layers S={2, 5, 8}, which are decoupled from the multi-scale feature layers {5, 8, 11 } later read out for the detection head. At each injection layer, RWPR reads opposite-modality patches into registers, and RCRS splits the bridged registers into consensus and modality residuals. The three bridges share architecture but not parameters. Although the layer-11 readout shows strong selectivity in Fig. 1(b), we do not use the final readout layer as an injection point: a register update there has no subsequent self-attention block through which to influence patch features. The layer-placement ablation in Sec. IV supports this separation between deep readout and earlier injection. 
+
+Register-Write Patch-Read (RWPR). To exchange infor-mation without dense patch-to-patch attention, RWPR uses the asymmetry between registers and patches. Patch-to-patch cross-attention costs O(N 2) and becomes expensive at detection-scale resolutions, whereas register-to-register atten-tion is cheap ( O(k2)) but has limited access to spatial detail. We therefore let the k registers of one modality query the 
+
+N patches of the other, retaining dense spatial evidence at 
+
+O(kN ) cost while routing the exchange through a compact register bottleneck. At each injection layer ℓ∈S , we run two single-head cross-attention operators with independent parameters, denoted as 
+
+CA , one per direction: 
+
+∆R = CA (ℓ)
+
+> R→T
+
+ rR,ℓ , pT,ℓ , pT,ℓ 
+
+, (2) 
+
+∆T = CA (ℓ) 
+
+> T→R
+
+ rT,ℓ , pR,ℓ , pR,ℓ 
+
+, (3) in which the registers of modality m act as queries against the patch tokens of the opposite modality (acting as both keys and values). The two raw deltas are gated by a sigmoid-bounded residual coefficient αℓ = αmax σ(˜ αℓ) and applied with LayerNorm: 
+
+˜rm,ℓ = LN  rm,ℓ + αℓ ∆m
+
+, m ∈ { R, T }, (4) with αmax =1 and σ(·) the logistic function. The logit ˜αℓ is initialized so that αℓ=0 .1 at the start of training, which makes the bridge a near-identity transformation at initialization and 5
+
+avoids corrupting the pretrained representation in the early epochs. Three properties distinguish RWPR from prior cross-modal interactions. (i) Complexity. Each direction costs O(kN D ), a fraction k/N of dense patch-wise attention, which is small be-cause k=4 while N is in the thousands. (ii) Depth-dependent readout. The diagnostic in Fig. 1(b) shows that register-to-patch attention becomes increasingly selective at deeper feature readout layers. RWPR therefore injects information before the final readout stage, allowing updated registers to propagate through later self-attention while still benefiting from selective deep features. (iii) Backbone integrity. RWPR updates only registers; patch tokens remain read-only keys and values, preserving the pretrained patch feature manifold while still allowing indirect cross-modal influence. 
+
+Register-Consensus / Residual-Split (RCRS). RWPR aug-ments each register with information from the opposite modal-ity, yet a failure mode remains. As the two streams’ registers absorb information from each other, they may drift toward an uncontrolled consensus, in which case the cross-stream chan-nel carries similar global summaries and the modality-specific signal is diluted. RCRS is designed to make this trade-off explicit rather than to amplify modality-specific residuals. We therefore decompose the bridged register set into a consensus component shared by both modalities and a modality-specific residual, and re-mix the two with a learnable balance. For each injection layer, after RWPR we form the per-layer consensus 
+
+cℓ = 12
+
+ ˜rR,ℓ + ˜ rT,ℓ 
+
+, (5) and re-parameterize each modality’s registers as a consensus plus a scaled residual: 
+
+r′ 
+
+> m,ℓ
+
+= cℓ + βℓ
+
+ ˜rm,ℓ − cℓ
+
+, m ∈ { R, T }, (6) where βℓ=σ( ˜βℓ) ∈ (0 , 1) is a scalar gate initialized at βℓ=0 .5.The two limits expose the meaning of the gate: βℓ→0 collapses both modalities to the consensus and erases all modality-specific content, whereas βℓ→1 preserves the original bridged registers without consensus regularization. The calibrated reg-isters r′ 
+
+> m,ℓ
+
+replace rm,ℓ in the token sequence and continue through the remaining frozen self-attention layers, so the effect of RCRS propagates through the entire upper backbone. The consensus vector cℓ from the deepest injection layer is retained for use in Stage III. RCRS turns the implicit shared-vs-specific structure of pretrained registers (Fig. 1(a)) into an explicit algebraic de-composition that the network can regulate. By exposing βℓ as a learnable scalar, RCRS lets the model choose the consensus– residual trade-off per layer rather than being committed to a hand-set ratio. After training, this decomposition reshapes the pretrained 3+1 pattern into a task-adapted bridge, as further analyzed in Sec. IV. 
+
+D. Stage III: Project 
+
+After Stage II, the registers carry a structured cross-modal summary, but the patch features at the backbone outputs have not yet received it. Stage III addresses this through Modality-Aware Calibration (MAC), which converts the register sum-mary into spatially adaptive affine parameters, followed by a light multi-scale fusion head for the RT-DETR decoder. Patch-only fusion methods often couple two tasks: estimating 
+
+how modalities complement each other at the scene level and 
+
+applying this estimate at each spatial location. Stages I and II produce a register-level summary for the first task; Stage III translates it into per-position patch calibration. ℓ⋆ denote the deepest injection layer, r⋆m=r′ 
+
+> m,ℓ ⋆
+
+the post-RCRS registers used by MAC, and c⋆=cℓ⋆ the corresponding consensus. We form a single CR summary vector by concatenating the consensus mean with the absolute magnitudes of the two modality residuals: 
+
+sCR =  c⋆; |r⋆R − c⋆|; |r⋆T − c⋆|  ∈ R3D , (7) where (·) denotes the mean across the k register positions. The first term encodes what the two modalities agree on ; the latter two encode how strongly each modality deviates from that agreement at the register level. Spatial localization is supplied by the inter-modal gap proxy below. Let FsR, FsT ∈ RCs×Hs×Ws denote the projected patch feature maps of the two modalities at pyramid level s. The modality-specific projection heads map both streams to the same channel width, and MAC first normalizes the two maps with per-stream GroupNorm, ˆFsm = GN sm(Fsm). It then produces a global affine seed from the CR summary through a shared two-layer MLP Φ( ·) followed by a per-scale linear projection Ws:
+
+seed s = Ws Φ( sCR ) ∈ RCs , (8) broadcast over space. To inject a spatial signal of where the normalized modality features differ, we compute a learned inter-modal gap proxy and lift it through a 1×1 convolution: 
+
+gap s = Conv s
+
+> 1×1
+
+  ˆFsR − ˆFsT
+
+ ∈ RCs×Hs×Ws . (9) The global seed and the spatial gap are summed to form a per-position conditioning field field s = seed s + gap s, which is fed into a per-scale affine head As—a 1×1 convolution with zero-initialized weights—that outputs 4Cs channels chunked into the per-modality SPADE-style parameters (γsm, βsm). The calibrated features are obtained as a bounded residual update, 
+
+˜Fsm = Fsm + αs
+
+ γsm ⊙ ˆFsm + βsm
+
+, m ∈ { R, T }, (10) where αs=σ(˜ αs) is a per-scale sigmoid gate (initialized so that αs=0 .1) and ⊙ is element-wise multiplication. Because the affine head is zero-initialized and the gate is small at start, MAC is an exact identity at initialization and only departs from it as training proceeds. The calibrated pyramids are then fused level-by-level. At each level s, the two modalities are concatenated and projected to the unified width through a 1×1 convolution Fs
+
+> cat
+
+, followed by a top-down residual that propagates information from coarser to finer levels: 
+
+Fs 
+
+> fused
+
+= Fs
+
+> cat
+
+ [ ˜FsR; ˜FsT ] + λs U Fs−1fused 
+
+, (11) where U(·) is bilinear upsampling to the resolution of level s
+
+and λs=σ(˜λs) is a sigmoid-bounded scalar gate (the term is 6                                                                                                                                                                                                                                       
+
+> TABLE I COMPARISON ON M3FD. Method Venue Overall AP 50 by category mAP 50 mAP 50 -95 People Car Bus Moto Lamp Truck TarDAL [31] CVPR’22 80.5 54.1 81.5 94.8 81.3 69.3 87.1 68.7 CDDFuse [36] CVPR’23 81.1 54.3 81.6 92.5 82.6 71.6 86.9 71.5 IGNet [37] MM’23 81.5 54.5 81.6 92.8 82.4 73.0 86.9 72.1 EMMA [38] CVPR’24 82.9 55.4 82.0 93.5 83.2 77.7 87.7 73.5 SuperFusion [39] JAS’22 83.5 56.0 83.7 91.0 93.2 77.4 70.0 85.8 KCDNet [40] TIM’24 83.2 56.3 83.3 90.9 88.4 84.1 80.3 72.1 ICAFusion [9] PR’24 87.1 57.0 83.3 93.4 93.4 75.0 87.6 90.0
+> MMFN [41] TITS’23 86.2 57.4 83.0 93.2 92.1 73.7 87.6 87.4 Fusion-Mamba [18] TMM’25 88.0 61.9 84.3 92.9 94.2 80.5 87.5 88.8 LCAFNet [46] PR’26 91.1 59.3 90.2 94.3 92.4 86.0 94.2 89.5 WaveMamba [19] ICCV’25 92.1 64.4 92.6 95.9 95.6 86.1 93.8 88.6
+> RegisterBridgeMM –92.6 64.9 92.9 96.1 95.8 86.5 94.0 89.1
+> Note: Best results are in bold ; second-best results are underlined. TABLE II COMPARISON ON DRONE VEHICLE .Method Venue Overall AP 50 by category mAP 50 mAP 50 -95 Car Truck Bus Van Freight TSFADet [44] ECCV’22 73.1 44.1 89.9 67.9 89.8 54.0 63.7 C2Former [16] TGRS’24 74.2 47.3 90.2 68.3 89.8 58.5 64.4 IV-YOLO [49] Sensors’24 74.6 56.8 97.2 65.4 94.3 53.0 63.1 LCAFNet [46] PR’26 76.2 –90.3 69.7 89.7 63.4 67.9 SLBAF-Net [43] MTA’23 77.0 49.5 90.2 75.9 89.9 59.9 68.6 DMM [48] arXiv’24 77.2 55.8 90.4 77.8 88.7 66.0 63.0 CSOM-ODAF [50] CVPRW’24 77.5 52.5 92.1 75.2 89.8 61.8 68.8 GLFNet [47] GRSL’24 71.4 54.8 90.3 72.7 88.0 52.6 53.6 Fusion-Mamba [18] TMM’25 79.2 56.0 96.7 80.2 95.3 64.0 59.8 WaveMamba [19] ICCV’25 79.8 60.5 95.0 80.4 90.6 64.5 68.5 SLGNet [25] arXiv’26 80.7 57.2 96.1 80.9 91.8 65.3 69.4
+> RegisterBridgeMM –81.5 61.5 96.4 81.6 92.3 66.1 71.2
+> Note: Best results are in bold ; second-best results are underlined.
+
+omitted for the coarsest level). The fused three-level pyramid is then consumed by an RT-DETR detection head [29]. MAC differs from channel-only FiLM-style modula-tions [22] and feature statistics-only calibration because its affine field is both register-conditioned and spatially vary-ing. The global seed transmits the cross-modal summary from Stages I–II, while the learned gap proxy supplies location-specific discrepancy cues. The zero-initialized head and bounded residual gate make MAC an identity mapping at initialization, which is important when both backbones are frozen. IV. E XPERIMENTS 
+
+A. Datasets and Metrics 
+
+We evaluate RegisterBridgeMM on four public RGB–IR detection benchmarks that collectively span a wide range of illumination conditions, scene types, and target scales. 
+
+LLVIP [30] is a low-light pedestrian detection dataset con-taining 12,025 training and 3,463 test aligned RGB–IR pairs with one category (Pedestrian), making it a focused testbed for nighttime cross-modal fusion. 
+
+M3FD [31] covers daytime, nighttime, and foggy conditions with 4,200 image pairs across 6 categories (People, Car, Bus, Motorcycle, Lamp, Truck), posing challenges from diverse weather and illumination variation. 
+
+DroneVehicle [32] provides 56,878 drone-view image pairs with 5 vehicle categories (Car, Truck, Bus, Van, Freight Car), featuring small and densely packed targets that stress localization precision. 
+
+FLIR-Aligned [33] contains 5,142 aligned image pairs for autonomous driving with 3 categories (Person, Car, Bicy-cle), representing a scene-cluttered benchmark with significant intra-class scale variation. We report mAP 50 and mAP 50 -95 following the standard COCO evaluation protocol. AP values are reported in percent-age points unless otherwise specified. The experiments are organized to validate the three stages of the proposed register lifecycle. First, comparisons on four benchmarks evaluate whether register-mediated fusion improves detection accuracy across low-light surveillance, multi-weather driving, drone-view traffic scenes, and aligned autonomous-driving data. Second, component and injection-layer ablations examine whether the Bridge stage benefits from RWPR, RCRS, and shallow-to-intermediate register in-jection. Third, MAC ablations and qualitative visualizations assess whether the register-level cross-modal summary can be effectively projected back to spatial feature calibration for detection. 7
+
+B. Implementation Details 
+
+We use dual-stream frozen DINOv3-B (Base) [3] ( ∼86 M parameters per stream, not updated) as the backbone, initial-ized from the same pretrained weights for both modalities. The RWPR bridge is inserted at layers {2, 5, 8} with single-head cross-attention, while multi-scale features for the detec-tion head are extracted at layers {5, 8, 11 }. This separation is deliberate: injection layers determine where cross-modal register exchange occurs, whereas feature layers determine which backbone outputs are consumed by the detector. The residual gate α is initialized at 0.1 and the RCRS balance β
+
+at 0.5. MAC operates on a three-level feature pyramid (256-d) with zero-initialized affine heads, and the detection head is RT-DETR [29]. All experiments are conducted on NVIDIA RTX 4090 GPUs. Unless otherwise noted, parameter counts refer to trainable parameters and exclude the two frozen DINOv3-B streams. 
+
+C. Comparison with State-of-the-Art 1) Results on M3FD: Table I reports results on M3FD with per-category breakdown. M3FD is a challenging multi-weather benchmark where illumination and weather conditions vary significantly across scenes, making it a demanding testbed for cross-modal robustness. RegisterBridgeMM achieves the best overall mAP 50 (92.6%) and mAP 50 -95 (64.9%), surpassing WaveMamba by 0.5 points on both metrics. The per-category results show broad gains on People, Car, Bus, and Motorcycle, while remaining competitive on Lamp and Truck, indicating that the proposed bridge improves cross-modal robustness without concentrating gains in a single category. 
+
+2) Results on DroneVehicle: Table II shows results on DroneVehicle with per-category breakdown. This dataset fea-tures small, densely packed vehicles from a drone perspective, posing simultaneous challenges for localization precision and cross-modal alignment. RegisterBridgeMM achieves 81.5% mAP 50 and 61.5% mAP 50 -95 , surpassing the strongest com-pared baselines by 0.8 points on mAP 50 and 1.0 point on mAP 50 -95 . Category-level gains are most visible on Truck, Van, and Freight Car, categories that are thermally ambiguous and benefit most from register-level cross-modal context. 
+
+3) Results on LLVIP: Table III compares Register-BridgeMM with recent methods on LLVIP. Our method achieves the highest mAP 50 -95 of 70.5%, surpassing the strongest compared baseline GM-DETR by 0.3 points, while also leading in mAP 50 . Notably, RegisterBridgeMM uses 27.8 M trainable parameters, substantially fewer than dense-fusion methods such as Fusion-Mamba (287.6 M) and CFT (206.0 M), while delivering higher accuracy than smaller adapter-style baselines such as LCAFNet (15.4 M) and SLGNet (12.1 M). This accuracy-efficiency trade-off shows that register-mediated fusion achieves strong low-light de-tection without the parameter overhead of dense patch-level interaction. 
+
+4) Results on FLIR-Aligned: Table IV presents results on FLIR-Aligned, a challenging autonomous-driving dataset with cluttered backgrounds and significant intra-class scale varia-tions. RegisterBridgeMM achieves 88.9% mAP 50 and 49.8%                                                                                                                   
+
+> TABLE III COMPARISON ON LLVIP. Method Venue Params mAP 50 mAP 50 -95
+> ICAFusion [9] PR’24 108.6M 95.2 60.1 UniRGB-IR [24] MM’25 8.9M 96.1 63.2 CFT [5] arXiv’21 206.0M 97.5 63.6 LRAF-Net [42] TNNLS’23 18.8M 97.9 63.6 Fusion-Mamba [18] TMM’25 287.6M 97.0 64.3 LCAFNet [46] PR’26 15.4M 97.7 65.0 COFNet [14] TMM’25 90.2M 97.7 65.9 WaveMamba [19] ICCV’25 69.1M 98.3 66.0 SLGNet [25] arXiv’26 12.1M 98.3 66.1 DAMSDet [35] ECCV’24 –97.9 69.6 GM-DETR [15] CVPRW’24 70M 97.4 70.2
+> RegisterBridgeMM –27.8M 98.4 70.5
+> Note: Trainable params; best/second-best: bold /underlined. TABLE IV COMPARISON ON FLIR-A LIGNED .Method Venue Params mAP 50 mAP 50 -95
+> CFT [5] arXiv’21 206.0M 78.7 40.2 ICAFusion [9] PR’24 108.6M 79.2 41.4 CrossFormer [45] PRL’24 340.0M 79.3 42.1 LRAF-Net [42] TNNLS’23 18.8M 80.5 42.8 LCAFNet [46] PR’26 15.4M 81.3 41.1 UniRGB-IR [24] MM’25 8.9M 81.4 44.1 COFNet [14] TMM’25 90.2M 83.6 44.6 GM-DETR [15] CVPRW’24 70M 83.9 45.8 SLGNet [25] arXiv’26 12.1M 85.8 45.1 Fusion-Mamba [18] TMM’25 287.6M 84.9 47.0 DAMSDet [35] ECCV’24 –86.6 49.3 WaveMamba [19] ICCV’25 69.1M 88.4 48.1
+> RegisterBridgeMM –27.8M 88.9 49.8
+> Note: Trainable params; best/second-best: bold /underlined.
+
+mAP 50 -95 , surpassing the strongest compared baselines by 0.5 points on both metrics. Compared to methods with similar parameter budgets, including SLGNet (12.1 M, 85.8/45.1) and LCAFNet (15.4 M, 81.3/41.1), RegisterBridgeMM (27.8 M) delivers substantially higher accuracy, indicating that the ad-ditional parameters in the register bridge yield measurable returns in cluttered autonomous-driving scenes. 
+
+5) Cross-Benchmark Observations: Across the four bench-marks, the gains of RegisterBridgeMM are consistent but arise from different data characteristics. On LLVIP, the improve-ment mainly reflects stronger low-light pedestrian localization, where infrared cues compensate for weak visible contrast. On M3FD, the gains are spread across weather and object categories, suggesting that the register bridge does not overfit to a single modality-dominant condition. On DroneVehicle, the improvement on Truck, Van, and Freight Car indicates that register-mediated global context is useful when small aerial targets are visually compact and locally ambiguous. On FLIR-Aligned, the gain under cluttered driving scenes shows that the proposed calibration can suppress background responses while preserving target-relevant thermal and visible cues. These complementary trends indicate that the proposed register pathway improves robustness across modality im-balance, scale variation, and background clutter rather than specializing to a single benchmark. A notable pattern is that RegisterBridgeMM improves both mAP 50 and mAP 50 -95 on all four datasets. The latter metric 8                                
+
+> TABLE V COMPONENT ABLATION ON LLVIP. RWPR RCRS MAC Params mAP 50 mAP 50 -95 ∆
+> 11.8M 97.1 65.2 –Patch-Query 26.0M 97.3 65.8 +0.6
+> ✓26.0M 97.6 67.2 +2.0
+> ✓✓26.0M 97.8 68.4 +3.2
+> ✓✓✓27.8M 98.4 70.5 +5.3
+> Note: Params reports trainable parameters added on top of the two frozen DINOv3-B backbones (172.0 M, not updated). RCRS adds only 3 scalar parameters and does not change the rounded trainable count. Patch-Query replaces register tokens with k=4 uniformly sampled patch tokens as cross-attention queries, keeping all other settings identical.
+
+is more sensitive to localization quality, so the improvement cannot be explained only by stronger classification confidence. 
+
+6) Efficiency of the Register Pathway: The accuracy gains above are obtained with a lightweight register pathway rather than dense patch-wise cross-attention. With k=4 register tokens per stream, RWPR uses 6kN pairwise register-to-patch attention terms across three bidirectional injection layers, which constitutes a small fraction of the N 2 terms required by a single dense patch-to-patch cross-attention layer, providing a structural efficiency argument for register-mediated cross-modal communication. 
+
+D. Ablation Studies 
+
+All ablations are conducted on LLVIP with the DINOv3-B backbone under the same training schedule unless otherwise noted. Each study isolates one design dimension of the register lifecycle while holding the remaining components fixed. 
+
+1) Register Lifecycle Component Ablation: Table V shows the incremental contribution of each module. The baseline uses frozen dual-stream DINOv3-B with simple concatenation fusion. Adding RWPR brings +2.0 mAP 50 -95 by enabling cross-modal information exchange through registers; RCRS further improves by +1.2 points without adding parameters, confirming that explicit consensus-residual decomposition re-fines the quality of exchanged information; MAC contributes another +2.1 points by translating the register summary into spatially adaptive patch calibration. The full lifecycle yields a cumulative gain of +5.3 points while keeping the trainable budget at 27.8 M parameters, confirming the parameter effi-ciency of the proposed design. 
+
+2) Backbone Freezing and Injection Layer Analysis: Ta-ble VI (top) compares frozen and unfrozen backbone variants, and also tests whether the bridge transfers across DINOv3 pre-training versions. RegisterBridgeMM with a frozen DINOv3-B backbone achieves 70.5 mAP 50 -95 , slightly exceeding the fully fine-tuned variant (70.3), confirming that the pretrained register prior is worth preserving rather than overwriting through fine-tuning. Replacing DINOv3-B with DINOv2-B yields 69.8 mAP 50 -95 , a drop of only 0.7 points despite the weaker pretraining, indicating that the register bridge general-izes across backbone versions rather than relying on DINOv3-specific representations. The table (bottom) examines bridge placement: a single bridge at layer 8 already provides +2.3 over the concat baseline, and progressively adding shallower bridges reaches 70.5 with {2, 5, 8}. Adding a bridge at layer 11 Layer 2 Layer 5 Layer 8 
+
+Bridge injection layer                      
+
+> 0246810
+> Modality-specific residual share (\%)
+> 0.6 2.4 5.8 1.3 4.5 8.6
+> LLVIP M3FD
+> Fig. 3. Modality-specific residual energy share of bridged registers on LLVIP and M3FD. Registers remain dominated by consensus ( >90% ), while the residual share exposed by RCRS grows with depth. TABLE VI BACKBONE FREEZING AND PRETRAINING VERSION (TOP )AND INJECTION -LAYER PLACEMENT (BOTTOM )ON LLVIP. Setting Params mAP 50 mAP 50 -95
+> Unfrozen, concat 183 M 97.8 69.4 Unfrozen, RegisterBridgeMM 199 M 98.3 70.3 Frozen, RegisterBridgeMM (DINOv2-B) 28 M 98.1 69.8 Frozen, RegisterBridgeMM (DINOv3-B) 28 M 98.4 70.5
+
+Injection layers (multi-scale feature layers fixed at {5, 8, 11 })                  
+
+> {8}–97.4 67.5
+> {5,8}–97.8 69.0
+> {2,5,8}–98.4 70.5
+> {2,5,8,11 }–98.0 69.8
+
+degrades performance by 0.7, because registers modified at the final layer have no subsequent self-attention through which to propagate their updates back into the patch representation. 
+
+3) RCRS and MAC Design Choices: Table VII (top) studies the consensus–residual split in RCRS. Forcing full consen-sus ( β=0 ) discards modality-specific residuals and degrades mAP 50 -95 by 0.4 points; making β learnable recovers and surpasses the full-consensus variant. The net gain of RCRS over RWPR alone is +1.2 points (Table V), indicating that the model benefits from retaining a calibrated amount of modality-specific information. Fig. 3 further shows that the residual share grows with depth, confirming that the cues RCRS separates become increasingly informative in deeper layers. The table (bottom) compares calibration strategies in MAC: channel-only (FiLM-style) modulation improves by +1.2 over no calibration, and replacing it with spatially adaptive calibra-tion adds a further +0.9, demonstrating that location-specific modulation is more effective than global channel scaling. 
+
+E. Qualitative Analysis 1) Detection Results: Fig. 4 shows qualitative detection results on four representative RGB–IR pairs spanning diverse illumination and scene conditions. Compared to the frozen baseline, RegisterBridgeMM produces fewer missed detections and false positives, with the most pronounced improvements on occluded and small targets where cross-modal complemen-tarity is most critical. 9RGB GT IR GT 
+
+## Baseline 
+
+OUR 
+
+Fig. 4. Qualitative detection results on representative RGB–IR pairs. Rows show RGB input, IR input, the frozen simple-concatenation baseline, and RegisterBridgeMM. Compared with the baseline, RegisterBridgeMM recovers missed targets and suppresses false positives, especially for small and occluded objects. TABLE VII RCRS CONSENSUS –RESIDUAL DESIGN (TOP ) AND MAC CALIBRATION DESIGN (BOTTOM ) ON LLVIP. Setting mAP 50 mAP 50 -95 
+
+No RCRS (RWPR only) 97.6 67.2 RCRS, full consensus 97.5 66.8 RCRS, learnable β 98.4 70.5 
+
+MAC calibration strategy (starting from RWPR +RCRS) 
+
+No MAC 97.8 68.4 MAC channel-only (FiLM-style) 98.0 69.6 MAC spatially adaptive 98.4 70.5 
+
+2) Feature Attention Visualization: Fig. 5 compares the at-tention maps of the frozen baseline and RegisterBridgeMM at the three multi-scale feature layers {5, 8, 11 } consumed by the detection head. RegisterBridgeMM attends more coherently to target-relevant regions: responses are better aligned with object extents and suppress background clutter, whereas the baseline distributes attention more diffusely across non-target areas. The improvement is consistent across all three depths, suggesting that register-mediated fusion yields cleaner multi-scale features rather than benefiting only a single scale. V. C ONCLUSION 
+
+RegisterBridgeMM demonstrates that pretrained DINOv3 register tokens carry a latent modality-shared/modality-specific structure suitable for cross-modal communication. Routing RGB–IR interaction through this register bottleneck keeps both backbones frozen while achieving strong detection per-formance across four benchmarks. 
+
+Fig. 5. Attention comparison between the frozen baseline and Register-BridgeMM at the multi-scale feature layers. Rows show two scenes; columns show the input image and attention maps at layers 5, 8, and 11. Register-BridgeMM concentrates responses on target-relevant regions more selectively than the baseline. 
+
+REFERENCES [1] A. Dosovitskiy, L. Beyer, A. Kolesnikov, et al. , “An image is worth 16x16 words: Transformers for image recognition at scale,” in Proc. Int. Conf. Learn. Represent. (ICLR) , 2021. [2] M. Oquab, T. Darcet, T. Moutakanni, H. V. Vo, M. Szafraniec, V. Khali-dov, et al. , “DINOv2: Learning robust visual features without supervi-sion,” Trans. Mach. Learn. Res. , 2024. [3] O. Sim´ eoni, H. V. Vo, M. Seitzer, F. Baldassarre, M. Oquab, C. Jose, 
+
+et al. , “DINOv3,” arXiv preprint arXiv:2508.10104 , 2025. [4] T. Darcet, M. Oquab, J. Mairal, et al. , “Vision Transformers need registers,” in Proc. Int. Conf. Learn. Represent. (ICLR) , 2024. [5] Q. Fang, D. Han, and Z. Wang, “Cross-modality fusion transformer for multispectral object detection,” arXiv preprint arXiv:2111.00273 , 2021. [6] Q. Li, C. Zhang, Q. Hu, H. Fu, and P. Zhu, “Confidence-aware fusion using Dempster-Shafer theory for multispectral pedestrian de-10 
+
+tection,” IEEE Trans. Multimedia , vol. 25, pp. 3420–3431, 2023, doi: 10.1109/TMM.2022.3160589. [7] R. Li, J. Xiang, F. Sun, Y. Yuan, L. Yuan, and S. Gou, “Multiscale cross-modal homogeneity enhancement and confidence-aware fusion for multispectral pedestrian detection,” IEEE Trans. Multimedia , vol. 26, pp. 852–863, 2024, doi: 10.1109/TMM.2023.3272471. [8] K. Zhou, L. Chen, and X. Cao, “Improving multispectral pedestrian detection by addressing modality imbalance problems,” in Proc. Eur. Conf. Comput. Vis. (ECCV) , 2020. [9] J. Shen, Y. Chen, Y. Liu, X. Zuo, H. Fan, and W. Yang, “ICAFusion: Iterative cross-attention guided feature fusion for multispectral object detection,” Pattern Recognition , vol. 145, p. 109913, 2024. [10] J. Shen, H. Zhan, X. Zuo, H. Fan, X. Yuan, J. Li, and W. Yang, “IRDFusion: Iterative relation-map difference guided feature fusion for multispectral object detection,” Pattern Recognition , vol. 176, p. 113189, 2026. [11] X. Zhang, X. Zhang, J. Wang, J. Ying, Z. Sheng, H. Yu, C. Li, and H.-L. Shen, “TFDet: Target-aware fusion for RGB-T pedestrian detection,” 
+
+IEEE Trans. Neural Netw. Learn. Syst. , vol. 36, no. 7, pp. 13276–13290, 2025. [12] H. Fu, H. Liu, J. Yuan, et al. , “YOLO-Adaptor: A fast adaptive one-stage detector for non-aligned visible–infrared object detection,” IEEE Trans. Intell. Veh. , 2024, pp. 1–14. [13] C. Tian, Z. Zhou, Y. Huang, G. Li, and Z. He, “Cross-modality proposal-guided feature mining for unregistered RGB-thermal pedestrian detection,” IEEE Trans. Multimedia , vol. 26, pp. 6449–6461, 2024, doi: 10.1109/TMM.2024.3350926. [14] M. Zhou, Y. Li, G. Yang, X. Wei, H.-Y. Pu, J. Luo, and W. Jia, “COFNet: Contrastive object-aware fusion using box-level masks for multispectral object detection,” IEEE Trans. Multimedia , vol. 27, pp. 7444–7458, 2025, doi: 10.1109/TMM.2025.3599097. [15] Y. Xiao, F. Meng, Q. Wu, L. Xu, M. He, and H. Li, “GM-DETR: Generalized multispectral DEtection TRansformer with efficient fusion encoder for visible–infrared detection,” in Proc. IEEE/CVF Conf. Com-put. Vis. Pattern Recognit. Workshops (CVPRW) , 2024, pp. 5541–5549. [16] M. Yuan and X. Wei, “C2Former: Calibrated and complementary transformer for RGB–infrared object detection,” IEEE Trans. Geosci. Remote Sens. , vol. 62, pp. 1–12, 2024. [17] Y. Wang, X. Chen, L. Cao, W. Huang, F. Sun, and Y. Wang, “Multimodal token fusion for vision transformers,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2022, pp. 12186–12195. [18] W. Dong, H. Zhu, S. Lin, X. Luo, Y. Shen, X. Liu, J. Zhang, G. Guo, and B. Zhang, “Fusion-Mamba for cross-modality object detection,” IEEE Trans. Multimedia , vol. 27, pp. 7392–7406, 2025. [19] H. Zhu, W. Dong, L. Yang, H. Li, Y. Yang, Y. Ren, Q. Zhu, Z. Feng, C. Li, S. Lin, et al. , “WaveMamba: Wavelet-driven Mamba fusion for RGB–infrared object detection,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV) , 2025, pp. 11219–11229. [20] C. Zhou, P. Cheng, J. Fang, Y. Zhang, Y. Yan, X. Jia, Y. Xu, K. Wang, and X. Cao, “Optimizing multispectral object detection: A bag of tricks and comprehensive benchmarks,” arXiv preprint arXiv:2411.18288 ,2024. [21] E. J. Hu, Y. Shen, P. Wallis, Z. Allen-Zhu, Y. Li, S. Wang, L. Wang, and W. Chen, “LoRA: Low-rank adaptation of large language models,” in Proc. Int. Conf. Learn. Represent. (ICLR) , 2022. [22] E. Perez, F. Strub, H. de Vries, V. Dumoulin, and A. Courville, “FiLM: Visual reasoning with a general conditioning layer,” in Proc. AAAI Conf. Artif. Intell. (AAAI) , 2018. [23] Z. Chen, Y. Duan, W. Wang, J. He, T. Lu, J. Dai, and Y. Qiao, “Vision transformer adapter for dense predictions,” in Proc. Int. Conf. Learn. Represent. (ICLR) , 2023. [24] M. Yuan, B. Cui, T. Zhao, J. Wang, S. Fu, X. Yang, and X. Wei, “UniRGB-IR: A unified framework for visible–infrared semantic tasks via adapter tuning,” in Proc. ACM Int. Conf. Multimedia (MM) , 2025, pp. 2409–2418. [25] X. Xiang, G. Zhou, Z. Wen, W. Li, B. Niu, F. Wang, L. Huang, Q. Wang, Y. Liu, Z. Pan, and Y. Hu, “SLGNet: Synergizing structural priors and language-guided modulation for multimodal object detection,” arXiv preprint arXiv:2601.02249 , 2026. [26] S. Yellapragada, K. Thopalli, V. Narayanaswamy, W. Sakla, Y. Liu, Y. Mubarka, D. Samaras, and J. J. Thiagarajan, “Leveraging registers in vision transformers for robust adaptation,” in Proc. IEEE Int. Conf. Acoust., Speech Signal Process. (ICASSP) , 2025. [27] N. Jiang, A. Dravid, A. Efros, and Y. Gandelsman, “Vision transformers do not need trained registers,” in Proc. Adv. Neural Inf. Process. Syst. (NeurIPS) , 2025. [28] Y. Wen, Q. Cao, Q. Fu, S. Mehta, and M. Najibi, “Efficient vision-language models by summarizing visual tokens into compact registers,” 
+
+arXiv preprint arXiv:2410.14072 , 2024. [29] Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, and J. Chen, “DETRs beat YOLOs on real-time object detection,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2024, pp. 16965–16974. [30] X. Jia, C. Zhu, M. Li, et al. , “LLVIP: A visible–infrared paired dataset for low-light vision,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. Workshops (CVPRW) , 2021. [31] J. Liu, X. Fan, Z. Huang, et al. , “Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2022, pp. 5802–5811. [32] Y. Sun, B. Cao, P. Zhu, and Q. Hu, “Drone-based RGB-infrared cross-modality vehicle detection via uncertainty-aware learning,” IEEE Trans. Circuits Syst. Video Technol. , vol. 32, no. 10, pp. 6700–6713, 2022. [33] Teledyne FLIR, “Free FLIR thermal dataset for algorithm train-ing,” 2021. [Online]. Available: https://oem.flir.com/en-gb/solutions/ automotive/adas-dataset-form/ [34] H. Zhang, E. Fromont, S. Lef` evre, and B. Avignon, “Guided attentive feature fusion for multispectral pedestrian detection,” in Proc. IEEE Winter Conf. Appl. Comput. Vis. (WACV) , 2021, pp. 72–80. [35] J. Guo, C. Gao, F. Liu, D. Meng, and X. Gao, “DAMSDet: Dynamic adaptive multispectral detection transformer with competitive query selection and adaptive feature fusion,” in Proc. Eur. Conf. Comput. Vis. (ECCV) , 2024, pp. 464–481. [36] Z. Zhao, H. Bai, J. Zhang, Y. Zhang, S. Xu, Z. Lin, R. Timofte, and L. Van Gool, “CDDFuse: Correlation-driven dual-branch feature decomposition for multi-modality image fusion,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2023, pp. 5906–5916. [37] J. Li, J. Chen, J. Liu, and H. Ma, “Learning a graph neural network with cross modality interaction for image fusion,” in Proc. ACM Int. Conf. Multimedia (MM) , 2023, pp. 4471–4479. [38] Z. Zhao, H. Bai, J. Zhang, Y. Zhang, K. Zhang, S. Xu, D. Chen, R. Timofte, and L. Van Gool, “Equivariant multi-modality image fusion,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2024, pp. 25912–25921. [39] L. Tang, Y. Deng, Y. Ma, J. Huang, and J. Ma, “SuperFusion: A ver-satile image registration and fusion network with semantic awareness,” 
+
+IEEE/CAA J. Automatica Sinica , vol. 9, no. 12, pp. 2121–2137, 2022. [40] H. Wang, S. Qu, Z. Qiao, and X. Liu, “KCDNet: Multimodal object detection in modal information imbalance scenes,” IEEE Trans. Instrum. Meas. , vol. 73, pp. 1–13, 2024. [41] Y. Zhu, X. Sun, M. Wang, and H. Huang, “Multi-modal feature pyramid transformer for RGB-infrared object detection,” IEEE Trans. Intell. Transp. Syst. , vol. 24, no. 9, pp. 9984–9995, 2023. [42] H. Fu, S. Wang, P. Duan, C. Xiao, R. Dian, S. Li, and Z. Li, “LRAF-Net: Long-range attention fusion network for visible–infrared object detection,” IEEE Trans. Neural Netw. Learn. Syst. , vol. 35, no. 10, pp. 13232–13245, 2023. [43] X. Cheng, K. Geng, Z. Wang, J. Wang, Y. Sun, and P. Ding, “SLBAF-Net: Super-lightweight bimodal adaptive fusion network for UAV detec-tion in low recognition environment,” Multimedia Tools Appl. , vol. 82, no. 30, pp. 47773–47792, 2023. [44] M. Yuan, Y. Wang, and X. Wei, “Translation, scale and rotation: Cross-modal alignment meets RGB-infrared vehicle detection,” in Proc. Eur. Conf. Comput. Vis. (ECCV) , 2022, pp. 509–525. [45] S. Lee, J. Park, and J. Park, “CrossFormer: Cross-guided attention for multi-modal object detection,” Pattern Recognition Lett. , vol. 179, pp. 144–150, 2024. [46] W. Wu, H. Zhang, X. Zhang, H. Yin, and Y. Zhang, “Lightweight modal-guided cross-attention fusion network for visible-infrared object detection,” Pattern Recognition , p. 113350, 2026. [47] Y. Sun, H. Zhang, and Q. Wang, “GLFNet: Global and local feature fusion network for multi-modal object detection,” IEEE Geosci. Remote Sens. Lett. , vol. 21, pp. 1–5, 2024. [48] J. Zhou, Y. Liu, and L. Zhang, “DMM: Disparity-guided multispectral mamba for oriented object detection in remote sensing,” arXiv preprint arXiv:2407.08132 , 2024. [49] M. Li, J. Chen, and W. Sun, “IV-YOLO: A lightweight dual-modal object detector for infrared and visible images,” Sensors , vol. 24, no. 19, p. 6181, 2024. [50] H. Wang, Y. Xu, and Z. Li, “Cross-modality selective optimization and modality-aware attention fusion for multispectral object detection,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) Workshops , 2024.
