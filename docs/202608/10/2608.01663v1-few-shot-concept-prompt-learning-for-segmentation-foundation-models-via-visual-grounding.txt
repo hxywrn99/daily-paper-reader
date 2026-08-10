@@ -1,0 +1,136 @@
+Title: Few-Shot Concept Prompt Learning for Segmentation Foundation Models via Visual Grounding
+
+URL Source: https://arxiv.org/pdf/2608.01663v1
+
+Published Time: Tue, 04 Aug 2026 01:47:49 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# Few-Shot Concept Prompt Learning for Segmentation Foundation Models via Visual Grounding 
+
+Rahul Venkataramani, Rachana Sathish 
+
+Advanced Technology Group, GE HealthCare 
+
+{rahul.venkataramani,rachana.sathish}@gehealthcare.com 
+
+Abstract. Promptable segmentation foundation models (FMs) such as SAM3 and Medical SAM3 promise few-shot, interactively-specified seg-mentation for medical imaging through a natural language interface, yet their performance on clinical tasks falls well short of this promise. We posit that this shortfall is not an artefact of insufficient medical pretrain-ing or imperfect prompt phrasing, but a structural limitation that will persist in any domain where paired image-text supervision is scarce, as it is across most clinical modalities. We further hypothesise that the limita-tion is specific to natural language as a control signal: a visually grounded prompt, learned directly from the target distribution, should recover the lost performance without additional image-text data or backbone retraining. We propose Few-Shot Concept Prompt Learning (FS-CPL), which learns a continuous concept prompt embedding p∗ ∈ RT ×d from a small support set of K image–mask pairs via mask supervision, with the encoder-decoder backbone frozen. Across four public benchmarks span-ning ultrasound and endoscopy (BUSI, HC18, TN3K, CVC-Clinic), FS-CPL delivers absolute Dice improvements of up to +0 .62 over canonical text prompts and is backbone-agnostic : it lifts both vanilla SAM3 and the domain-specifically pretrained Medical SAM3, showing that visual concept prompting is complementary to in-domain pretraining. 
+
+Keywords: Foundation Model · Few-shot Learning · Prompt Learning. 
+
+# 1 Introduction 
+
+Text-prompted segmentation FMs (SAM3 [3], Medical SAM3 [6]) promise a leap in clinical utility by enabling segmentation on diverse tasks with limited language based supervision. Yet this promise is not practically realized in medical imaging through clinical language as medical terminology is heterogeneous, site-specific, and under-represented in tokenizers trained outside healthcare. Fig. 1 illustrates examples that demonstrates the brittleness of text prompts for ultrasound image segmentation. Prompts such as “fetal head”, “head”, “brain” produce different and sub-optimal masks for fetal head segmentation. We introduce Few-Shot Concept Prompt Learning (FS-CPL) that adapts segmentation FMs to medical with minimal labeled data and eliminates arXiv:2608.01663v1 [cs.CV] 3 Aug 2026 2 Rahul Venkataramani et al. 
+
+Fig. 1: Sensitivity of SAM3 to text prompts . Example #1 presents a sample image from HC18 dataset(fetal head ultrasound) and Example #2 is of an image from TN3k dataset (thyroid ultrasound). The ground truth mask is overlaid in green over the input image and the predicted segmentation masks are overlaid in red. the dependency on manual prompts. Inspired by text-prompted FMs, we prompt 
+
+FMs using a learned concept embedding. Instead of searching for the “correct” text phrase, we learn a concept prompt embedding ( p ∈ RT ×d, where T is the number of prompt tokens and d matches the backbone’s text-embedding dimen-sion) directly from a minimal support set of K image-mask pairs. This approach effectively steers the frozen backbone via a learned embedding that captures the visual semantics of the target, creating a model that retains the agility of prompting without the fragility of syntax. We argue FS-CPL provides a powerful paradigm to prompt as the method optimizes over a larger manifold compared to text prompts, thereby accessing prompt manifolds unreachable by providing text inputs. Our evaluation across four diverse benchmarks spanning ultrasound and en-doscopy (BUSI [1], HC18 [5], TN3K [4], CVC-Clinic [2]) demonstrates that FS-CPL systematically outperforms canonical text prompts, boosting Dice scores from 0.23 → 0.85 on CVC-Clinic and 0.78 → 0.91 on HC18 when applied to vanilla SAM3. Crucially, the same mechanism applied to the domain-specifically pretrained Medical SAM3 establishes, to our knowledge, a new state of the art among frozen-backbone methods on every dataset where Medical SAM3 is evalu-able (TN3K, CVC-Clinic, HC18), demonstrating that FS-CPL is a backbone-agnostic adaptation route that is complementary to in-domain pretraining rather than competing with it. 
+
+1.1 Related Work Foundation Models in Medical Imaging. SAM [7], SAM2 [10], and medical adaptations like MedSAM [9] segment distinct entities via geometric prompts (points, boxes), but remain interaction-dependent, precluding high-throughput automated analysis. To eliminate per-inference interaction, SAM3 [3] and Med-Few-Shot Concept Prompt Learning 3
+
+Fig. 2: Architecture of FS-CPL. We bypass the discrete tokenizer by optimiz-ing a continuous concept prompt p directly using mask supervision. The heavy-weight backbone (Image Encoder EI , Decoder D) remains entirely frozen. ical SAM3 [6] introduced “concept prompting” via text, though clinical deploy-ment is still hampered by ontology mismatch [8]. 
+
+Adapting Foundation Models with limited data. Adapting FMs to medical images typically requires large annotated datasets. PerSAM [12] overcomes this via a training-free, one-shot adaptation of SAM that uses a single reference image and mask to guide segmentation of the same object in new images. However, relying on a single exemplar makes the prior brittle to intra-class appearance variability. 
+
+Prompt Learning vs. Prompt Engineering. A parallel development in vision-language classification offers a solution to the lexical gap. CoOp (Context Optimization) [14] and CoCoOp [13] demonstrated that augmenting image em-beddings with learnable continuous vectors significantly improves robustness to distribution shifts. While CoOp focuses on image-level classification, we extend this philosophy to dense mask supervision. CoOp optimizes textual content inside CLIP-like model to improve image-level recogntion. In contrast, we completely bypass the tokenizer, learn continuous token embedding from image-mask pairs, and feed them to a frozen decoder to drive pixel-wise outputs. Unlike PEFT methods that adapt the backbone, or AutoPrompt [11] methods that search for discrete words, we learn a concept embedding that conditions a completely frozen segmentation backbone. This effectively bridges the gap between the automation of FMs and the precision of mask supervision, without the brittleness of natural language. 
+
+# 2 Method 
+
+We propose Few-Shot Concept Prompt Learning (FS-CPL), a technique to adapt generalist foundation models to medical concepts without parameter updates to the backbone. Our method, visualized in Fig. 2 formulates adaptation as an em-bedding optimization problem, seeking a continuous latent vector p that steers the frozen model to segment a target concept defined by a support set S.4 Rahul Venkataramani et al. 
+
+Preliminaries. Let Φ = {EI , D } denote a frozen promptable segmentation backbone, where EI (·) is the image encoder and D(·) is a multimodal decoder. Given an input image I ∈ RH×W ×C , the encoder extracts visual features FI =
+
+EI (I). Standard prompting relies on a text encoder ET to map a discrete string 
+
+T to an embedding FT . In our formulation, we discard ET and directly optimize a learnable soft prompt p ∈ RT ×d, where T is the token sequence length and d
+
+is the embedding dimension. The segmentation logits are given by, 
+
+O = D(FI , p) ∈ RH×W (1) Here, the parameters of EI and D are strictly frozen and only p carries gradients. 
+
+Optimization Objective. We treat the concept prompt optimization as a few-shot learning task. A user provides a K-shot support set S = {(Is, Ms)}Ks=1 ,containing representative image-mask pairs of the pathology. We then learn the optimal concept prompt p∗ by minimizing the binary cross-entropy (BCE) loss over S as, 
+
+p∗ = arg min  
+
+> p∈RT×d
+
+X
+
+> (Is,Ms)∈S
+
+LBCE 
+
+
+
+σ D(EI (Is), p), Ms
+
+
+
+(2) where σ(·) is the sigmoid activation. This process effectively leverages the mask decoder to find the optimal prompt embedding that produces the target mask. In our experiments, the prompt embedding p is optimized for 1000 iterations (N ) using Adam optimizer with a learning rate ( η) of 0.001 .
+
+Inference. At test time, the learned prompt p∗ acts as a static concept key. For a query image Iq , we simply compute the forward pass, 
+
+cMq = I[σ(D(EI (Iq ), p∗)) ≥ τ ] (3) This approach is inductive as once p∗ is learned, inference requires no further gradient updates or manual prompting, ensuring high throughput and repro-ducibility. 
+
+# 3 Experiments 
+
+3.1 Datasets 
+
+To evaluate the robustness of FS-CPL across diverse imaging physics and anatom-ical scales, we employ four public benchmarks - (i) BUSI [1] - breast ultrasound images with segmentation masks for lesion, (ii) HC18 [5] - obstetric ultrasound images with fetal head segmentations, (iii) TN3K [4] - ultrasound images with segmentation masks for thyroid nodule and (iv) CVC-Clinic [2] - endoscopic im-ages with segmentation masks for colon polyps. Unless an official split is provided, we generate disjoint patient-level train/test partitions. 
+
+Pre-processing. Images are first resized to the model’s required input dimen-sions of 1024 × 1024 pixels and then the intensity is scaled to [0,1] followed by normalization using mean and standard deviation of 0.5.Few-Shot Concept Prompt Learning 5
+
+3.2 Few-shot protocol 
+
+We adhere to a strict K-shot training protocol. Each experimental episode cor-responds to a target concept (e.g., “polyp”) and consists of two disjoint sets: (i) a Support Set S = {(Is, Ms)}Ks=1 and (ii) a Query Set Q = {(Iq , Mq )}Qq=1 .Given S, FS-CPL optimizes the concept prompt embedding p for N steps min-imizing the segmentation loss (Eq. 2). We utilize SAM3 and Medical SAM3 as the frozen backbones. The encoder and decoder weights remain frozen and adaptation is confined to the low-dimensional prompt embedding. At inference, the learned prompt p∗ ∈ RT ×d is applied to query images Iq
+
+without further test-time optimization. We set T = 32 and d = 256 in our experiments. Probability maps are thresholded at τ = 0 .5 to yield binary masks 
+
+cMq . We analyze the data-efficiency of our method by varying K ∈ { 1, 5, 10 , 20 }.No additional inference time is incurred due to our method over baselines. 
+
+3.3 Baselines Baselines. We compare against (i) Canonical Text (Zero-Shot) —frozen FM queried with the ontology term; (ii) Ensemble Text —aggregated embeddings over template/synonym variations; (iii) Medical SAM3 [6], a medically-adapted FM; and (iv) PerSAM [12], where a prototype from masked-mean-pooled FPN features over K supports yields a top-10% cosine-similarity bbox prompt for SAM3’s grounding decoder. 
+
+Evaluation metrics : We report Dice similarity coefficient (Dice) and Intersection-over-Union (IoU) as primary metrics. All metrics are reported as mean ± 95% CI half-width across the samples in the test split. 
+
+# 4 Results and Discussion 
+
+Table 1 presents quantitative evaluation on the test split of four datasets. Canon-ical prompts are: (i) BUSI - “breast lesion”, (ii) HC18 - “fetal head”, (iii) TN3K -“thyroid nodule”, and (iv) CVC-Clinic - “colon polyp”. For ensembling, we use a fixed set of 10 related prompts and average their text embeddings. Qualitative comparisons on sample images with ground truth (GT) are shown in Fig. 3. FS-CPL consistently outperforms both text-prompting baselines across all datasets, with the largest margins on BUSI, TN3K, and CVC-Clinic. PerSAM also lacks FS-CPL by a big margin. We argue this gap is not primarily at-tributable to vocabulary mismatch. Even when the target term is well repre-sented in the BPE vocabulary 1, as is the case for “head”, “brain”, and “skull” on HC18, the canonical prompt still trails FS-CPL by a substantial margin (0.78 vs. 0.91 Dice). The bottleneck instead lies in the visual-task distribution over which the FM has been supervised. Tokens such as “head” are predominantly associated, during pretraining, with visual instances drawn from natural-image  
+
+> 1https://github.com/facebookresearch/sam3/blob/main/sam3/assets/bpe_ simple_vocab_16e6.txt.gz
+
+6 Rahul Venkataramani et al. 
+
+Table 1: Few-shot segmentation performance for K = 20 . Entries show mean 
+
+± 95% CI half-width computed as 1.96 s/ √n where s is the std. dev. across test images and n is the number of test images (shown in parentheses). Medical SAM3 is not included in the BUSI dataset evaluation, as this dataset was used during the model’s training. Best method per metric is highlighted in green and second-best in blue . 
+
+Dataset Prompt Method Dice ↑ IoU ↑
+
+BUSI (437) Canonical 0.13 ± 0.01 0.07 ± 0.01 Ensemble 0.12 ± 0.01 0.07 ± 0.01 PerSAM 0.33 ± 0.02 0.23 ± 0.02 FS-CPL (ours, SAM3) 0.50 ± 0.04 0.43 ± 0.03 TN3K (614) Canonical 0.20 ± 0.02 0.13 ± 0.02 Ensemble 0.20 ± 0.01 0.13 ± 0.01 PerSAM 0.24 ± 0.02 0.16 ± 0.03 Medical SAM3 0.41 ± 0.02 0.33 ± 0.02 FS-CPL (ours, SAM3) 0.59 ± 0.02 0.48 ± 0.02 FS-CPL (ours, Medical SAM3) 0.61 ± 0.02 0.49 ± 0.02 CVC-Clinic (592) Canonical 0.23 ± 0.01 0.14 ± 0.01 Ensemble 0.23 ± 0.03 0.14 ± 0.01 PerSAM 0.33 ± 0.02 0.23 ± 0.01 Medical SAM3 0.88 ± 0.02 0.81 ± 0.02 FS-CPL (ours, SAM3) 0.85 ± 0.02 0.71 ± 0.02 FS-CPL (ours, Medical SAM3) 0.91 ± 0.10 0.84 ± 0.10 HC18 (800) Canonical 0.78 ± 0.01 0.67 ± 0.04 Ensemble 0.60 ± 0.02 0.46 ± 0.01 PerSAM 0.48 ± 0.01 0.33 ± 0.01 Medical SAM3 0.93 ± 0.01 0.87 ± 0.01 FS-CPL (ours, SAM3) 0.91 ± 0.01 0.84 ± 0.01 FS-CPL (ours, Medical SAM3) 0.95 ± 0.07 0.92 ± 0.08 Few-Shot Concept Prompt Learning 7
+
+Fig. 3: Qualitative comparison . Figure shows image, ground truth (GT), canonical text baseline (SAM3), FS-CPL result across four datasets. The GT mask is overlaid in green over the input image and the predicted segmentation masks are overlaid in red. domains, whose appearance statistics differ markedly from speckle-dominated, low-contrast ultrasound. Textual conditioning alone cannot bridge this distribu-tional gap, irrespective of how faithfully the term is tokenized. Consistent with this account, prompt ensembling yields negligible improvement over a single canonical prompt: enlarging lexical coverage offers no remedy when the failure mode resides in the visual conditioning rather than in the wording. FS-CPL circumvents this limitation by grounding the prompt directly in the target visual distribution through mask supervision, obviating the requirement for a clean lexical handle on the concept. This benefit is, moreover, backbone-agnostic . On vanilla SAM3, FS-CPL closes most of the gap to Medical SAM3 despite the latter’s extensive in-domain pretraining; on Medical SAM3, FS-CPL further improves upon its already-strong text-prompted baseline. Visual concept prompting and domain-specific pretraining are therefore complementary : learned visual prototypes recover information that neither a domain-adapted backbone nor a richer prompt vocabulary supplies in isolation. FS-CPL thus constitutes a lightweight, inference-time mechanism that consistently extracts additional signal from whichever foundation model it is paired with, while requiring only a small support set and no parameter updates. 
+
+4.1 Effect of support set size 
+
+Fig. 4 analyzes the impact of the support set size K on test Dice across the test datasets. We observe a clear trend of diminishing returns. The performance im-proves with increasing K at small support sizes, but the gains become marginal beyond K ≈ 10 . This indicates that the proposed few-shot concept prompt em-bedding can be learned reliably from a small number of annotated image-mask pairs, and that additional annotations beyond K = 10 provide limited benefit for these tasks. 8 Rahul Venkataramani et al. 
+
+Fig. 4: Effect of support set size ( K) on performance. Figure shows the mean 
+
+±95% confidence interval of test Dice scores as a function of support set size (K). 
+
+4.2 Prompt embedding sensitivity and performance gains 
+
+Text-encoder embeddings of synonymous prompts show only moderate mutual similarity, and the optimized concept embeddings p∗ remain close to their text-based initialization yet yield substantially better segmentation; random initial-ization, in contrast, fails entirely. This indicates that p∗ must lie within the text-embedding manifold, and that small, targeted displacements within it suf-fice to improve segmentation quality. For instance, “colon polyp” and “colonic polyp” have a cosine similarity of 0.69 , whereas the learned p∗ initialized from “colon polyp” attains CS ≈ 0.98 with the canonical embedding while delivering the gains reported in Table 1. 
+
+# 5 Conclusion 
+
+In this work, we introduced a few-shot prompt-learning approach for medi-cal image segmentation with promptable FMs that learns a task-specific con-cept prompt embedding from a small support set of K annotated image-mask pairs while keeping the encoder-decoder backbone frozen. Across three ultra-sound datasets (breast lesion, fetal head, thyroid nodule) and one endoscopy dataset (colon polyp), the method consistently outperformed canonical “best-guess” prompts and prompt ensembles, showing that learning a compact con-cept representation is more effective than manually specifying or averaging text prompts. We further showed that as few as K = 10 annotated examples are sufficient to learn a concept prompt that generalizes well, with diminishing returns beyond this range on the studied tasks. A key advantage of the proposed method is that adaptation is achieved by optimizing only prompt parameters, reducing compute and memory demands and simplifying deployment and reproducibility. Future Few-Shot Concept Prompt Learning 9
+
+work will evaluate broader distribution shifts, multi-concept conditioning, and extensions to weak or noisy supervision. 
+
+# References 
+
+1. Al-Dhabyani, W., Gomaa, M., Khaled, H., Fahmy, A.: Dataset of breast ultrasound images. Data in Brief 28 , 104863 (2020) 2. Bernal, J., Sánchez, F.J., Fernández-Esparrach, G., Gil, D., Rodríguez, C., Vilariño, F.: Wm-dova maps for accurate polyp highlighting in colonoscopy: Validation vs. saliency maps from physicians. Computerized Med. Imag. Graphics 43 , 99–111 (2015) 3. Carion, N., Gustafson, L., Hu, Y.T., Debnath, S., Hu, R., Suris, D., Ryali, C., Alwala, K.V., Khedr, H., Huang, A., et al.: Sam 3: Segment anything with concepts. arXiv preprint arXiv:2511.16719 (2025) 4. Gong, H., Chen, G., Wang, R., Xie, X., Mao, M., Yu, Y., Chen, F., Li, G.: Multi-task learning for thyroid nodule segmentation with thyroid region prior. In: IEEE Int. Symp. Biomed. Imag. pp. 257–261 (2021) 5. van den Heuvel, T.L., de Bruijn, D., de Korte, C.L., Ginneken, B.v.: Automated measurement of fetal head circumference using 2d ultrasound images. PloS one 
+
+13 (8), e0200412 (2018) 6. Jiang, C., Ding, T., Song, C., Tu, J., Yan, Z., Shao, Y., Wang, Z., Shang, Y., Han, T., Tian, Y.: Medical sam3: A foundation model for universal prompt-driven medical image segmentation. arXiv preprint arXiv:2601.10880 (2026) 7. Kirillov, A., Mintun, E., Ravi, N., Mao, H., Rolland, C., Gustafson, L., Xiao, T., Whitehead, S., Berg, A.C., Lo, W.Y., et al.: Segment anything. In: Proc. IEEE Int. Conf. Comp. Vis. pp. 4015–4026 (2023) 8. Li, Q., Tong, J., Liu, S., Li, C., Tang, J., Zhou, Q.: Medical knowledge represen-tation enhancement in large language models through clinical tokens optimization. Scientific Reports (2026) 9. Ma, J., He, Y., Li, F., Han, L., You, C., Wang, B.: Segment anything in medical images. Nature Comm. 15 (1), 654 (2024) 10. Ravi, N., Gabeur, V., Hu, Y.T., Hu, R., Ryali, C., Ma, T., Khedr, H., Rädle, R., Rolland, C., Gustafson, L., et al.: Sam 2: Segment anything in images and videos. arXiv preprint arXiv:2408.00714 (2024) 11. Shin, T., Razeghi, Y., Logan IV, R.L., Wallace, E., Singh, S.: Autoprompt: Eliciting knowledge from language models with automatically generated prompts. In: Proc. Conf. Empirical Methods in Natural Lang. Proc. pp. 4222–4235 (2020) 12. Zhang, R., Jiang, Z., Guo, Z., Yan, S., Pan, J., Dong, H., Qiao, Y., Peng, G., Li, H.: Personalize segment anything model with one shot. In: International Conference on Learning Representations. vol. 2024, pp. 18250–18279 (2024) 13. Zhou, K., Yang, J., Loy, C.C., Liu, Z.: Conditional prompt learning for vision-language models. In: Proc. IEEE Conf. Comp. Vis. Patt. Recog. pp. 16816–16825 (2022) 14. Zhou, K., Yang, J., Loy, C.C., Liu, Z.: Learning to prompt for vision-language models. Int. J. Comp. Vis. 130 (9), 2337–2348 (2022)

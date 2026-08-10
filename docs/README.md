@@ -6,104 +6,77 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-09
-- 运行时间：2026-08-09 21:05:18 UTC
+- 最新运行日期：2026-08-10
+- 运行时间：2026-08-10 21:25:52 UTC
 - 运行状态：成功
-- 本次总论文数：28
-- 精读区：16
+- 本次总论文数：19
+- 精读区：7
 - 速读区：12
 
 ### 今日简报（AI）
-今日精读28篇，聚焦医学影像3D检测分割与复杂退化图像融合两大方向。最值得关注：RadYOLO在CT/MRI中实现高效3D检测分割，文本引导流匹配方法可处理复杂退化图像融合。下一步可结合速读中训练无关的目标掩码精修与红外可见光融合评估指标，拓展实际应用。
-- 详情：[/202608/09/README](/202608/09/README)
+今日聚焦图像融合与分割前沿，共读19篇，精读7篇、速读12篇。最值得关注的是《Ranking Image Fusion the Way Humans Do》提出的红外-可见光融合人类偏好评估，以及iFAN对掩码Transformer的推理感知优化。建议优先精读这两篇，可有效掌握融合质量评价与高效分割的新思路。
+- 详情：[/202608/10/README](/202608/10/README)
 
 ### 精读区论文标签
-1. [RadYOLO: Computationally Efficient 3D Object Detection and Segmentation in CT and MRI](/202608/09/2608.00508v1-radyolo-computationally-efficient-3d-object-detection-and-segmentation-in-ct-and-mri)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的CT/MRI三维目标检测与分割
-2. [Unleashing the Power of Text: Text-Guided Flow Matching for Image Fusion under Complex Degradations](/202608/09/2608.00530v1-unleashing-the-power-of-text-text-guided-flow-matching-for-image-fusion-under-complex-degradations)  
+1. [Ranking Image Fusion the Way Humans Do: A Learned Pairwise Preference Measure for Infrared-Visible Fusion Assessment](/202608/10/2608.01301v3-ranking-image-fusion-the-way-humans-do-a-learned-pairwise-preference-measure-for-infrared-visible-fusion-assessment)  
    标签：评分：9.0/10、query:image-fusion
-   evidence：基于深度学习的红外-可见光图像融合，利用文本引导，属于多模态图像融合
-3. [NISF++: Geometrically-grounded implicit representations of 3D+time cardiac function from 2D short- and long-axis MR views](/202608/09/2608.00752v1-nisf-geometrically-grounded-implicit-representations-of-3dtime-cardiac-function-from-2d-short--and-long-axis-mr-views)  
+   evidence：学习成对偏好度量用于红外-可见光融合评估
+2. [iFAN: Inference-Aware Learning for Plain Mask Transformers](/202608/10/2608.03216v1-ifan-inference-aware-learning-for-plain-mask-transformers)  
    标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的医学图像分割，用于心脏磁共振影像
-4. [Similarity Weighted Aggregation with Global Differential Privacy for Federated Brain Lesion Segmentation](/202608/09/2608.00872v1-similarity-weighted-aggregation-with-global-differential-privacy-for-federated-brain-lesion-segmentation)  
+   evidence：基于查询的掩码变换器分割，推理感知学习
+3. [Compass: Degradation-Simulated Reciprocal Learning with Lightweight Needle RWKV for Multimodal Crack Segmentation under Missing Modalities](/202608/10/2608.03559v1-compass-degradation-simulated-reciprocal-learning-with-lightweight-needle-rwkv-for-multimodal-crack-segmentation-under-missing-modalities)  
    标签：评分：9.0/10、query:image-seg
-   evidence：联邦深度学习用于脑病灶医学分割
-5. [A Unified Resolution-Conditioned Framework for Orthogonal Line-Scanning Image Fusion](/202608/09/2608.03107v1-a-unified-resolution-conditioned-framework-for-orthogonal-line-scanning-image-fusion)  
+   evidence：用于缺失模态下鲁棒融合的多模态裂缝像素级分割深度网络
+4. [UniEvo-RS: Omni-Prompt Unified Remote Sensing Segmentation with Representative Exemplar-Driven Prototype Evolution](/202608/10/2608.03911v1-unievo-rs-omni-prompt-unified-remote-sensing-segmentation-with-representative-exemplar-driven-prototype-evolution)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：统一遥感语义分割框架
+5. [Dual-Output Multi-Exposure HDR Reconstruction via SDR Fusion and Gain Map Inverse Tone Mapping](/202608/10/2608.05626v1-dual-output-multi-exposure-hdr-reconstruction-via-sdr-fusion-and-gain-map-inverse-tone-mapping)  
    标签：评分：9.0/10、query:image-fusion
-   evidence：结合分辨率条件与注意力的图像融合深度学习方法
-6. [CROSS: Cascaded Distillation and Dual-Constraint Grounding for Remote Sensing Referring Segmentation](/202608/09/2608.03147v1-cross-cascaded-distillation-and-dual-constraint-grounding-for-remote-sensing-referring-segmentation)  
+   evidence：基于深度学习的多曝光图像融合，通过SDR融合与增益图预测实现HDR重建
+6. [Curia-MAE: Multi-Modal Multi-Anatomy MAE Pre-Training for 3D Medical Image Segmentation](/202608/10/2608.05844v2-curia-mae-multi-modal-multi-anatomy-mae-pre-training-for-3d-medical-image-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：遥感指称分割，深度学习方法
-7. [Clarity Contrast and Similarity Selection for Multi-Focus Image Fusion](/202608/09/2608.03252v1-clarity-contrast-and-similarity-selection-for-multi-focus-image-fusion)  
-   标签：评分：9.0/10、query:image-fusion
-   evidence：用于多聚焦图像融合的深度学习网络
-8. [DRPFNet: Dual-domain Residual Progressive Fusion Network for RGB-Thermal Object Detection](/202608/09/2608.03370v1-drpfnet-dual-domain-residual-progressive-fusion-network-for-rgb-thermal-object-detection)  
-   标签：评分：9.0/10、query:image-fusion
-   evidence：基于双域渐进融合网络的可见光-热红外多模态图像融合
-9. [Perceptual Anchoring: Prototype-Guided Text Calibration for Training-free Open-Vocabulary Semantic Segmentation](/202608/09/2608.03991v1-perceptual-anchoring-prototype-guided-text-calibration-for-training-free-open-vocabulary-semantic-segmentation)  
+   evidence：利用多模态CT/MRI数据为3D医学图像分割做预训练的方法
+7. [H2AL: Hyperbolic Hierarchy-aware Aggregative Learning for Registration-based Few-shot Medical Image Segmentation](/202608/10/2608.07340v1-h2al-hyperbolic-hierarchy-aware-aggregative-learning-for-registration-based-few-shot-medical-image-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：深度学习方法用于开放词汇语义分割
-10. [Perceptual Anchoring: Prototype-Guided Text Calibration for Training-free Open-Vocabulary Semantic Segmentation](/202608/09/2608.03991v2-perceptual-anchoring-prototype-guided-text-calibration-for-training-free-open-vocabulary-semantic-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：开放词汇语义分割、原型引导文本校准、免训练
-11. [Context Matters: Support Set Selection and Failure Detection for In-Context Medical Image Segmentation](/202608/09/2608.05333v1-context-matters-support-set-selection-and-failure-detection-for-in-context-medical-image-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：基于上下文学习的医学图像分割，支持集选择与失败检测
-12. [URNet: A Unified Reparameterized Network for Efficient RGB-D Semantic Segmentation](/202608/09/2608.05671v1-urnet-a-unified-reparameterized-network-for-efficient-rgb-d-semantic-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：深度学习的RGB-D语义分割网络
-13. [DistMedVL: Distributional Vision-Language Alignment for Uncertainty-Aware Medical Image Segmentation](/202608/09/2608.05683v1-distmedvl-distributional-vision-language-alignment-for-uncertainty-aware-medical-image-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：通过视觉-语言对齐进行不确定性感知的医学图像分割
-14. [Bayesian adaptively-weighted ensembles for few-shot abdominal segmentation](/202608/09/2608.05815v1-bayesian-adaptively-weighted-ensembles-for-few-shot-abdominal-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：深度学习方法用于少样本腹部医学分割
-15. [Curia-MAE: Multi-Modal Multi-Anatomy MAE Pre-Training for 3D Medical Image Segmentation](/202608/09/2608.05844v1-curia-mae-multi-modal-multi-anatomy-mae-pre-training-for-3d-medical-image-segmentation)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：基于MAE预训练的深度学习三维医学图像分割
-16. [MAVISEG: Manifold Propagation and Visual Prototypes for Zero-Shot Open-Vocabulary Segmentation in Diffusion Transformers](/202608/09/2608.05878v1-maviseg-manifold-propagation-and-visual-prototypes-for-zero-shot-open-vocabulary-segmentation-in-diffusion-transformers)  
-   标签：评分：9.0/10、query:image-seg
-   evidence：基于扩散Transformer的零样本开放词汇语义分割
+   evidence：基于深度学习的少样本医学图像分割
 
 ### 速读区论文标签
-1. [SSR: Similarity-Shift Refinement for Training-Free Object-Centric Masks](/202608/09/2608.01103v1-ssr-similarity-shift-refinement-for-training-free-object-centric-masks)  
+1. [MBO Scheme for Local Chan--Vese Segmentation](/202608/10/2608.00893v1-mbo-scheme-for-local-chan--vese-segmentation)  
    标签：评分：8.0/10、query:image-seg
-   evidence：基于亲和力图的免训练对象中心掩码细化
-2. [Ranking Image Fusion the Way Humans Do: A Learned Pairwise Preference Metric for Infrared-Visible Fusion Assessment](/202608/09/2608.01301v1-ranking-image-fusion-the-way-humans-do-a-learned-pairwise-preference-metric-for-infrared-visible-fusion-assessment)  
-   标签：评分：8.0/10、query:image-fusion
-   evidence：红外可见光图像融合、学习成对偏好度量、深度学习
-3. [Ranking Image Fusion the Way Humans Do: A Learned Pairwise Preference Metric for Infrared-Visible Fusion Assessment](/202608/09/2608.01301v2-ranking-image-fusion-the-way-humans-do-a-learned-pairwise-preference-metric-for-infrared-visible-fusion-assessment)  
-   标签：评分：8.0/10、query:image-fusion
-   evidence：基于深度学习的红外-可见光图像融合质量评估度量，学成人类成对偏好
-4. [PixVL: Self-Supervised Training of Pixel-Level MLLMs via a Unified Mask--Text Consistency Cycle](/202608/09/2608.01354v1-pixvl-self-supervised-training-of-pixel-level-mllms-via-a-unified-mask--text-consistency-cycle)  
+   evidence：基于MBO格式的局部Chan–Vese无监督图像分割方法
+2. [Few-Shot Concept Prompt Learning for Segmentation Foundation Models via Visual Grounding](/202608/10/2608.01663v1-few-shot-concept-prompt-learning-for-segmentation-foundation-models-via-visual-grounding)  
    标签：评分：8.0/10、query:image-seg
-   evidence：像素级多模态大语言模型的自监督区域分割与理解
-5. [Deep Multimodal Fusion Detection through Spatial Mask and Channel Fusion](/202608/09/2608.02092v1-deep-multimodal-fusion-detection-through-spatial-mask-and-channel-fusion)  
-   标签：评分：7.0/10、query:image-fusion
-   evidence：面向目标检测的深度多模态特征级融合，采用空间掩码交换与通道注意力
-6. [EgoAfford: Task-Oriented Affordance Grounding via Egocentric Referring Segmentation](/202608/09/2608.04533v1-egoafford-task-oriented-affordance-grounding-via-egocentric-referring-segmentation)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：自我中心引用分割用于可供性定位
-7. [RegisterBridgeMM: A Register-Centric Framework for RGB-Infrared Object Detection](/202608/09/2608.04833v1-registerbridgemm-a-register-centric-framework-for-rgb-infrared-object-detection)  
-   标签：评分：7.0/10、query:image-fusion
-   evidence：RGB-红外多模态融合、跨模态通信、深度学习框架
-8. [CDSeg: A Renderable Gaussian Carrier for Image-to-3D Label Transfer](/202608/09/2608.05482v1-cdseg-a-renderable-gaussian-carrier-for-image-to-3d-label-transfer)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：利用可渲染高斯载体实现图像到三维分割标签迁移
-9. [MBO Scheme for Local Chan--Vese Segmentation](/202608/09/2608.00893v1-mbo-scheme-for-local-chan--vese-segmentation)  
+   evidence：医学分割基础模型的少样本提示学习
+3. [Grounding Agentic VLMs with Dedicated Segmentation for Fine-Grained Vehicle Damage Assessment](/202608/10/2608.02470v1-grounding-agentic-vlms-with-dedicated-segmentation-for-fine-grained-vehicle-damage-assessment)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：专用分割用于细粒度车辆损伤评估
+4. [Better, Stronger, Faster, and Broader: Structured All-Mask Prediction for MLLM-Based Segmentation](/202608/10/2608.02791v1-better-stronger-faster-and-broader-structured-all-mask-prediction-for-mllm-based-segmentation)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：基于多模态大模型的分割方法，通过结构化全掩码预测快速生成掩码
+5. [PixelUp: Zero-Shot Semantic Feature Upsampling for Fine-Grained Vision Tasks](/202608/10/2608.02792v1-pixelup-zero-shot-semantic-feature-upsampling-for-fine-grained-vision-tasks)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：用于语义分割的零样本语义特征上采样
+6. [CROSS: Cascaded Distillation and Dual-Constraint Grounding for Remote Sensing Referring Segmentation](/202608/10/2608.03147v2-cross-cascaded-distillation-and-dual-constraint-grounding-for-remote-sensing-referring-segmentation)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：遥感指代分割中的深度学习方法
+7. [iFAN: Inference-Aware Learning for Plain Mask Transformers](/202608/10/2608.03216v2-ifan-inference-aware-learning-for-plain-mask-transformers)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：面向掩码Transformer的训练框架，通过对齐查询竞争与掩码质量提升分割效果
+8. [StaticSegFormer: An Efficient High-Performance Semantic Segmentation Based on Static Structured Pruning](/202608/10/2608.04811v1-staticsegformer-an-efficient-high-performance-semantic-segmentation-based-on-static-structured-pruning)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：基于深度网络结构化剪枝的语义分割
+9. [Location-Aware Fine-Grained Representation Learning for Medical Vision Foundation Models](/202608/10/2608.00976v1-location-aware-fine-grained-representation-learning-for-medical-vision-foundation-models)  
    标签：评分：6.0/10、query:image-seg
-   evidence：局部Chan-Vese图像分割的高效MBO数值格式
-10. [Beyond Symmetric Fusion: Exploiting Task-Dependent Modality Strengths for RGB-Event Small Object Detection](/202608/09/2608.01302v1-beyond-symmetric-fusion-exploiting-task-dependent-modality-strengths-for-rgb-event-small-object-detection)  
+   evidence：为医学视觉基础模型学习位置感知的细粒度表示，可支撑医学图像分割等下游任务。
+10. [Bag-of-Visual-Words for Spatial Mapping of Lung Adenocarcinoma Growth Patterns](/202608/10/2608.05074v1-bag-of-visual-words-for-spatial-mapping-of-lung-adenocarcinoma-growth-patterns)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：基于深度特征的全切片图像肺腺癌生长模式空间映射，与医学图像区域分析相关
+11. [CDSeg: A Renderable Gaussian Carrier for Image-to-3D Label Transfer](/202608/10/2608.05482v1-cdseg-a-renderable-gaussian-carrier-for-image-to-3d-label-transfer)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：通过高斯泼溅实现跨域分割标签迁移，属于图像分割相关技术。
+12. [Prior-SG: Task and Prior Driven Region Segmentation for Scene Graphs in Arbitrarily-Structured Environments](/202608/10/2608.06170v1-prior-sg-task-and-prior-driven-region-segmentation-for-scene-graphs-in-arbitrarily-structured-environments)  
    标签：评分：6.0/10、query:image-fusion
-   evidence：RGB与事件数据的特征级多模态融合
-11. [Parameter-Dynamic Adaptive Fusion and Calibration Network for RGBT Tracking](/202608/09/2608.01807v1-parameter-dynamic-adaptive-fusion-and-calibration-network-for-rgbt-tracking)  
-   标签：评分：6.0/10、query:image-fusion
-   evidence：用于RGBT跟踪的参数动态特征融合
-12. [PRISM: Distribution-Gated Flow Matching for Controllable Unpaired Image Translation](/202608/09/2608.06240v1-prism-distribution-gated-flow-matching-for-controllable-unpaired-image-translation)  
-   标签：评分：6.0/10、query:image-fusion
-   evidence：深度生成模型中的特征级门控与潜在特征混合
+   evidence：多尺度开放词汇特征融合策略
 
 
 <div class="dpr-home-promo-card">
