@@ -1,0 +1,575 @@
+Title: Bridging Severe Cross-Modal Misalignment: End-to-End Visible-Infrared Object Detection via Explicit Feature-Domain Affine Registration
+
+URL Source: https://arxiv.org/pdf/2608.10680v1
+
+Published Time: Wed, 12 Aug 2026 00:50:29 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# Bridging Severe Cross-Modal Misalignment: End-to-End Visible-Infrared Object Detection via Explicit Feature-Domain Affine Registration 
+
+## Qi Ming 1, Yuyang Wang 2∗, Mingjing Zhao 3, Yifan Xiao 4,Zhixin Guo 4, Zhiqiang Zhou 5, Peng Sun 6, Juan Fang 1, Fuqiang Yang 7, Xudong Zhao 5
+
+> 1
+
+Beijing University of Technology, China 2Central South University, China 
+
+> 3
+
+Beijing Electronics Science & Technology Institute 4China Aerospace Science & Industry Corporation 
+
+> 5
+
+Beijing Institute of Technology, China 6Information Support Force Engineering University, China 
+
+> 7
+
+Trunk Technology (Beijing) Co., Ltd., China 
+
+chaser.ming@gmail.com, killlakill2023@gmail.com 
+
+## Abstract 
+
+Visible-infrared object detection relies on complementary RGB and thermal cues, but its performance is often degraded by cross-modal spatial misalignment. Most existing methods rely on implicit feature adaptation to handle weakly misaligned scenarios, while large-offset geometric discrepancies remain insufficiently addressed. In this paper, we propose a Joint Feature-domain Registration and Detection network (JFRDet), an end-to-end visible-infrared oriented object detector tailored for severely cross-modal geometric discrepancies. JFRDet introduces a Cross-Modal Affine Alignment (CMAA) module to estimate an image-level affine transformation for explicit multi-level feature alignment. Note that illumination changes directly affect the reliability of RGB cues, an Illumination-Guided Complementary Fusion (IGCF) module adaptively ex-ploits modality reliability under varying illumination conditions for cross-modal fusion. Then, an Alignment Quality-Consistency Gating (AQCG) strategy stabilizes joint optimization by modulating detection supervision according to alignment reliability and gradient consistency. We further construct DroneVehicle Misaligned (DVMA), a benchmark for evaluating visible-infrared oriented object detection under severe cross-modal geometric misalign-ment. The proposed JFRDet achieves 69.7% mAP 50 on DVMA, which represents state-of-the-art (SOTA) perfor-mance. The code and dataset will be available on GitHub.  
+
+> ∗Corresponding author.
+
+## 1. Introduction 
+
+Visible-Infrared Object Detection (VIOD) has attracted increasing attention by exploiting the complementary strengths of visible and infrared modalities [9, 18]. RGB images provide rich texture and appearance cues, yet they often encounter limitations under low-light or adverse weather conditions. In contrast, infrared images are more robust to illumination variations, making their combination particularly effective for applications such as surveillance and autonomous driving [10, 13]. However, visible-infrared image pairs often exhibit spatial misalignment due to differ-ences in sensor placement, viewpoint, or platform motion. Such cross-modal spatial misalignment, including transla-tion, rotation, and scale variations, significantly undermines the effectiveness of cross-modal feature fusion [39]. Robust cross-modal fusion under spatial misalignment remains a major challenge. To address this issue, recent visible-infrared detec-tors incorporate alignment-aware designs into the detec-tion pipeline. Some methods [36, 38, 39] estimate cross-modal correspondences to recalibrate modality-specific fea-tures, thereby reducing fusion errors caused by misalign-ment. Other studies [8, 23, 35] combine explicit calibra-tion with feature correction or region-level reasoning to fur-ther alleviate modality discrepancies. Another line of work avoids strict geometric correction and instead develops fu-sion modules robust to weak misalignment. Representative strategies include deformable attention and offset-guided sampling [1, 4, 5], which allow the model to adaptively ag-gregate cross-modal features without precise spatial corre-spondence. However, existing misalignment-aware VIOD studies suffer from two key limitations. (1) Severe cross-modal misalignment remains underexplored. Most methods are designed and evaluated on aligned or weakly misaligned arXiv:2608.10680v1 [cs.CV] 11 Aug 2026 Extractor       
+
+> Spatially Aligned
+> (No offset)
+> Extractor
+> Weakly Misaligned
+> (0~5 p xoffset)
+> Extractor Extractor
+> Local Deformation & Fusion
+> Severely Misaligned
+> (40~60 px offset)
+> Extractor Extractor
+> Global Feature Registration Fus ion
+> Detection
+> Detection
+
+（a） （b） （c） （d） 
+
+> Detection Geometry -Consistent Fusion
+
+Dronevehicle 
+
+DVMA(ours) Figure 1. Comparison of different multimodal detection paradigms. (a) Spatially aligned multimodal detection assumes well-registered inputs. (b) Weakly misaligned detection performs local pixel- or feature-level alignment before fusion. (c) Our JFRDet predicts an image-level affine transform and progressively applies it to multi-level features, enabling aligned fusion and detection under severe misalignment. (d) Offset distribution comparison between DroneVehicle and DVMA. 
+
+image pairs. As shown in Fig 1 (d), most offsets in Dron-eVehicle [24] fall within 1–5 pixels, offering limited evi-dence of robustness to severe misalignment. (2) Feature downsampling obscures weak misalignment. Repeated backbone downsampling maps small image-level offsets to barely distinguishable displacements on low-resolution fea-ture maps, effectively creating near-aligned training condi-tions. Consequently, existing methods may not learn to re-solve intrinsic cross-modal spatial discrepancies, limiting their robustness in severely misaligned real-world scenes. To this end, this paper proposes the Joint Feature-domain Registration and Detection Network (JFRDet), an end-to-end framework for VIOD in severe misalignment scenar-ios. JFRDet enables registration and oriented object detec-tion to be optimized within a unified framework. Specif-ically, a Cross-Modal Affine Alignment module (CMAA) is introduced to recover the global geometric relationship between modalities by establishing cross-modal correspon-dences and estimating an affine transformation. Then, an Illumination-Guided Complementary Fusion module (IGCF) adaptively balances visible and infrared cues ac-cording to illumination, compensating degraded RGB ev-idence with infrared responses while retaining useful ap-pearance details. Next, an Alignment Quality-Consistency Gating strategy (AQCG) stabilizes joint optimization by regulating detector learning based on alignment reliability and task consistency. These components jointly enable ro-bust visible-infrared oriented object detection under large cross-modal geometric variations. Moreover, we construct the DroneVehicle Misaligned (DVMA) benchmark to eval-uate visible-infrared oriented object detection under severe cross-modal misalignment. Compared with weakly mis-aligned datasets, DVMA provides a more challenging set-ting for assessing cross-modal alignment and detection ro-bustness, as illustrated in Fig. 1 (d). Our main contributions can be summarized as follows: 1) This paper proposes JFRDet, an end-to-end frame-work that performs explicit feature-domain affine registra-tion for accurate VIOD. JFRDet is a pioneering work to ad-dress visible-infrared oriented object detection under severe cross-modal misalignment scenarios. 2) We introduce JFRDet with CMAA for explicit affine feature registration. IGCF then performs illumination-adaptive cross-modal fusion, while AQCG coordinates reg-istration and detection training by adjusting detection su-pervision according to alignment quality and optimization consistency. 3) DVMA benchmark is constructed with substantially larger cross-modal geometric discrepancies than existing visible-infrared datasets. It provides a challenging evalua-tion setting for assessing detection robustness under severe visible-infrared misalignment. 
+
+## 2. Related Work 
+
+2.1. Oriented Object Detection 
+
+Oriented object detection is widely studied in aerial remote sensing, objects exhibit arbitrary orientations and dense layouts.Early methods adapt horizontal detectors us-ing rotation-aware proposals or RoI transformations [3, 11, 19]. Subsequent studies improve localization through pro-gressive rotated-box refinement and feature alignment [27, 31]. Others introduce flexible object representations, such as vertex-based or point-set-based representations, to de-scribe arbitrary oriented targets [15, 28]. Feature-adaptive strategies are also explored to improve the discrimination of densely arranged objects [6]. Another line of work re-× D w  m  
+
+> RGB
+> IR
+> Center Crop
+> Differentiated Transformation
+> Rotation
+> Anisotropic
+> Scaling
+> Offset
+> Crop
+> Controllable Overlap
+> Transformed RGB
+> Transformed IR
+
+Figure 2. Construction pipeline of the DVMA benchmark. 
+
+formulates angle prediction or regression losses to miti-gate boundary discontinuity and improve localization con-sistency [29, 30, 32–34]. Despite these advances, most ori-ented detectors are designed for visible imagery, which lim-its their robustness under low-light conditions. 
+
+2.2. Visible-Infrared Object Detection 
+
+Visible-infrared object detection exploits the comple-mentary properties of RGB and IR imagery. Early methods mainly focused on where and how to fuse the two modali-ties, ranging from deep feature fusion and multi-layer fu-sion to joint detection-segmentation learning [2, 12, 25]. Later works further introduced gated fusion, modality bal-ancing, and dynamic cross-modal interaction to suppress unreliable modality responses and enhance complementary cues [26, 42, 43]. Recently, attention- and Transformer-based designs model long-range cross-modal dependencies and improve interaction in complex scenes [20–22, 40]. Other studies reduce redundant information or estimate modality confidence during aggregation [14, 41]. De-spite improved robustness under low-light conditions, most methods assume well-registered or weakly misaligned im-age pairs and remain insufficiently robust to severe cross-modal misalignment. 
+
+## 3. Method 
+
+3.1. DroneVehicle Misaligned Benchmark 
+
+As illustrated in Fig. 2, DVMA is constructed from aligned image pairs in DroneVehicle [24]. The visible image is center-cropped, while the infrared image under-goes a compound transformation composed of rotation, anisotropic scaling, and translation. The rotation angle is sampled between 15 ◦ and 30 ◦ in either direction, and the horizontal and vertical scaling factors are indepen-dently sampled from [0 .90 , 1.10] . We retain only pairs whose transformed valid regions have an overlap IoU within 
+
+[0 .70 , 0.80] . These transformations produce spatially vary-ing cross-modal offsets ranging from tens to hundreds of pixels while maintaining sufficient scene overlap. Since all transformation parameters are recorded, exact cross-modal                                                   
+
+> Dataset Images Misaligned Categories Scenario Alignment GT
+> VEDAI 1200 ×9drone ×
+> KAIST 95328 △3driving ×
+> CVC14 17036 ✓1driving ×
+> FLIR 24680 ✓4driving ×
+> LLVIP 30976 ×1surveillance ×
+> DroneVehicle 56878 △5drone ×
+> M3FD 8400 ×6various ×
+> DVTOD 4358 ✓3drone ×
+> DVMA (ours) 56878 ✓5drone ✓
+
+Table 1. Comparison of multispectral object detection datasets. 
+
+△ indicates that only a subset of objects are weakly misaligned. ‘Alignment GT’ indicates whether ground-truth cross-modal cor-respondences are provided for alignment. 
+
+correspondences can be generated automatically at each feature resolution. Continuous correspondence coordinates are used to construct normalized ground-truth offset fields consistent with the [−1, 1] coordinate range of bilinear sam-pling, while discretized target locations provide matching labels. Positions mapped outside the valid feature region are masked during loss computation, and correspondence supervision is generated symmetrically in both visible-to-infrared and infrared-to-visible directions. As summarized in Table 1, compared with existing misaligned datasets, DVMA provides explicit alignment annotations for paired images, enabling supervised cross-modal registration dur-ing training. 
+
+3.2. Overview Architecture 
+
+The overall framework of JFRDet is illustrated in Fig. 3. Paired RGB-IR images are processed by a dual-stream backbone following [44] to extract multi-scale modality-specific features. Taking the visible branch as reference, CMAA estimates an affine transformation and progres-sively aligns infrared features. IGCF then fuses the aligned features under varying illumination conditions, which are fed into an S 2A-Net head [7] for oriented prediction. To sta-bilize training, AQCG regulates detection supervision based on alignment reliability, reducing the negative impact of un-reliable alignment on detector optimization. 
+
+3.3. Cross-Modal Affine Alignment 
+
+Given multi-scale visible and infrared features F srgb and 
+
+F sir , where s ∈ 1/4, 1/8, 1/16 , 1/32 denotes the resolu-tion relative to the input, the proposed CMAA establishes coarse-to-fine cross-modal correspondences using the 1/4,
+
+1/8, and 1/16 features. Specifically, it first identifies ro-bust coarse correspondences Mc under severe spatial off-sets, and then refines them into more precise fine-grained correspondences Mf . These correspondences are used to estimate an image-level affine transformation Tir →rgb ∈
+
+R2×3, which progressively warps all infrared pyramid fea-tures to obtain aligned representations ˜Fir = ˜F sir . Con-RGB Feature Extractor 
+
+RGB Feature Extractor 
+
+IR Feature Extractor 
+
+IR Feature Extractor 
+
+Cross -Modal Affine Alignment  (CMAA) 
+
+Coarse -Grained 
+
+Matching 
+
+Fine -Grained 
+
+Matching 
+
+Feature Affine 
+
+Registration 
+
+Illumination -Guided Complementary Fusion  (IGCF) 
+
+Detection Head 
+
+CMAA  Coarse -Grained Matching  
+
+> Self-Attention
+> ×N
+
+Fine -Grained Matching 
+
+IGCF   
+
+> flatten
+> PE
+> PE
+> Self-Attention
+> Cross-Attention
+> Cross-Attention
+> CC
+> CC
+> CC
+> Self-Attention
+> Self-Attention
+> Cross-Attention
+> CCSelf-Attention
+> CCSelf-Attention
+> Cross-Attention
+> Pixel
+> Refinement
+
+Feature Affine Registration 
+
+> CC
+> feature
+> refinement
+> 3 ×3 DWConv
+> GN
+> GELU
+> 1 ×1 PWConv
+
+coarse-grained match prediction 
+
+RGB  IR 
+
+fine-grained match prediction 
+
+> 1
+> 1
+> 1
+> 111
+
+valid mask 
+
+> feature
+> refinement
+> feature
+> refinement
+> 1 ×1 PWConv
+> feature
+> refinement
+> 3 ×3 DWConv
+> GN
+> GELU
+> 1 ×1 PWConv
+> Sigmoid
+> DW Conv
+> DW Conv
+> GN GN
+> GELU GELU
+> PW Conv
+> PW Conv
+> CCC
+
+AQCG 
+
+> Alignment
+> Quality
+> Calculation
+> Alignment
+> Quality
+> Calculation
+> Gradient Consistency Calculation
+> Gradient Consistency Calculation Alignment Quality -
+> Consistency Gating
+> (AQCG)
+
+Figure 3. Network architecture of the proposed JFRDet. 
+
+sequently, subsequent cross-modal fusion is conducted on geometrically aligned features rather than directly on mis-aligned RGB-IR representations. 
+
+3.3.1 Coarse-Grained Matching 
+
+To establish robust initial correspondences under severe cross-modal spatial offsets, coarse-grained matching is per-formed on F 1/16 
+
+rgb and F 1/16 
+
+ir . After positional encoding and flattening, the resulting tokens are processed by al-ternating intra-modal self-attention and inter-modal cross-attention to capture long-range context and cross-modal correspondences. The refined sequences are denoted as 
+
+ˆXrgb = {ˆxirgb }Nrgb 
+
+i=1 and ˆXir = {ˆxjir }Nir 
+
+j=1 , where Nrgb 
+
+and Nir denote the numbers of visible and infrared to-kens, respectively. A temperature-scaled similarity matrix 
+
+S ∈ RNrgb ×Nir is then computed as 
+
+S(i, j ) = τ −1 ⟨Wrgb ˆxirgb , W ir ˆxjir ⟩,
+
+where Wrgb and Wir denote learnable linear projections, 
+
+⟨· , ·⟩ denotes the inner product, and τ is a temperature pa-rameter. Row- and column-wise softmax yield bidirectional confidence matrices: 
+
+Prgb →ir (i, j ) = Softmax j
+
+ S(i, ·),Pir →rgb (i, j ) = Softmax i
+
+ S(·, j ).
+
+For each visible token, we select the infrared token with the highest confidence in Prgb →ir ; conversely, for each in-frared token, we select the most confident visible token in 
+
+Pir →rgb . Candidates whose confidence is below θc are dis-carded. The resulting coarse correspondence set is 
+
+Mc =
+
+
+
+(i, j ) j = arg max  
+
+> j′
+
+Prgb →ir (i, j ′), P rgb →ir (i, j ) ≥ θc
+
+
+
+∪
+
+
+
+(i, j ) i = arg max  
+
+> i′
+
+Pir →rgb (i′, j ), P ir →rgb (i, j ) ≥ θc
+
+
+
+.
+
+Unlike strict one-to-one assignment, this bidirectional strategy naturally preserves one-to-many candidates at the coarse stage, improving robustness to large geometric dis-crepancies. In addition, invalid padded regions and bound-ary tokens are masked to suppress unreliable matches. The resulting Mc serve as initial matches for the subsequent fine-grained refinement and affine transformation estima-tion. 3.3.2 Fine-Grained Matching 
+
+Based on the coarse matches Mc, fine-grained match-ing further refines each pair within local neighborhoods. Specifically, for each coarse correspondence (i, j ) ∈ M c,three pairs of local windows centered at the matched lo-cations are extracted in a coarse-to-fine manner, with sizes 
+
+1 × 1, 3 × 3, and 5 × 5, respectively. The 1 × 1 and 3 × 3
+
+windows are first jointly encoded through self- and cross-attention, injecting coarse context into the finer neighbor-hood. The refined 3 × 3 features then guide the 5 × 5
+
+windows in the same manner, progressively enhancing each coarse match from coarse contextual guidance to a more discriminative fine-scale neighborhood. Denoting the re-sulting local features as ˜f 5×5 
+
+> rgb
+
+and ˜f 5×5 
+
+> ir
+
+, their similarity ma-trix S(i,j ) 
+
+> f
+
+are constructed as 
+
+S(i,j ) 
+
+> f
+
+(u, v ) = τ −1⟨ ˜f 5×5 
+
+> rgb
+
+(u), ˜f 5×5 
+
+> ir
+
+(v)⟩,
+
+and u, v index the local tokens in the two 5 × 5 windows. A dual-softmax operation is then applied to S(i,j ) 
+
+> f
+
+to obtain the local confidence matrix        
+
+> P(i,j )
+> f(u, v ) = Softmax v
+>  S(i,j )
+> f(u, ·)·Softmax u
+>  S(i,j )
+> f(·, v ).
+
+For each coarse correspondence, the highest-confidence local pair is retained when its confidence exceeds the thresh-old θf , which suppresses ambiguous responses in the lo-cal neighborhood and yields a more reliable fine-grained match. To further reduce the discretization error introduced by window-based matching, the selected visible and in-frared features are concatenated and fed into a lightweight regressor that predicts coordinate offsets for both modali-ties. The corrected local coordinates are mapped back to image space, yielding the final refined correspondence. All refined pairs form Mf for subsequent affine estimation. 
+
+3.3.3 Feature Affine Registration 
+
+Given the refined correspondence set Mf , CMAA esti-mates an image-level affine transformation from the in-frared modality to the visible reference. Let M+ 
+
+> f
+
+=
+
+{(pnrgb , pnir , w n)}Nn=1 denote the confidence-filtered corre-spondences after pixel refinement, where pnrgb and pnir are matched image coordinates and wn is the matching confi-dence. The transformation Tir →rgb ∈ R2×3 is obtained through confidence-weighted affine fitting: 
+
+Tir →rgb = arg min 
+
+> T
+> N
+
+X
+
+> n=1
+
+wn pnrgb − T¯pnir  
+
+> 22
+
+,
+
+where ¯pnir = [ xnir , y nir , 1] ⊤. Low-confidence matches are discarded, and the identity mapping is used when fewer than three valid correspondences are available or when the esti-mated transformation is geometrically unreliable. The estimated transformation is then applied to each in-frared feature level. For a feature map of size Hl × Wl, we define the image-to-level coordinate scaling matrix as 
+
+Sl = diag ( W/W l, H/H l, 1) ,
+
+where H and W are the input dimensions. Let ¯Tir →rgb ∈
+
+R3×3 be the homogeneous form of Tir →rgb . The affine transformation in the l-th feature coordinate system is given by ¯T lir →rgb = S−1 
+
+> l
+
+¯Tir →rgb Sl. Since differentiable grid sampling follows an inverse mapping scheme, the aligned infrared feature is obtained as 
+
+˜F lir = W
+
+
+
+F lir ,
+
+h  ¯T lir →rgb 
+
+−1i
+
+> 1:2 ,:
+
+
+
+,
+
+where W(·, ·) denotes bilinear feature warping. The result-ing pyramid ˜Fir = { ˜F 1/4 
+
+> ir
+
+, ˜F 1/8 
+
+> ir
+
+, ˜F 1/16  
+
+> ir
+
+, ˜F 1/32  
+
+> ir
+
+} is used for subsequent cross-modal fusion and oriented detection. 
+
+3.4. Illumination-Guided Complementary Fusion 
+
+Given the visible feature pyramid Frgb = {F lrgb }l∈L 
+
+and the aligned infrared feature pyramid ˜Fir = { ˜F lir }l∈L ,where L = {1/4, 1/8, 1/16 , 1/32 }, IGCF performs illumination-adaptive fusion on geometrically aligned fea-tures. Although CMAA reduces spatial misalignment, vis-ible features remain unreliable under poor illumination, whereas infrared features generally provide more stable re-sponses. IGCF therefore suppresses unreliable visible re-sponses under poor illumination while enhancing comple-mentary infrared information. The illumination condition is estimated directly from the visible image without additional annotation. Given the visible image Irgb ∈ RH×W ×C with pixel intensities in 
+
+[0 , 255] , the illumination score η ∈ [0 , 1] is computed as the normalized mean intensity of Irgb . A darkness-aware fac-tor d(η) is then obtained by clipping (η0 − η)/η 0 to [0 , 1] ,where η0 is an illumination threshold. Thus, d(η) increases in darker scenes and approaches zero under sufficient illu-mination. For each feature level l, IGCF first applies lightweight feature refinement to obtain the enhanced responses Elrgb 
+
+and Elir . A spatial gate is generated from the discrepancy between the two responses: 
+
+Gl = d(η) · G l   Elrgb − Elir 
+
+ ,
+
+where Gl(·) predicts a spatially adaptive gating map. The global factor d(η) controls the illumination-dependent sup-pression strength, while the local discrepancy identifies in-consistent visible regions. IGCF further models shared and complementary cues through 
+
+Rlcc = ϕlcc 
+
+ Elrgb ⊙ Elir , Elrgb − Elir 
+
+ ,where the element-wise product captures shared responses, the absolute difference represents modality-specific cues, and ϕlcc (·) adaptively integrates both. The final fused fea-ture is 
+
+F lf us = F lrgb + ˜F lir + (1 − Gl) ⊙ Elrgb + Elir + Rlcc .
+
+Invalid regions introduced by infrared feature warping are masked during infrared-related computation. In this way, IGCF preserves aligned features, regulates visible re-sponses according to illumination and local discrepancy, and incorporates complementary infrared cues for robust detection. 
+
+3.5. Alignment Quality-Consistency Gating 
+
+Although CMAA aligns infrared feature before fusion, the estimated transformation Tir →rgb can be unreliable early in training. Strong detection supervision on imper-fectly aligned features may misguide detector optimization and interfere with alignment learning. As alignment im-proves and becomes consistent with the detection objective, stronger detection supervision becomes beneficial. To this end, AQCG adaptively reweights the detection loss accord-ing to alignment quality and gradient consistency, suppress-ing unreliable supervision in the early stage and progres-sively promoting detector learning as alignment improves. Let Ltalign and Ltdet denote the alignment and detection losses at iteration t. AQCG maintains an exponential mov-ing average ¯Ltalign of the alignment loss with momentum coefficient β, and computes the raw alignment quality as 
+
+Qt = exp 
+
+
+
+− ¯Ltalign /(Lref + ϵ)
+
+
+
+, where Lref is a stabi-lized reference loss after warm-up and ϵ is a small constant. A lower moving-average alignment loss therefore yields a higher Qt, indicating more reliable geometric alignment. The quality score is then remapped into a signed gating sig-nal: 
+
+Qts = tanh  κ(Qt − θ) ,
+
+where θ is the quality threshold and κ controls the transition sharpness. Qt < θ suppresses detection learning, whereas 
+
+Qt > θ strengthens it. To further avoid promoting detection when the two ob-jectives conflict, AQCG measures the gradient consistency between alignment and detection with respect to the pre-dicted affine transformation: 
+
+Ct = cos sim ∂Ltalign 
+
+∂Tir →rgb 
+
+, ∂Ltdet 
+
+∂Tir →rgb 
+
+!
+
+.
+
+The gating score and detection weight are computed as 
+
+st = (1 − λc)Qts + λcCt, αtdet = 2 st
+
+,
+
+where λc ∈ [0 , 1] balances alignment quality and gradient consistency. Since Qts, C t ∈ [−1, 1] , the detection weight is bounded by αtdet ∈ [0 .5, 2.0] . The overall objective is 
+
+Lt = Ltalign + αtdet Ltdet .
+
+The gating weight is detached during back-propagation and serves only as a training-time regulator. In this way, AQCG limits the influence of unreliable alignment while strengthening detection supervision when the transforma-tion is accurate and optimization-consistent. 
+
+## 4. Experiments 
+
+4.1. Datasets and Evaluation Metrics 
+
+Datasets. Experiments are conducted on the pro-posed DroneVehicle Misaligned (DVMA) benchmark, con-structed from DroneVehicle [24]. It contains 28,439 UAV-captured visible-infrared image pairs with oriented anno-tations for five vehicle categories: car, freight car, truck, bus, and van. DVMA introduces controlled affine pertur-bations to evaluate detection robustness under substantial cross-modal spatial misalignment. The training, validation, and test sets contain 17,990, 1,469, and 8,980 image pairs, respectively. 
+
+Evaluation Metrics. Following standard oriented object detection protocols, performance is reported using mAP 50 
+
+and mAP 50:95 . Specifically, mAP 50 reports AP at an IoU threshold of 0.50, reflecting performance under a relatively tolerant localization criterion. mAP 50:95 averages AP over IoU thresholds from 0.50 to 0.95 at intervals of 0.05, pro-viding a more comprehensive measure of localization accu-racy. 
+
+4.2. Experiment Details 
+
+All experiments are implemented using the MMDetec-tion and MMRotate frameworks with PyTorch 2.3.0 and CUDA 11.8 on two 24-GB RTX 3090 GPUs. For fair comparison, all visible-infrared image pairs are resized to a fixed resolution of 480 × 384 . AdamW is used as the opti-mizer with an initial learning rate of 1 × 10 −4 and a weight decay of 0.05. All models are trained for 12 epochs. Dur-ing training, the ground-truth annotations from the infrared modality are used as training labels, since the infrared im-ages provide more complete target annotations in the origi-nal dataset. 
+
+4.3. Results Comparisons 
+
+Quantitative comparison. Table 2 reports quantitative comparisons with representative single-modal and visible-infrared object detectors on DVMA. Overall, infrared de-tectors generally outperform their visible counterparts, in-dicating that infrared images provide more reliable target cues under challenging imaging conditions. S 2ANet using infrared input achieves the best single-modal performance with an mAP 50:95 of 36.0% and an mAP 50 of 61.6%, even Method Modality Car Truck Bus Van Freight Car mAP 50:95 (%) mAP 50 (%)RetinaNet [16] RGB 65.5 19.3 55.3 12.2 13 15.5 33.1 R3Det [31] 77.0 35.2 73.7 24.8 17.2 22.6 45.6 S2ANet [7] 78.0 43.6 77.1 27.8 27.5 25.6 50.8 KFIoU [34] 75.6 25.1 61.6 16.5 19.5 18.6 39.6 RetinaNet [16] IR 85.8 30.8 51.8 10.5 16.5 20.4 39.1 R3Det [31] 89.8 39.7 83.2 24.6 30.7 32.2 53.6 S2ANet [7] 90.2 55.9 87.2 33.9 40.8 36.0 61.6 KFIoU [34] 88.6 29.1 74.9 12.6 21.2 24.5 45.3 C2Former + Faster R-CNN [37] RGB+IR 89.3 28.4 45.7 31.1 21.2 17.5 43.1 C2Former + S 2ANet [37] 89.9 51.6 83.5 33.7 38.8 31.4 59.5 DMM + Faster R-CNN [44] 78.9 56.4 78.4 50.2 48.1 32.4 62.4 DMM + S 2ANet [44] 85.7 58.7 86.6 51.7 50.7 35.1 66.7 COMO [17] 85.1 52.8 78.8 45.5 45.9 28.2 61.6 
+
+JFRDet (ours ) 87.9 66.7 86.8 51.8 55.4 36.1 69.7    
+
+> Table 2. Comprehensive comparative experiments on the DVMA dataset. We compared the JFRDet method with both single-modal and multispectral object detectors, all employing OBB detection heads. The best results are highlighted in bold. n IR
+> DMM Ours Groundtruth COMO
+> Figure 4. Qualitative comparison on DVMA at a confidence threshold of 0.3. The last column shows visible ground truth. Blue dashed circles highlight the more accurate and complete detections of JFRDet across categories.
+
+surpassing several visible-infrared methods. This suggests that simply introducing an additional modality does not nec-essarily improve detection when large cross-modal geomet-ric discrepancies exist. Although visible-infrared methods generally benefit from complementary cues, they still lack explicit geometric correction. For example, DMM with S2ANet achieves 35.1% mAP 50:95 and 66.7% mAP 50 ,but remains limited under severe misalignment. In con-trast, JFRDet achieves the best overall performance with an 
+
+mAP 50:95 of 36.1% and an mAP 50 of 69.7%. It also ob-tains 66.7% and 55.4% AP 50 on the truck and freight car categories, respectively, outperforming the best competing results of 58.7% and 50.7%. These gains demonstrate that explicit affine feature registration reduces geometric dis-crepancies and enables more reliable cross-modal fusion. 
+
+Qualitative comparison. Figure 4 compares the qualita-tive results of DMM with S 2A-Net, COMO, and JFRDet under different illumination conditions. In low-light scenes, DMM still suffers from missed detections when RGB and infrared features are spatially misaligned, whereas JFRDet produces more complete and accurate predictions by ex-plicitly aligning infrared features before fusion. In well-illuminated scenes, JFRDet also generates more stable ori-ented bounding boxes for large objects such as trucks and buses, reducing inaccurate predictions caused by unreliable cross-modal aggregation. These results demonstrate that affine feature registration effectively alleviates geometric inconsistency, while illumination-guided fusion improves the use of complementary RGB-IR cues across varying il-lumination conditions. 
+
+4.4. Ablation study 
+
+Component-wise Ablation. Table 3 reports the component-wise ablation results on the DVMA dataset. The baseline directly fuses visible and infrared features without explicit geometric correction, achieving 66.0% 
+
+mAP 50 and 34.3% mAP 50:95 . After introducing CMAA, the performance increases to 67.3% mAP 50 , indicating that affine alignment helps reduce cross-modal spatial inconsistency before feature fusion. Based on the aligned features, IGCF further improves the result to 68.0% mAP 50 
+
+by adaptively balancing visible and infrared cues under different illumination conditions. When AQCG is intro-duced, the performance reaches 68.2% mAP 50 and 35.0% 
+
+mAP 50:95 , showing that alignment reliability is important Case Component Performance (%) 
+
+CMAA IGCF AQCG mAP 50 mAP 50:95 
+
+1 - - - 66.0 34.3 2 ✓ - - 67.3 34.4 3 ✓ ✓ - 68.0 34.8 4 ✓ - ✓ 68.2 35.0 
+
+5 ✓ ✓ ✓ 69.7 36.1 
+
+Table 3. Ablation experiments on the DVMA dataset. 
+
+θ w/o GC (%) w/ GC (%) 
+
+mAP 50 mAP 50:95 mAP 50 mAP 50:95 
+
+0.45 68.8 35.6 69.4 36.0 0.50 68.6 36.0 69.7 36.1 0.55 68.6 35.4 69.2 36.1 0.60 68.7 35.5 69.0 35.6 Table 4. Effect of gradient consistency (GC) in AQCG. 
+
+θ λc / mAP 50 (%) 0.1 0.2 0.3 0.4 0.45 68.9 69.1 68.5 69.4 0.50 68.8 69.0 69.7 69.1 0.55 68.6 69.2 69.2 69.2 0.60 68.7 69.1 68.7 69.0 Table 5. Sensitivity analysis of AQCG with varying quality thresh-olds θ and balancing factors λc.
+
+for stable optimization. With all components integrated, JFRDet achieves the best performance, demonstrating that CMAA, IGCF, and AQCG provide complementary benefits. 
+
+Parameter Sensitivity of AQCG. Table 4 compares AQCG with and without gradient consistency, where “w/o GC” corresponds to λc = 0 . Introducing gradient consistency generally improves performance, indicating that measuring the agreement between alignment and detection objectives provides more reliable gating signals. Table 5 further eval-uates different quality thresholds θ and balancing factors λc
+
+with gradient consistency enabled. The best result is ob-tained at θ = 0 .50 and λc = 0 .3, reaching 69.7% mAP 50 .Performance remains relatively stable across different set-tings, suggesting that AQCG is not overly sensitive to a spe-cific hyperparameter choice. However, overemphasizing ei-ther alignment quality or gradient consistency may weaken the gating effect and lead to suboptimal performance. 
+
+Visual Analysis of CMAA. Figure 5 visualizes the 1/4-resolution feature maps from the visible and infrared branches, together with the infrared features aligned by RGB RGB feature map CMAA   
+
+> IR RGB IR feature map RGB feature map IR after CMAA
+
+Figure 5. Visualization of feature alignment by CMAA. From left to right, each row shows the infrared image, the correspond-ing 1/4-resolution infrared feature map, the infrared feature trans-formed by CMAA, the 1/4-resolution visible feature map, and the visible image. 
+
+CMAA. Before alignment, the response regions of the two modalities exhibit clear spatial inconsistency, where target activations are shifted and partially mismatched. Directly fusing these features may aggregate responses from differ-ent physical locations, resulting in ambiguous cross-modal representations. After applying CMAA, the infrared re-sponses are better registered to the visible reference. The activation centers and object structures become more con-sistent across modalities, while misaligned background re-sponses are reduced. This visualization further confirms that CMAA effectively corrects feature-level geometric dis-crepancies and provides a more reliable basis for cross-modal fusion. 
+
+## 5. Conclusion 
+
+This paper presents JFRDet, an end-to-end visible-infrared oriented object detector for severe cross-modal geometric misalignment. Different from implicit feature adaptation under weak misalignment, JFRDet performs explicit feature-domain affine registration before cross-modal fusion, and integrates illumination-guided fusion with alignment-aware optimization. To support systematic evaluation, the DVMA benchmark is introduced to provide a challenging setting for misaligned visible-infrared ori-ented object detection. Experiments on DVMA show that JFRDet achieves superior performance over representative single-modal and visible-infrared detectors, while ablation studies and visual analyses further verify the effectiveness of explicit affine feature registration. 
+
+## References 
+
+[1] Chen Chen, Jiahao Qi, Xingyue Liu, Kangcheng Bin, Ruigang Fu, Xikun Hu, and Ping Zhong. Weakly misalignment-free adaptive feature alignment for uavs-based multimodal object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 26836–26845, June 2024. 1 [2] Yunfan Chen, Han Xie, and Hyunchul Shin. Multi-layer fu-sion techniques using a cnn for multispectral pedestrian de-tection. IET Computer Vision , 12(8):1179–1187, 2018. 3 [3] Jian Ding, Nan Xue, Yang Long, Gui-Song Xia, and Qikai Lu. Learning roi transformer for oriented object detection in aerial images. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 2849– 2858, 2019. 2 [4] Haolong Fu, Jin Yuan, Guojin Zhong, Xuan He, Jiacheng Lin, and Zhiyong Li. Cf-deformable detr: An end-to-end alignment-free model for weakly aligned visible-infrared ob-ject detection. In IJCAI , pages 758–766, 2024. 1 [5] Junjie Guo, Chenqiang Gao, Fangcen Liu, Deyu Meng, and Xinbo Gao. Damsdet: Dynamic adaptive multispectral de-tection transformer with competitive query selection and adaptive feature fusion. In European Conference on Com-puter Vision , pages 464–481. Springer, 2024. 1 [6] Zonghao Guo, Chang Liu, Xiaosong Zhang, Jianbin Jiao, Xi-angyang Ji, and Qixiang Ye. Beyond bounding-box: Convex-hull feature adaptation for oriented and densely packed ob-ject detection. In Proceedings of the IEEE/CVF conference on Computer Vision and Pattern Recognition , pages 8792– 8801, 2021. 2 [7] Jiaming Han, Jian Ding, Jie Li, and Gui-Song Xia. Align deep features for oriented object detection. IEEE transac-tions on geoscience and remote sensing , 60:1–11, 2021. 3, 7[8] Mingzhou He, Qingbo Wu, King Ngi Ngan, Feng Jiang, Fan-man Meng, and Linfeng Xu. Misaligned rgb-infrared object detection via adaptive dual-discrepancy calibration. Remote Sensing , 15(19):4887, 2023. 1 [9] Soonmin Hwang, Jaesik Park, Namil Kim, Yukyung Choi, and In So Kweon. Multispectral pedestrian detection: Benchmark dataset and baseline. In Proceedings of the IEEE conference on computer vision and pattern recogni-tion , pages 1037–1045, 2015. 1 [10] Xinyu Jia, Chuang Zhu, Minzhen Li, Wenqi Tang, and Wenli Zhou. Llvip: A visible-infrared paired dataset for low-light vision. In 2021 IEEE/CVF International Conference on Computer Vision Workshops (ICCVW) , pages 3489–3497, 2021. 1 [11] Yingying Jiang, Xiangyu Zhu, Xiaobing Wang, Shuli Yang, Wei Li, Hua Wang, Pei Fu, and Zhenbo Luo. R2cnn: Rota-tional region cnn for orientation robust scene text detection. 
+
+arXiv preprint arXiv:1706.09579 , 2017. 2 [12] Chengyang Li, Dan Song, Ruofeng Tong, and Min Tang. Multispectral pedestrian detection via simultaneous detec-tion and segmentation. arXiv preprint arXiv:1808.04818 ,2018. 3 [13] Chenglong Li, Dan Song, Ruofeng Tong, and Ming Tang. Illumination-aware faster R-CNN for robust multispectral pedestrian detection. Pattern Recognition , 85:161–171, 2019. 1 [14] Ruimin Li, Jiajun Xiang, Feixiang Sun, Ye Yuan, Longwu Yuan, and Shuiping Gou. Multiscale cross-modal homo-geneity enhancement and confidence-aware fusion for mul-tispectral pedestrian detection. IEEE Transactions on Multi-media , 26:852–863, 2023. 3 [15] Wentong Li, Yijie Chen, Kaixuan Hu, and Jianke Zhu. Ori-ented reppoints for aerial object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 1829–1838, 2022. 2 [16] Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, and Piotr Doll´ ar. Focal loss for dense object detection. In Pro-ceedings of the IEEE international conference on computer vision , pages 2980–2988, 2017. 7 [17] Chang Liu, Xin Ma, Xiaochen Yang, Yuxiang Zhang, and Yanni Dong. Como: Cross-mamba interaction and offset-guided fusion for multimodal object detection. Information Fusion , 125:103414, 2026. 7 [18] Jingjing Liu, Shaoting Zhang, Shu Wang, and Dimitris N Metaxas. Multispectral deep neural networks for pedestrian detection. 2016. 1 [19] Jianqi Ma, Weiyuan Shao, Hao Ye, Li Wang, Hong Wang, Yingbin Zheng, and Xiangyang Xue. Arbitrary-oriented scene text detection via rotation proposals. IEEE transac-tions on multimedia , 20(11):3111–3122, 2018. 2 [20] Fang Qingyun, Han Dapeng, and Wang Zhaokui. Cross-modality fusion transformer for multispectral object detec-tion. arXiv preprint arXiv:2111.00273 , 2021. 3 [21] Fang Qingyun and Wang Zhaokui. Cross-modality attentive feature fusion for object detection in multispectral remote sensing imagery. Pattern Recognition , 130:108786, 2022. 3 [22] Jifeng Shen, Yifei Chen, Yue Liu, Xin Zuo, Heng Fan, and Wankou Yang. Icafusion: Iterative cross-attention guided feature fusion for multispectral object detection. Pattern Recognition , 145:109913, 2024. 3 [23] Kechen Song, Xiaotong Xue, Hongwei Wen, Yingying Ji, Yunhui Yan, and Qinggang Meng. Misaligned visible-thermal object detection: A drone-based benchmark and baseline. IEEE Transactions on Intelligent Vehicles , 2024. 1[24] Yiming Sun, Bing Cao, Pengfei Zhu, and Qinghua Hu. Drone-based rgb-infrared cross-modality vehicle detection via uncertainty-aware learning. IEEE Transactions on Cir-cuits and Systems for Video Technology , 32(10):6700–6713, 2022. 2, 3, 6 [25] J¨ org Wagner, Volker Fischer, Michael Herman, Sven Behnke, et al. Multispectral pedestrian detection using deep fusion convolutional neural networks. In ESANN , volume 587, pages 509–514, 2016. 3 [26] Jin Xie, Rao Muhammad Anwer, Hisham Cholakkal, Jing Nie, Jiale Cao, Jorma Laaksonen, and Fahad Shahbaz Khan. Learning a dynamic cross-modal network for multispectral pedestrian detection. In Proceedings of the 30th ACM In-ternational Conference on Multimedia , pages 4043–4052, 2022. 3 [27] Xingxing Xie, Gong Cheng, Jiabao Wang, Xiwen Yao, and Junwei Han. Oriented r-cnn for object detection. In Proceed-ings of the IEEE/CVF international conference on computer vision , pages 3520–3529, 2021. 2 [28] Yongchao Xu, Mingtao Fu, Qimeng Wang, Yukang Wang, Kai Chen, Gui-Song Xia, and Xiang Bai. Gliding vertex on the horizontal bounding box for multi-oriented object detec-tion. IEEE transactions on pattern analysis and machine intelligence , 43(4):1452–1459, 2020. 2 [29] Xue Yang, Liping Hou, Yue Zhou, Wentao Wang, and Junchi Yan. Dense label encoding for boundary discontinuity free rotation detection. In Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition , pages 15819–15829, 2021. 3 [30] Xue Yang and Junchi Yan. Arbitrary-oriented object detec-tion with circular smooth label. In European conference on computer vision , pages 677–694. Springer, 2020. 3 [31] Xue Yang, Junchi Yan, Ziming Feng, and Tao He. R3det: Refined single-stage detector with feature refinement for ro-tating object. In Proceedings of the AAAI conference on ar-tificial intelligence , volume 35, pages 3163–3171, 2021. 2, 7[32] Xue Yang, Junchi Yan, Qi Ming, Wentao Wang, Xiaopeng Zhang, and Qi Tian. Rethinking rotated object detection with gaussian wasserstein distance loss. In International con-ference on machine learning , pages 11830–11841. PMLR, 2021. 3 [33] Xue Yang, Xiaojiang Yang, Jirui Yang, Qi Ming, Wentao Wang, Qi Tian, and Junchi Yan. Learning high-precision bounding box for rotated object detection via kullback-leibler divergence. Advances in Neural Information Process-ing Systems , 34:18381–18394, 2021. 3 [34] Xue Yang, Yue Zhou, Gefan Zhang, Jirui Yang, Wentao Wang, Junchi Yan, Xiaopeng Zhang, and Qi Tian. The kfiou loss for rotated object detection. arXiv preprint arXiv:2201.12558 , 2022. 3, 7 [35] Maoxun Yuan, Xiaorong Shi, Nan Wang, Yinyan Wang, and Xingxing Wei. Improving rgb-infrared object detection with cascade alignment-guided transformer. Information Fusion ,105:102246, 2024. 1 [36] Maoxun Yuan, Yinyan Wang, and Xingxing Wei. Transla-tion, scale and rotation: cross-modal alignment meets rgb-infrared vehicle detection. In European Conference on Com-puter Vision , pages 509–525. Springer, 2022. 1 [37] Maoxun Yuan and Xingxing Wei. C2former: Calibrated and complementary transformer for rgb-infrared object de-tection. IEEE Transactions on Geoscience and Remote Sens-ing , 62:1–12, 2024. 7 [38] Lu Zhang, Zhiyong Liu, Xiangyu Zhu, Zhan Song, Xu Yang, Zhen Lei, and Hong Qiao. Weakly aligned feature fusion for multimodal object detection. IEEE Transactions on Neural Networks and Learning Systems , 2021. 1 [39] Lu Zhang, Xiangyu Zhu, Xiangyu Chen, Xu Yang, Zhen Lei, and Zhiyong Liu. Weakly aligned cross-modal learn-ing for multispectral pedestrian detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , October 2019. 1 [40] Xue Zhang, Xiaohan Zhang, Jiangtao Wang, Jiacheng Ying, Zehua Sheng, Heng Yu, Chunguang Li, and Hui-Liang Shen. Tfdet: Target-aware fusion for rgb-t pedestrian detection. 
+
+IEEE Transactions on Neural Networks and Learning Sys-tems , 36(7):13276–13290, 2024. 3 [41] Tianyi Zhao, Maoxun Yuan, Feng Jiang, Nan Wang, and Xingxing Wei. Removal then selection: A coarse-to-fine fusion perspective for rgb-infrared object detection. IEEE Transactions on Intelligent Transportation Systems , 2025. 3 [42] Yang Zheng, Izzat H Izzat, and Shahrzad Ziaee. Gfd-ssd: Gated fusion double ssd for multispectral pedestrian detec-tion. arXiv preprint arXiv:1903.06999 , 2019. 3 [43] Kailai Zhou, Linsen Chen, and Xun Cao. Improving multi-spectral pedestrian detection by addressing modality imbal-ance problems. In European conference on computer vision ,pages 787–803. Springer, 2020. 3 [44] Minghang Zhou, Tianyu Li, Chaofan Qiao, Dongyu Xie, Guoqing Wang, Ningjuan Ruan, Lin Mei, Yang Yang, and Heng Tao Shen. Dmm: Disparity-guided multispectral mamba for oriented object detection in remote sensing. IEEE Transactions on Geoscience and Remote Sensing , 63:1–13, 2025. 3, 7

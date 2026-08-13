@@ -1,0 +1,651 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-13T20:05:31.595044+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 12,
+    "deep_cap": 7,
+    "deep_selected": 10,
+    "quick_candidates": 5,
+    "quick_skim_target": 12,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2608.06205v1",
+      "source": "arxiv",
+      "title": "CFGPNet: Cross-Attention-Based Fused Gradient Programmed Network Framework for Multispectral Object Detection",
+      "abstract": "RGB--T object detection exploits the complementary strengths of visible and infrared imagery, supporting robust perception in low-light, adverse-weather, and complex multi-scale environments. However, existing methods still suffer from insufficient cross-modal interaction, unstable fusion from modality distribution gaps, and the high computational cost of heavy attention-based architectures. To address these issues, CFGPNet is proposed, a Cross-Attention-Based Fused Gradient Programmed Network framework for multispectral object detection. CFGPNet uses an improved GELAN backbone with RepViT-style re-parameterized blocks to strengthen feature representation while preserving computational efficiency. A Cross Computation Efficient Attention (CrossCEA) module is introduced to enhance cross-modal feature interaction and reduce redundant information transfer between visible and thermal branches. To generate compact and discriminative fused representations, an Attention Selection and Aggregation Fusion (ASAF) network combines dense feature aggregation with selective attention-based emphasis. Moreover, a programmable-gradient auxiliary branch is integrated into each CFGPNet variant to improve gradient delivery and optimization quality. Experiments on five public multispectral benchmarks, FLIR, M3FD, LLVIP, VEDAI, and MFAD, demonstrate that CFGPNet achieves strong and consistent performance across diverse scenes, object scales, and modality balances. In particular, the framework attains 80.7% mAP50 / 45.0% mAP50:95 on FLIR, 89.9% / 63.4% on M3FD, and 97.8% / 68.9% on LLVIP. It also reaches 83.3% / 56.9% on VEDAI and 83.4% / 61.8% on MFAD. These results show that CFGPNet is an effective, practical solution offering useful accuracy--efficiency trade-offs across three model scales. The code, data, and fine-tuned models are available at https://github.com/NimaHatami99/CFGPNet.",
+      "authors": [
+        "Nima Hatami",
+        "Karim Faez",
+        "Saeed Sharifian",
+        "Hamidreza Amindavar"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-06T15:59:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.06205v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "cross-attention based fused network for RGB-T multispectral object detection, combining visible and infrared imagery",
+      "llm_evidence_cn": "基于交叉注意力的RGB-T多光谱目标检测网络，融合可见光与红外图像",
+      "llm_evidence": "基于交叉注意力的RGB-T多光谱目标检测网络，融合可见光与红外图像",
+      "canonical_evidence": "基于交叉注意力的RGB-T多光谱目标检测网络，融合可见光与红外图像",
+      "llm_tldr_en": "CFGPNet fuses visible and infrared imagery with cross-attention and a fused gradient programmed network, improving cross-modal interaction and stability in multispectral object detection under low-light and adverse weather.",
+      "llm_tldr_cn": "可见光与红外目标检测能互补成像优势，但现有方法存在模态交互不足和融合不稳定问题。CFGPNet以GELAN骨干和RepViT风格重参数化块增强特征表示，并用跨注意力融合模块对可见光与红外特征进行有效交互。同时引入梯度编程网络缓解模态分布差异、控制计算成本。实验表明该框架在多光谱目标检测上取得更稳定、更优的融合检测性能。该工作为多模态图像融合检测提供了高效方案。",
+      "llm_tldr": "可见光与红外目标检测能互补成像优势，但现有方法存在模态交互不足和融合不稳定问题。CFGPNet以GELAN骨干和RepViT风格重参数化块增强特征表示，并用跨注意力融合模块对可见光与红外特征进行有效交互。同时引入梯度编程网络缓解模态分布差异、控制计算成本。实验表明该框架在多光谱目标检测上取得更稳定、更优的融合检测性能。该工作为多模态图像融合检测提供了高效方案。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.10680v1",
+      "source": "arxiv",
+      "title": "Bridging Severe Cross-Modal Misalignment: End-to-End Visible-Infrared Object Detection via Explicit Feature-Domain Affine Registration",
+      "abstract": "Visible-infrared object detection relies on complementary RGB and thermal cues, but its performance is often degraded by cross-modal spatial misalignment. Most existing methods rely on implicit feature adaptation to handle weakly misaligned scenarios, while large-offset geometric discrepancies remain insufficiently addressed. In this paper, we propose a Joint Feature-domain Registration and Detection network (JFRDet), an end-to-end visible-infrared oriented object detector tailored for severely cross-modal geometric discrepancies. JFRDet introduces a Cross-Modal Affine Alignment (CMAA) module to estimate an image-level affine transformation for explicit multi-level feature alignment. Note that illumination changes directly affect the reliability of RGB cues, an Illumination-Guided Complementary Fusion (IGCF) module adaptively exploits modality reliability under varying illumination conditions for cross-modal fusion. Then, an Alignment Quality-Consistency Gating (AQCG) strategy stabilizes joint optimization by modulating detection supervision according to alignment reliability and gradient consistency. We further construct DroneVehicle Misaligned (DVMA), a benchmark for evaluating visible-infrared oriented object detection under severe cross-modal geometric misalignment. The proposed JFRDet achieves 69.7\\% $\\mathrm{mAP}_{50}$ on DVMA, which represents state-of-the-art (SOTA) performance. The code and dataset will be available on GitHub.",
+      "authors": [
+        "Qi Ming",
+        "Yuyang Wang",
+        "Mingjing Zhao",
+        "Yifan Xiao",
+        "Zhixin Guo",
+        "Zhiqiang Zhou",
+        "Peng Sun",
+        "Juan Fang",
+        "Fuqiang Yang",
+        "Xudong Zhao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-11T09:02:37+00:00",
+      "link": "https://arxiv.org/pdf/2608.10680v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "visible-infrared deep multimodal fusion with feature alignment",
+      "llm_evidence_cn": "可见光-红外深度多模态融合与特征对齐",
+      "llm_evidence": "可见光-红外深度多模态融合与特征对齐",
+      "canonical_evidence": "可见光-红外深度多模态融合与特征对齐",
+      "llm_tldr_en": "Proposes JFRDet, an end-to-end visible-infrared detector with a Cross-Modal Affine Alignment module that estimates image-level affine transformations for explicit multi-level feature alignment, bridging severe cross-modal spatial misalignment in oriented object detection.",
+      "llm_tldr_cn": "针对可见光-红外目标检测中严重跨模态空间错位的问题，提出端到端检测网络JFRDet。该方法引入跨模态仿射对齐模块，估计图像级仿射变换并对多级特征进行显式对齐，使网络能够处理大偏移几何差异。在严重错位场景的实验中，JFRDet改善了跨模态特征对齐质量，显著提升定向目标检测精度，为跨模态严格配准场景下的多模态融合检测提供了有效解决方案。",
+      "llm_tldr": "针对可见光-红外目标检测中严重跨模态空间错位的问题，提出端到端检测网络JFRDet。该方法引入跨模态仿射对齐模块，估计图像级仿射变换并对多级特征进行显式对齐，使网络能够处理大偏移几何差异。在严重错位场景的实验中，JFRDet改善了跨模态特征对齐质量，显著提升定向目标检测精度，为跨模态严格配准场景下的多模态融合检测提供了有效解决方案。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep neural networks",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11335v1",
+      "source": "arxiv",
+      "title": "Dual-Domain Cross-Modal Decoding for Clinical Text-Guided Medical Image Segmentation",
+      "abstract": "Clinical text can narrow down what to segment, but recent text-guided designs emphasize spatial alignment while overlooking frequency content that governs texture and boundaries. We propose Dual-Domain Cross-Modal Decoding (DD-CMD) for clinical text-guided pulmonary infection segmentation, integrating two complementary forms of language guidance during decoding. In the spatial domain, Text-Guided Spatial Cross-Attention (TGSA) aligns multi-scale visual tokens with text semantics and updates features through gated residual fusion. In the frequency domain, Spectral-Text Adaptive Modulation (STAM) applies a 2D DCT to compute learnable band-energy statistics and predicts text-conditioned FiLM parameters to recalibrate decoder channels for frequency-aware decoding. DD-CMD embeds TGSA and STAM into a coarse-to-fine decoder (7x7 to 56x56) and restores full-resolution masks using a lightweight two-stage refinement module. Experiments on QaTa-COV19 and MosMedData+ show that DD-CMD achieves 91.46% Dice / 84.26% mIoU and 81.95% Dice / 69.42% mIoU, respectively, with average gains of +1.96 Dice and +2.67 mIoU over the strongest prior baselines. Code: https://github.com/maklachur/DD-CMD.",
+      "authors": [
+        "Md Maklachur Rahman",
+        "Tracy Hammond"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "eess.IV"
+      ],
+      "published": "2026-08-11T18:40:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.11335v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Text-guided medical image segmentation with cross-modal decoding",
+      "llm_evidence_cn": "文本引导的医学图像分割，跨模态解码",
+      "llm_evidence": "文本引导的医学图像分割，跨模态解码",
+      "canonical_evidence": "文本引导的医学图像分割，跨模态解码",
+      "llm_tldr_en": "DD-CMD integrates spatial and frequency language guidance for clinical text-guided medical image segmentation.",
+      "llm_tldr_cn": "针对临床文本引导的医学图像分割中现有方法只强调空间对齐而忽略频率信息的问题，提出双域跨模态解码框架DD-CMD。空间域使用文本引导的交叉注意力对齐多尺度视觉与文本特征，频率域通过2D DCT和FiLM调制重新校准解码器通道。实验显示双域语言引导能改善边界与纹理分割，提升肺感染分割性能。",
+      "llm_tldr": "针对临床文本引导的医学图像分割中现有方法只强调空间对齐而忽略频率信息的问题，提出双域跨模态解码框架DD-CMD。空间域使用文本引导的交叉注意力对齐多尺度视觉与文本特征，频率域通过2D DCT和FiLM调制重新校准解码器通道。实验显示双域语言引导能改善边界与纹理分割，提升肺感染分割性能。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11537v1",
+      "source": "arxiv",
+      "title": "Generative Semantic Segmentation via an Observable Semantic-Image Interface and Hierarchical Generator Evidence Alignment",
+      "abstract": "Generative semantic segmentation exposes structured predictions as images, but direct color decoding is susceptible to color drift and boundary mixing, whereas latent-feature decoders that predict a separate output distribution may relegate the rendered image to an intermediate visualization. We present Semantic Prism, a conditional semantic-image generation-and-refinement framework with deterministic inference. A diffusion-distilled one-step generator renders a semantic RGB image; per-pixel distances from the rendered colors to a fixed class-color codebook define an explicit probabilistic interface. Hierarchical Generator Evidence Alignment spatially aligns multi-level generator features and uses a zero-initialized output projection to predict an additive residual in the interface logit space, retaining the image-defined interface as the reference for the final distribution. The interface and refined distributions further enable Contextual Interface--Hierarchy Disagreement (C-IHD), a fixed readout for ranking remaining pixel errors without an auxiliary predictor or additional forward pass. On the 500-image Cityscapes validation set, Semantic Prism achieves 72.07% mean intersection over union, 11.39 mIoU points above direct-interface decoding, with 0.41% expected calibration error. Matched-capacity ablations over three seeds support the benefit of jointly aligned multi-level evidence. A separately trained model attains 62.22% mIoU on BDD100K, while the Cityscapes-trained model reaches 46.89\\% mIoU under source-frozen transfer to the Adverse Conditions Dataset with Correspondences, without target-domain adaptation. Across all three datasets, C-IHD consistently improves the area under the precision--recall curve for pixel-error ranking over maximum softmax probability on the same segmentation predictions; on ACDC, it raises AUPR from 0.6580 to 0.7557.",
+      "authors": [
+        "Weize Cai",
+        "Yongqi Dong",
+        "Zhida Shao",
+        "Zixin Fu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "eess.IV"
+      ],
+      "published": "2026-08-12T01:00:04+00:00",
+      "link": "https://arxiv.org/pdf/2608.11537v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Deep generative method for semantic segmentation",
+      "llm_evidence_cn": "深度生成式语义分割方法",
+      "llm_evidence": "深度生成式语义分割方法",
+      "canonical_evidence": "深度生成式语义分割方法",
+      "llm_tldr_en": "Semantic Prism renders semantic images via a one-step diffusion model and uses observable semantic-image interface for segmentation.",
+      "llm_tldr_cn": "针对生成式语义分割中直接颜色解码易出现颜色漂移和边界混合的问题，提出Semantic Prism框架。使用扩散蒸馏的单步生成器渲染语义RGB图像，通过固定颜色码本的每像素距离建立显式概率接口，并对齐多层级生成器特征。实验表明该方法能缓解颜色漂移，提升语义分割准确率与边界质量。",
+      "llm_tldr": "针对生成式语义分割中直接颜色解码易出现颜色漂移和边界混合的问题，提出Semantic Prism框架。使用扩散蒸馏的单步生成器渲染语义RGB图像，通过固定颜色码本的每像素距离建立显式概率接口，并对齐多层级生成器特征。实验表明该方法能缓解颜色漂移，提升语义分割准确率与边界质量。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11617v1",
+      "source": "arxiv",
+      "title": "KANResDiff: Learning Local Residual Diffusion via Kolmogorov-Arnold Network for Ambiguous Medical Image Segmentation",
+      "abstract": "Ambiguous medical image segmentation aims to provide a series of diverse but plausible segmentation hypotheses. However, existing methods introduce stochasticity in a fixed and pre-defined manner, failing to form a progressive semantic modeling process. To address these challenges, we propose KANResDiff to learn local residual diffusion with Kolmogorov-Arnold Network, thereby assigning distinct roles across stages for ambiguity modeling. Specifically, we propose Independent Time Encoding that offers spline-based time embeddings instead of linear ones from MLPs, which enhances the independence across inference stages and assigns progressive semantic roles to different stages. We propose Residual Schrodinger Bridge that injects deterministic residual prior with learnable weights by constructing local Schrodinger Bridge instead of following manually settings, achieving a flexible deterministic-stochastic interaction and stage-aware ambiguity modeling thanks to local optimal diffusion path. Extensive experimental results on two public datasets demonstrate that KANResDiff achieves SOTA performance on GED and HM-IoU, with maximum improvements of 16.8% and 7.7%, respectively, while maintaining competitive performance on the MDM metric. Source code is available at https://github.com/PerceptionComputingLab/KANResDiff.",
+      "authors": [
+        "Fanding Li",
+        "Chenglin Wang",
+        "Xiangyu Li",
+        "Xingyu Qiu",
+        "Xinghua Ma",
+        "Xiangming Yin",
+        "Haiyang Li",
+        "Suyu Dong",
+        "Wei Wang",
+        "Kuanquan Wang",
+        "Gongning Luo",
+        "Shuo Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T03:54:27+00:00",
+      "link": "https://arxiv.org/pdf/2608.11617v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "ambiguous medical image segmentation with diffusion model",
+      "llm_evidence_cn": "基于扩散模型的模糊医学图像分割",
+      "llm_evidence": "基于扩散模型的模糊医学图像分割",
+      "canonical_evidence": "基于扩散模型的模糊医学图像分割",
+      "llm_tldr_en": "Proposes KANResDiff for ambiguous medical image segmentation, learning local residual diffusion with Kolmogorov-Arnold network and independent time encoding to produce diverse yet plausible segmentation hypotheses.",
+      "llm_tldr_cn": "针对模糊医学图像分割中随机性引入方式固定、缺乏渐进的语义建模过程的问题，提出KANResDiff。该方法利用Kolmogorov-Arnold网络学习局部残差扩散，并设计独立时间编码提供样条时间嵌入，为不同推理阶段分配渐进语义角色。其残差Schrödinger机制增强了假设多样性，提高了模糊分割的合理性与可控性。",
+      "llm_tldr": "针对模糊医学图像分割中随机性引入方式固定、缺乏渐进的语义建模过程的问题，提出KANResDiff。该方法利用Kolmogorov-Arnold网络学习局部残差扩散，并设计独立时间编码提供样条时间嵌入，为不同推理阶段分配渐进语义角色。其残差Schrödinger机制增强了假设多样性，提高了模糊分割的合理性与可控性。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11681v1",
+      "source": "arxiv",
+      "title": "Learning from Multimodal Pseudo-Labels for Robust Open-Vocabulary Instance and Panoptic Segmentation",
+      "abstract": "This work addresses the challenge of open-vocabulary instance segmentation (OVIS) and open-set panoptic segmentation (OSPS), which aim to recognize both predefined and unseen object categories without exhaustive human annotations. Existing methods often suffer from noisy pseudo-masks, limited visual-textual grounding, and difficulty handling synonyms or out-of-vocabulary (OOV) words. To overcome these challenges, we propose a multimodal framework that leverages pre-trained vision-language models for automatic pseudo-label generation, CLIP-guided synonym filtering, and GPT-based caption reconstruction. In our target-vocabulary-assisted pseudo-labeling setting, the framework first constructs pseudo segmentation masks, descriptive captions, and semantically aligned synonym sets using Grounded SAM, LLaVA, and CLIP, providing multimodal supervision without manual annotation. We then enhance visual-textual alignment through three complementary training objectives: an extended grounding loss that incorporates visually grounded synonyms, a semantic consistency loss, and a generative caption reconstruction loss. Extensive experiments on the COCO dataset demonstrate that the proposed method consistently outperforms previous state-of-the-art approaches under this protocol, achieving substantial improvements on both OVIS and OSPS benchmarks.",
+      "authors": [
+        "Duy Tran Thanh",
+        "Yeejin Lee",
+        "Byeongkeun Kang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "published": "2026-08-12T05:39:57+00:00",
+      "link": "https://arxiv.org/pdf/2608.11681v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Instance and panoptic segmentation with multimodal pseudo-labels",
+      "llm_evidence_cn": "多模态伪标签用于实例与全景分割",
+      "llm_evidence": "多模态伪标签用于实例与全景分割",
+      "canonical_evidence": "多模态伪标签用于实例与全景分割",
+      "llm_tldr_en": "Proposes a multimodal framework using vision-language models, CLIP-guided synonym filtering, and GPT caption reconstruction to generate pseudo-labels for robust open-vocabulary instance and open-set panoptic segmentation.",
+      "llm_tldr_cn": "针对开放词汇实例分割与开放集全景分割中伪掩码噪声大、视觉文本对齐不足等问题，本文提出一个多模态框架，利用预训练视觉语言模型自动生成伪标签，通过CLIP引导的同义词过滤和GPT驱动的字幕重建减少噪声。在目标词汇辅助的伪标签设置下，框架显著提升了未见过类别的分割鲁棒性，为无需密集人工标注的通用分割提供了新途径。",
+      "llm_tldr": "针对开放词汇实例分割与开放集全景分割中伪掩码噪声大、视觉文本对齐不足等问题，本文提出一个多模态框架，利用预训练视觉语言模型自动生成伪标签，通过CLIP引导的同义词过滤和GPT驱动的字幕重建减少噪声。在目标词汇辅助的伪标签设置下，框架显著提升了未见过类别的分割鲁棒性，为无需密集人工标注的通用分割提供了新途径。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11685v1",
+      "source": "arxiv",
+      "title": "EGM-Det: Entropy-Guided Multimodal Adaptive Fusion for UAV RGB-IR Object Detection",
+      "abstract": "Joint use of RGB and infrared (IR) imagery can improve UAV-view object detection, but most existing methods fuse multimodal features with static or fixed weights and therefore overlook spatially varying modality reliability. We propose EGM-Det, an entropy-guided multimodal adaptive fusion framework for RGB-IR object detection. EGM-Det employs a dual-stream architecture to preserve modality-specific representations and introduces an Entropy Offset Gate Fusion module for adaptive multi-scale fusion. The module derives shallow entropy priors from input intensity, local entropy, and cross-modal discrepancy, and uses them to guide local offset alignment and spatial-channel gated fusion. It therefore selectively aggregates reliable RGB and infrared cues instead of uniformly combining heterogeneous features. We further introduce cross-modal distillation to regularize the learned fusion gates and reduce fusion degradation. Each student branch extracts complementary knowledge from the cross-modality teacher branch matched to the main branch, while entropy-adaptive supervision emphasizes uncertain modality decisions. Experiments on DroneVehicle, LLVIP, and VEDAI demonstrate state-of-the-art performance across all three benchmarks; in particular, EGM-Det outperforms prior approaches by more than 10 percentage points on VEDAI.",
+      "authors": [
+        "Cunzheng Fan",
+        "Dawei Yan",
+        "Guanlin Wang",
+        "Xingshuo Yang",
+        "Yupeng Jia",
+        "Jing Yang",
+        "Haokui Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T05:51:48+00:00",
+      "link": "https://arxiv.org/pdf/2608.11685v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Multimodal RGB-IR adaptive fusion using entropy-guided gating",
+      "llm_evidence_cn": "基于熵引导门控的RGB-红外多模态自适应融合",
+      "llm_evidence": "基于熵引导门控的RGB-红外多模态自适应融合",
+      "canonical_evidence": "基于熵引导门控的RGB-红外多模态自适应融合",
+      "llm_tldr_en": "EGM-Det proposes an entropy-guided multimodal adaptive fusion framework for UAV RGB-IR object detection, using a dual-stream architecture and an Entropy Offset Gate Fusion module to adaptively aggregate reliable features across modalities.",
+      "llm_tldr_cn": "无人机视角下RGB与红外图像的联合检测常因固定融合权重而忽略空间变化的模态可靠性。EGM-Det提出熵引导的多模态自适应融合框架，采用双流架构保留模态专属特征，并通过熵偏移门控融合模块，依据输入强度、局部熵和跨模态差异自适应聚合可靠特征。实验表明该方法能有效提升无人机目标的检测性能，为多模态图像融合提供了一种新的自适应融合范式。",
+      "llm_tldr": "无人机视角下RGB与红外图像的联合检测常因固定融合权重而忽略空间变化的模态可靠性。EGM-Det提出熵引导的多模态自适应融合框架，采用双流架构保留模态专属特征，并通过熵偏移门控融合模块，依据输入强度、局部熵和跨模态差异自适应聚合可靠特征。实验表明该方法能有效提升无人机目标的检测性能，为多模态图像融合提供了一种新的自适应融合范式。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11765v1",
+      "source": "arxiv",
+      "title": "ProBAG: Prototype-Guided Boundary-Aware Graph Diffusion for Weakly Supervised Histopathology Segmentation",
+      "abstract": "Weakly supervised semantic segmentation enables histopathology tissue segmentation from image-level annotations, avoiding costly pixel-level labeling by expert pathologists. However, CAM-based methods often localize only highly discriminative regions and remain unreliable near tissue interfaces. We propose ProBAG, a stage-1 pseudo-mask generator that combines dataset-specific visual prototypes with pathology-aligned CONCH text prototypes over multi-scale frozen UNI features. ProBAG introduces two complementary mechanisms: class-wise power recalibration that reshapes inter-class competition while preserving the total foreground activation mass at each pixel, and one-step graph diffusion in which feature affinities are penalized by a late-transformer attention-context discrepancy used as a soft structural boundary cue. The resulting stage-1 pseudo-masks require neither CRF nor an external segmentation model; for complete two-stage comparison, they additionally supervise a downstream Phikon-FPN segmenter. Experiments on BCSS-WSSS and LUAD-HistoSeg show consistent gains over recent WSSS approaches, while ablations indicate that pathology-aligned text semantics provide the largest improvement and graph refinement provides a smaller complementary gain. The code is available at: https://github.com/wterrr/WSSS",
+      "authors": [
+        "Duy-Dong Nguyen",
+        "Le-Van Thai",
+        "Hoai Nhan Pham",
+        "Ngoc Lam Quang Bui",
+        "Tam Tran",
+        "Zhi Huang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T08:05:07+00:00",
+      "link": "https://arxiv.org/pdf/2608.11765v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Weakly supervised histopathology segmentation",
+      "llm_evidence_cn": "弱监督组织病理学分割",
+      "llm_evidence": "弱监督组织病理学分割",
+      "canonical_evidence": "弱监督组织病理学分割",
+      "llm_tldr_en": "Proposes ProBAG, a prototype-guided boundary-aware graph diffusion pseudo-mask generator for weakly supervised histopathology segmentation, combining visual and text prototypes with graph diffusion over multi-scale features.",
+      "llm_tldr_cn": "针对CAM类弱监督分割仅聚焦判别区域且组织边界不可靠的问题，提出ProBAG作为第一阶段伪掩码生成器。它结合数据集的视觉原型与病理对齐的CONCH文本原型，在多尺度冻结UNI特征上执行图扩散，并引入类级功率重校准保留前景激活质量。在组织病理学分割任务上有效提升边界质量，与传统CAM相比显著缩小与全监督分割的差距，为弱监督医学图像分割提供了实用的伪标签生成方案。",
+      "llm_tldr": "针对CAM类弱监督分割仅聚焦判别区域且组织边界不可靠的问题，提出ProBAG作为第一阶段伪掩码生成器。它结合数据集的视觉原型与病理对齐的CONCH文本原型，在多尺度冻结UNI特征上执行图扩散，并引入类级功率重校准保留前景激活质量。在组织病理学分割任务上有效提升边界质量，与传统CAM相比显著缩小与全监督分割的差距，为弱监督医学图像分割提供了实用的伪标签生成方案。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.12050v1",
+      "source": "arxiv",
+      "title": "Predicting Functions, Not Features: KANs with Function-Space Joint-Embedding Predictive Learning for Medical Image Segmentation",
+      "abstract": "Kolmogorov--Arnold Networks (KANs) introduce explicit functional representations by parameterizing each network edge as a learnable univariate function. However, existing KAN-based segmentation models optimize edge functions only through objectives defined after edge aggregation, leaving individual functions without an explicit pre-aggregation learning target. To address this limitation, we propose Function-Space Joint-Embedding Predictive Learning (FS-JEPA) for medical image segmentation. Our FS-JEPA framework moves predictive learning into the pre-aggregation function space of KANs. A masked online branch predicts structured signatures of sampled KAN edge functions generated by a full-context exponential moving average target branch, while shared edge indices preserve correspondence between predictions and targets. Rather than predicting an isolated edge response, we represent each sampled edge function using a multi-radius signature composed of function evaluations around its input anchor. This structured representation captures local functional variations that cannot be characterized by a single response and provides a more informative predictive target. The function-space objective is jointly optimized with the segmentation loss during training, while the predictive branch is removed at inference. Experiments on five medical image segmentation benchmarks show that our FS-JEPA achieves the best average Dice and outperforms the strongest competing KAN-based method by +2.25 percentage points.",
+      "authors": [
+        "Yungeng Liu",
+        "Xuanzi Fang",
+        "Yuge Zhang",
+        "Shuqi Ren",
+        "Haijin Zeng",
+        "Yongyong Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T13:32:20+00:00",
+      "link": "https://arxiv.org/pdf/2608.12050v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Medical image segmentation with KANs",
+      "llm_evidence_cn": "基于KAN的医学图像分割",
+      "llm_evidence": "基于KAN的医学图像分割",
+      "canonical_evidence": "基于KAN的医学图像分割",
+      "llm_tldr_en": "Presents FS-JEPA, a function-space joint-embedding predictive learning framework for KAN-based medical image segmentation, giving each KAN edge function an explicit pre-aggregation learning target.",
+      "llm_tldr_cn": "现有基于KAN的分割模型仅在边聚合后通过整体目标优化边缘函数，缺乏聚合前的显式学习信号，限制了函数表征的表达力。为此提出FS-JEPA，将预测学习引入KAN的聚合前函数空间，由全上下文教师分支生成采样边缘函数的结构化签名，供掩码在线分支进行预测。在多个医学图像分割数据集上的实验显示，该方法显著提升边缘函数的表征质量，取得更优的分割精度。这为KAN在医学影像分割中的训练提供了一种有效的新范式。",
+      "llm_tldr": "现有基于KAN的分割模型仅在边聚合后通过整体目标优化边缘函数，缺乏聚合前的显式学习信号，限制了函数表征的表达力。为此提出FS-JEPA，将预测学习引入KAN的聚合前函数空间，由全上下文教师分支生成采样边缘函数的结构化签名，供掩码在线分支进行预测。在多个医学图像分割数据集上的实验显示，该方法显著提升边缘函数的表征质量，取得更优的分割精度。这为KAN在医学影像分割中的训练提供了一种有效的新范式。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.12196v1",
+      "source": "arxiv",
+      "title": "M-Net: Integrating Spectral Features and Physical Field Operators into Deep Learning for Medical Image Segmentation",
+      "abstract": "Purpose: Deep learning-based medical image segmentation has achieved remarkable success, yet purely data-driven approaches often fail to exploit the rich mathematical structure inherent in medical images. We investigate whether explicit mathematical inductive biases, specifically matrix spectral analysis and vector calculus operators, can enhance segmentation beyond data-driven learning alone. Methods: We propose M-Net (Math-Augmented Network), which integrates three complementary mathematical priors into U-Net: (1) continuous spectral features derived from the condition number of centered local pixel matrices, providing a differentiable measure of texture ill-conditioning; (2) physical field operators (divergence and a discrete curl-like boundary irregularity operator) computed from image gradient fields, capturing focal intensity extrema and edge non-smoothness; and (3) a Math-Attention Gate (MAG) that adaptively fuses mathematical features with CNN-extracted deep features at skip connections. Results: Experiments on three benchmarks (LiTS, KiTS, and BraTS) show that M-Net achieves Dice scores of 78.42%, 76.15%, and 83.67%, outperforming baseline U-Net by 12.37%, 3.52%, and 5.55% on liver, kidney, and brain tumor segmentation, respectively. Ablations reveal that the condition-number feature contributes a 2.14% gain over binary invertibility features, while MAG adds 1.45% over simple concatenation. Conclusion: M-Net establishes that mathematical inductive biases provide effective complementary information for medical image segmentation. The continuous condition-number feature offers superior gradient information over discrete alternatives, and MAG preserves these priors throughout the network. This work opens avenues for integrating linear algebra and vector calculus into deep architectures for medical imaging.",
+      "authors": [
+        "Jing Zhu",
+        "Ye Wang",
+        "Fumin Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-12T15:51:07+00:00",
+      "link": "https://arxiv.org/pdf/2608.12196v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Deep learning U-Net augmentation for medical image segmentation",
+      "llm_evidence_cn": "深度学习U-Net用于医学图像分割，集成数学先验",
+      "llm_evidence": "深度学习U-Net用于医学图像分割，集成数学先验",
+      "canonical_evidence": "深度学习U-Net用于医学图像分割，集成数学先验",
+      "llm_tldr_en": "M-Net augments U-Net with spectral and physical field priors for medical image segmentation, aiming to improve beyond data-driven learning.",
+      "llm_tldr_cn": "本文针对纯数据驱动的医学图像分割未能充分利用图像中丰富数学结构的问题，提出M-Net（数学增强网络）。该方法在U-Net中集成矩阵频谱分析和矢量微积分物理场算子等三种数学先验，提供可微的纹理病态度量。实验表明，融入显式数学归纳偏置能够进一步提升分割精度，验证了将数学结构先验与深度学习结合的有效性。",
+      "llm_tldr": "本文针对纯数据驱动的医学图像分割未能充分利用图像中丰富数学结构的问题，提出M-Net（数学增强网络）。该方法在U-Net中集成矩阵频谱分析和矢量微积分物理场算子等三种数学先验，提供可微的纹理病态度量。实验表明，融入显式数学归纳偏置能够进一步提升分割精度，验证了将数学结构先验与深度学习结合的有效性。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.07144v1",
+      "source": "arxiv",
+      "title": "InstanceSplat: Instance-Aware Feed-Forward 3D Gaussian Splatting for Scene Understanding",
+      "abstract": "Feed-forward 3D Gaussian Splatting (3DGS) enables efficient and generalizable 3D reconstruction, but current feed-forward 3DGS methods for scene understanding remain largely category-oriented. In contrast, instance-aware 3DGS methods typically rely on per-scene optimization and often decouple reconstruction from instance and semantic learning, limiting reciprocal interactions among them. We present InstanceSplat, a unified feed-forward 3DGS framework for generalizable 3D reconstruction and instance-aware scene understanding from pose-free multi-view images. In a single forward pass, InstanceSplat constructs an instance-aware Gaussian representation that jointly encodes appearance, geometry, instance identity, and language-aligned semantics. Shared 3D Gaussians ground instance identities across views, producing renderable and cross-view-consistent instance features. To allow reconstruction and scene understanding to benefit from each other, we further design an instance-centric learning strategy that connects reconstruction, instance learning, and semantic learning through shared instance structure. Specifically, instance cues guide reconstruction, language-aligned semantics strengthen the discrimination of confusing same-category instances, and instance regions aggregate semantic evidence into coherent object-level predictions. Experiments on novel-view synthesis, instance segmentation, and open-vocabulary semantic understanding under varying input-view settings and on an unseen dataset demonstrate state-of-the-art performance, practical efficiency, and strong generalization.",
+      "authors": [
+        "Minchao Jiang",
+        "Xiaoxuan Ma",
+        "Shunyu Jia",
+        "Haoru Wang",
+        "Zhang Liang",
+        "Wentao Zhu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-07T12:02:48+00:00",
+      "link": "https://arxiv.org/pdf/2608.07144v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "instance-aware scene understanding and instance segmentation",
+      "llm_evidence_cn": "实例感知场景理解与实例分割",
+      "llm_evidence": "实例感知场景理解与实例分割",
+      "canonical_evidence": "实例感知场景理解与实例分割",
+      "llm_tldr_en": "Presents InstanceSplat, a unified feed-forward 3D Gaussian Splatting framework that jointly reconstructs scenes and learns instance identity, geometry, and language-aligned semantics in one forward pass, advancing instance-aware 3D scene understanding.",
+      "llm_tldr_cn": "针对现有前馈3D高斯泼溅场景理解方法缺乏实例感知、且重建与实例或语义学习相分离的问题，提出InstanceSplat统一框架。该框架在单次前向传播中构建实例感知的高斯表示，同时编码外观、几何、实例身份和语言对齐语义，支持无位姿多视图输入的通用3D重建与实例级场景理解。实验表明，联合优化重建与实例、语义学习能够增强各任务间的交互，显著提升实例感知场景理解性能。",
+      "llm_tldr": "针对现有前馈3D高斯泼溅场景理解方法缺乏实例感知、且重建与实例或语义学习相分离的问题，提出InstanceSplat统一框架。该框架在单次前向传播中构建实例感知的高斯表示，同时编码外观、几何、实例身份和语言对齐语义，支持无位姿多视图输入的通用3D重建与实例级场景理解。实验表明，联合优化重建与实例、语义学习能够增强各任务间的交互，显著提升实例感知场景理解性能。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.11595v1",
+      "source": "arxiv",
+      "title": "ProtoHGF-Net: Prototype HyperGraph Fusion with Intra-modal Calibration for RGBT Object Detection",
+      "abstract": "RGB-Thermal (RGBT) object detection enables robust perception in complex scenes by leveraging the complementary strengths of visible textures and thermal cues. However, existing methods mainly rely on dense cross-modal interactions over full-resolution features, which inevitably introduce background interference and hinder the learning of target-relevant representations. In this paper, we propose the Prototype HyperGraph Fusion Network (ProtoHGF-Net), a novel framework that redefines cross-modal fusion as prototype-level semantic interaction rather than the dense cross-modal interaction paradigm. Specifically, we design Prototype HyperGraph Fusion to perform cross-modal interaction in a compact prototype-level semantic space. This design enables more selective fusion among target-relevant prototypes. To support this prototype-level fusion, we propose Teacher-Mask Calibration Distillation, which calibrates modality features before fusion using modality-specific teachers and target-aware masks. This strategy suppresses backgrou- nd-dominant responses and produces more target-focused features. Extensive experiments on DroneVehicle, DVTOD, and FLIR demonstrate that ProtoHGF-Net achieves state-of-the-art performance with 85.9\\% $mAP_{50}$, 88.2\\% $mAP_{50}$, and 79.1\\% $mAP_{50}$, respectively. Our code is available at \\href{https://github.com/ZiMo-Chen/ProtoHGF}{GitHub}.",
+      "authors": [
+        "Xiangqi Chen",
+        "Xiuling Zhang",
+        "Chengzhuan Yang",
+        "Li Zhao",
+        "Dawei Zhang",
+        "Yanchao Wang",
+        "Liyuan Chen",
+        "Hua Wang",
+        "Hao Peng",
+        "Zhonglong Zheng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-12T03:08:19+00:00",
+      "link": "https://arxiv.org/pdf/2608.11595v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "cross-modal prototype-level feature fusion for RGBT detection",
+      "llm_evidence_cn": "用于RGBT检测的跨模态原型级特征融合",
+      "llm_evidence": "用于RGBT检测的跨模态原型级特征融合",
+      "canonical_evidence": "用于RGBT检测的跨模态原型级特征融合",
+      "llm_tldr_en": "Proposes Prototype HyperGraph Fusion for RGBT object detection, redefining cross-modal fusion as prototype-level semantic interaction to reduce background interference and improve target-relevant representations.",
+      "llm_tldr_cn": "针对RGBT目标检测中密集跨模态交互易引入背景干扰、阻碍目标相关表示学习的问题，提出ProtoHGF-Net。该方法将跨模态融合重新定义为紧致原型语义空间中的超图交互，并引入模态内校准，使模型聚焦目标相关特征。实验表明原型级交互能更好抑制背景噪声并提升检测精度。相关工作为多模态特征级融合提供了高效新范式。",
+      "llm_tldr": "针对RGBT目标检测中密集跨模态交互易引入背景干扰、阻碍目标相关表示学习的问题，提出ProtoHGF-Net。该方法将跨模态融合重新定义为紧致原型语义空间中的超图交互，并引入模态内校准，使模型聚焦目标相关特征。实验表明原型级交互能更好抑制背景噪声并提升检测精度。相关工作为多模态特征级融合提供了高效新范式。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.08555v1",
+      "source": "arxiv",
+      "title": "SC-Diff: Semantically Calibrated Diffusion for Visible-to-Infrared Image Translation",
+      "abstract": "Visible-to-infrared image translation provides a practical way to expand infrared training data using abundant visible images. Diffusion models are promising for this task because of their strong generative performance. However, existing diffusion-based methods typically use semantic priors only as external conditions, without explicitly regulating token interactions within the denoising network. Consequently, they struggle to preserve object locations, shapes, and semantic layouts required for reliable annotation reuse. We propose SC-Diff, a semantically calibrated latent diffusion framework that uses semantic priors for both conditional guidance and internal self-attention calibration. A pretrained SAM3 model with predefined text prompts first extracts category-specific semantic masks from visible images. These masks are merged into a semantic map and fused with the visible image as the input condition. The same map is converted into token-level semantic labels to calibrate self-attention in the denoising network. Based on these labels, we introduce Semantic-Guided Self-Attention Calibration (SGSC), which adaptively applies positive biases to query-key pairs of the same category. The query-wise calibration strength depends on the dispersion of attention across semantic categories and the attention assigned to the query's own category. The original attention scores further modulate the bias, giving greater calibration to same-category keys with stronger responses. This soft calibration reduces cross-category interference while retaining global contextual interactions, thereby improving semantic consistency in generated infrared images. Extensive experiments show that SC-Diff improves perceptual quality and produces more effective synthetic training data for downstream infrared object detection.",
+      "authors": [
+        "Junyin Zhang",
+        "Siyu Huang",
+        "Jianxiong Ye",
+        "Haowei Gong",
+        "Ruicheng Zhang",
+        "Deyu Meng",
+        "Chenqiang Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-09T07:57:40+00:00",
+      "link": "https://arxiv.org/pdf/2608.08555v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Cross-modal visible-to-infrared translation with diffusion, relevant to multimodal deep learning pipelines",
+      "llm_evidence_cn": "扩散模型实现可见光到红外跨模态翻译，与多模态深度学习相关",
+      "llm_evidence": "扩散模型实现可见光到红外跨模态翻译，与多模态深度学习相关",
+      "canonical_evidence": "扩散模型实现可见光到红外跨模态翻译，与多模态深度学习相关",
+      "llm_tldr_en": "SC-Diff calibrates latent diffusion with semantic priors for visible-to-infrared translation, preserving object layout for annotation reuse.",
+      "llm_tldr_cn": "针对可见光到红外图像翻译中现有扩散方法仅把语义先验当作外部条件、难以保持物体位置和形状的问题，提出SC-Diff框架。该方法利用预训练SAM3语义先验同时进行条件引导和内部自注意力校准，约束去噪网络中的令牌交互。实验表明SC-Diff能更好保持语义布局，为红外数据扩充和标注复用提供可靠支持。",
+      "llm_tldr": "针对可见光到红外图像翻译中现有扩散方法仅把语义先验当作外部条件、难以保持物体位置和形状的问题，提出SC-Diff框架。该方法利用预训练SAM3语义先验同时进行条件引导和内部自注意力校准，约束去噪网络中的令牌交互。实验表明SC-Diff能更好保持语义布局，为红外数据扩充和标注复用提供可靠支持。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.10648v1",
+      "source": "arxiv",
+      "title": "Precise Top-Layer Fabric Segmentation for Fabric Destacking with Edge- and Shape-Aware Deep Networks",
+      "abstract": "Fabric destacking requires precise segmentation of the topmost fabric layer, a task complicated by subtle fabric boundaries and high visual similarity between fabric layers. Existing semantic and edge-based segmentation approaches often struggle with these complexities, limiting the performance of robotic manipulation for different tasks. In this work, a novel segmentation training architecture tailored for top-layer fabric segmentation in stacked fabrics is proposed. The method extends the classical encoder-decoder framework by introducing two specialized branches - an edge-aware branch and a shape-aware branch - that are used to supervise the backbone network for better tuning. The edge-aware branch enhances boundary delineation, while the shape-aware branch guides the network to capture and align the overall fabric shape with reference masks derived from Computer Aided Design (CAD) models. Experiments on a real-world fabric dataset demonstrate that the training approach outperforms established baselines, verifying the effectiveness of the multi-branch design through both quantitative results and ablation studies.",
+      "authors": [
+        "Wenbo Dong",
+        "Dipankar Bhattacharya",
+        "Akinari Kobayashi",
+        "Akira Seino",
+        "Fuyuki Tokuda",
+        "Xuzhao Huang",
+        "Kai Tang",
+        "Norman C. Tien",
+        "Kazuhiro Kosuge"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-08-11T08:32:28+00:00",
+      "link": "https://arxiv.org/pdf/2608.10648v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "deep encoder-decoder semantic segmentation with edge- and shape-aware supervision for precise fabric top-layer segmentation",
+      "llm_evidence_cn": "基于编码器-解码器的深度语义分割，结合边缘与形状感知分支用于布料顶层分割",
+      "llm_evidence": "基于编码器-解码器的深度语义分割，结合边缘与形状感知分支用于布料顶层分割",
+      "canonical_evidence": "基于编码器-解码器的深度语义分割，结合边缘与形状感知分支用于布料顶层分割",
+      "llm_tldr_en": "The paper extends encoder-decoder semantic segmentation with edge-aware and shape-aware branches to precisely segment the top fabric layer, addressing subtle boundaries and high inter-layer similarity in fabric destacking.",
+      "llm_tldr_cn": "布料拆垛要求精确分割最顶层布料，但层间外观相似、边界细微使现有语义分割方法效果受限。该工作提出一种面向顶层布料分割的训练架构，在经典编码器-解码器基础上引入边缘感知和形状感知两个辅助分支来监督骨干网络。边缘分支增强边界定位，形状分支强化整体形状约束，从而提升分割精度。结果表明该方法能更好处理细微边界和相似层间纹理，支持机器人拆垛操作。",
+      "llm_tldr": "布料拆垛要求精确分割最顶层布料，但层间外观相似、边界细微使现有语义分割方法效果受限。该工作提出一种面向顶层布料分割的训练架构，在经典编码器-解码器基础上引入边缘感知和形状感知两个辅助分支来监督骨干网络。边缘分支增强边界定位，形状分支强化整体形状约束，从而提升分割精度。结果表明该方法能更好处理细微边界和相似层间纹理，支持机器人拆垛操作。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.10989v1",
+      "source": "arxiv",
+      "title": "Putting Registers to Work: Task Registers for Token Pruning in Vision Transformers",
+      "abstract": "Token-pruning policies are usually designed for a single recognition pipeline, but pretrained Vision Transformers are reused across tasks with different spatial demands. We ask which parts of a pruning policy transfer across image classification, semantic segmentation, and object detection. For each pipeline, controlled probes freeze the no-pruning checkpoint and apply a series of parameter-free reduction criteria at one eligible layer at a time without retraining. The probes reveal three differences: segmentation and detection rank the criteria differently, classification is especially sensitive to attention-based pruning in the earliest layers, and the dense tasks prefer opposite recovery endpoints. These findings motivate Task-Adaptive Pruning (TAP). Existing register tokens serve as task-agnostic storage for feature artifacts. TAP instead introduces one task register per task and activates only the current one. Its evolving state ranks tokens, distributes an exact removal budget over depth, and sets the recovery scale for dense features. At a final keep rate of $ρ=0.5$, our jointly adapted model, TAP-J, reaches $47.0$ mIoU at $1.30\\times$ encoder throughput on ADE20K and $53.7$ box AP at $1.32\\times$ encoder throughput on COCO while remaining competitive on ImageNet-1K.",
+      "authors": [
+        "Hongsen Cao",
+        "Mona Jaber",
+        "Shanxin Yuan",
+        "Ahmed Sayed"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-11T14:43:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.10989v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Token pruning study for vision transformers across dense tasks including semantic segmentation",
+      "llm_evidence_cn": "视觉Transformer令牌剪枝研究，涵盖语义分割等密集型任务",
+      "llm_evidence": "视觉Transformer令牌剪枝研究，涵盖语义分割等密集型任务",
+      "canonical_evidence": "视觉Transformer令牌剪枝研究，涵盖语义分割等密集型任务",
+      "llm_tldr_en": "This paper probes token pruning policies across classification, segmentation, and detection, proposing task-adaptive pruning.",
+      "llm_tldr_cn": "为了研究预训练视觉Transformer在不同任务间剪枝策略的可迁移性，本文对分类、语义分割和检测进行受控探测。发现不同任务对剪枝标准排序不同，分割和检测需要特殊处理端点恢复。基于这些发现提出任务自适应剪枝方法，为分割等密集型任务的高效推理提供了参考。",
+      "llm_tldr": "为了研究预训练视觉Transformer在不同任务间剪枝策略的可迁移性，本文对分类、语义分割和检测进行受控探测。发现不同任务对剪枝标准排序不同，分割和检测需要特殊处理端点恢复。基于这些发现提出任务自适应剪枝方法，为分割等密集型任务的高效推理提供了参考。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
