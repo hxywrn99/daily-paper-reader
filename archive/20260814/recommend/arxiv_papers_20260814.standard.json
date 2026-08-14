@@ -1,0 +1,185 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-14T20:59:53.197017+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 2,
+    "deep_cap": 7,
+    "deep_selected": 2,
+    "quick_candidates": 2,
+    "quick_skim_target": 12,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2608.11681v1",
+      "source": "arxiv",
+      "title": "Learning from Multimodal Pseudo-Labels for Robust Open-Vocabulary Instance and Panoptic Segmentation",
+      "abstract": "This work addresses the challenge of open-vocabulary instance segmentation (OVIS) and open-set panoptic segmentation (OSPS), which aim to recognize both predefined and unseen object categories without exhaustive human annotations. Existing methods often suffer from noisy pseudo-masks, limited visual-textual grounding, and difficulty handling synonyms or out-of-vocabulary (OOV) words. To overcome these challenges, we propose a multimodal framework that leverages pre-trained vision-language models for automatic pseudo-label generation, CLIP-guided synonym filtering, and GPT-based caption reconstruction. In our target-vocabulary-assisted pseudo-labeling setting, the framework first constructs pseudo segmentation masks, descriptive captions, and semantically aligned synonym sets using Grounded SAM, LLaVA, and CLIP, providing multimodal supervision without manual annotation. We then enhance visual-textual alignment through three complementary training objectives: an extended grounding loss that incorporates visually grounded synonyms, a semantic consistency loss, and a generative caption reconstruction loss. Extensive experiments on the COCO dataset demonstrate that the proposed method consistently outperforms previous state-of-the-art approaches under this protocol, achieving substantial improvements on both OVIS and OSPS benchmarks.",
+      "authors": [
+        "Duy Tran Thanh",
+        "Yeejin Lee",
+        "Byeongkeun Kang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "published": "2026-08-12T05:39:57+00:00",
+      "link": "https://arxiv.org/pdf/2608.11681v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "directly proposes a deep multimodal framework for open-vocabulary instance and panoptic segmentation, matching segmentation requirements including instance segmentation",
+      "llm_evidence_cn": "直接针对开放词汇实例分割与全景分割，提出多模态伪标签深度框架，契合图像分割需求",
+      "llm_evidence": "直接针对开放词汇实例分割与全景分割，提出多模态伪标签深度框架，契合图像分割需求",
+      "canonical_evidence": "直接针对开放词汇实例分割与全景分割，提出多模态伪标签深度框架，契合图像分割需求",
+      "llm_tldr_en": "Addresses open-vocabulary instance and open-set panoptic segmentation by generating pseudo-labels with vision-language models, CLIP-guided synonym filtering, and GPT-based caption reconstruction to handle unseen categories and noisy masks.",
+      "llm_tldr_cn": "开放词汇实例分割和开放集全景分割需要识别未见类别，现有方法常受噪声伪掩码和弱视觉-文本关联困扰。该文提出多模态框架，利用预训练视觉-语言模型自动生成伪标签，并通过CLIP进行同义词过滤、GPT重建描述，从而获得更鲁棒的目标词汇辅助伪标签。该方法同时处理语义与实例级分割，可减少人工标注依赖，提升对未知类别的泛化能力。",
+      "llm_tldr": "开放词汇实例分割和开放集全景分割需要识别未见类别，现有方法常受噪声伪掩码和弱视觉-文本关联困扰。该文提出多模态框架，利用预训练视觉-语言模型自动生成伪标签，并通过CLIP进行同义词过滤、GPT重建描述，从而获得更鲁棒的目标词汇辅助伪标签。该方法同时处理语义与实例级分割，可减少人工标注依赖，提升对未知类别的泛化能力。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.13045v1",
+      "source": "arxiv",
+      "title": "P2Fusion: Prompt-based Progressive Infrared-Visible Image Fusion via Dual-Prior Distillation",
+      "abstract": "Infrared-visible image fusion (IVIF) is pivotal for multimodal perception, yet reconciling the inherent information disparity between thermal and textural features remains a fundamental challenge. Existing prior-guided methods often rely on static constraints that induce optimization conflicts or utilize extrinsic semantic priors from large-scale foundation models (e.g., CLIP/DINO), which frequently fail to exploit the intrinsic modality characteristics essential for high-fidelity fusion. To address these issues, we propose P2Fusion, a prior-guided distillation-based framework that reformulates IVIF via dual intrinsic prompts. Instead of imposing hard-coded penalties, we distill image-intrinsic priors, thermal saliency and spatial quality, into learnable dynamic regulators. Specifically, a Teach-to-Fuse mechanism provides dual-granularity progressive guidance, coupled with a Gated Dynamic Expert Recalibration (GDER) module for decoupled feature refinement. This design enables the network to adaptively mediate modal competition through expert specialization. Extensive experiments demonstrate that P2Fusion achieves state-of-the-art performance across five mainstream datasets. Notably, our framework demonstrates consistent performance advantages in fusion quality, achieving state-of-the-art results in 14 out of 20 key evaluation metrics across 5 benchmarks. Furthermore, it effectively contributes to the robustness of downstream perception, such as +3.2% mAP on MSRS, +0.5% mAP on M3FD and +0.9% mAP on DroneVehicle for object detection. Our code will be available at https://github.com/YiShi99/P2Fusion",
+      "authors": [
+        "Yi Shi",
+        "Huichao Xie",
+        "Yuqing Wang",
+        "Mingyu Wang",
+        "Kaihui Yang",
+        "Yu Liu",
+        "Ruitao Lu",
+        "Lizhe Li",
+        "Junwei Han",
+        "Dingwen Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-13T10:09:49+00:00",
+      "link": "https://arxiv.org/pdf/2608.13045v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "directly addresses infrared-visible multimodal image fusion with a deep learning distillation framework, matching deep multimodal image fusion requirements",
+      "llm_evidence_cn": "直接研究红外-可见光多模态图像融合，提出基于双先验蒸馏的深度框架，契合多模态深度学习融合需求",
+      "llm_evidence": "直接研究红外-可见光多模态图像融合，提出基于双先验蒸馏的深度框架，契合多模态深度学习融合需求",
+      "canonical_evidence": "直接研究红外-可见光多模态图像融合，提出基于双先验蒸馏的深度框架，契合多模态深度学习融合需求",
+      "llm_tldr_en": "Introduces P2Fusion, a prior-guided distillation framework for infrared-visible image fusion that distills thermal saliency and spatial intrinsic priors via dual prompts, avoiding static constraints and improving high-fidelity multimodal fusion.",
+      "llm_tldr_cn": "红外与可见光图像融合需平衡热辐射与纹理信息，现有先验引导方法常因静态约束或外部基础模型先验而忽略模态内在特征。P2Fusion 将融合重构为基于双内在提示的蒸馏框架，通过蒸馏热显著性与空间本质先验来引导逐级融合，避免硬编码惩罚造成优化冲突。该方法面向高保真多模态融合，有望提升红外-可见光融合性能。",
+      "llm_tldr": "红外与可见光图像融合需平衡热辐射与纹理信息，现有先验引导方法常因静态约束或外部基础模型先验而忽略模态内在特征。P2Fusion 将融合重构为基于双内在提示的蒸馏框架，通过蒸馏热显著性与空间本质先验来引导逐级融合，避免硬编码惩罚造成优化冲突。该方法面向高保真多模态融合，有望提升红外-可见光融合性能。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep learning",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.05983v1",
+      "source": "arxiv",
+      "title": "Universal Concept Disruption for SAM3 Image Segmentation",
+      "abstract": "SAM3 extends promptable segmentation from geometry-driven mask prediction to open-vocabulary concept segmentation, where a text-conditioned grounding model decides whether a concept is present and segments all matching instances. While this presence-gated design improves concept-level prediction, its adversarial robustness remains unexplored. In this paper, we introduce Universal Concept Disruption (UCD), the first universal cross-concept adversarial attack tailored to SAM3 image segmentation. UCD learns a single bounded image perturbation from (image, noun-phrase) pairs and attacks SAM3 as an integrated concept-grounding system. It jointly disrupts the text-conditioned input path, maximizes divergence in prompt-shared visual features, suppresses the final presence-gated concept scores, and corrupts the spatial validity of retained masks through area collapse and clean-mask Dice disruption. Across SACo-Gold, LVIS, RefCOCO, PhraseCut, and OpenImages datasets, UCD consistently outperforms all baselines under a matched evaluation protocol, reducing average mask AP from 59.43 to 18.73 and average cgF1 from 50.32 to 20.49. The learned perturbation also transfers to SAM3.1 and to SAM3 video inference without re-optimization, while prompt ensembling, lightweight head fine-tuning, and temporal filtering provide limited recovery.",
+      "authors": [
+        "Hao Wang",
+        "Yuxuan Zhang",
+        "Wei Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-06T13:00:02+00:00",
+      "link": "https://arxiv.org/pdf/2608.05983v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "attack on SAM3 segmentation model, relevant to deep learning segmentation theme",
+      "llm_evidence_cn": "针对SAM3分割模型的对抗攻击，属于深度学习分割主题",
+      "llm_evidence": "针对SAM3分割模型的对抗攻击，属于深度学习分割主题",
+      "canonical_evidence": "针对SAM3分割模型的对抗攻击，属于深度学习分割主题",
+      "llm_tldr_en": "Introduces UCD, a universal cross-concept adversarial attack for SAM3 open-vocabulary segmentation, jointly disrupting text-conditioned input, visual features, and presence decisions.",
+      "llm_tldr_cn": "现有SAM3将可提示分割扩展为开放词汇概念分割，但其对抗鲁棒性研究缺失。本文首次提出通用概念扰动（UCD），通过从图像与名词短语对中学习单一有界扰动，联合攻击文本条件输入与视觉特征，抑制最终存在性判断。实验表明该攻击能有效破坏SAM3的概念分割能力，揭示了概念接地模型的安全隐患。",
+      "llm_tldr": "现有SAM3将可提示分割扩展为开放词汇概念分割，但其对抗鲁棒性研究缺失。本文首次提出通用概念扰动（UCD），通过从图像与名词短语对中学习单一有界扰动，联合攻击文本条件输入与视觉特征，抑制最终存在性判断。实验表明该攻击能有效破坏SAM3的概念分割能力，揭示了概念接地模型的安全隐患。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.11285v1",
+      "source": "arxiv",
+      "title": "SegPAR: Class-Centric Decision-Based Sparse Attack for Semantic Segmentation",
+      "abstract": "Despite the practical relevance of sparse decision-based black-box threats, they have received limited attention in semantic segmentation. To bridge this gap, we adapt the most representative decision-based black-box sparse attacks from the classification domain to serve as baselines, establishing a rigorous benchmark for this underexplored setting. In this context, we demonstrate that one of the existing methods suffers from severe query inefficiency due to its image-centric pixel accumulation, which rapidly exhausts query budgets across the vast image space. To overcome this, we propose SegPAR, a novel decision-based framework that shifts to a class-centric exploration paradigm. Furthermore, to eliminate the misleading feedback generated by standard decision rewards during pixel accumulation, we introduce a novel discrepancy reward. Extensive experiments show that SegPAR significantly outperforms black-box baselines in sparsity efficiency and MIoU reduction, while remaining competitive with white-box sparse attacks. Code is available at \\href{https://github.com/KAU-QuantumAILab/SegPAR}{https://github.com/KAU-QuantumAILab/SegPAR}.",
+      "authors": [
+        "Dongsu Song",
+        "DaeYun GO",
+        "Boseung Seo",
+        "Jay Hoon Jung"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CR",
+        "cs.LG"
+      ],
+      "published": "2026-08-11T14:44:33+00:00",
+      "link": "https://arxiv.org/pdf/2608.11285v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "semantic segmentation attack, deep learning segmentation",
+      "llm_evidence_cn": "语义分割对抗攻击，面向深度学习分割模型",
+      "llm_evidence": "语义分割对抗攻击，面向深度学习分割模型",
+      "canonical_evidence": "语义分割对抗攻击，面向深度学习分割模型",
+      "llm_tldr_en": "SegPAR introduces a class-centric decision-based sparse attack for semantic segmentation, overcoming query inefficiency of image-centric methods and establishing a benchmark for black-box segmentation attacks.",
+      "llm_tldr_cn": "针对语义分割中稀疏决策黑盒攻击研究不足的问题，SegPAR提出以类别为中心的攻击范式，缓解了现有方法因像素累积导致的查询效率低下；实验表明该方法在查询效率和攻击成功率上均优于基线，为语义分割鲁棒性研究提供了新基准。",
+      "llm_tldr": "针对语义分割中稀疏决策黑盒攻击研究不足的问题，SegPAR提出以类别为中心的攻击范式，缓解了现有方法因像素累积导致的查询效率低下；实验表明该方法在查询效率和攻击成功率上均优于基线，为语义分割鲁棒性研究提供了新基准。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

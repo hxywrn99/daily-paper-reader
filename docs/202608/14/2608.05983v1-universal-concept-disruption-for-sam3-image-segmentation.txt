@@ -1,0 +1,417 @@
+Title: Universal Concept Disruption for SAM3 Image Segmentation
+
+URL Source: https://arxiv.org/pdf/2608.05983v1
+
+Published Time: Fri, 07 Aug 2026 00:57:48 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# Universal Concept Disruption for SAM3 Image Segmentation 
+
+# Hao Wang 1, Yuxuan Zhang 2†, Wei Yang 1,3,4 †
+
+> 1
+
+School of Computer Science and Technology, University of Science and Technology of China, Hefei, China 
+
+> 2
+
+School of Artificial Intelligence and Computer Science, Jiangnan University, Wuxi, China 
+
+> 3
+
+Suzhou Institute for Advanced Research, University of Science and Technology of China, Suzhou, China 
+
+> 4
+
+Hefei National Laboratory, Hefei, China wanghao0204@mail.ustc.edu.cn, yxzhang97@jiangnan.edu.cn, qubit@ustc.edu.cn 
+
+Abstract 
+
+SAM3 extends promptable segmentation from geometry-driven mask prediction to open-vocabulary concept segmen-tation, where a text-conditioned grounding model decides whether a concept is present and segments all matching in-stances. While this presence-gated design improves concept-level prediction, its adversarial robustness remains unex-plored. In this paper, we introduce Universal Concept Disrup-tion (UCD), the first universal cross-concept adversarial attack tailored to SAM3 image segmentation. UCD learns a single bounded image perturbation from (image, noun-phrase) pairs and attacks SAM3 as an integrated concept-grounding system. It jointly disrupts the text-conditioned input path, maximizes divergence in prompt-shared visual features, suppresses the final presence-gated concept scores, and corrupts the spatial validity of retained masks through area collapse and clean-mask Dice disruption. Across SACo-Gold, LVIS, RefCOCO, PhraseCut, and OpenImages datasets, UCD consistently out-performs all baselines under a matched evaluation protocol, reducing average mask AP from 59.43 to 18.73 and aver-age cgF1 from 50.32 to 20.49. The learned perturbation also transfers to SAM3.1 and to SAM3 video inference without re-optimization, while prompt ensembling, lightweight head fine-tuning, and temporal filtering provide limited recovery. 
+
+# Introduction 
+
+Driven by their exceptional zero-shot generalization capabili-ties, the Segment Anything Model (SAM) series has emerged as a crucial bridge between visual foundation models and di-verse downstream perception tasks. Specifically, SAM (Kir-illov et al. 2023) provides a robust framework for prompt-driven image segmentation, and SAM2 (Ravi et al. 2025) advances this paradigm by incorporating temporal aware-ness for seamless video segmentation and object tracking. The recently released SAM3 (Carion et al. 2025) changes the operating point. It introduces open-vocabulary concept seg-mentation, and the model is expected to determine whether the concept exists and segment all matching instances. Adversarial attacks introduce visually imperceptible per-turbations to images, causing the model to produce incorrect predictions and fail at its intended task, thereby achieving the attack objective. The vulnerability of the SAM family to such attacks has been experimentally validated (Long et al. 
+
+> †
+
+Corresponding authors 
+
+2025; Qiao et al. 2023). Specifically, methods such as Dark-SAM (Zhou et al. 2024) and AttackSAM (Zhang et al. 2023) are designed to target the original SAM. For SAM2, UAP-SAM2 (Zhou et al. 2026) utilizes universal adversarial per-turbations; in scenarios where the initial k frames of a video are continuously attacked, it drastically degrades SAM2’s video segmentation performance. However, the robustness of SAM3 against adversarial attacks remains unexplored. We first verify whether existing attacks can be directly transferred to SAM3 image segmentation. To make the comparison fair, we adapt representative SAM, SAM2, and general adversarial baselines into the same universal-perturbation (Moosavi-Dezfooli et al. 2017) setting, using the same train-test separation, random seeds, optimization bud-get, and evaluation pipeline. Across five datasets, attacks that do not directly target SAM3’s concept-scoring mechanism produce small or inconsistent degradation, while even the strongest adapted baseline remains below our SAM3-specific attack. Existing universal attacks against SAM aim to make the model segment nothing or segment incorrectly across prompts. SAM2 attacks further account for video memory and cross-frame prompt reuse. However, SAM3 differs sig-nificantly from SAM1 and SAM2, being specifically tailored for concept segmentation. To enable its concept segmentation capabilities, SAM3 features a highly integrated architecture design on both the input and output sides. A failure is no longer determined only by whether a mask is geometrically distorted, it can also occur when the queried concept is absent and suppresses otherwise plausible candidates. On the input side, the original SAM conducted a proof-of-concept for text prompts by directly extracting embeddings via a frozen CLIP (Radford et al. 2021) text encoder. How-ever, its performance was highly suboptimal, which led to subsequent decoupled designs that relied on cascading exter-nal CLIP-based detectors to provide spatial prompts. In con-trast, SAM3 integrates Perception Encoder (PE)-style (Bolya et al. 2026) vision-language representations into a unified text-conditioned grounding architecture and is trained end-to-end on the SA-Co (Carion et al. 2025) dataset. On the out-put side, SAM3 introduces a presence token to address the challenges of open-vocabulary segmentation. This mecha-nism incorporates a presence token for concept existence and computes a final candidate score that combines query confidence with presence confidence. Functioning as an ex-arXiv:2608.05983v1 [cs.CV] 6 Aug 2026 istence switch, the presence token is globally multiplied by the scores of all individual masks. While this design en-hances the robustness of open-vocabulary segmentation, it inadvertently exposes a novel and critical universal attack surface. Motivated by this observation, we propose Universal Con-cept Disruption (UCD), the first cross-concept universal ad-versarial attack tailored to SAM3 image segmentation. UCD treats SAM3 as a concept-grounding system rather than a promptable mask decoder, and disrupts it at three coupled levels. At the input level, UCD learns a single bounded pertur-bation from (image, noun-phrase (NP)) pairs, thereby activat-ing the same text-conditioned concept path used at inference instead of relying on geometric prompts. At the feature level, UCD perturbs the prompt-shared visual representation, turn-ing the common image backbone into a transferable attack carrier across concepts, datasets, and model variants. At the output level, UCD targets SAM3’s presence-gated concept decision together with the spatial validity of retained masks, causing present concepts to disappear or become geometri-cally unreliable. We conduct extensive experiments on five datasets, showcasing superior attack efficacy of UCD. Our contributions are threefold: 
+
+• We propose the first universal cross-concept adversar-ial attack, termed UCD, specifically targeting the open-vocabulary image segmentation capabilities of SAM3. 
+
+• We develop a SAM3-specific concept disruption frame-work that couples text-conditioned input optimization, prompt-shared feature disruption, and presence-gated output corruption. 
+
+• We comprehensively evaluate our method across five datasets under a unified universal-perturbation protocol. The results demonstrate that our approach consistently surpasses existing attacks. 
+
+# Methodology 
+
+Task Definition and Overview 
+
+SAM3 Promptable Concept Segmentation We focus on the single-image, text-prompted setting. Let x ∈
+
+[0 , 1] 3×H×W be an image and let t be a text prompt. SAM3 encodes the image and text, then runs a grounding stage that returns a set of candidate boxes, masks, query logits, and a prompt-level presence logit. We denote the image backbone by Eimg  
+
+> θ
+
+, the text encoder by Etext  
+
+> θ
+
+, and the grounding head by Gθ . The simplified image inference path is 
+
+F = Eimg  
+
+> θ
+
+(x), q = Etext  
+
+> θ
+
+(t), (O, p ) = Gθ (F, q ), (1) where O = {(ℓi, b i, m i)}Ni=1 and p is the prompt-level pres-ence logit. Here ℓi is the raw query logit for candidate i, bi
+
+is its box, and mi is its mask logit map. For each candidate, the final concept score is the product of the query probability and the presence probability: 
+
+si(x, t ) = σ(ℓi(x, t )) · σ(p(x, t )) . (2) Post-processing keeps candidates whose si exceeds a thresh-old τ and converts retained mask logits into binary masks. A candidate with high mask quality can still be discarded if the model predicts the concept as absent, because the presence probability globally gates all candidate scores. 
+
+Universal Concept Attack against Images Targeting im-ages, we attack SAM3 with a single additive perturbation δ
+
+shared across all images and prompts: 
+
+xadv = Π [0 ,1] (x + δ) , ∥δ∥∞ ≤ ϵ, (3) where ϵ denotes the bound on the perturbation magnitude. The attacker has white-box access to the released SAM3 model and optimizes δ over public training samples. We consider an untargeted objective. In SAM3, concept segmentation prompts are categorized into positive prompts (where the concept is present in the image) and negative prompts (where the concept is absent from the image). For positive prompts, the attack aims to remove or corrupt the correctly predicted concept masks. For negative prompts, however, applying the same loss function as that used for positive prompts is ill-posed. For a training set D = {(xj , t j )}Mj=1 of positive prompts, the ideal universal attack objective can be formulated as min-imizing the retained clean-prediction utility: 
+
+min  
+
+> ∥δ∥∞≤ϵ
+
+E(x,t )∼D 
+
+U  fθ (xadv , t ), f θ (x, t ) , (4) where U measures the remaining agreement or utility of the adversarial prediction relative to the clean prediction. Minimizing U induces adversarial failure under the clipped input xadv from Eq. (3). 
+
+Universal Concept Disruption 
+
+In SAM3, a concept query passes through a hierarchy of decisions:  
+
+> ▶
+
+The image must produce features that match the NPs.  
+
+> ▶
+
+The grounding head must assign high candidate scores under the global presence gate.  
+
+> ▶
+
+Retained candidates must have useful mask geometry. A perturbation may disturb low-level image features without changing the final concept decision. It may suppress a score while leaving a surviving mask spatially correct, or it may alter a mask while the presence-gated score remains high enough for post-processing. As shown in Figure 1, the attack has three architectural levels. First, at the input-concept level, UCD trains on actual positive image-NP pairs rather than geometric prompt grids. This activates SAM3’s text-conditioned grounding path dur-ing optimization and avoids reducing the task to prompt-agnostic mask failure. Second, at the feature level, UCD maximizes the discrepancy between clean and adversarial image features. Because the visual backbone is shared across text prompts, this term encourages transfer beyond the spe-cific concepts observed during training. Third, at the output level, UCD directly attacks the presence-gated concept deci-sion and the geometry of the retained masks. The score term targets the final score in Eq. (2), while the mask-area and clean-mask Dice terms make high-score survivors spatially useless. This hierarchy focuses UCD on the disappearance and spatial corruption of present concepts. Activating absent concepts is a complementary false-positive threat model, but it is not the objective studied in this paper. The method be-low therefore keeps the attack aligned with positive-prompt Negative NPs 
+
+> Image Encoder
+
+Text Feature 
+
+# Image Feature 
+
+> Head
+> Scores
+> Encoder
+
+Presence Token 
+
+Final Scores 
+
+Presence Score 
+
+> Decoder
+
+# Feature 
+
+# Divergence 
+
+Mask Area Collapse  Dice Disruption 
+
+“Skier s wearing 
+
+black pants ”
+
+> Positive NPs
+
+Presence Suppression 
+
+> Image
+
+Clean Feature 
+
+Adv Feature 
+
+Mask 
+
+Queries 
+
+SAM3 Image Segmentation  UCD Multi-level Adversarial Attack 
+
+## “a cat” 
+
+## “leather chair” 
+
+## “plant” 
+
+## “sleeping cat” 
+
+## Attack Iter1 
+
+## Attack Iter2  “remote control” 
+
+## Attack Iter3  “blue chair” 
+
+# Concept -based Disruption Figure 1: Universal Concept Disruption attacks SAM3 at input, feature, and output levels while optimizing a single image-space perturbation shared across prompts. concept segmentation: suppress the final concept decision, collapse or displace the retained masks, and disturb prompt-shared visual features. For every sampled image, we first compute clean image features and clean top masks without gradient. We then ap-ply δ, run the same text prompts through SAM3, and back-propagate through the image backbone and grounding head into δ. Let X+ be the set of training images and let T+(x) be the positive noun phrases associated with image x. The full UCD objective is 
+
+Lout = λsLscore + λaLarea + λdLdice ,
+
+¯Lout (x, δ ) = 1
+
+|T +(x)|
+
+X
+
+> t∈T +(x)
+
+Lout (x, t, δ ),
+
+J (δ) = Ex∼X +
+
+ ¯Lout (x, δ ) − λf Dfeat (x, δ ),δ⋆ = arg min  
+
+> ∥δ∥∞≤ϵ
+
+J (δ).
+
+(5) 
+
+Presence Suppression Let S(x, t ) = {si(x, t )}Ni=1 be the final SAM3 concept scores from Eq. (2). With Is =TopK( S(xadv , t ), k ), we penalize high scores through 
+
+Lscore (x, t, δ ) = 1
+
+k
+
+X
+
+> i∈I s
+
+[si(xadv , t ) − ms]+. (6) Here [z]+ = max( z, 0) and ms is a score margin. This term attacks the post-processing threshold rather than an in-termediate query logit alone. As a result, it simultaneously accounts for the model’s concept existence estimate and can-didate confidence. 
+
+Mask Area Collapse Score suppression alone can lower confidence while leaving plausible spatial masks. To at-tack segmentation quality, we add a mask-area loss on the top-scoring candidates. Let Mi(x, t ) = σ(mi(x, t )) 
+
+be the soft mask probability for candidate i. With Ia =TopK( S(xadv , t ), k a), where the selected scores are treated as fixed for gradient computation, we minimize 
+
+Larea (x, t, δ ) = 1
+
+ka
+
+X
+
+> i∈I a
+
+1
+
+HW 
+
+X
+
+> u,v
+
+M uv i (xadv , t ). (7) This term encourages high-confidence masks to shrink, which is useful when a candidate remains above threshold but no longer covers the target concept. 
+
+Dice Disruption The area loss can over-favor tiny masks but does not explicitly push masks away from the clean spatial support of all high-score instances. Therefore, we store a clean high-score mask set 
+
+Ic = TopK( S(x, t ), k d), Mc = {Mj (x, t ) : j ∈ I c},
+
+(8) and minimize the best Dice overlap between each top adversarial mask and this clean set. Let Id =TopK( S(xadv , t ), k d) and 
+
+Dice( A, B ) = 2⟨A, B ⟩ + η
+
+∥A∥1 + ∥B∥1 + η . (9) The Dice disruption loss is 
+
+Ldice (x, t, δ ) = 1
+
+kd
+
+X
+
+> i∈I d
+
+max 
+
+> j∈I c
+
+Dice  Mi(xadv , t ), M j (x, t ).
+
+(10) Although Eq. (10) is written as a loss to minimize, each term is the strongest Dice overlap with any clean high-score in-stance. Minimizing it lowers spatial agreement with the clean multi-instance prediction. The clean masks are detached so gradients update only the universal perturbation. 
+
+Feature Divergence Text prompts vary widely across con-cept segmentation benchmarks. To reduce overfitting to in-dividual prompts, we also attack the image representation shared across prompts. Let Fℓ(x) denote the last feature map in SAM3’s image-backbone FPN. We maximize normalized feature divergence: 
+
+Dfeat (x, δ ) = ∥Fℓ(xadv ) − Fℓ(x)∥22
+
+∥Fℓ(x)∥22 + η . (11) The negative sign in Eq. (5) maximizes this divergence while all other terms are minimized. Prompt-invariant image fea-tures are a natural attack surface for cross-prompt universal perturbations, but it is paired here with SAM3-specific score and mask objectives. 
+
+Optimization We optimize δ with Adam (Kingma and Ba 2014) and project it into the ℓ∞ ball after every step: 
+
+˜δ ← Adam( δ, ∇δ J ), δ ← clip( ˜δ, −ϵ, ϵ ). (12) 
+
+# Experiments 
+
+Experimental Setup 
+
+Datasets and Metrics We evaluate UCD on five concept-segmentation datasets. SACo-Gold is released with SAM3 and evaluates promptable concept segmentation with both positive and negative NPs. LVIS (Gupta, Dollar, and Gir-shick 2019) evaluates open-vocabulary category segmen-tation with positive and negative category prompts. Ref-COCO (Kazemzadeh et al. 2014), PhraseCut (Wu et al. 2020), and OpenImages (Kuznetsova et al. 2020) provide complementary referring-expression, phrase-grounding, and open-vocabulary segmentation evaluations. We report cgF 1 and COCO-style AP for masks and boxes. cgF 1 is the official SAM3 concept-grounding metric, but it is not applicable when a sampled set contains only positive prompts. For each image benchmark, we sample 100 images per dataset for evaluation. For randomly sampled evaluation subsets, we repeat the sampling and evaluation procedure three times and report the averaged metrics. Unless otherwise stated, seed 0 is used as the base sampling seed. We use the official pretrained SAM3 model as the target. 
+
+Implementation Details The main perturbation is trained on 50 randomly sampled LVIS-train images and 50 randomly sampled SACo-Silver images. For each image, at most four positive NPs are used to form the positive-prompt training set 
+
+D+. Training is grouped by image: we perform two updates for each sampled image and run one epoch over the sam-pled training set. The perturbation is randomly initialized and constrained by ϵ = 8 /255 in normalized pixel units. We use a learning rate of 0.03 . All images are resized to 
+
+1008 × 1008 for training and evaluation. During evaluation, candidate masks are kept with a final-score threshold of 0.5
+
+and binarized with a mask threshold of 0.5. The loss weights are λs = 0 .5, λa = 0 .15 , λd = 0 .5, λf = 1 . For the TopK, we use k = 10 , ka = kd = 3 . All experiments are conducted on a single NVIDIA RTX A6000 GPU. 
+
+Comparison Study 
+
+Table 1 compares UCD with SAM3-adapted baseline attacks. Each baseline is optimized as a universal image perturbation under the same perturbation budget, training data, random seeds, and optimization schedule as UCD, and is evaluated on disjoint test samples. UCD achieves the strongest attack among all baselines. Averaged over the five benchmarks, UCD reduces mask AP from 59.43 to 18.73, while the strongest baseline, GRAT, remains at 21.76 and CPA remains at 47.54. The same trend holds for localization: UCD lowers the average box AP from 60.35 to 17.77, compared with 21.83 for GRAT. On concept-aware recognition, UCD reduces the average cgF 1
+
+from 50.32 to 20.49, with the lowest adversarial cgF 1 on both SACo-Gold and LVIS. SAM/SAM2-style and generic universal perturbation baselines, including DarkSAM, S-RA, UAPGD, and UAP-SAM2, produce only small degradation and sometimes fail to reduce AP. Stronger baselines such as CPA and GRAT perform more effectively, but they still fall short of UCD, especially on the cross-dataset mask AP average and box AP average. The per-dataset results further suggest that UCD is not overfitted to the training distribu-tion. The perturbation is trained on a small set of LVIS and SACo-Silver images, yet it achieves better performance on all datasets. This includes datasets with category prompts, refer-ring expressions, phrase-level prompts, and open-vocabulary object annotations. The consistent degradation indicates that jointly attacking feature representations, final concept scores, and mask geometry is more effective. 
+
+Ablation 
+
+All ablations follow the main evaluation protocol. Mask AP Avg is averaged over the five image benchmarks, and cgF 1
+
+Avg is averaged over SACo-Gold and LVIS. Unless otherwise specified, Full UCD uses ϵ = 8 /255 .
+
+UCD Loss Components Table 2 shows that all terms con-tribute to UCD. Removing feature divergence causes the largest drop in attack strength, while removing score or mask-geometry losses also weakens the result. Thus, feature dis-ruption drives transfer, and the output losses align it with SAM3’s final concept masks. 
+
+Concept Target Table 3 shows that targeting either query confidence or presence alone is insufficient. Attacking their presence-gated combination gives the strongest concept-decision disruption. 
+
+Training Prompt Form Table 4 compares text-prompt training with point-grid training. The sparse and dense grids use 4 × 4 and 8 × 8 points, respectively. Grid supervision Mask AP ↓ Box AP ↓ cgF 1 ↓                                                                                          
+
+> Method SACo-Gold LVIS RefCOCO PhraseCut OpenImages Avg. Avg. SACo-Gold LVIS Avg. Clean 65.68 64.00 57.30 34.34 75.85 59.43 60.35 56.43 44.21 50.32 DarkSAM (Zhou et al. 2024) 65.41 62.43 57.45 35.72 76.59 59.52 60.51 57.81 42.67 50.24 S-RA (Shen, Li, and Wang 2024) 61.54 61.85 57.71 34.97 76.22 58.46 59.53 51.69 42.95 47.32 UAPGD (Deng and Karam 2020) 57.00 61.43 58.09 35.12 77.09 57.75 58.56 49.57 42.42 46.00 UAP-SAM2 (Zhou et al. 2026) 57.30 61.07 56.63 34.58 74.50 56.82 58.63 49.23 43.18 46.20 CPA (Long et al. 2025) 38.34 49.76 51.91 29.54 68.15 47.54 47.40 27.94 28.93 28.44 GRAT (Xia et al. 2024) 23.97 31.83 19.13 10.01 23.87 21.76 21.83 20.60 23.88 22.24 Ours 18.69 30.51 13.77 9.44 21.23 18.73 17.77 17.40 23.57 20.49
+
+Table 1: Comparison with SAM3-adapted baseline attacks under the same fair universal-perturbation training budget. We report COCO-style mask AP (%), COCO-style bounding-box AP averaged over five datasets (%), and concept-aware F1 (cgF 1, %) on datasets with negative prompts. Clean denotes the unattacked SAM3 performance. Lower adversarial values indicate stronger attacks; the best attack values are shown in bold.              
+
+> Variant Mask AP Avg cgF 1Avg w/o score 36.85 33.77 w/o mask area 46.28 38.34 w/o mask dice 31.01 29.48 w/o feature 57.45 44.33 Full UCD 18.73 20.49
+
+Table 2: Ablation of UCD loss components. Scores are ad-versarial percentages.          
+
+> Variant Mask AP Avg cgF 1Avg query-score only 37.45 32.33 presence only 57.34 45.03 query-score + presence 18.73 20.49
+
+Table 3: Ablation of concept-decision targets. Scores are adversarial percentages. still transfers, but text prompts are clearly stronger, support-ing optimization on SAM3’s text-conditioned concept path. 
+
+Image-Prompt Pairing Table 5 shows that using more aligned prompts per image improves the attack. In the shuf-fled variant, prompt strings are globally permuted across the sampled positive training items after dataset sampling. Shuf-fling prompts remains effective but weaker than the aligned four-prompt setting, suggesting that both prompt diversity and image-text alignment help. 
+
+Perturbation Budget Table 6 shows the expected budget-robustness trade-off: 4/255 is weak, 8/255 is the main set-ting, and 16 /255 further strengthens the attack. 
+
+Attack Transferability 
+
+Black-Box Transfer We evaluate black-box transfer by training the perturbation on the released SAM3 image model and applying it directly to SAM3.1 (Carion et al. 2025) with-out re-optimization, tuning, or access to SAM3.1 gradients. Because SAM3.1 keeps the same text-conditioned concept-segmentation interface and presence-gated prediction se-         
+
+> Variant Mask AP Avg cgF 1Avg sparse point grid 27.94 29.93 dense point grid 26.42 29.39 text-prompt 18.73 20.49
+
+Table 4: Ablation of the training prompt form. Evaluation always uses text prompts. Scores are adversarial percentages.              
+
+> Variant Mask AP Avg cgF 1Avg 1 prompt 46.00 39.43 2 prompts 37.15 31.16 3 prompts 24.91 29.72 4 prompts (shuffled) 27.71 30.21 4 prompts 18.73 20.49
+
+Table 5: Ablation of image-prompt pairing. Scores are ad-versarial percentages. mantics, this setting tests whether UCD transfers beyond one checkpoint. The SAM3.1 evaluation uses the same settings as the main experiments. Table 7 reports mask AP and cgF 1,values in parentheses are clean-to-adversarial drops. cgF 1 is reported for SACo-Gold and LVIS. The SAM3-trained perturbation transfers strongly to SAM3.1. Average mask AP drops from 45.75 to 13.66, and average cgF 1 over SACo-Gold and LVIS drops from 51.72 to 20.24. Since these drops occur without SAM3.1-specific op-timization, they support the claim that prompt-shared image features, presence-gated scores, and mask geometry form a stable attack surface across the SAM3 family. 
+
+Image-to-Video Transfer Attack We next test cross-task transfer to SAM3 video inference. The perturbation is trained only with the image objective in Eq. (5) and then injected into the video frame stream; no video frames, temporal losses, or video gradients are used during attack training. Let v = ( x1, . . . , x L) denote a video clip and let t be a noun phrase prompt. SAM3 receives the prompt on the first frame and propagates the resulting concept tracks. For prefix Budget Mask AP Avg cgF 1 Avg       
+
+> 4/255 56.73 44.05
+> 8/255 18.73 20.49
+> 16 /255 5.81 7.37
+
+Table 6: Ablation of the perturbation budget. The 8/255 
+
+row uses the selected Full UCD perturbation. Scores are adversarial percentages.                              
+
+> Dataset Mask AP cgF 1
+> Clean Adv. Clean Adv. SACo-Gold 59.87 14.43 (-45.44) 58.97 17.51 (-41.46) LVIS 51.05 22.17 (-28.88) 44.47 22.97 (-21.50) RefCOCO 32.94 11.24 (-21.70) --PhraseCut 26.07 7.37 (-18.70) --OpenImages 58.81 13.10 (-45.71) --Average 45.75 13.66 (-32.09) 51.72 20.24 (-31.48)
+
+Table 7: Black-box transfer from SAM3 to SAM3.1. The per-turbation is trained on SAM3 and evaluated on SAM3.1 with-out re-optimization. Parentheses in the adversarial columns denote the drop from clean performance. length k, we perturb only the first k frames: 
+
+˜x(k) 
+
+> i
+
+=
+
+Π[0 ,1] (xi + δ), 1 ≤ i ≤ k, xi, k < i ≤ L. (13) All later frames are clean. To isolate temporal transfer, we evaluate only the tail 
+
+Ek = {k + 1 , . . . , L }. (14) For any video metric M where larger is better, we measure the clean-to-adversarial drop on this tail: 
+
+∆M (k) = M (Φ θ (v, t )|Ek , g |Ek )−M
+
+
+
+Φθ (˜ v(k), t )|Ek , g |Ek
+
+
+
+,
+
+(15) where Φθ is the SAM3 video predictor and g is the ground-truth masklet annotation. We evaluate on the validation split of SACo-VEval using 15-frame clips and k ∈ { 1, 7, 14 }, corresponding to attack-/evaluation lengths of 1/14 , 7/8, and 14 /1. After filtering short clips, the evaluation contains 50 videos and 200 video-prompt pairs, with at most four positive prompts per video. Figure 2 plots official SACo-VEval drops on the tail frames. The image-trained perturbation transfers to video without video-specific optimization. Attacking only the first frame already reduces tail performance by 4.00 mask AP, 5.29 box AP, 4.58 mask cgF 1, and 3.95 TETA points. Longer attacked prefixes generally increase the effect: in the 14 /1 setting, the evaluated frame is clean, yet the drops reach 10.36 mask AP, 11.15 box AP, 9.34 mask cgF 1, and 13.46 TETA points. This shows that prefix corruption can be carried forward by SAM3 video memory to later clean frames. 
+
+Defense-Oriented Evaluation 
+
+We evaluate three task-relevant mitigation families: prompt ensembling, adversarial head fine-tuning, and temporal con-1/14 7/8 14/1 
+
+> Attacked / evaluated frames
+> 0.0 2.5 5.0 7.5 10.0 12.5
+> Drop (points)
+> Mask AP Box AP Mask cgF1 TETA
+
+Figure 2: Image-to-video transfer on SACo-VEval. A uni-versal perturbation trained only on images is applied to the first k frames of a 15-frame video clip, while representative video metrics are computed only on the remaining clean tail frames. Larger drops indicate stronger temporal transfer. sistency filtering. For each defense, we report clean perfor-mance, fixed-attack performance, and, when the defense is differentiable or can be approximated, adaptive-attack per-formance. We avoid using image corruptions as defenses, because they can reduce clean performance enough to ob-scure whether the defense is meaningful. 
+
+Prompt ensembling. SAM3’s concept path is text-conditioned, so a natural test-time mitigation is to query multiple paraphrases of the same noun phrase and aggre-gate the predictions. For a prompt t, we construct a small deterministic template set 
+
+E(t) = {t, “a photo of t”, “all t”, “the visible t”}. (16) We merge predictions with mask non-maximum suppression and retain candidates whose mean final concept score across matched ensemble members exceeds the standard thresh-old. This defense tests whether UCD overfits to one lexical realization of the concept and whether voting over prompt variants can recover missed detections. 
+
+Adversarial head fine-tuning. We evaluate a defense that freezes the image backbone and text encoder, and fine-tunes only the grounding head and presence-score layers on a mix-ture of clean and UCD-perturbed training samples. For every positive image-prompt pair, the model is trained to recover the clean concept score and mask assignment under both x
+
+and Π[0 ,1] (x + δ). Negative prompts are kept in the batch to discourage a trivial increase of all presence scores. This de-fense directly targets the component attacked by UCD while limiting clean-performance drift. To avoid overstating robust-ness, we also retrain an adaptive UCD perturbation against the fine-tuned model and evaluate whether the recovered ro-bustness persists under a white-box attacker. 
+
+Temporal consistency filtering. For video inference, we test whether the image-trained perturbation can be miti-gated by rejecting temporally unstable concept tracks. Given frame-level track scores si and masks Mi, the filter maintains a track only when its median score over a sliding window of Defense Setting Mask AP Avg cgF 1 Avg None Clean 59.43 50.32 None Fixed UCD 18.73 20.49 Prompt ensemble Clean 16.55 12.81 Prompt ensemble Fixed UCD 2.03 4.53 Head fine-tuning Clean 60.62 48.90 Head fine-tuning Fixed UCD 20.84 17.21 Head fine-tuning Adaptive UCD 32.28 22.71 
+
+Table 8: Defense-oriented image evaluation. Scores are per-centages. Fixed UCD uses the perturbation from Table 1; Adaptive UCD is retrained against the fine-tuned head.                          
+
+> No filter Temporal filter Attack/eval Clean Adv. Drop Clean Adv. Drop
+> 1/14 47.45 43.45 4.00 31.44 28.90 2.54
+> 7/848.26 42.95 5.31 31.41 30.86 0.55
+> 14 /153.94 43.58 10.36 38.32 37.21 1.11
+
+Table 9: Temporal consistency filtering for image-to-video transfer. Scores are tail-frame Mask AP percentages on SACo-VEval. Drop is clean minus adversarial. length w remains above the standard threshold and its mask remains spatially consistent with the previous accepted mask: 
+
+keep( i) = ⊮median( si−w+1: i) ≥ τ
+
+∧ IoU( Mi, M i−1) ≥ τtemp 
+
+. (17) We report metrics on the clean tail frames, as in Fig. 2. This isolates whether temporal post-processing can prevent early corrupted concept states from propagating into later frames. 
+
+Image defenses. For image evaluation, we report the same summary metrics used throughout the ablation study. Table 8 shows that prompt ensembling is not a satisfactory defense. Although it lowers the fixed-UCD drop, it also reduces clean Mask AP Avg from 59.43 to 16.55. The apparent robust-ness therefore comes mainly from suppressing predictions on clean images. Lightweight head fine-tuning preserves clean utility, with 60.62 Mask AP Avg and 48.90 cgF 1 Avg, but fixed UCD still reduces performance to 20.84 Mask AP Avg and 17.21 cgF 1 Avg. Retraining UCD gives 32.28 Mask AP Avg and 22.71 cgF 1 Avg, which is higher than the fixed-attack score but still below clean performance. 
+
+Video defense. Table 9 evaluates temporal filtering in the same image-to-video transfer setting as Fig. 2, using only tail-frame Mask AP. The filter reduces the clean-to-adversarial drop in all prefix settings, and nearly eliminates it when the attacked prefix is long. However, this reduction comes with a large clean-performance cost: for example, at 1/14 , clean Mask AP decreases from 47.45 without filtering to 31.44 with filtering. The filter therefore behaves as an aggressive post-processing rule rather than a robust recovery mechanism. Overall, these defenses do not invalidate the main UCD finding. Test-time prompt ensembling and temporal filtering can reduce the measured attack drop, but only by lower-ing clean concept-segmentation quality. Head fine-tuning is less destructive, yet UCD remains effective against both the original and fine-tuned models. Robust defenses for SAM3 therefore need to preserve the presence-gated concept deci-sion rather than simply pruning uncertain predictions. 
+
+# Related Work 
+
+Segment Anything Models 
+
+SAM introduced class-agnostic promptable segmentation from points, boxes, masks, and automatic prompts (Kirillov et al. 2023), and has often served as the segmentation prior in detector- or grounding-driven open-vocabulary pipelines (Li et al. 2021; Ren et al. 2024). SAM2 (Ravi et al. 2025) keeps this geometric-prompt interface while extending it to video with streaming memory. SAM3 (Carion et al. 2025) instead moves to Promptable Concept Segmentation (PCS). For UCD, the change is SAM3’s presence-token gate, which makes concept existence a shared post-processing decision and exposes the attack surface targeted in this work. 
+
+Adversarial Attacks on SAM Series 
+
+Adversarial attacks (Szegedy et al. 2013; Goodfellow, Shlens, and Szegedy 2014; Madry et al. 2017; Carlini and Wag-ner 2017; Moosavi-Dezfooli, Fawzi, and Frossard 2015) add small perturbations to induce incorrect predictions, with uni-versal adversarial perturbations learning one reusable pertur-bation across inputs (Moosavi-Dezfooli et al. 2017). Several studies (Zhou et al. 2024; Xia et al. 2024; Lu, Yang, and Wang 2024; Liu, Shen, and Zhao 2026; Huang et al. 2024; Zheng, Zhang, and Hao 2025; Croce and Hein 2024; Han et al. 2024) have analyzed or attacked SAM-series models. UAP-SAM2 (Zhou et al. 2026) learns cross-prompt universal perturbations under video memory with target scanning and dual semantic deviation. Unlike these attacks, UCD trains on positive (image, NP) pairs and directly targets SAM3. 
+
+# Conclusion 
+
+This paper studies the adversarial robustness of SAM3 image segmentation and identifies the presence-gated concept de-cision as a new universal attack surface. We proposed UCD, a cross-concept universal adversarial perturbation. Experi-ments across five image benchmarks show that UCD consis-tently outperforms all attack baselines, and ablations verify the contribution of each component. Our defense-oriented evaluation further suggests that simple prompt ensembling, head fine-tuning, and temporal filtering are insufficient to restore robust concept segmentation without cost. 
+
+# References 
+
+Bolya, D.; Huang, P.-Y.; Sun, P.; Cho, J. H.; Madotto, A.; Wei, C.; Ma, T.; Zhi, J.; Rajasegaran, J.; Bangalath, H.; et al. 2026. Perception encoder: The best visual embeddings are not at the output of the network. Advances in Neural Information Processing Systems , 38: 60884–60937. Carion, N.; Gustafson, L.; Hu, Y.-T.; Debnath, S.; Hu, R.; Suris, D.; Ryali, C.; Alwala, K. V.; Khedr, H.; Huang, A.; et al. 2025. Sam 3: Segment anything with concepts. arXiv preprint arXiv:2511.16719 .Carlini, N.; and Wagner, D. 2017. Towards Evaluating the Robustness of Neural Networks. IEEE .Croce, F.; and Hein, M. 2024. Segment (Almost) Nothing: Prompt-Agnostic Adversarial Attacks on Segmentation Mod-els. In 2024 IEEE Conference on Secure and Trustworthy Machine Learning (SaTML) , 425–442. Deng, Y.; and Karam, L. J. 2020. Universal Adversarial Attack Via Enhanced Projected Gradient Descent. IEEE .Goodfellow, I. J.; Shlens, J.; and Szegedy, C. 2014. Ex-plaining and Harnessing Adversarial Examples. Computer Science .Gupta, A.; Dollar, P.; and Girshick, R. 2019. Lvis: A dataset for large vocabulary instance segmentation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 5356–5364. Han, D.; Zhang, C.; Zheng, S.; Lu, C.; Yang, Y.; and Shen, H. T. 2024. SAM Meets UAP: Attacking Segment Anything Model With Universal Adversarial Perturbation. arXiv:2310.12431. Huang, S.; Fan, Q.; Zhang, Z.; Liu, X.; Song, G.; and Qin, J. 2024. Segment Shards: Cross-Prompt Adversarial At-tacks against the Segment Anything Model. Applied Sciences (2076-3417) , 14(8). Kazemzadeh, S.; Ordonez, V.; Matten, M.; and Berg, T. 2014. Referitgame: Referring to objects in photographs of natural scenes. In Proceedings of the 2014 conference on empirical methods in natural language processing (EMNLP) , 787–798. Kingma, D. P.; and Ba, J. 2014. Adam: A method for stochas-tic optimization. arXiv preprint arXiv:1412.6980 .Kirillov, A.; Mintun, E.; Ravi, N.; Mao, H.; Rolland, C.; Gustafson, L.; Xiao, T.; Whitehead, S.; Berg, A. C.; Lo, W.-Y.; et al. 2023. Segment anything. In Proceedings of the IEEE/CVF international conference on computer vision ,4015–4026. Kuznetsova, A.; Rom, H.; Alldrin, N.; Uijlings, J.; Krasin, I.; Pont-Tuset, J.; Kamali, S.; Popov, S.; Malloci, M.; Kolesnikov, A.; et al. 2020. The open images dataset v4: Unified image classification, object detection, and visual re-lationship detection at scale. International journal of com-puter vision , 128(7): 1956–1981. Li, L. H.; Zhang, P.; Zhang, H.; Yang, J.; Li, C.; Zhong, Y.; Wang, L.; Yuan, L.; Zhang, L.; and Hwang, J. N. 2021. Grounded Language-Image Pre-training. Liu, X.; Shen, F.; and Zhao, J. 2026. Region-guided attack on the segment anything model. Neural Networks , 193(c): 108058. Long, J.; Xu, Z.; Jiang, T.; Yao, W.; Jia, S.; Ma, C.; and Chen, X. 2025. Robust SAM: on the adversarial robustness of vision foundation models. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, 5775–5783. Lu, J.; Yang, X.; and Wang, X. 2024. Unsegment Anything by Simulating Deformation. IEEE .Madry, A.; Makelov, A.; Schmidt, L.; Tsipras, D.; and Vladu, A. 2017. Towards Deep Learning Models Resistant to Ad-versarial Attacks. Moosavi-Dezfooli, S. M.; Fawzi, A.; Fawzi, O.; and Frossard, P. 2017. Universal adversarial perturbations. IEEE .Moosavi-Dezfooli, S. M.; Fawzi, A.; and Frossard, P. 2015. DeepFool: a simple and accurate method to fool deep neural networks. IEEE .Qiao, Y.; Zhang, C.; Kang, T.; Kim, D.; Zhang, C.; and Hong, C. S. 2023. Robustness of sam: Segment anything under corruptions and beyond. arXiv preprint arXiv:2306.07713 .Radford, A.; Kim, J. W.; Hallacy, C.; Ramesh, A.; Goh, G.; Agarwal, S.; Sastry, G.; Askell, A.; Mishkin, P.; Clark, J.; et al. 2021. Learning transferable visual models from natural language supervision. In International conference on machine learning , 8748–8763. PmLR. Ravi, N.; Gabeur, V.; Hu, Y.-T.; Hu, R.; Ryali, C.; Ma, T.; Khedr, H.; Rädle, R.; Rolland, C.; Gustafson, L.; et al. 2025. Sam 2: Segment anything in images and videos. In Inter-national Conference on Learning Representations , volume 2025, 28085–28128. Ren, T.; Liu, S.; Zeng, A.; Lin, J.; Li, K.; Cao, H.; Chen, J.; Huang, X.; Chen, Y.; and Yan, F. 2024. Grounded SAM: Assembling Open-World Models for Diverse Visual Tasks. Shen, Y.; Li, Z.; and Wang, G. 2024. Practical region-level attack against segment anything models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 194–203. Szegedy, C.; Zaremba, W.; Sutskever, I.; Bruna, J.; Erhan, D.; Goodfellow, I.; and Fergus, R. 2013. Intriguing properties of neural networks. Computer Science .Wu, C.; Lin, Z.; Cohen, S.; Bui, T.; and Maji, S. 2020. Phrase-cut: Language-based image segmentation in the wild. In Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 10216–10225. Xia, S.; Yang, W.; Yu, Y.; Lin, X.; Ding, H.; Duan, L. Y.; and Jiang, X. 2024. Transferable Adversarial Attacks on SAM and Its Downstream Models. Zhang, C.; Zhang, C.; Kang, T.; Kim, D.; Bae, S.-H.; and Kweon, I. S. 2023. Attack-sam: Towards evaluating adver-sarial robustness of segment anything model. arXiv preprint arXiv:2305.00866 , 1(3): 5. Zheng, S.; Zhang, C.; and Hao, X. 2025. Black-Box Targeted Adversarial Attack on Segment Anything (SAM). Trans. Multi. , 27: 1901–1913. Zhou, Z.; Hu, Y.; Song, Y.; Li, Z.; Hu, S.; Zhang, L. Y.; Yao, D.; Zheng, L.; and Jin, H. 2026. Vanish into thin air: Cross-prompt universal adversarial attacks for sam2. 
+
+Advances in Neural Information Processing Systems , 38: 142839–142861. Zhou, Z.; Song, Y.; Li, M.; Hu, S.; Wang, X.; Zhang, L. Y.; Yao, D.; and Jin, H. 2024. Darksam: Fooling segment any-thing model to segment nothing. Advances in Neural Infor-mation Processing Systems , 37: 49859–49880.
