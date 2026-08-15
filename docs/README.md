@@ -6,34 +6,38 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-14
-- 运行时间：2026-08-14 21:02:56 UTC
+- 最新运行日期：2026-08-15
+- 运行时间：2026-08-15 19:28:53 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：2
-- 速读区：2
+- 本次总论文数：6
+- 精读区：3
+- 速读区：3
 
 ### 今日简报（AI）
-今日精读4篇、速读4篇，聚焦开放词汇分割与红外-可见光融合两篇满分工作。  
-最值得关注多模态伪标签提升开放词汇分割的鲁棒性，以及基于提示蒸馏的跨模态融合新范式。  
-后续可延伸关注SAM3分割的通用概念干扰与语义分割的类中心稀疏攻击这两类对抗风险。
-- 详情：[/202608/14/README](/202608/14/README)
+今日共读6篇论文，精读3篇、速读3篇；最值得关注的是9.0分的《Predicting Signed Distance Functions for Visual Instance Segmentation》，以及8.0分的多模态伪标签开放词汇分割工作。建议优先精读这两篇高分论文，重点关注SDF在实例分割中的表示优势与伪标签稳健性。
+- 详情：[/202608/15/README](/202608/15/README)
 
 ### 精读区论文标签
-1. [Learning from Multimodal Pseudo-Labels for Robust Open-Vocabulary Instance and Panoptic Segmentation](/202608/14/2608.11681v1-learning-from-multimodal-pseudo-labels-for-robust-open-vocabulary-instance-and-panoptic-segmentation)  
-   标签：评分：10.0/10、query:image-seg
-   evidence：直接针对开放词汇实例分割与全景分割，提出多模态伪标签深度框架，契合图像分割需求
-2. [P2Fusion: Prompt-based Progressive Infrared-Visible Image Fusion via Dual-Prior Distillation](/202608/14/2608.13045v1-p2fusion-prompt-based-progressive-infrared-visible-image-fusion-via-dual-prior-distillation)  
-   标签：评分：10.0/10、query:image-fusion
-   evidence：直接研究红外-可见光多模态图像融合，提出基于双先验蒸馏的深度框架，契合多模态深度学习融合需求
+1. [Predicting Signed Distance Functions for Visual Instance Segmentation](/202608/15/2608.13135v1-predicting-signed-distance-functions-for-visual-instance-segmentation)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：基于符号距离函数的视觉实例分割
+2. [Learning from Multimodal Pseudo-Labels for Robust Open-Vocabulary Instance and Panoptic Segmentation](/202608/15/2608.11681v1-learning-from-multimodal-pseudo-labels-for-robust-open-vocabulary-instance-and-panoptic-segmentation)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：开放词汇实例与全景分割的多模态伪标签学习方法，属于图像分割范畴
+3. [DiCoR: Decoupled Referent Disambiguation and Contour Recalibration for Efficient Referring Remote Sensing Image Segmentation](/202608/15/2608.12980v1-dicor-decoupled-referent-disambiguation-and-contour-recalibration-for-efficient-referring-remote-sensing-image-segmentation)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：用于高效遥感指代分割的解耦指代消歧与轮廓重标定
 
 ### 速读区论文标签
-1. [Universal Concept Disruption for SAM3 Image Segmentation](/202608/14/2608.05983v1-universal-concept-disruption-for-sam3-image-segmentation)  
+1. [VOS-Agent: The 1st Place Solution for the 8th LSVOS Challenge (MOSEv2 Track)](/202608/15/2608.12721v1-vos-agent-the-1st-place-solution-for-the-8th-lsvos-challenge-mosev2-track)  
    标签：评分：7.0/10、query:image-seg
-   evidence：针对SAM3分割模型的对抗攻击，属于深度学习分割主题
-2. [SegPAR: Class-Centric Decision-Based Sparse Attack for Semantic Segmentation](/202608/14/2608.11285v1-segpar-class-centric-decision-based-sparse-attack-for-semantic-segmentation)  
-   标签：评分：7.0/10、query:image-seg
-   evidence：语义分割对抗攻击，面向深度学习分割模型
+   evidence：基于SAM3与专用智能体的视频目标分割，处理小目标和语义主导目标
+2. [Paths: Prompt-aware Spatio-temporal Transformer with Hierarchical Multi-modal Fusion for RGB-Event Video Person Re-Identification](/202608/15/2608.13092v1-paths-prompt-aware-spatio-temporal-transformer-with-hierarchical-multi-modal-fusion-for-rgb-event-video-person-re-identification)  
+   标签：评分：7.0/10、query:image-fusion
+   evidence：RGB与事件特征的层次多模态融合
+3. [Entropy-Centric Explainable AI for Remote Sensing Image Segmentation](/202608/15/2608.11064v1-entropy-centric-explainable-ai-for-remote-sensing-image-segmentation)  
+   标签：评分：6.0/10、query:image-seg
+   evidence：面向遥感分割的可解释性方法
 
 
 <div class="dpr-home-promo-card">
