@@ -1,0 +1,381 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-16T20:15:41.596227+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 6,
+    "deep_cap": 7,
+    "deep_selected": 6,
+    "quick_candidates": 3,
+    "quick_skim_target": 12,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2608.07767v1",
+      "source": "arxiv",
+      "title": "DINO-3DRA: Leveraging 2D Foundation Model Semantics for 3D Cerebral Aneurysm Segmentation",
+      "abstract": "Accurate aneurysm segmentation in 3D rotational angiography (3DRA) is hindered by extreme class imbalance, morphological similarity to vessels, and absent large-scale 3D pretraining. 2D vision foundation models encode dense structural priors from 1.7 billion images, yet naïve slice-wise transfer fragments anatomical continuity and destabilises optimisation. We propose DINO-3DRA, a dual-path framework achieving effective cross-dimensional semantic transfer by injecting frozen DINOv3 features into a 3D U-Net backbone via Room-Lite spatial mixing and calibrated residual fusion. On multi-centre 3DRA data, DINO-3DRA achieves state-of-the-art aneurysm segmentation (Dice: 0.758; HD95: 2.75 mm; +13% over nnU-Net) with only 5.72M trainable parameters. Ablation studies confirm that gains arise from structured cross-dimensional transfer rather than loss design alone, with bridged foundation features improving anatomical continuity between aneurysms and parent vessels. Without fine-tuning on CADA and SHINY-ICARUS, DINO-3DRA eliminates all catastrophic failure cases observed in baseline architectures, demonstrating robust generalisation across heterogeneous imaging protocols.",
+      "authors": [
+        "Jiayang Lu",
+        "Fengming Lin",
+        "Alejandro F. Frangi",
+        "Ali Sarrami-Foroushani"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-07T21:17:11+00:00",
+      "link": "https://arxiv.org/pdf/2608.07767v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "deep learning based medical image segmentation for cerebral aneurysm",
+      "llm_evidence_cn": "基于深度学习的脑动脉瘤医学图像分割",
+      "llm_evidence": "基于深度学习的脑动脉瘤医学图像分割",
+      "canonical_evidence": "基于深度学习的脑动脉瘤医学图像分割",
+      "llm_tldr_en": "Presents DINO-3DRA, a dual-path framework for 3D cerebral aneurysm segmentation that injects frozen DINOv3 features into a 3D U-Net via spatial mixing and calibrated residual fusion, achieving state-of-the-art Dice 0.758 and HD95 2.75mm with only 5.72M trainable parameters.",
+      "llm_tldr_cn": "针对三维旋转血管造影中动脉瘤分割的类别极度不均衡、形态与血管相似及缺少大规模三维预训练等问题，提出DINO-3DRA双路径框架，将冻结的DINOv3二维基础模型特征通过空间混合与校准残差融合注入3D U-Net主干。多中心数据实验显示，该方法取得Dice 0.758、HD95 2.75mm的领先性能，较nnU-Net提升13%，且仅需5.72M可训练参数。该工作证明了二维基础模型语义可有效迁移至三维医学分割，为数据稀缺的医学影像任务提供了高效方案。",
+      "llm_tldr": "针对三维旋转血管造影中动脉瘤分割的类别极度不均衡、形态与血管相似及缺少大规模三维预训练等问题，提出DINO-3DRA双路径框架，将冻结的DINOv3二维基础模型特征通过空间混合与校准残差融合注入3D U-Net主干。多中心数据实验显示，该方法取得Dice 0.758、HD95 2.75mm的领先性能，较nnU-Net提升13%，且仅需5.72M可训练参数。该工作证明了二维基础模型语义可有效迁移至三维医学分割，为数据稀缺的医学影像任务提供了高效方案。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.09636v1",
+      "source": "arxiv",
+      "title": "NeuroRefiner: Morphology-Aware Multi-Agent Refinement for 3D Fluorescence Microscopy Neuron Segmentation",
+      "abstract": "Accurate 3D neuron segmentation in fluorescence microscopy is critical for neuroscience. However, the sparse and elongated morphology of neurons poses significant challenges to existing segmentation methods. These methods struggle to preserve both local details and global topology, leading to fragmented results. To address this, we propose NeuroRefiner, a multi-agent system that formalizes the human expert workflow involving iterative global observation and local editing. Specifically, NeuroRefiner comprises three collaborative agents dedicated to diagnosing topological errors, generating correction instructions, and validating refinement quality. To facilitate agent instruction-guided segmentation refinement, we propose TopoRefineNet, a dedicated 3D U-Net-based tool that leverages cross-modality feature fusion to generate refined masks. Through multi-round agent reasoning and voxel-level editing, NeuroRefiner produces topologically more accurate segmentations with enhanced interpretability. Experiments on the BigNeuron, CWMBS, and ZBFWB datasets demonstrate that NeuroRefiner outperforms state-of-the-art methods, notably achieving a 3.02% improvement in F1 score on the challenging ZBFWB dataset.",
+      "authors": [
+        "Haiyang Yan",
+        "Jinyue Guo",
+        "Yanchao Zhang",
+        "Bingqing Wang",
+        "Zhenchen Li",
+        "Jing Liu",
+        "Jiazheng Liu",
+        "Linlin Li",
+        "Hua Han"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-10T14:14:47+00:00",
+      "link": "https://arxiv.org/pdf/2608.09636v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "deep learning based 3D neuron segmentation with multi-agent refinement",
+      "llm_evidence_cn": "基于深度学习的3D神经元分割与多智能体优化",
+      "llm_evidence": "基于深度学习的3D神经元分割与多智能体优化",
+      "canonical_evidence": "基于深度学习的3D神经元分割与多智能体优化",
+      "llm_tldr_en": "Presents NeuroRefiner, a multi-agent system for 3D fluorescence microscopy neuron segmentation that diagnoses topological errors, generates correction instructions, and validates refinement to preserve both local details and global topology.",
+      "llm_tldr_cn": "三维荧光显微神经元分割存在细长形态导致断裂等问题，本文提出NeuroRefiner多智能体系统，将专家迭代观察与局部编辑流程形式化，三个协作智能体分别负责诊断拓扑错误、生成修正指令和验证细化质量。该方法在三维神经元分割上同时保持局部细节和全局拓扑，显著减少碎片化结果。",
+      "llm_tldr": "三维荧光显微神经元分割存在细长形态导致断裂等问题，本文提出NeuroRefiner多智能体系统，将专家迭代观察与局部编辑流程形式化，三个协作智能体分别负责诊断拓扑错误、生成修正指令和验证细化质量。该方法在三维神经元分割上同时保持局部细节和全局拓扑，显著减少碎片化结果。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "deep learning based medical image segmentation",
+      "matched_requirement_id": "req-13",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.11681v1",
+      "source": "arxiv",
+      "title": "Learning from Multimodal Pseudo-Labels for Robust Open-Vocabulary Instance and Panoptic Segmentation",
+      "abstract": "This work addresses the challenge of open-vocabulary instance segmentation (OVIS) and open-set panoptic segmentation (OSPS), which aim to recognize both predefined and unseen object categories without exhaustive human annotations. Existing methods often suffer from noisy pseudo-masks, limited visual-textual grounding, and difficulty handling synonyms or out-of-vocabulary (OOV) words. To overcome these challenges, we propose a multimodal framework that leverages pre-trained vision-language models for automatic pseudo-label generation, CLIP-guided synonym filtering, and GPT-based caption reconstruction. In our target-vocabulary-assisted pseudo-labeling setting, the framework first constructs pseudo segmentation masks, descriptive captions, and semantically aligned synonym sets using Grounded SAM, LLaVA, and CLIP, providing multimodal supervision without manual annotation. We then enhance visual-textual alignment through three complementary training objectives: an extended grounding loss that incorporates visually grounded synonyms, a semantic consistency loss, and a generative caption reconstruction loss. Extensive experiments on the COCO dataset demonstrate that the proposed method consistently outperforms previous state-of-the-art approaches under this protocol, achieving substantial improvements on both OVIS and OSPS benchmarks.",
+      "authors": [
+        "Duy Tran Thanh",
+        "Yeejin Lee",
+        "Byeongkeun Kang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "published": "2026-08-12T05:39:57+00:00",
+      "link": "https://arxiv.org/pdf/2608.11681v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "open-vocabulary instance and panoptic segmentation with deep learning and multimodal pseudo-labels",
+      "llm_evidence_cn": "结合深度学习的开放词汇实例与全景分割，使用多模态伪标签",
+      "llm_evidence": "结合深度学习的开放词汇实例与全景分割，使用多模态伪标签",
+      "canonical_evidence": "结合深度学习的开放词汇实例与全景分割，使用多模态伪标签",
+      "llm_tldr_en": "Presents a multimodal framework for open-vocabulary instance and panoptic segmentation, using vision-language pseudo-label generation, CLIP-guided synonym filtering, and GPT-based caption reconstruction to handle unseen categories.",
+      "llm_tldr_cn": "开放词汇实例分割和开放集全景分割需要识别未见类别，现有方法常受噪声伪掩码和视觉-文本对齐不足困扰。本文提出多模态框架，利用预训练视觉语言模型自动生成伪标签，借助CLIP过滤同义词，并通过GPT重建描述，在目标词汇辅助伪标签设置下构建高质量分割掩码。该方法有效提升了对未见类别和OOV词汇的泛化能力。",
+      "llm_tldr": "开放词汇实例分割和开放集全景分割需要识别未见类别，现有方法常受噪声伪掩码和视觉-文本对齐不足困扰。本文提出多模态框架，利用预训练视觉语言模型自动生成伪标签，借助CLIP过滤同义词，并通过GPT重建描述，在目标词汇辅助伪标签设置下构建高质量分割掩码。该方法有效提升了对未见类别和OOV词汇的泛化能力。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.13135v1",
+      "source": "arxiv",
+      "title": "Predicting Signed Distance Functions for Visual Instance Segmentation",
+      "abstract": "Visual instance segmentation is a challenging problem and becomes even more difficult if objects of interest varies unconstrained in shape. Some objects are well described by a rectangle, however, this is hardly always the case. Consider for instance long, slender objects such as ropes. Anchor-based approaches classify predefined bounding boxes as either negative or positive and thus provide a limited set of shapes that can be handled. Defining anchor-boxes that fit well to all possible shapes leads to an infeasible number of prior boxes. We explore a different approach and propose to train a neural network to compute distance maps along different directions. The network is trained at each pixel to predict the distance to the closest object contour in a given direction. By pooling the distance maps we obtain an approximation to the signed distance function (SDF). The SDF may then be thresholded in order to obtain a foreground-background segmentation. We compare this segmentation to foreground segmentations obtained from the state-of-the-art instance segmentation method YOLACT. On the COCO dataset, our segmentation yields a higher performance in terms of foreground intersection over union (IoU). However, while the distance maps contain information on the individual instances, it is not straightforward to map them to the full instance segmentation. We still believe that this idea is a promising research direction for instance segmentation, as it better captures the different shapes found in the real world.",
+      "authors": [
+        "Emil Brissman",
+        "Joakim Johnander",
+        "Michael Felsberg"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-13T12:09:23+00:00",
+      "link": "https://arxiv.org/pdf/2608.13135v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Neural network predicts signed distance maps for visual instance segmentation",
+      "llm_evidence_cn": "神经网络预测符号距离图实现视觉实例分割",
+      "llm_evidence": "神经网络预测符号距离图实现视觉实例分割",
+      "canonical_evidence": "神经网络预测符号距离图实现视觉实例分割",
+      "llm_tldr_en": "Proposes to train a neural network to predict distance maps along different directions for visual instance segmentation, handling objects of arbitrary shape beyond bounding boxes.",
+      "llm_tldr_cn": "视觉实例分割中，基于锚框的方法受限于规则的矩形形状，难以处理绳索等细长任意形状物体。本文提出训练神经网络逐像素预测到最近物体轮廓的方向距离图，从而摆脱锚框形状限制。该方法能够更灵活地描述各种形状的目标，为实例分割提供了新的思路。",
+      "llm_tldr": "视觉实例分割中，基于锚框的方法受限于规则的矩形形状，难以处理绳索等细长任意形状物体。本文提出训练神经网络逐像素预测到最近物体轮廓的方向距离图，从而摆脱锚框形状限制。该方法能够更灵活地描述各种形状的目标，为实例分割提供了新的思路。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.08531v1",
+      "source": "arxiv",
+      "title": "ERF-GS: Reconstructing Fast Motion from Disjoint Event-RGB Viewpoints",
+      "abstract": "Deep learning-driven representations such as neural radiance fields (NeRFs) and 3D Gaussian splatting (3DGS) have revolutionized the field of dynamic 3D scene reconstruction with improved visual precision and scalability. However, the reconstruction of fast-moving objects remains a challenge; existing methods based on conventional frame-based videos often struggle in scenarios such as sports events and animal videography. We propose an event-RGB fusion Gaussian splatting (ERF-GS) framework that integrates event information into both optimization and densification stages of the Gaussian splatting pipeline, taking advantage of novel event sensors with high frame-rate. Unlike many other event-assisted scene reconstruction methods, ERF-GS was developed using realistic simulation settings and realizes event-based learning detached from RGB inputs. This design enables its application beyond straightforward synthetic data into the realm of natural video with complex layout, low frame rates and severe motion blur. Our experiments show that ERF-GS outperforms both the 4DGS baseline and the concurrent E-D3DGS on different variants of the Neu3D and Nvidia datasets which include blurry RGB frames and disjoint RGB-event viewpoints. Our code is available at https://github.com/andrewbxy/ERF-GS.",
+      "authors": [
+        "Xiaoyang Bai",
+        "Zhenyang Li",
+        "Weiwei Xu",
+        "Edmund Y. Lam",
+        "Yifan Peng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-09T07:00:27+00:00",
+      "link": "https://arxiv.org/pdf/2608.08531v1",
+      "tags": [
+        "keyword:image-fusion",
+        "query:image-fusion"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "multimodal event-RGB fusion with deep neural networks for dynamic scene reconstruction",
+      "llm_evidence_cn": "利用深度神经网络进行事件与RGB多模态融合的动态场景重建",
+      "llm_evidence": "利用深度神经网络进行事件与RGB多模态融合的动态场景重建",
+      "canonical_evidence": "利用深度神经网络进行事件与RGB多模态融合的动态场景重建",
+      "llm_tldr_en": "Proposes ERF-GS, an event-RGB fusion Gaussian splatting framework that incorporates event information into optimization and densification, reconstructing fast dynamic scenes from disjoint viewpoints.",
+      "llm_tldr_cn": "快速运动对象的动态三维重建常受限于传统帧相机的时间分辨率。本文提出ERF-GS框架，将事件相机的高帧率信息作为深度线索，耦合到三维高斯溅射的优化与致密化阶段，实现事件与RGB的深度融合。在分离视角设置下，该方法能更准确地重建快速运动的场景，弥补了基于普通视频方法的不足，展示了事件-图像融合在动态场景重建中的潜力。",
+      "llm_tldr": "快速运动对象的动态三维重建常受限于传统帧相机的时间分辨率。本文提出ERF-GS框架，将事件相机的高帧率信息作为深度线索，耦合到三维高斯溅射的优化与致密化阶段，实现事件与RGB的深度融合。在分离视角设置下，该方法能更准确地重建快速运动的场景，弥补了基于普通视频方法的不足，展示了事件-图像融合在动态场景重建中的潜力。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "multimodal image fusion using deep neural networks",
+      "matched_requirement_id": "req-9",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.12980v1",
+      "source": "arxiv",
+      "title": "DiCoR: Decoupled Referent Disambiguation and Contour Recalibration for Efficient Referring Remote Sensing Image Segmentation",
+      "abstract": "Referring remote sensing image segmentation (RRSIS) aims to delineate targets specified by natural language expressions in remote sensing imagery. Existing methods mainly follow joint fusion segmentation (JFS) or decoupled prompt segmentation (DPS). JFS is efficient but often suffers from limited accuracy because referent localization and mask delineation are optimized under a unified objective, whereas DPS separates localization from mask generation using spatial prompts and foundation segmenters at the cost of higher memory consumption and inference latency. To bridge this gap, we propose DiCoR, a decoupled referent disambiguation and contour recalibration framework built on an efficient JFS pipeline. DiCoR addresses two key challenges: distinguishing the correct referent from ambiguous candidates and refining coarse masks after localization. A disambiguation-aware localization guidance strategy ranks salient candidate regions with adaptive linguistic cues and injects the resulting localization prior into fused features. A lightweight contour recalibration module further predicts residual corrections to coarse logits under localized contour supervision, improving mask quality with limited computational overhead. Experiments on RefSegRS, RRSIS-D, and RISBench show that DiCoR achieves the best segmentation accuracy across all three benchmarks. On RefSegRS, it improves mIoU and gIoU by 5.28% and 2.87% over a competitive JFS method while running 4.7% faster than a representative DPS method, demonstrating a favorable accuracy-efficiency trade-off. Code is available at https://github.com/zyGao1126/DiCoR.",
+      "authors": [
+        "Ziyang Gao",
+        "Zhizhuo Jiang",
+        "Jingjing Chang",
+        "Yixin Yang",
+        "Yuwen Pan",
+        "Yong-Qiang Mao",
+        "Yu Liu",
+        "Hai-Bao Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-13T09:02:55+00:00",
+      "link": "https://arxiv.org/pdf/2608.12980v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "deep learning based referring remote sensing image segmentation",
+      "llm_evidence_cn": "基于深度学习的遥感指代图像分割",
+      "llm_evidence": "基于深度学习的遥感指代图像分割",
+      "canonical_evidence": "基于深度学习的遥感指代图像分割",
+      "llm_tldr_en": "DiCoR decouples referent localization and mask generation in referring remote sensing image segmentation, balancing efficiency and accuracy through contour recalibration and decoupled disambiguation.",
+      "llm_tldr_cn": "在指代遥感图像分割中，现有联合融合分割与解耦提示分割各有优劣。DiCoR提出解耦指代消歧与轮廓重校准框架，结合高效联合融合流程，在保持效率的同时提升目标定位与掩膜生成精度。结果显示DiCoR在准确性与显存/延迟之间取得更好平衡。",
+      "llm_tldr": "在指代遥感图像分割中，现有联合融合分割与解耦提示分割各有优劣。DiCoR提出解耦指代消歧与轮廓重校准框架，结合高效联合融合流程，在保持效率的同时提升目标定位与掩膜生成精度。结果显示DiCoR在准确性与显存/延迟之间取得更好平衡。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.10590v1",
+      "source": "arxiv",
+      "title": "Rethinking Data Efficiency in Industrial Dense Prediction: Pretraining Coherence, Not Inductive Bias, Determines ViTs Low-Data Advantage",
+      "abstract": "Vision Transformers (ViTs) are widely believed to require more labeled data than CNNs for industrial dense prediction. Through controlled experiments on four industrial datasets, we show that the data-efficiency gap stems from pretraining incoherence, which refers to the statistical mismatch between ImageNet-pretrained ViT backbones and COCO-pretrained CNN necks, rather than from inherent self-attention deficits. We characterize the cross-architecture feature gap and propose a lightweight AlignBlock family for pyramid-level feature recalibration. Our core finding empirically identifies a data-efficiency frontier: for domain-proximal scenes with >= 200 samples, Swin-Graft surpasses YOLOv11x (terminal 703-shot: 0.973 vs 0.956 mAP@50); for domain-distant scenes, CNNs retain advantage (hook 141-shot: 0.900 vs 0.600 mAP@50). Grafted neck weights yield up to 2.5x the mAP of a randomly initialized neck.",
+      "authors": [
+        "Haoran Sui",
+        "Yaoyuan Jia"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-11T07:17:59+00:00",
+      "link": "https://arxiv.org/pdf/2608.10590v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Addressed dense prediction including semantic segmentation, proposes AlignBlock feature recalibration for ViT/CNN backbones, transferable to segmentation pipelines.",
+      "llm_evidence_cn": "涉及密集预测（含语义分割），提出跨架构特征重校准方法，可迁移至分割流程。",
+      "llm_evidence": "涉及密集预测（含语义分割），提出跨架构特征重校准方法，可迁移至分割流程。",
+      "canonical_evidence": "涉及密集预测（含语义分割），提出跨架构特征重校准方法，可迁移至分割流程。",
+      "llm_tldr_en": "ViT low-data advantage in dense prediction is limited by pretraining incoherence, and AlignBlock feature recalibration helps bridge cross-architecture gaps, yielding gains in segmentation-like tasks.",
+      "llm_tldr_cn": "论文发现 Vision Transformer 在工业密集预测中的低数据优势并非源于自注意力缺陷，而是预训练不一致（ImageNet 预训练主干与 COCO 预训练颈部之间的统计错配）。作者提出轻量级 AlignBlock 系列进行金字塔级特征重校准，以消除跨架构特征差距。实验表明在近域场景且样本量达到约200时，Swin-Graft 可超越 YOLOv1。此方法可迁移到语义分割等密集预测任务，提升数据效率与精度。",
+      "llm_tldr": "论文发现 Vision Transformer 在工业密集预测中的低数据优势并非源于自注意力缺陷，而是预训练不一致（ImageNet 预训练主干与 COCO 预训练颈部之间的统计错配）。作者提出轻量级 AlignBlock 系列进行金字塔级特征重校准，以消除跨架构特征差距。实验表明在近域场景且样本量达到约200时，Swin-Graft 可超越 YOLOv1。此方法可迁移到语义分割等密集预测任务，提升数据效率与精度。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.11064v1",
+      "source": "arxiv",
+      "title": "Entropy-Centric Explainable AI for Remote Sensing Image Segmentation",
+      "abstract": "Artificial intelligence (AI) has become a powerful approach to solving complex problems in critical domains. Many concerns arise regarding the decision-making process of its models, mainly due to deep neural networks outperforming their peers at the cost of ambiguity in feature extraction and prediction. Consequently, in critical domains such as remote sensing, where high-resolution imagery must be analyzed using black-box models, the lack of transparency limits trust in these models and, thus, their adoption. In light of this reality, explaining and understanding the complex decision-making process of AI models has become essential. Explainable AI (XAI) aims to bridge this gap by providing insights into how and why certain decisions are made. While significant progress has been achieved in explaining image classification tasks, image segmentation still offers considerable room for improvement. In this context, this paper proposes an entropy-centric XAI method for semantic segmentation. Moreover, a new XAI evaluation methodology is proposed to efficiently measure the relevance of the regions highlighted by the proposed XAI method. Experimental results demonstrate the superiority of the proposed XAI method compared with recently adapted XAI methods for semantic segmentation.",
+      "authors": [
+        "Ali Saleh",
+        "Abdul Karim Gizzini",
+        "Mohamad Ghassany",
+        "Ali J. Ghandour"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-11T15:31:07+00:00",
+      "link": "https://arxiv.org/pdf/2608.11064v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "deep learning semantic segmentation for remote sensing with explainable AI",
+      "llm_evidence_cn": "面向遥感语义分割的深度学习方法及可解释AI",
+      "llm_evidence": "面向遥感语义分割的深度学习方法及可解释AI",
+      "canonical_evidence": "面向遥感语义分割的深度学习方法及可解释AI",
+      "llm_tldr_en": "Proposes an entropy-centric explainable AI framework to interpret deep neural network decisions for remote sensing image segmentation, enhancing transparency and trust in high-resolution critical-domain imagery.",
+      "llm_tldr_cn": "遥感等关键领域的高分辨率影像分析常依赖深度分割模型，但黑盒决策缺乏透明度，限制了模型信任与采用。为此提出以熵为中心的可解释人工智能框架，通过分析特征提取和预测中的不确定性来解释模型决策过程。在遥感图像分割任务中，该方法能够提供清晰的决策依据，增强用户对分割结果的信任。这一工作推动了可解释AI在遥感等关键领域的实际应用。",
+      "llm_tldr": "遥感等关键领域的高分辨率影像分析常依赖深度分割模型，但黑盒决策缺乏透明度，限制了模型信任与采用。为此提出以熵为中心的可解释人工智能框架，通过分析特征提取和预测中的不确定性来解释模型决策过程。在遥感图像分割任务中，该方法能够提供清晰的决策依据，增强用户对分割结果的信任。这一工作推动了可解释AI在遥感等关键领域的实际应用。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.12721v1",
+      "source": "arxiv",
+      "title": "VOS-Agent: The 1st Place Solution for the 8th LSVOS Challenge (MOSEv2 Track)",
+      "abstract": "Complex video object segmentation requires robust target propagation under severe occlusion, disappearance and reappearance. Although SAM3 provides strong promptable mask propagation, a uniform inference path remains unreliable for tiny targets with insufficient visual evidence and semantic-dominated targets whose identities depend on explicit attributes. To this end, we present VOS-Agent, a collaborative framework that retains SAM3 as the shared dense segmentation module and conditionally activates specialized agents according to target characteristics. A Target Perception and Routing Agent assigns each sequence to a regular, tiny, or semantic-dominated route. Tiny targets are supported by a Visual Tracking Agent through confidence-aware box prompts, while semantic-dominated targets are handled by an MLLM-based Semantic Agent through description-guided localization and candidate verification. On the MOSEv2 test set, VOS-Agent achieves 69.82% on the official $\\mathcal{J}\\&\\dot{\\mathcal{F}}$ metric and ranks first in the MOSEv2 Track of the 8th LSVOS Challenge at ECCV 2026.",
+      "authors": [
+        "Canyang Wu",
+        "Jinrong Zhang",
+        "Xusheng He",
+        "Ce Bian",
+        "Xianjing Han",
+        "Jianlong Wu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-13T02:08:00+00:00",
+      "link": "https://arxiv.org/pdf/2608.12721v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "video object segmentation with deep learning",
+      "llm_evidence_cn": "基于深度学习的视频目标分割",
+      "llm_evidence": "基于深度学习的视频目标分割",
+      "canonical_evidence": "基于深度学习的视频目标分割",
+      "llm_tldr_en": "VOS-Agent is a collaborative video object segmentation framework using SAM3 and conditional routing to handle tiny and semantic-dominated targets, winning the MOSEv2 track.",
+      "llm_tldr_cn": "针对视频目标分割在严重遮挡与目标消失重现时的鲁棒性问题，现有统一推理路径难以处理微小目标和语义主导目标。本文提出VOS-Agent协作框架，以SAM3为共享分割模块，通过目标感知与路由代理按目标特性选择常规、微小或语义主导处理路线。在LSVOS挑战赛MOSEv2赛道获得第一名，验证了自适应路由策略对复杂视频分割的有效性。",
+      "llm_tldr": "针对视频目标分割在严重遮挡与目标消失重现时的鲁棒性问题，现有统一推理路径难以处理微小目标和语义主导目标。本文提出VOS-Agent协作框架，以SAM3为共享分割模块，通过目标感知与路由代理按目标特性选择常规、微小或语义主导处理路线。在LSVOS挑战赛MOSEv2赛道获得第一名，验证了自适应路由策略对复杂视频分割的有效性。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
