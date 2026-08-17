@@ -6,47 +6,59 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-16
-- 运行时间：2026-08-16 20:19:07 UTC
+- 最新运行日期：2026-08-17
+- 运行时间：2026-08-17 21:00:07 UTC
 - 运行状态：成功
-- 本次总论文数：9
-- 精读区：6
-- 速读区：3
+- 本次总论文数：13
+- 精读区：7
+- 速读区：6
 
 ### 今日简报（AI）
-今日9篇推荐，聚焦3D医学影像分割，两篇高分精读均达9.0分。最值得关注DINO-3DRA利用2D基础模型语义分割脑动脉瘤，以及NeuroRefiner用于神经元分割的多智能体细化方法。普通读者可优先精读这两篇高分论文，速读部分则适合关注数据效率与可解释分割的入门参考。
-- 详情：[/202608/16/README](/202608/16/README)
+今日聚焦视觉分割领域，精读两篇高分论文，覆盖开放词汇与实例分割新范式；速读涵盖视频分割、遥感推理分割及协同感知。最值得关注的是利用多模态伪标签提升开放词汇分割鲁棒性，以及用符号距离函数预测实现实例分割的创新思路。建议普通读者优先了解开放词汇分割的应用前景，它能让模型识别未见过的物体类别。
+- 详情：[/202608/17/README](/202608/17/README)
 
 ### 精读区论文标签
-1. [DINO-3DRA: Leveraging 2D Foundation Model Semantics for 3D Cerebral Aneurysm Segmentation](/202608/16/2608.07767v1-dino-3dra-leveraging-2d-foundation-model-semantics-for-3d-cerebral-aneurysm-segmentation)  
+1. [Learning from Multimodal Pseudo-Labels for Robust Open-Vocabulary Instance and Panoptic Segmentation](/202608/17/2608.11681v1-learning-from-multimodal-pseudo-labels-for-robust-open-vocabulary-instance-and-panoptic-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的脑动脉瘤医学图像分割
-2. [NeuroRefiner: Morphology-Aware Multi-Agent Refinement for 3D Fluorescence Microscopy Neuron Segmentation](/202608/16/2608.09636v1-neurorefiner-morphology-aware-multi-agent-refinement-for-3d-fluorescence-microscopy-neuron-segmentation)  
+   evidence：利用多模态伪标签和视觉语言模型处理开放词汇实例与全景分割，属于深度学习语义分割方法
+2. [Predicting Signed Distance Functions for Visual Instance Segmentation](/202608/17/2608.13135v1-predicting-signed-distance-functions-for-visual-instance-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：基于深度学习的3D神经元分割与多智能体优化
-3. [Learning from Multimodal Pseudo-Labels for Robust Open-Vocabulary Instance and Panoptic Segmentation](/202608/16/2608.11681v1-learning-from-multimodal-pseudo-labels-for-robust-open-vocabulary-instance-and-panoptic-segmentation)  
+   evidence：基于距离图的视觉实例分割方法
+3. [MedPlex: Deep Vision-Language Co-Adaptation for Clinically Grounded Medical Segmentation](/202608/17/2608.13690v1-medplex-deep-vision-language-co-adaptation-for-clinically-grounded-medical-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：结合深度学习的开放词汇实例与全景分割，使用多模态伪标签
-4. [Predicting Signed Distance Functions for Visual Instance Segmentation](/202608/16/2608.13135v1-predicting-signed-distance-functions-for-visual-instance-segmentation)  
+   evidence：用于医学图像分割的深度视觉语言联合自适应与双向融合
+4. [CSG-Mamba: A Convolutional Scoring Gating Vision State Space Network for Endoscopic Polyp Segmentation](/202608/17/2608.14146v1-csg-mamba-a-convolutional-scoring-gating-vision-state-space-network-for-endoscopic-polyp-segmentation)  
    标签：评分：9.0/10、query:image-seg
-   evidence：神经网络预测符号距离图实现视觉实例分割
-5. [ERF-GS: Reconstructing Fast Motion from Disjoint Event-RGB Viewpoints](/202608/16/2608.08531v1-erf-gs-reconstructing-fast-motion-from-disjoint-event-rgb-viewpoints)  
-   标签：评分：8.0/10、query:image-fusion
-   evidence：利用深度神经网络进行事件与RGB多模态融合的动态场景重建
-6. [DiCoR: Decoupled Referent Disambiguation and Contour Recalibration for Efficient Referring Remote Sensing Image Segmentation](/202608/16/2608.12980v1-dicor-decoupled-referent-disambiguation-and-contour-recalibration-for-efficient-referring-remote-sensing-image-segmentation)  
+   evidence：内镜息肉分割的深度学习模型
+5. [Weakly Supervised Polar Low Segmentation in Sentinel-1 SAR Imagery](/202608/17/2608.14366v1-weakly-supervised-polar-low-segmentation-in-sentinel-1-sar-imagery)  
+   标签：评分：9.0/10、query:image-seg
+   evidence：基于对抗擦除与软标签的弱监督语义分割
+6. [AeroReformer2: Spoken-Query Referring Segmentation for Aerial Images](/202608/17/2608.08874v2-aeroreformer2-spoken-query-referring-segmentation-for-aerial-images)  
    标签：评分：8.0/10、query:image-seg
-   evidence：基于深度学习的遥感指代图像分割
+   evidence：基于深度网络的航空图像语音查询指代分割
+7. [LEGO: Leveled Language Gaussian Splatting](/202608/17/2608.10057v1-lego-leveled-language-gaussian-splatting)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：基于SAM与CLIP的多层级3D语义分割
 
 ### 速读区论文标签
-1. [Rethinking Data Efficiency in Industrial Dense Prediction: Pretraining Coherence, Not Inductive Bias, Determines ViTs Low-Data Advantage](/202608/16/2608.10590v1-rethinking-data-efficiency-in-industrial-dense-prediction-pretraining-coherence-not-inductive-bias-determines-vits-low-data-advantage)  
-   标签：评分：6.0/10、query:image-seg
-   evidence：涉及密集预测（含语义分割），提出跨架构特征重校准方法，可迁移至分割流程。
-2. [Entropy-Centric Explainable AI for Remote Sensing Image Segmentation](/202608/16/2608.11064v1-entropy-centric-explainable-ai-for-remote-sensing-image-segmentation)  
-   标签：评分：6.0/10、query:image-seg
-   evidence：面向遥感语义分割的深度学习方法及可解释AI
-3. [VOS-Agent: The 1st Place Solution for the 8th LSVOS Challenge (MOSEv2 Track)](/202608/16/2608.12721v1-vos-agent-the-1st-place-solution-for-the-8th-lsvos-challenge-mosev2-track)  
-   标签：评分：6.0/10、query:image-seg
-   evidence：基于深度学习的视频目标分割
+1. [VOS-Agent: The 1st Place Solution for the 8th LSVOS Challenge (MOSEv2 Track)](/202608/17/2608.12721v1-vos-agent-the-1st-place-solution-for-the-8th-lsvos-challenge-mosev2-track)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：视频目标分割，路由与专用智能体
+2. [FIRM: Fine-Grained Intra-Token Representation of Masks for Remote Sensing Reasoning Segmentation](/202608/17/2608.13980v1-firm-fine-grained-intra-token-representation-of-masks-for-remote-sensing-reasoning-segmentation)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：推理分割的细化掩码表示
+3. [CoDS: Robust Collaborative Perception via Expert-driven Detection and BEV Segmentation](/202608/17/2608.14085v1-cods-robust-collaborative-perception-via-expert-driven-detection-and-bev-segmentation)  
+   标签：评分：8.0/10、query:image-seg
+   evidence：深度学习中的BEV语义分割与协同特征融合
+4. [AeroReformer2: Spoken-Query Referring Segmentation for Aerial Images](/202608/17/2608.08874v1-aeroreformer2-spoken-query-referring-segmentation-for-aerial-images)  
+   标签：评分：7.0/10、query:image-seg
+   evidence：航空影像中的深度学习参照分割
+5. [Consensus-gated Multi-Agent Neural Architecture Search for Seismic Fault Segmentation](/202608/17/2608.13889v1-consensus-gated-multi-agent-neural-architecture-search-for-seismic-fault-segmentation)  
+   标签：评分：7.0/10、query:image-seg
+   evidence：面向地震断层分割的深度网络与架构搜索
+6. [Rethinking Auxiliary Modalities in Multimodal Zero-shot Anomaly Detection: From Semantic Fusion to Conditional Modulation](/202608/17/2608.13973v1-rethinking-auxiliary-modalities-in-multimodal-zero-shot-anomaly-detection-from-semantic-fusion-to-conditional-modulation)  
+   标签：评分：6.0/10、query:image-fusion
+   evidence：提出条件调制方式融合辅助模态，属深度特征级融合方法
 
 
 <div class="dpr-home-promo-card">

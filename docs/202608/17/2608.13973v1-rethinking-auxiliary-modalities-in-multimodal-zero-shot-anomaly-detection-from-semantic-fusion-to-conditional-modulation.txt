@@ -1,0 +1,262 @@
+Title: Rethinking Auxiliary Modalities in Multimodal Zero-shot Anomaly Detection: From Semantic Fusion to Conditional Modulation
+
+URL Source: https://arxiv.org/pdf/2608.13973v1
+
+Published Time: Mon, 17 Aug 2026 00:26:22 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# Rethinking Auxiliary Modalities in Multimodal Zero-shot Anomaly Detection: From Semantic Fusion to Conditional Modulation 
+
+## Peng Wu 1, Xin Ge 1, Yujia Sun 2∗, Guansong Pang 3
+
+> 1
+
+School of Computer Science, Northwestern Polytechnical University, China 
+
+> 2
+
+School of Artificial Intelligence, Xidian University, China 
+
+> 3
+
+School of Computing and Information Systems, Singapore Management University, Singapore xdwupeng@gmail.com, gx6173@gmail.com, yjsun@stu.xidian.edu.cn, gspang@smu.edu.sg 
+
+Abstract 
+
+Recent foundation model-based methods have endowed RGB images with strong zero-shot anomaly detection (ZSAD) through vision-language pretraining. However, RGB observa-tions alone remain limited in perceiving anomalies dominated by geometric deformation, depth variation, or subtle surface changes. Auxiliary modalities can provide complementary structural information, but existing multimodal methods typ-ically fuse them directly into a shared semantic space, which may disturb the text-aligned anomaly semantics established by RGB foundation models and often requires modality-specific architectures. To address this issue, we propose a plug-and-play auxiliary-conditioned enhancement framework for zero-shot anomaly detection. Instead of reconstructing a joint mul-timodal anomaly semantic space, our framework preserves the original RGB image-text anomaly matching pathway and uses auxiliary observations as conditional signals for RGB feature refinement, allowing auxiliary modalities to seam-lessly enhance existing RGB-based zero-shot anomaly detec-tors. Specifically, a lightweight meta-learning module takes global RGB and auxiliary representations as input and gener-ates sample-adaptive low-rank residual updates to determine how RGB features should be refined. We further construct uncertainty-aware spatial modulation from the initial RGB anomaly response and auxiliary reliability, which determines where local residual updates are strengthened or suppressed. This global-to-local conditional modulation enables selective multimodal enhancement while preserving the original RGB anomaly semantics. Extensive experiments on MVTec 3D-AD and Eyecandies demonstrate that our framework consistently improves multiple popular RGB-based zero-shot anomaly de-tectors, achieving state-of-the-art performance for multimodal zero-shot anomaly detection. 
+
+## Introduction 
+
+Image anomaly detection (Yang, Wu, and Feng 2023; Chen, Huang, and Huang 2026; Li et al. 2026) aims to identify anomalous regions or samples that deviate from normal patterns, playing a critical role in industrial inspection ap-plications. Since anomalous samples are inherently scarce and difficult to exhaustively collect, conventional methods primarily learn representations of normality from normal 
+
+> ∗
+
+Corresponding author Copyright © 2027, Association for the Advancement of Artificial Intelligence (www.aaai.org). All rights reserved. 
+
+data, such as reconstruction patterns or memory prototypes, and detect anomalies as deviations from the learned normal patterns (Wu et al. 2026). However, these methods heavily rely on the coverage of normal data and often struggle to generalize to unseen anomaly categories. Recently, vision-language foundation models have introduced a new paradigm for anomaly detection. By leveraging the open-set seman-tic knowledge acquired through large-scale vision-language pretraining, they identify unseen anomalies via image-text matching, shifting anomaly detection from normality mod-eling to foundation model-based zero-shot recognition. Although foundation models substantially expand the open-set capability of anomaly detection (Wu et al. 2024), ex-isting zero-shot methods still rely primarily on RGB image-text alignment (Ma et al. 2025; Yuan et al. 2026). Due to the inherent limitations of appearance-based imaging, RGB observations may fail to capture anomaly cues asso-ciated with geometric deformation, surface orientation, or depth variation, especially under weak texture contrast or complex illumination. Recent multimodal industrial bench-marks therefore introduce complementary observations, such as depth maps, surface normal maps, and 3D geometry, to provide structural and physical cues beyond RGB, as illus-trated in Figure 1(a). However, the emergence of founda-tion models also changes the role of auxiliary modalities. Since RGB foundation models have already learned powerful open-set anomaly semantics, the key challenge is no longer how to jointly construct multimodal anomaly semantics, but how to effectively leverage auxiliary modalities to enhance RGB anomaly perception without disrupting the established vision-language semantic space. As illustrated in Figure 1(b), existing multimodal zero-shot anomaly detection (ZSAD) methods typically extract RGB and auxiliary features separately and integrate them through cross-modal alignment, shared representation learn-ing, or dynamic feature interaction. Despite their different implementations, these methods share a common assump-tion that RGB and auxiliary modalities contribute equally to anomaly semantic modeling by jointly constructing a uni-fied multimodal representation. However, this assumption becomes questionable in the era of foundation models. RGB foundation models have already established powerful open-set anomaly semantics through vision-language pretraining, whereas auxiliary modalities primarily provide complemen-arXiv:2608.13973v1 [cs.CV] 14 Aug 2026 RGB-only ZSAD   
+
+> Encoder
+> Cross modal Alignment
+> (a) RGB-only ZSAD (b) Existing Multimodal ZSAD
+> Conditional Modulation RGB RGB Depth RGB Depth Normal Map
+
+# ⋯
+
+> (c) Our Multimodal ZSAD
+> Any Auxiliary Set
+> Encoder Encoder Encoder
+> Plug-and-play
+
+Figure 1: Comparison of zero-shot anomaly detection paradigms. (a) RGB-only ZSAD relies on RGB image-text matching. (b) Existing multimodal ZSAD methods align RGB and auxiliary features in a shared semantic space. (c) Our method uses available auxiliary subsets as conditional modulation signals for plug-and-play enhancement. tary structural and physical cues that are difficult to cap-ture from RGB alone, rather than independent text-aligned anomaly semantics. Treating auxiliary modalities as addi-tional semantic sources may therefore interfere with the well-established RGB vision-language semantic space and introduce unnecessary cross-modal representational bias. We argue that the role of auxiliary modalities should be rede-fined: instead of jointly constructing anomaly semantics, they should serve as complementary perceptual cues that selec-tively enhance RGB anomaly perception while preserving the original RGB image-text semantic alignment. Based on this observation, we propose a plug-and-play auxiliary-conditioned framework for foundation-based mul-timodal zero-shot anomaly detection, as illustrated in Fig-ure 1(c). Rather than treating auxiliary modalities as addi-tional sources of anomaly semantics, our framework pre-serves the original RGB image-text matching pathway and leverages auxiliary observations solely as conditional signals to refine RGB anomaly perception. This design enables exist-ing RGB-based zero-shot anomaly detectors to exploit com-plementary structural and physical cues without reconstruct-ing a joint multimodal anomaly semantic space or redesign-ing their detection pipelines. Specifically, we formulate auxil-iary enhancement as a global-to-local modulation process. At the global level, a lightweight meta-learning network takes RGB and auxiliary representations as input and generates sample-adaptive Low-Rank Adaptation (LoRA) parameters for selected Transformer layers, determining how RGB fea-tures should be refined. At the local level, uncertainty-aware spatial modulation combines the initial RGB anomaly re-sponse and an auxiliary reliability map to determine where the generated residual updates should be strengthened or suppressed. By separating the refinement direction from spa-tial modulation, the proposed framework avoids indiscrimi-nate full-image fusion and enables lightweight and spatially selective enhancement across different available auxiliary modalities. Moreover, experiments demonstrate that the pro-posed plug-and-play framework can be seamlessly integrated into multiple popular RGB-based zero-shot anomaly detec-tors, including AnomalyCLIP (Zhou et al. 2024a), AA-CLIP (Ma et al. 2025), and AnomalyVFM (Fučka, Zavrtanik, and Skočaj 2026), thereby consistently improving their perfor-mance. Our contributions are summarized as follows: 
+
+• We propose a plug-and-play auxiliary-conditioned en-hancement framework for foundation-based multimodal zero-shot anomaly detection. It recasts auxiliary modali-ties from direct anomaly semantic sources as conditional signals for RGB anomaly perception, thereby avoiding the construction of a joint multimodal anomaly seman-tic space and enabling seamless integration with existing RGB-based zero-shot anomaly detectors. 
+
+• We propose a global condition-driven dynamic LoRA modulation mechanism. It derives joint conditions from global RGB and auxiliary representations and employs a lightweight meta-learning network to generate sample-adaptive low-rank residual updates, which determine how RGB features are refined for each input. 
+
+• We propose an uncertainty-aware spatial modulation mechanism, which combines RGB prediction uncertainty and auxiliary reliability to adaptively strengthen or sup-press local residual updates. 
+
+• Extensive experiments on MVTec 3D-AD and Eyecan-dies, covering different auxiliary modalities, category-disjoint zero-shot settings, and multiple RGB-based zero-shot anomaly detectors, demonstrate consistent improve-ments and validate the effectiveness and plug-and-play capability of the proposed framework. 
+
+## Related Work 
+
+Image Anomaly Detection 
+
+Prior single-modal image anomaly detection methods mainly identify deviations from normal patterns through recon-struction, feature memory, probability density estimation, or teacher-student feature discrepancies. Representative meth-ods, including DRAEM (Zavrtanik, Kristan, and Skočaj 2021), PatchCore (Roth et al. 2022), CFLOW-AD (Gu-dovskiy, Ishizaka, and Kozuka 2022), and STFPM (Wang et al. 2021), perform well when object categories are fixed and sufficient normal data are available. However, their anomaly decisions are typically constrained by the normal patterns observed during training. More recently, vision-language foundation models have advanced zero-shot anomaly detection. Methods such as WinCLIP (Jeong et al. 2023) and AnomalyCLIP (Zhou et al. 2024a) exploit pre-trained image-text spaces to match local image features RGB Available Auxiliary Modalities                 
+
+> Depth Surface Normal Aux Encoder
+> Selected Transformer Blocks
+> 612 18 24 ⋯
+> RGB-based ZSAD Pipeline
+> ⋯⋯
+> GAP GAP 𝐀 𝐀𝐀𝐀
+> CE
+> Lightweight Meta-learning Module H
+> Dynamic LoRA Params { ∆𝐀 𝐀 𝐀 , ∆𝐀 𝐀 𝐀 }
+> 𝐀 𝐀𝐀𝐀
+> Plug-and-play (Global)
+> Spatial Gate Gpatch
+> RGB-Text Matching Normal/Abnormal Text Prototypes
+> Pixel-level Anomaly Map
+> ⋯
+> RGB Encoder
+> Plug-and-play (Local)
+> Initial Anomaly Response 𝐀 𝐀𝐀𝐀
+> 1 + 𝐀𝐀 𝐀𝐀𝐀 (2𝐀 𝐀𝐀𝐀 − 1)
+> RGB Uncertainty Aux Reliab 𝐀𘠀𝐀𙐀𝐀
+> RGB Tokens 𝐀 𝐀𝐀𝐀
+> ⋯
+> Aux Tokens 𝐀 𝐀𝐀𝐀
+> How to Refine
+> Where to Refine
+> Reliability Head 𝐀 𝐀𰠀𝐀
+> 𝐀 𝐀𴰀𝐀
+> Aux Tokens 𝐀 𝐀𝐀𝐀
+> RGB Tokens 𝐀 𝐀𝐀𝐀
+> CE
+> Frozen Learnable Concat&Encode
+> GAP Global average pooling
+> Binary Entropy
+> (2-layer MLP) Clamp to
+> [1 − 𝐀, 1 + 𝐀]
+> CCConcat
+
+Figure 2: Overall framework of our proposed method. with normal and abnormal text prompts, enabling anomaly recognition and localization on unseen categories. Subse-quent studies further improve cross-category generalization through prompt optimization, visual adaptation, or stronger visual foundation models. However, these methods still pri-marily rely on RGB appearance and may not fully capture anomaly cues related to geometric structure, surface proper-ties, or material variations. 
+
+Multimodal Image Anomaly Detection 
+
+Multimodal image anomaly detection introduces auxiliary observations, such as depth maps, surface normals, and point clouds, to complement RGB in perceiving geomet-ric structures and surface properties. Most existing methods exploit multimodal information under the normality model-ing paradigm. EasyNet (Chen et al. 2023) and M3DM (Wang et al. 2023) integrate multimodal features through attention or hybrid fusion strategies, while the shape-guided dual-memory learning method (Chu et al. 2023) models nor-mal appearance and geometry using separate memories. CFM (Costanzino et al. 2024) learns cross-modal feature mappings under normal conditions, and Cycle-CFM (Shi et al. 2025) further improves mapping consistency through bidirectional constraints. These methods enhance defect lo-calization by leveraging complementary modalities, but they are mainly designed for training-based anomaly detection and rely on normal samples to construct multimodal repre-sentations. Recently, a few works have extended vision-language models to multimodal or 3D zero-shot anomaly detection. PointAD (Zhou et al. 2024b) explores zero-shot 3D anomaly understanding by combining point clouds and images, while ZUMA (Ma et al. 2026) builds a joint representation of RGB and 3D information through cross-domain calibration and dynamic semantic interaction. Although these methods im-prove multimodal zero-shot anomaly perception, they still tend to treat RGB and auxiliary modalities as comparable semantic inputs and perform prediction based on fused or joint representations. In contrast, our method does not re-place the RGB image-text anomaly prediction pathway. It serves as a plug-and-play auxiliary modulation module for RGB-based foundation zero-shot anomaly detectors, using auxiliary modalities as conditional signals to enhance RGB feature refinement without constructing a joint multimodal anomaly semantic space. 
+
+## Method 
+
+Framework Overview 
+
+Given the i-th RGB image xrgb  
+
+> i
+
+and its available auxiliary modality set X aux  
+
+> i
+
+= {xmi | m ∈ A i}, where Ai denotes the subset of auxiliary modalities available for the current sample, the input may include depth, surface normals, or any combination of other auxiliary modalities. For clarity, the following sections describe the implementation mainly using depth and surface normals as examples, although the proposed framework does not depend on a fixed modality configuration. As shown in Figure 2, our method is built upon an existing RGB-based foundation ZSAD framework and preserves its original RGB image-text anomaly detec-tion pathway. Instead of constructing a unified multimodal anomaly semantic space, we treat auxiliary modalities as conditional signals that selectively refine RGB anomaly per-ception. Consequently, auxiliary modalities never participate directly in anomaly semantic matching, but only modulate the RGB visual representation before the final RGB image-text similarity computation. Specifically, we formulate auxiliary enhancement as a global-to-local modulation process. At the global level, the global representations of RGB and the auxiliary modalities jointly condition a lightweight meta-learning network, which dynamically generates sample-adaptive LoRA parameters for selected Transformer layers, determining how RGB fea-tures should be refined. At the local level, the initial anomaly response of the frozen RGB foundation model is used to estimate prediction uncertainty, which is further combined with an auxiliary reliability map to construct uncertainty-aware spatial modulation. The generated LoRA residuals are strengthened at locations where RGB predictions are un-certain and auxiliary observations provide reliable support, while unreliable local interventions are suppressed. Finally, the refined RGB features are matched with normal and ab-normal textual prototypes following the original RGB image-text matching pipeline to produce the final anomaly map. Throughout both training and inference, the RGB foundation model remains frozen, while only the lightweight conditional modulation modules are optimized, making the proposed framework a plug-and-play enhancement that can be seam-lessly integrated into different RGB-based ZSAD models. 
+
+Condition-driven Dynamic LoRA Modulation 
+
+To introduce auxiliary information without changing the main structure of RGB-based ZSAD models, we use a lightweight meta-learning module to generate dynamic LoRA parameters. Compared with directly fine-tuning the vi-sual encoder or using fixed LoRA, the meta-learning module generates sample-adaptive low-rank residual updates condi-tioned on the RGB state and the auxiliary state of the current sample. In this way, it determines the refinement direction of RGB features with only a small number of trainable param-eters. Specifically, given an RGB image xrgb and a set of avail-able auxiliary modalities X aux , the RGB image is first fed into the RGB visual encoder of the base ZSAD model to obtain patch token features F rgb . Each auxiliary modality is processed by its corresponding auxiliary encoder or projec-tion module to obtain token features aligned with the RGB tokens. When multiple auxiliary modalities are available, their features are mapped to a unified dimension daux and aggregated as the auxiliary token representation F aux .We then apply global average pooling (GAP) to the RGB tokens and auxiliary tokens, respectively, to obtain their global representations: 
+
+zrgb = GAP( F rgb ), zaux = GAP( F aux ). (1) The two representations are concatenated and encoded into a joint condition vector: 
+
+s = ϕ([ zrgb ; zaux ]) , (2) where [ ; ] denotes channel-wise concatenation, and ϕ(·) is a two-layer MLP (multilayer perceptron). The condition vec-tor s is further sent to a lightweight meta-learning module 
+
+H(·) to dynamically generate LoRA parameters for selected Transformer layers: 
+
+{∆W Ql , ∆W Vl }l∈L = H(s), (3) where H(·) is a three-layer MLP that maps the joint condition 
+
+s to the LoRA parameters of all target layers, and L denotes the set of target layers equipped with dynamic LoRA. For the input tokens Xl of the l-th layer, the query and value residuals generated by dynamic LoRA are defined as: 
+
+∆Ql = Xl∆W Ql , ∆Vl = Xl∆W Vl . (4) The global RGB–auxiliary condition therefore determines the sample-specific refinement direction in the low-rank pa-rameter space. Importantly, these residuals do not directly re-place the original RGB features and are further controlled by the spatial modulation mechanism introduced in the next sub-section. This design allows auxiliary observations to guide RGB anomaly perception through parameter-efficient mod-ulation, without directly participating in anomaly-semantic construction or RGB image-text similarity computation. 
+
+Uncertainty-aware Spatial Modulation 
+
+The dynamic LoRA residuals generated by global conditions provide a sample-adaptive refinement direction, but auxil-iary information is not equally useful at all local regions. We therefore introduce an uncertainty-aware spatial modu-lation mechanism to control the strength of LoRA residual updates at the patch level. The key idea is to strengthen resid-ual updates where RGB anomaly prediction is uncertain and auxiliary reliability is high, while suppressing unreliable lo-cal intervention. We first estimate the initial anomaly response from the RGB image-text matching result of the RGB-based ZSAD model. Given the RGB patch feature f rgb  
+
+> j
+
+and the normal and abnormal text prototypes T , the probability that the j-th patch belongs to the abnormal class is defined as: 
+
+Argb (j) = p(y = abnormal | f rgb  
+
+> j
+
+, T ). (5) Let aj = Argb (j). We measure the uncertainty of the RGB prediction using normalized binary entropy: 
+
+Urgb (j) = − 1log 2 
+
+h
+
+aj log( aj + ϵ)+(1 − aj ) log(1 − aj + ϵ)
+
+i
+
+, (6) where ϵ is a small constant used for numerical stability. A larger Urgb (j) indicates greater ambiguity between the nor-mal and abnormal classes, so the patch may benefit more from auxiliary modulation. In parallel, we estimate the patch-wise reliability of the auxiliary modalities using a lightweight reliability prediction head. The RGB tokens and aggregated auxiliary tokens are concatenated along the channel dimension and fed into ϕc:
+
+Caux = σ  ϕc
+
+ [F rgb ; F aux ] , (7) where ϕc is a two-layer MLP, and σ(·) is the sigmoid func-tion. Based on RGB uncertainty and auxiliary reliability, we construct a spatial modulation map centered at one: 
+
+Gpatch = clip (1 + η · Urgb · (2 Caux − 1) , 1 − η, 1 + η) ,
+
+(8) MVTec 3D-AD Eyecandies Method P-AUC (%) AUPRO (%) I-AUC (%) AP (%) P-AUC (%) AUPRO (%) I-AUC (%) AP (%) CLIP + R. – 56.0 60.4 86.4 78.0 31.8 73.0 73.9 PointCLIP V2 78.3 49.4 49.8 79.3 46.0 – 46.9 49.9 PointCLIP V2a 79.5 51.6 49.4 79.8 46.2 – 48.5 50.5 PointAD-CoOp 96.5 88.8 83.4 94.9 94.9 83.6 73.7 76.0 PointAD 97.2 90.2 86.9 96.1 95.3 84.3 77.7 80.4 ZUMA 97.6 92.5 84.0 – 97.3 88.9 74.9 –ZUMA-FT 97.8 93.1 88.2 – 97.5 89.4 78.2 –AnomalyCLIP + Ours 95.6 84.3 76.5 92.2 95.4 81.5 81.0 81.1 AA-CLIP + Ours 97.4 90.9 76.5 92.6 97.4 89.8 78.3 80.7 AnomalyVFM + Ours 98.5 94.4 88.5 96.5 98.2 91.7 88.0 89.2 
+
+Table 1: Comparison with state-of-the-art methods on MVTec 3D-AD and Eyecandies. The best and second-best results within each dataset and metric are highlighted in bold and underlined, respectively. “–” denotes unavailable results. where η ∈ [0 , 1) controls the modulation range, and clip( ·)
+
+restricts the modulation value within [1 − η, 1 + η]. This residual-style formulation constrains the modulation around the original LoRA response, allowing auxiliary information to enhance or suppress local residual updates without disrupt-ing the original adaptation behavior. When the RGB predic-tion is confident, Urgb ≈ 0 and thus Gpatch ≈ 1. When RGB is uncertain and the auxiliary reliability is high, Caux > 0.5
+
+and Gpatch > 1, which strengthens the local residual update. Conversely, when RGB is uncertain but auxiliary reliabil-ity is low, Caux < 0.5 and Gpatch < 1, which suppresses unreliable auxiliary intervention. Because the spatial modulation is designed for local patch representations, we exclude the class token from patch-wise reliability modulation. Specifically, a fixed factor of one is assigned to the class token: 
+
+G = [ 1cls ; Gpatch ], (9) thereby preserving the global image representation while se-lectively modulating local patch tokens. For the target Trans-former layer l, the resized modulation factor Gl is applied to the dynamic LoRA residuals: 
+
+∆Q′ 
+
+> l
+
+= Gl ⊙ ∆Ql, ∆V ′ 
+
+> l
+
+= Gl ⊙ ∆Vl. (10) The modulated residuals are then added to the original query and value projections, allowing dynamic LoRA modulation to determine how to refine RGB features and uncertainty-aware spatial modulation to determine where to strengthen or suppress the residuals. 
+
+Plug-and-play Optimization and Inference 
+
+Our framework retains the original optimization objective of each RGB-based ZSAD model and introduces no addi-tional multimodal loss. The RGB visual encoder and other task-specific modules remain frozen, while only the proposed conditional modulation modules are optimized through the base detector objective. During inference, global RGB and auxiliary representations generate sample-adaptive LoRA parameters, whose residual updates are spatially modulated and injected into selected Transformer layers. The refined RGB features are then matched with the original normal and abnormal text prototypes to produce image-level and pixel-level anomaly predictions. Since the RGB image-text matching pathway remains unchanged, the proposed method can be directly integrated into different RGB-based zero-shot anomaly detectors. 
+
+## Experiments 
+
+Datasets and Evaluation Metrics 
+
+Datasets. MVTec 3D-AD (Bergmann et al. 2021) targets real industrial inspection and contains 10 object categories. Each sample provides an RGB image and a corresponding 3D observation, covering anomalies such as scratches, dents, contamination, holes, and structural deformation. Eyecan-dies (Bonfiglioli et al. 2022) is a synthetic multimodal bench-mark with 10 candy object categories. It provides RGB, depth, and surface normal modalities under complex tex-tures, self-occlusions, and specular reflections. 
+
+Evaluation metrics. We report four metrics: Pixel-level AUROC (P-AUC), Area Under the Per-Region Overlap (AUPRO), Image-level AUROC (I-AUC), and image-level Average Precision (AP). P-AUC and AUPRO evaluate pixel-level anomaly localization, while I-AUC and AP measure image-level anomaly detection. 
+
+Experimental Details 
+
+We integrate our plug-and-play method into three represen-tative anomaly detection frameworks, including Anomaly-CLIP, AA-CLIP, and AnomalyVFM. For each baseline, we initialize the model with its VisA-pretrained checkpoint and freeze all parameters of the original framework during train-ing, including the visual encoder, text encoder, existing adap-tation modules, and prediction head or decoder. Following prior works (Zhou et al. 2024b; Ma et al. 2026), we adopt the one-vs-rest protocol for category-disjoint zero-shot eval-uation and report results averaged over three target-category splits. Dynamic LoRA modules are inserted into selected at-tention layers of the visual Transformer and applied to the Query and Value projections. In all experiments, the LoRA rank is set to 4, the auxiliary dimension daux is set to 64, and the learning rate of newly introduced modules is set to Framework Config. MVTec 3D-AD Eyecandies P-AUC (%) AUPRO (%) I-AUC (%) AP (%) P-AUC (%) AUPRO (%) I-AUC (%) AP (%) AnomalyCLIP RGB baseline 95.2 82.0 71.8 90.2 91.1 67.7 65.1 65.9 RGB + Direct Fusion 93.0 74.0 72.2 90.3 91.3 73.1 73.6 74.8 + Dyn. LoRA 95.5 82.9 75.4 91.8 95.0 79.5 80.3 80.7 + Dyn. LoRA + S. Mod. 95.6 84.3 76.5 92.2 95.4 81.5 81.0 81.1                                                                 
+
+> AA-CLIP RGB baseline 96.6 90.9 74.7 92.0 96.7 86.8 72.7 74.7 RGB + Direct Fusion 95.6 88.3 75.1 92.0 95.1 84.6 73.2 75.2 + Dyn. LoRA 97.4 91.5 75.8 92.3 95.7 84.5 74.2 75.7 + Dyn. LoRA + S. Mod. 97.4 90.9 76.5 92.6 97.4 89.8 78.3 80.7
+> AnomalyVFM RGB baseline 97.8 91.9 88.5 96.2 90.2 79.9 80.4 82.8 RGB + Direct Fusion 98.0 92.5 87.5 96.1 93.4 83.4 80.7 82.8 + Dyn. LoRA 98.4 94.3 87.7 96.1 98.0 91.5 87.7 89.2 + Dyn. LoRA + S. Mod. 98.5 94.4 88.5 96.5 98.2 91.7 88.0 89.2
+
+Table 2: Component-wise ablation results on MVTec 3D-AD and Eyecandies. The best result for each framework, dataset, and metric is highlighted in bold.                                                                                           
+
+> Framework ηMVTec 3D-AD Eyecandies P-AUC (%) AUPRO (%) I-AUC (%) AP (%) P-AUC (%) AUPRO (%) I-AUC (%) AP (%) AnomalyCLIP 095.5 82.9 75.4 91.8 95.0 79.5 80.3 80.7 0.05 95.6 83.6 76.4 92.1 94.6 79.4 79.3 80.3 0.10 95.6 83.6 76.4 92.2 95.4 81.2 80.6 81.1
+> 0.15 95.6 84.3 76.5 92.2 95.4 81.5 81.0 81.1
+> 0.20 95.3 84.8 75.6 91.6 94.8 79.6 80.6 80.7 AnomalyVFM 098.4 94.3 87.7 96.1 98.0 91.5 87.7 89.2 0.05 98.5 94.4 87.9 96.2 98.2 91.7 88.3 89.6
+> 0.10 98.5 94.4 87.9 96.4 98.1 91.7 87.8 89.2 0.15 98.5 94.4 88.5 96.5 98.2 91.7 88.0 89.2 0.20 98.4 94.3 87.3 96.0 98.2 92.0 87.8 89.0
+
+Table 3: Sensitivity analysis of the spatial modulation amplitude η on MVTec 3D-AD and Eyecandies. 
+
+1 × 10 −4. Unless otherwise specified, we use the full model with spatial modulation amplitude η = 0 .15 . All experiments are conducted on a single NVIDIA RTX 3090 GPU. 
+
+Main Results 
+
+Table 1 compares our method with existing multi-modal ZSAD methods on MVTec 3D-AD and Eyecan-dies, including CLIP + Rendering (CLIP + R.) (Rad-ford et al. 2021), PointCLIP V2/V2a (Zhang et al. 2022), PointAD-CoOp/PointAD (Zhou et al. 2022, 2024b), and ZUMA/ZUMA-FT (Ma et al. 2026). We also integrate our modules into AnomalyCLIP, AA-CLIP, and AnomalyVFM to evaluate their generality across different frameworks. On both benchmarks, AnomalyVFM + Ours achieves the best performance across all metrics. Specifically, on Eyecandies, it outperforms the previous best methods by 0.7%, 2.3%, 9.8%, and 8.8% in P-AUC, AUPRO, I-AUC, and AP, respec-tively. When integrated with other detectors, our framework consistently improves AnomalyCLIP and AA-CLIP, achiev-ing second-best performance on several metrics. These re-sults demonstrate that the proposed auxiliary-conditioned modulation is not tied to a specific detector and can provide consistent cross-model benefits. 
+
+Ablation Study 
+
+Module Ablation. We ablate dynamic LoRA modulation and uncertainty-aware spatial modulation on frozen RGB baselines, and further compare them with a direct feature fusion strategy under the same backbone and protocol. In Table 2, Dyn. LoRA and S. Mod. denote these two mod-ules, respectively. All variants within the same framework use the same pretrained parameters, and only newly intro-duced modules are optimized. We use depth on MVTec 3D-AD and depth+surface normal on Eyecandies. As shown in Table 2, direct fusion provides limited or inconsistent improvements, whereas the proposed modulation strategy consistently enhances anomaly localization and image-level detection. For instance, the full AnomalyCLIP variant im-proves AUPRO and I-AUC by 13 .8% and 15 .9% over the RGB baseline on Eyecandies. For AA-CLIP, Dynamic LoRA alone slightly decreases P-AUC and AUPRO, while adding Spatial Mod. improves AUPRO and I-AUC by 3.0% and 
+
+5.6% over the baseline. For AnomalyVFM on Eyecandies, Dynamic LoRA modulation improves P-AUC and AUPRO by 7.8% and 11 .6% . These results demonstrate that Dy-namic LoRA incorporates auxiliary geometric cues, while uncertainty-aware spatial modulation controls their local in-fluence and reduces negative cross-modal transfer. Tire Rope Potato Peach         
+
+> Foam
+> RGB Depth RGB-Only RGB+Depth GT
+> Peppermint Candy
+> Marshmallow
+> Licorice Sandwich
+> Chocolate Cookie
+> Confetto
+> RGB Depth Normal GT RGB-Only RGB+D+N
+
+Figure 3: Qualitative anomaly localization results on five representative categories from MVTec 3D-AD (left) and Eyecandies (right), using AnomalyVFM as the base detector. Each sample shows the input modalities, ground-truth mask, RGB-only anomaly map, and auxiliary-conditioned final anomaly map. 
+
+Sensitivity to the Spatial Modulation Amplitude. The spatial modulation amplitude η controls the strength of uncertainty-aware spatial modulation, where η = 0 denotes Dynamic LoRA without the uncertainty-aware spatial mod-ulation. We vary η from 0 to 0.2 while keeping all other set-tings unchanged. As shown in Table 3, the uncertainty-aware spatial modulation generally brings additional gains over Dy-namic LoRA alone, although the optimal value varies across metrics. Overall, η = 0 .15 achieves the most balanced per-formance across datasets and frameworks, while larger val-ues tend to favor pixel-level localization and smaller values may yield better image-level discrimination. Therefore, we set η = 0 .15 as the default setting in all experiments without dataset-specific tuning. 
+
+Visualization 
+
+Figure 3 presents qualitative comparisons on MVTec 3D-AD and Eyecandies. Compared with the RGB-only baseline AnomalyVFM, AnomalyVFM + Ours produces more con-centrated anomaly responses within ground-truth defect re-gions and shows better consistency with the corresponding masks. On MVTec 3D-AD, depth cues help suppress back-ground responses and refine localization for geometric de-fects. On Eyecandies, depth and surface normal cues further highlight structural and surface anomalies that are difficult to distinguish from RGB appearance alone. These qualitative results show that auxiliary-conditioned modulation improves pixel-level anomaly localization while retaining the original RGB image-text prediction pathway. To further interpret the proposed uncertainty-aware spa-tial modulation, Figure 4 visualizes the intermediate maps on two Eyecandies samples. The initial RGB anomaly re-sponse Argb provides a coarse anomaly estimate, while the uncertainty map Urgb highlights ambiguous regions where RGB prediction is less confident. The auxiliary reliability map Caux identifies regions where auxiliary modalities pro-vide reliable structural cues. By combining these signals, the | RGB | GT | ArgbA_{rgb}Argb | UrgbU_{rgb}Urgb | CauxC_{aux}Caux | GpatchG_{patch}Gpatch | Final Ma      
+
+> Chocolate Cookie
+> RGB GT Argb Urgb Caux Final Result
+> Peppermint Candy
+
+Figure 4: Visualization of uncertainty-aware spatial modula-tion on two Eyecandies samples. spatial modulation selectively refines uncertain but auxiliary-supported regions, leading to the final anomaly results that better align with the ground-truth masks. 
+
+## Conclusion 
+
+We present a plug-and-play auxiliary-conditioned framework for zero-shot anomaly detection. Instead of constructing a joint multimodal anomaly space, our method preserves the original RGB image-text matching pathway and uses auxil-iary modalities to selectively refine RGB anomaly percep-tion. A lightweight meta-learning module generates sample-adaptive LoRA residuals from global RGB and auxiliary representations, while uncertainty-aware spatial modulation controls their local activation using the initial RGB anomaly response and auxiliary reliability. This global-to-local design introduces complementary structural and surface cues with-out disrupting pretrained RGB anomaly semantics. Extensive experiments on MVTec 3D-AD and Eyecandies demonstrate consistent improvements across different auxiliary modali-ties and RGB-based detectors, confirming the effectiveness and generality of the proposed framework. References 
+
+Bergmann, P.; Jin, X.; Sattlegger, D.; and Steger, C. 2021. The mvtec 3d-ad dataset for unsupervised 3d anomaly detec-tion and localization. arXiv preprint arXiv:2112.09045 .Bonfiglioli, L.; Toschi, M.; Silvestri, D.; Fioraio, N.; and De Gregorio, D. 2022. The eyecandies dataset for unsu-pervised multimodal anomaly detection and localization. In 
+
+Proceedings of the Asian Conference on Computer Vision ,3586–3602. Chen, P.; Huang, F.; and Huang, C. 2026. DyC-CLIP: Dynamic Context-Aware Multi-Modal Prompt Learning for Zero-Shot Anomaly Detection. Pattern Recognition , 113215. Chen, R.; Xie, G.; Liu, J.; Wang, J.; Luo, Z.; Wang, J.; and Zheng, F. 2023. Easynet: An easy network for 3d indus-trial anomaly detection. In Proceedings of the 31st ACM International Conference on Multimedia , 7038–7046. Chu, Y.-M.; Liu, C.; Hsieh, T.-I.; Chen, H.-T.; and Liu, T.-L. 2023. Shape-Guided Dual-Memory Learning for 3D Anomaly Detection. In Proceedings of the 40th International Conference on Machine Learning , 6185–6194. Costanzino, A.; Ramirez, P. Z.; Lisanti, G.; and Di Stefano, L. 2024. Multimodal industrial anomaly detection by cross-modal feature mapping. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,17234–17243. Fučka, M.; Zavrtanik, V.; and Skočaj, D. 2026. Anoma-lyVFM: Transforming Vision Foundation Models into Zero-Shot Anomaly Detectors. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition .Gudovskiy, D.; Ishizaka, S.; and Kozuka, K. 2022. Cflow-ad: Real-time unsupervised anomaly detection with localization via conditional normalizing flows. In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision , 98–107. Jeong, J.; Zou, Y.; Kim, T.; Zhang, D.; Ravichandran, A.; and Dabeer, O. 2023. Winclip: Zero-/few-shot anomaly classifi-cation and segmentation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,19606–19616. Li, Y.; Cao, Y.; Liu, C.; Xiong, Y.; Dong, X.; and Huang, C. 2026. Iad-r1: Reinforcing consistent reasoning in industrial anomaly detection. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 40, 6583–6591. Ma, W.; Zhang, X.; Yao, Q.; Tang, F.; Wu, C.; Li, Y.; Yan, R.; Jiang, Z.; and Zhou, S. K. 2025. Aa-clip: Enhancing zero-shot anomaly detection via anomaly-aware clip. In Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 4744–4754. Ma, Y.; Liu, M.; Jiang, S.; Zhou, J.; Bian, Y.; Wang, X.; and Wang, Y. 2026. Zuma: Training-free zero-shot unified mul-timodal anomaly detection. IEEE Transactions on Pattern Analysis and Machine Intelligence .Radford, A.; Kim, J. W.; Hallacy, C.; Ramesh, A.; Goh, G.; Agarwal, S.; Sastry, G.; Askell, A.; Mishkin, P.; Clark, J.; et al. 2021. Learning transferable visual models from natural language supervision. In International conference on machine learning , 8748–8763. PmLR. Roth, K.; Pemula, L.; Zepeda, J.; Schölkopf, B.; Brox, T.; and Gehler, P. 2022. Patchcore: Towards total recall in in-dustrial anomaly detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition .Shi, Y.; Zhan, X.; Li, Y.; Wu, Z.; Zhang, W.; and Li, H. 2025. Cycle-CFM: An Unsupervised Framework for Robust Mul-timodal Anomaly Detection in Industrial Settings. Expert Systems with Applications , 129745. Wang, G.; Han, S.; Ding, E.; and Huang, D. 2021. Student-teacher feature pyramid matching for anomaly detection. 
+
+arXiv preprint arXiv:2103.04257 .Wang, Y.; Peng, J.; Zhang, J.; Yi, R.; Wang, Y.; and Wang, C. 2023. Multimodal industrial anomaly detection via hybrid fusion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 8032–8041. Wu, P.; Pan, C.; Yan, Y.; Pang, G.; Yan, Q.; Wang, P.; and Zhang, Y. 2026. Deep learning for video anomaly detec-tion: A review. IEEE Transactions on Neural Networks and Learning Systems .Wu, P.; Zhou, X.; Pang, G.; Sun, Y.; Liu, J.; Wang, P.; and Zhang, Y. 2024. Open-vocabulary video anomaly detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 18297–18307. Yang, M.; Wu, P.; and Feng, H. 2023. MemSeg: A semi-supervised method for image surface defect detection using differences and commonalities. Engineering Applications of Artificial Intelligence , 119: 105835. Yuan, J.; Ye, J.; Chen, W.; and Gao, C. 2026. Ad-dinov3: Enhancing dinov3 for zero-shot anomaly detection with anomaly-aware calibration. In Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing , 11202–11206. Zavrtanik, V.; Kristan, M.; and Skočaj, D. 2021. Draem-a discriminatively trained reconstruction embedding for sur-face anomaly detection. In Proceedings of the IEEE/CVF international conference on computer vision , 8330–8339. Zhang, R.; Guo, Z.; Zhang, W.; Li, K.; Miao, X.; Cui, B.; Qiao, Y.; Gao, P.; and Li, H. 2022. Pointclip: Point cloud understanding by clip. In Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition , 8552– 8562. Zhou, K.; Yang, J.; Loy, C. C.; and Liu, Z. 2022. Learning to prompt for vision-language models. International journal of computer vision , 130(9): 2337–2348. Zhou, Q.; Pang, G.; Tian, Y.; He, S.; and Chen, J. 2024a. Anomalyclip: Object-agnostic prompt learning for zero-shot anomaly detection. In International Conference on Learning Representations , volume 2024, 49705–49737. Zhou, Q.; Yan, J.; He, S.; Meng, W.; and Chen, J. 2024b. Pointad: Comprehending 3d anomalies from points and pix-els for zero-shot 3d anomaly detection. Advances in Neural Information Processing Systems , 37: 84866–84896.

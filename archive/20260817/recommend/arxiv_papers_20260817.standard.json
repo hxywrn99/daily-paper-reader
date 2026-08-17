@@ -1,0 +1,532 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-17T20:52:40.447045+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 2,
+    "deep_divecandidates": 10,
+    "deep_cap": 7,
+    "deep_selected": 7,
+    "quick_candidates": 6,
+    "quick_skim_target": 12,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2608.11681v1",
+      "source": "arxiv",
+      "title": "Learning from Multimodal Pseudo-Labels for Robust Open-Vocabulary Instance and Panoptic Segmentation",
+      "abstract": "This work addresses the challenge of open-vocabulary instance segmentation (OVIS) and open-set panoptic segmentation (OSPS), which aim to recognize both predefined and unseen object categories without exhaustive human annotations. Existing methods often suffer from noisy pseudo-masks, limited visual-textual grounding, and difficulty handling synonyms or out-of-vocabulary (OOV) words. To overcome these challenges, we propose a multimodal framework that leverages pre-trained vision-language models for automatic pseudo-label generation, CLIP-guided synonym filtering, and GPT-based caption reconstruction. In our target-vocabulary-assisted pseudo-labeling setting, the framework first constructs pseudo segmentation masks, descriptive captions, and semantically aligned synonym sets using Grounded SAM, LLaVA, and CLIP, providing multimodal supervision without manual annotation. We then enhance visual-textual alignment through three complementary training objectives: an extended grounding loss that incorporates visually grounded synonyms, a semantic consistency loss, and a generative caption reconstruction loss. Extensive experiments on the COCO dataset demonstrate that the proposed method consistently outperforms previous state-of-the-art approaches under this protocol, achieving substantial improvements on both OVIS and OSPS benchmarks.",
+      "authors": [
+        "Duy Tran Thanh",
+        "Yeejin Lee",
+        "Byeongkeun Kang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.MM"
+      ],
+      "published": "2026-08-12T05:39:57+00:00",
+      "link": "https://arxiv.org/pdf/2608.11681v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Multimodal pseudo-labeling with vision-language models for open-vocabulary instance and panoptic segmentation",
+      "llm_evidence_cn": "利用多模态伪标签和视觉语言模型处理开放词汇实例与全景分割，属于深度学习语义分割方法",
+      "llm_evidence": "利用多模态伪标签和视觉语言模型处理开放词汇实例与全景分割，属于深度学习语义分割方法",
+      "canonical_evidence": "利用多模态伪标签和视觉语言模型处理开放词汇实例与全景分割，属于深度学习语义分割方法",
+      "llm_tldr_en": "Addresses open-vocabulary instance and panoptic segmentation via a multimodal framework using pre-trained vision-language models for automatic pseudo-label generation, CLIP-guided synonym filtering, and GPT-based caption reconstruction, improving segmentation robustness.",
+      "llm_tldr_cn": "开放词汇实例分割与开放集全景分割要求识别未见类别，但现方法常受噪声伪掩码、视觉-文本接地不足和同义词/未登录词问题的困扰。本文提出一个多模态框架，利用预训练视觉语言模型自动生成伪分割标签，通过CLIP引导的同义词过滤和GPT描述重建来增强视觉-文本对齐。实验在目标词汇辅助标注设置下全面验证，表明该方法显著提升了开放词汇分割的鲁棒性与准确率，减少了对密集人工标注的依赖，为推进开放世界分割提供了强基线。",
+      "llm_tldr": "开放词汇实例分割与开放集全景分割要求识别未见类别，但现方法常受噪声伪掩码、视觉-文本接地不足和同义词/未登录词问题的困扰。本文提出一个多模态框架，利用预训练视觉语言模型自动生成伪分割标签，通过CLIP引导的同义词过滤和GPT描述重建来增强视觉-文本对齐。实验在目标词汇辅助标注设置下全面验证，表明该方法显著提升了开放词汇分割的鲁棒性与准确率，减少了对密集人工标注的依赖，为推进开放世界分割提供了强基线。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.13135v1",
+      "source": "arxiv",
+      "title": "Predicting Signed Distance Functions for Visual Instance Segmentation",
+      "abstract": "Visual instance segmentation is a challenging problem and becomes even more difficult if objects of interest varies unconstrained in shape. Some objects are well described by a rectangle, however, this is hardly always the case. Consider for instance long, slender objects such as ropes. Anchor-based approaches classify predefined bounding boxes as either negative or positive and thus provide a limited set of shapes that can be handled. Defining anchor-boxes that fit well to all possible shapes leads to an infeasible number of prior boxes. We explore a different approach and propose to train a neural network to compute distance maps along different directions. The network is trained at each pixel to predict the distance to the closest object contour in a given direction. By pooling the distance maps we obtain an approximation to the signed distance function (SDF). The SDF may then be thresholded in order to obtain a foreground-background segmentation. We compare this segmentation to foreground segmentations obtained from the state-of-the-art instance segmentation method YOLACT. On the COCO dataset, our segmentation yields a higher performance in terms of foreground intersection over union (IoU). However, while the distance maps contain information on the individual instances, it is not straightforward to map them to the full instance segmentation. We still believe that this idea is a promising research direction for instance segmentation, as it better captures the different shapes found in the real world.",
+      "authors": [
+        "Emil Brissman",
+        "Joakim Johnander",
+        "Michael Felsberg"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-13T12:09:23+00:00",
+      "link": "https://arxiv.org/pdf/2608.13135v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Visual instance segmentation using neural distance maps",
+      "llm_evidence_cn": "基于距离图的视觉实例分割方法",
+      "llm_evidence": "基于距离图的视觉实例分割方法",
+      "canonical_evidence": "基于距离图的视觉实例分割方法",
+      "llm_tldr_en": "This paper trains a neural network to predict pixel-wise signed distance maps for visual instance segmentation, enabling arbitrary shapes beyond fixed bounding boxes.",
+      "llm_tldr_cn": "视觉实例分割中锚框方法难以处理绳索等长而纤细的不规则物体。该文提出训练神经网络逐像素预测沿各方向到最近目标轮廓的距离图，从而摆脱固定锚框的形状限制。实验表明该方法可灵活分割任意形状物体，为实例分割提供了距离场回归的新思路。",
+      "llm_tldr": "视觉实例分割中锚框方法难以处理绳索等长而纤细的不规则物体。该文提出训练神经网络逐像素预测沿各方向到最近目标轮廓的距离图，从而摆脱固定锚框的形状限制。实验表明该方法可灵活分割任意形状物体，为实例分割提供了距离场回归的新思路。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.13690v1",
+      "source": "arxiv",
+      "title": "MedPlex: Deep Vision-Language Co-Adaptation for Clinically Grounded Medical Segmentation",
+      "abstract": "Medical image segmentation is still largely treated as a vision-only problem, although clinical interpretation often relies on textual knowledge of anatomy, location, appearance, and surrounding context. Existing text-guided segmentation methods within the Vision-Language Model (VLM) paradigm often use language only as a late conditioning signal, limiting its influence on visual representation learning. We introduce MedPlex (Medical Plexus of Vision and Language), an end-to-end VLM framework that makes text guidance a continuous, clinically grounded component of segmentation learning. Through Bi-Fusion (Bidirectional Fusion), visual and textual representations evolve jointly across the encoding hierarchy. MedPlex further introduces class-level and region-level concept alignment to organize the shared representation at complementary granularities. Class-level alignment anchors each anatomical target to an aggregated clinical concept profile, while region-level alignment preserves individual concepts, such as shape, location, appearance, and texture, through class-specific visual evidence. In this way, language provides structured supervision throughout the encoder rather than serving only as a late-stage cue. MedPlex achieves state-of-the-art performance across CT and MR benchmarks for multi-organ, cardiac substructure, and tumor segmentation, including settings with real free-text clinical supervision. Code: https://github.com/rafiibnsultan/MedPlex.",
+      "authors": [
+        "Rafi Ibn Sultan",
+        "Hui Zhu",
+        "Chengyin Li",
+        "Dongxiao Zhu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-08-13T18:37:13+00:00",
+      "link": "https://arxiv.org/pdf/2608.13690v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Deep vision-language co-adaptation with bidirectional fusion for clinically grounded medical image segmentation",
+      "llm_evidence_cn": "用于医学图像分割的深度视觉语言联合自适应与双向融合",
+      "llm_evidence": "用于医学图像分割的深度视觉语言联合自适应与双向融合",
+      "canonical_evidence": "用于医学图像分割的深度视觉语言联合自适应与双向融合",
+      "llm_tldr_en": "MedPlex is an end-to-end VLM framework that makes text guidance a continuous, clinically grounded component of segmentation learning via Bi-Fusion, jointly evolving visual and textual representations across the encoding hierarchy to improve medical segmentation.",
+      "llm_tldr_cn": "医学图像分割通常被视为纯视觉任务，忽视了临床解读中解剖、位置、外观等文本知识的价值。现有文本引导分割方法往往仅将语言作为晚期条件，难以深度影响视觉表示学习。为此提出MedPlex，一个端到端的视觉语言共适应框架，通过双向融合（Bi-Fusion）使文本指导持续贯穿编码层次，并与视觉表征联合演化。实验表明，MedPlex在多个医学分割基准上优于现有文本引导方法，尤其能利用临床上下文提升边界与区域预测的准确性，为临床级医学分割提供了新的范式。",
+      "llm_tldr": "医学图像分割通常被视为纯视觉任务，忽视了临床解读中解剖、位置、外观等文本知识的价值。现有文本引导分割方法往往仅将语言作为晚期条件，难以深度影响视觉表示学习。为此提出MedPlex，一个端到端的视觉语言共适应框架，通过双向融合（Bi-Fusion）使文本指导持续贯穿编码层次，并与视觉表征联合演化。实验表明，MedPlex在多个医学分割基准上优于现有文本引导方法，尤其能利用临床上下文提升边界与区域预测的准确性，为临床级医学分割提供了新的范式。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.14146v1",
+      "source": "arxiv",
+      "title": "CSG-Mamba: A Convolutional Scoring Gating Vision State Space Network for Endoscopic Polyp Segmentation",
+      "abstract": "Accurate polyp segmentation is critical for computer-aided colonoscopy, yet endoscopic images often contain low-contrast boundaries, mucosal texture interference, specular highlights, and device-dependent appearance shifts. Vision State Space Models (SSMs) provide efficient long-range modeling with linear complexity, but existing Vision Mamba segmentation models typically convert 2D features into 1D scanning sequences, which may weaken local geometric continuity and over-smooth irregular contours. We propose CSG-Mamba, a convolutional scoring gating Vision State Space network for endoscopic polyp segmentation. Built on a VM-UNet-style asymmetric U-shaped encoder-decoder, CSG-Mamba inserts a Convolutional Scoring Gating (CSG) module at the semantically rich bottleneck. CSG generates a local spatial score map through pointwise and large-kernel depthwise convolutions and recalibrates state-space features by multiplicative gating. Experiments with three random seeds show that CSG-Mamba achieves 0.9220 Dice and 15.87 HD95 on Kvasir-SEG, and 0.7418 Dice and 0.6570 mIoU on CVC-ColonDB, outperforming the baselines on most overlap and recall metrics while maintaining competitive boundary accuracy.",
+      "authors": [
+        "Yuliang Wang",
+        "Jiaqi Wu",
+        "Jiaye Song",
+        "Shuxia Ren"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-14T09:54:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.14146v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Endoscopic polyp segmentation with deep state space network",
+      "llm_evidence_cn": "内镜息肉分割的深度学习模型",
+      "llm_evidence": "内镜息肉分割的深度学习模型",
+      "canonical_evidence": "内镜息肉分割的深度学习模型",
+      "llm_tldr_en": "CSG-Mamba introduces a convolutional scoring gating mechanism into a VM-UNet style state space network for accurate endoscopic polyp segmentation, addressing low-contrast boundaries and texture interference.",
+      "llm_tldr_cn": "内镜图像中息肉分割常受低对比边界、黏膜纹理干扰和高光影响，现有Vision Mamba模型在1D扫描中削弱局部几何连续性。该文提出CSG-Mamba，在类VM-UNet的非对称U形编解码结构中引入卷积评分门控，增强局部几何保持与边缘拟合。实验表明该方法能更好地分割不规则息肉轮廓，为内镜辅助诊断提供了更精确的分割网络。",
+      "llm_tldr": "内镜图像中息肉分割常受低对比边界、黏膜纹理干扰和高光影响，现有Vision Mamba模型在1D扫描中削弱局部几何连续性。该文提出CSG-Mamba，在类VM-UNet的非对称U形编解码结构中引入卷积评分门控，增强局部几何保持与边缘拟合。实验表明该方法能更好地分割不规则息肉轮廓，为内镜辅助诊断提供了更精确的分割网络。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "medical image segmentation using deep learning",
+      "matched_requirement_id": "req-17",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.14366v1",
+      "source": "arxiv",
+      "title": "Weakly Supervised Polar Low Segmentation in Sentinel-1 SAR Imagery",
+      "abstract": "Polar lows are intense maritime cyclones that form rapidly at high latitudes. Deep learning can detect them in Synthetic Aperture Radar (SAR) imagery, but pixel-level segmentation remains an open challenge. No pixel-level masks are available for training, and a polar low's extent is inherently subjective, with diffuse boundaries that even experts delineate inconsistently. We propose Constrained Region Erasing with Soft Targets (CREST), a Weakly Supervised Semantic Segmentation (WSSS) framework that generates masks solely from image-level labels. Our approach builds on Adversarial Erasing (AER), which iteratively mines discriminative regions, erases them, and retrains a classifier to reveal complementary cues that become pseudo-labels for segmentation. However, standard AER also collects irrelevant background features, degrading pseudo-label quality. CREST addresses this with (i) a Constrained Ordinal Region Expansion (CORE) module that encodes the spatial-connectedness prior of polar lows, constraining region expansion from a high-confidence seed, and (ii) a Dynamic Bootstrapping (DB) loss that treats the mining order as a proxy for label reliability, attenuating supervision from noisier, later-mined regions. On Sentinel-1 SAR data, CREST follows the cyclone structure more closely than standard AER, and returns a multi-class rather than binary mask whose classes indicate the reliability assigned to each region. We further evaluate on BUS-UCLM breast ultrasound and PASCAL VOC person data, whose targets satisfy the same connectedness prior but come with the dense masks the SAR data lacks. On both datasets, CREST performs better than the equivalent AER pipeline under identical settings.",
+      "authors": [
+        "Andrea Federici",
+        "Jakob Grahn",
+        "Giacomo Boracchi",
+        "Filippo Maria Bianchi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-14T15:05:23+00:00",
+      "link": "https://arxiv.org/pdf/2608.14366v1",
+      "tags": [
+        "keyword:image-seg",
+        "query:image-seg"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Weakly supervised semantic segmentation with adversarial erasing and soft targets",
+      "llm_evidence_cn": "基于对抗擦除与软标签的弱监督语义分割",
+      "llm_evidence": "基于对抗擦除与软标签的弱监督语义分割",
+      "canonical_evidence": "基于对抗擦除与软标签的弱监督语义分割",
+      "llm_tldr_en": "CREST performs weakly supervised semantic segmentation in SAR imagery using constrained region erasing with soft targets, generating pseudo-labels from image-level labels and handling diffuse, subjective boundaries.",
+      "llm_tldr_cn": "极地低压在SAR影像中分割缺乏像素级标注，边界模糊主观。提出CREST框架，仅用图像级标签即可生成分割掩码，在对抗擦除基础上引入约束区域擦除与软目标，迭代挖掘判别区域并抑制噪声区域。方法适用于边界弥散、专家标注不一致的场景，为弱监督语义分割提供新思路。",
+      "llm_tldr": "极地低压在SAR影像中分割缺乏像素级标注，边界模糊主观。提出CREST框架，仅用图像级标签即可生成分割掩码，在对抗擦除基础上引入约束区域擦除与软目标，迭代挖掘判别区域并抑制噪声区域。方法适用于边界弥散、专家标注不一致的场景，为弱监督语义分割提供新思路。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.08874v2",
+      "source": "arxiv",
+      "title": "AeroReformer2: Spoken-Query Referring Segmentation for Aerial Images",
+      "abstract": "Spoken language offers a natural, hands-free interface for specifying an arbitrary target in dense remote-sensing imagery, yet existing referring remote-sensing image segmentation benchmarks accept only written expressions. To bridge this gap, we introduce \\dataset, a spoken-query benchmark derived from RISBench that adds accent- and voice-diverse speech while preserving the original image, mask, and data splits. Its hard evaluation sets combine rotor, wind, and mixed interference with three signal-to-noise levels. We also propose \\model, an efficient bilateral network that combines a boundary-preserving visual path with token-preserving speech encoding, kernel linear cross-modal attention, and a resolution refinement head. The design conditions visual features at two scales without materializing a dense speech--visual affinity matrix, then restores fine boundaries using high-resolution visual features. On the clean test split, \\model with Swin-Base achieves 62.09\\% mean intersection over union (mIoU) and 68.22\\% overall intersection over union (oIoU), outperforming the strongest audio-adapted remote-sensing baseline by 5.38 and 2.08 percentage points, respectively. It retains the best hard-set mIoU at 54.09\\%. To the best of our knowledge, this is the first benchmark and model study of full-sentence spoken-query referring segmentation for remote-sensing imagery. The code will be made publicly available.",
+      "authors": [
+        "Rui Li",
+        "Chenxi Duan",
+        "Haoyang Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-09T19:28:49+00:00",
+      "link": "https://arxiv.org/pdf/2608.08874v2",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "spoken-query referring segmentation for aerial images using deep network",
+      "llm_evidence_cn": "基于深度网络的航空图像语音查询指代分割",
+      "llm_evidence": "基于深度网络的航空图像语音查询指代分割",
+      "canonical_evidence": "基于深度网络的航空图像语音查询指代分割",
+      "llm_tldr_en": "Introduces a spoken-query benchmark and an efficient bilateral network for spoken-query referring segmentation in aerial images, combining boundary-preserving visual path, token-preserving speech encoding, and kernel linear cross-modal attention.",
+      "llm_tldr_cn": "针对现有遥感指代分割仅接受文本表达、缺乏语音接口的问题，构建了基于RISBench的语音查询基准，包含多口音多噪声测试集。提出高效双边网络，结合边界保持视觉路径、词元保持语音编码和核线性交叉注意力，以自然语音指定目标。在带干扰的航空图像分割实验中验证了语音引导的可行性和鲁棒性。该工作拓宽了遥感图像分割的交互方式。",
+      "llm_tldr": "针对现有遥感指代分割仅接受文本表达、缺乏语音接口的问题，构建了基于RISBench的语音查询基准，包含多口音多噪声测试集。提出高效双边网络，结合边界保持视觉路径、词元保持语音编码和核线性交叉注意力，以自然语音指定目标。在带干扰的航空图像分割实验中验证了语音引导的可行性和鲁棒性。该工作拓宽了遥感图像分割的交互方式。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.10057v1",
+      "source": "arxiv",
+      "title": "LEGO: Leveled Language Gaussian Splatting",
+      "abstract": "We introduce LEGO for advanced open-vocabulary scene understanding. Beyond basic concept recognition, its core innovation lies in capturing the intrinsic semantic hierarchies within the scene, such as the \"flowerpot -> bouquet -> bud -> petal\" lineage. While foundation models like SAM can identify multi-granular structures in 2D, their partitions are strictly perspective-bound and lack cross-view consensus. LEGO self-adaptively re-grades volatile multi-view SAM granularities into a unified, 3D-consistent hierarchy. This provides precise supervision for the structurally coherent, multi-level segmentation of 3D scenes. By grounding these segments with CLIP embeddings, LEGO recovers open-vocabulary semantic logic across hierarchical levels. Furthermore, by incorporating spatial relationships, we elevate these segments into level-wise language scene graphs, effectively empowering Large Language Models to perform complex, context-aware spatial reasoning and precise visual grounding. Experimental results demonstrate that LEGO establishes new state-of-the-art performance across both promptable and open-vocabulary 3D segmentation benchmarks, exhibiting advanced hierarchical scene decomposition and context-aware spatial reasoning.",
+      "authors": [
+        "Yuning Peng",
+        "Haiping Wang",
+        "Yuan Liu",
+        "Yipeng Lu",
+        "Zhen Dong",
+        "Bisheng Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-10T17:59:21+00:00",
+      "link": "https://arxiv.org/pdf/2608.10057v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "multi-level 3D semantic segmentation with SAM and CLIP",
+      "llm_evidence_cn": "基于SAM与CLIP的多层级3D语义分割",
+      "llm_evidence": "基于SAM与CLIP的多层级3D语义分割",
+      "canonical_evidence": "基于SAM与CLIP的多层级3D语义分割",
+      "llm_tldr_en": "LEGO captures intrinsic semantic hierarchies in 3D scenes by re-grading multi-view SAM granularities into a unified hierarchy, then grounds segments with CLIP for open-vocabulary multi-level segmentation, enabling hierarchical scene understanding.",
+      "llm_tldr_cn": "针对基础模型SAM只能提供视角受限的2D多粒度分区、缺乏跨视角一致性的问题，提出LEGO将多视角SAM粒度自适应重排为三维一致的分层结构，并用CLIP为各层级片段提供开放词汇语义标签。该方法实现了结构连贯的多层级3D场景分割，并支持按空间关系进一步组织语义逻辑。实验展示了在开放词汇场景理解中的优势，为3D语义分割提供了新方法。",
+      "llm_tldr": "针对基础模型SAM只能提供视角受限的2D多粒度分区、缺乏跨视角一致性的问题，提出LEGO将多视角SAM粒度自适应重排为三维一致的分层结构，并用CLIP为各层级片段提供开放词汇语义标签。该方法实现了结构连贯的多层级3D场景分割，并支持按空间关系进一步组织语义逻辑。实验展示了在开放词汇场景理解中的优势，为3D语义分割提供了新方法。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.12721v1",
+      "source": "arxiv",
+      "title": "VOS-Agent: The 1st Place Solution for the 8th LSVOS Challenge (MOSEv2 Track)",
+      "abstract": "Complex video object segmentation requires robust target propagation under severe occlusion, disappearance and reappearance. Although SAM3 provides strong promptable mask propagation, a uniform inference path remains unreliable for tiny targets with insufficient visual evidence and semantic-dominated targets whose identities depend on explicit attributes. To this end, we present VOS-Agent, a collaborative framework that retains SAM3 as the shared dense segmentation module and conditionally activates specialized agents according to target characteristics. A Target Perception and Routing Agent assigns each sequence to a regular, tiny, or semantic-dominated route. Tiny targets are supported by a Visual Tracking Agent through confidence-aware box prompts, while semantic-dominated targets are handled by an MLLM-based Semantic Agent through description-guided localization and candidate verification. On the MOSEv2 test set, VOS-Agent achieves 69.82% on the official $\\mathcal{J}\\&\\dot{\\mathcal{F}}$ metric and ranks first in the MOSEv2 Track of the 8th LSVOS Challenge at ECCV 2026.",
+      "authors": [
+        "Canyang Wu",
+        "Jinrong Zhang",
+        "Xusheng He",
+        "Ce Bian",
+        "Xianjing Han",
+        "Jianlong Wu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-13T02:08:00+00:00",
+      "link": "https://arxiv.org/pdf/2608.12721v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "video object segmentation with routing and specialized agents",
+      "llm_evidence_cn": "视频目标分割，路由与专用智能体",
+      "llm_evidence": "视频目标分割，路由与专用智能体",
+      "canonical_evidence": "视频目标分割，路由与专用智能体",
+      "llm_tldr_en": "Complex video object segmentation needs robust target propagation. VOS-Agent routes each sequence to regular, tiny, or semantic-dominated agents based on target characteristics, achieving first place in the MOSEv2 LSVOS challenge.",
+      "llm_tldr_cn": "复杂视频目标分割在严重遮挡、消失与重现下需要鲁棒的目标传播。VOS-Agent在SAM3的基础上，由目标感知与路由代理根据目标特征选择常规、微小或语义主导路径，并用跟踪代理辅助微小目标。该方案在MOSEv2挑战赛中取得第一名，证明按目标特性动态路由密集分割模块的有效性，为视频分割中的协作推理提供了实用框架。",
+      "llm_tldr": "复杂视频目标分割在严重遮挡、消失与重现下需要鲁棒的目标传播。VOS-Agent在SAM3的基础上，由目标感知与路由代理根据目标特征选择常规、微小或语义主导路径，并用跟踪代理辅助微小目标。该方案在MOSEv2挑战赛中取得第一名，证明按目标特性动态路由密集分割模块的有效性，为视频分割中的协作推理提供了实用框架。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.08874v1",
+      "source": "arxiv",
+      "title": "AeroReformer2: Spoken-Query Referring Segmentation for Aerial Images",
+      "abstract": "Spoken language offers a natural, hands-free interface for specifying an arbitrary target in dense remote-sensing imagery, yet existing referring remote-sensing image segmentation benchmarks accept only written expressions. To bridge this gap, we introduce \\dataset, a spoken-query benchmark derived from RISBench that adds accent- and voice-diverse speech while preserving the original image, mask, and data splits. Its hard evaluation sets combine rotor, wind, and mixed interference with three signal-to-noise levels. We also propose \\model, an efficient bilateral network that combines a boundary-preserving visual path with token-preserving speech encoding, kernel linear cross-modal attention, and a resolution refinement head. The design conditions visual features at two scales without materializing a dense speech--visual affinity matrix, then restores fine boundaries using high-resolution visual features. On the clean test split, \\model with Swin-Base achieves 62.09\\% mean intersection over union (mIoU) and 68.22\\% overall intersection over union (oIoU), outperforming the strongest audio-adapted remote-sensing baseline by 5.38 and 2.08 percentage points, respectively. It retains the best hard-set mIoU at 54.09\\%. To the best of our knowledge, this is the first benchmark and model study of full-sentence spoken-query referring segmentation for remote-sensing imagery. The code will be made publicly available.",
+      "authors": [
+        "Rui Li",
+        "Chenxi Duan",
+        "Haoyang Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-09T19:28:49+00:00",
+      "link": "https://arxiv.org/pdf/2608.08874v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Deep learning referring segmentation for aerial images",
+      "llm_evidence_cn": "航空影像中的深度学习参照分割",
+      "llm_evidence": "航空影像中的深度学习参照分割",
+      "canonical_evidence": "航空影像中的深度学习参照分割",
+      "llm_tldr_en": "Introduces a spoken-query referring segmentation benchmark and an efficient bilateral network with cross-modal attention, enabling hands-free target specification in remote-sensing imagery.",
+      "llm_tldr_cn": "现有遥感图像参照分割基准仅接受书面表达式，缺乏自然语音接口。作者构建了名为dataset的口语查询基准，在RISBench基础上增加口音与语音多样性，并设置包含旋翼、风噪和混合干扰的困难评测集。他们提出AeroReformer2高效双边网络，融合边界保持视觉路径与令牌保持语音编码，通过核线性跨模态注意力与分辨率细化头实现分割。实验表明该方法能在密集遥感场景中有效响应口语查询，支持免提交互。",
+      "llm_tldr": "现有遥感图像参照分割基准仅接受书面表达式，缺乏自然语音接口。作者构建了名为dataset的口语查询基准，在RISBench基础上增加口音与语音多样性，并设置包含旋翼、风噪和混合干扰的困难评测集。他们提出AeroReformer2高效双边网络，融合边界保持视觉路径与令牌保持语音编码，通过核线性跨模态注意力与分辨率细化头实现分割。实验表明该方法能在密集遥感场景中有效响应口语查询，支持免提交互。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation deep learning methods",
+      "matched_requirement_id": "req-12",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.13973v1",
+      "source": "arxiv",
+      "title": "Rethinking Auxiliary Modalities in Multimodal Zero-shot Anomaly Detection: From Semantic Fusion to Conditional Modulation",
+      "abstract": "Recent foundation model-based methods have endowed RGB images with strong zero-shot anomaly detection (ZSAD) through vision-language pretraining. However, RGB observations alone remain limited in perceiving anomalies dominated by geometric deformation, depth variation, or subtle surface changes. Auxiliary modalities can provide complementary structural information, but existing multimodal methods typically fuse them directly into a shared semantic space, which may disturb the text-aligned anomaly semantics established by RGB foundation models and often requires modality-specific architectures. To address this issue, we propose a plug-and-play auxiliary-conditioned enhancement framework for zero-shot anomaly detection. Instead of reconstructing a joint multimodal anomaly semantic space, our framework preserves the original RGB image-text anomaly matching pathway and uses auxiliary observations as conditional signals for RGB feature refinement, allowing auxiliary modalities to seamlessly enhance existing RGB-based zero-shot anomaly detectors. Specifically, a lightweight meta-learning module takes global RGB and auxiliary representations as input and generates sample-adaptive low-rank residual updates to determine how RGB features should be refined. We further construct uncertainty-aware spatial modulation from the initial RGB anomaly response and auxiliary reliability, which determines where local residual updates are strengthened or suppressed. This global-to-local conditional modulation enables selective multimodal enhancement while preserving the original RGB anomaly semantics. Extensive experiments on MVTec 3D-AD and Eyecandies demonstrate that our framework consistently improves multiple popular RGB-based zero-shot anomaly detectors, achieving state-of-the-art performance for multimodal zero-shot anomaly detection.",
+      "authors": [
+        "Peng Wu",
+        "Xin Ge",
+        "Yujia Sun",
+        "Guansong Pang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-14T05:33:45+00:00",
+      "link": "https://arxiv.org/pdf/2608.13973v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "proposes conditional modulation to fuse auxiliary modalities in deep multimodal learning",
+      "llm_evidence_cn": "提出条件调制方式融合辅助模态，属深度特征级融合方法",
+      "llm_evidence": "提出条件调制方式融合辅助模态，属深度特征级融合方法",
+      "canonical_evidence": "提出条件调制方式融合辅助模态，属深度特征级融合方法",
+      "llm_tldr_en": "Rethinks multimodal fusion in zero-shot anomaly detection; argues direct semantic fusion disturbs RGB-based semantics and proposes conditional modulation to inject auxiliary structural info while preserving anomaly semantics without modality-specific architectures.",
+      "llm_tldr_cn": "现有多模态零样本异常检测方法直接融合辅助模态，易干扰基础模型的文本对齐语义，且依赖模态专用结构。本文提出即插即用的辅助条件调制框架，以条件调制方式注入深度、几何等结构信息，保留RGB异常语义。该方法无需改动模态专用架构即可融合多模态信息，为多模态特征级融合提供了新思路。",
+      "llm_tldr": "现有多模态零样本异常检测方法直接融合辅助模态，易干扰基础模型的文本对齐语义，且依赖模态专用结构。本文提出即插即用的辅助条件调制框架，以条件调制方式注入深度、几何等结构信息，保留RGB异常语义。该方法无需改动模态专用架构即可融合多模态信息，为多模态特征级融合提供了新思路。",
+      "llm_tags": [
+        "query:image-fusion"
+      ],
+      "matched_query_tag": "query:image-fusion",
+      "matched_query_text": "feature level fusion in deep learning",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.13980v1",
+      "source": "arxiv",
+      "title": "FIRM: Fine-Grained Intra-Token Representation of Masks for Remote Sensing Reasoning Segmentation",
+      "abstract": "Reasoning segmentation requires multimodal large language models (MLLMs) to translate implicit instructions into precise pixel-level masks. MLLMs encode an image as visual tokens, each of which merges a group of image patches. In remote sensing images, small targets, thin structures, and adjacent instances can occupy different parts of the same visual token. Assigning a single binary mask label to such a token loses its internal spatial structure, causing nearby targets to merge and object boundaries to become coarse. To bridge this representational gap, we introduce FIRM, a Fine-grained Intra-token Representation of Masks. For each visual token, FIRM predicts a mask code that specifies an $r\\times r$ binary sub-cell pattern rather than a single foreground/background label. Given a target identified by the MLLM, the complete grid of mask codes is predicted in one mask pass. Fixed lookup converts the predicted codes into a discrete sub-cell mask, while marginalizing the code distribution yields a soft structural field. To further recover fine-grained boundaries within each sub-cell, we introduce a lightweight continuous renderer that refines this field using pre-merge visual features and image details. Across five reasoning and referring segmentation benchmarks on satellite and UAV images, FIRM achieves leading results, including $70.5/80.5$ gIoU/cIoU on LaSeRS and a $3.0$-point average gain on EarthReason. These results demonstrate the value of explicitly representing intra-token mask patterns for fine-grained MLLM segmentation.",
+      "authors": [
+        "Weidong Tang",
+        "Kaiyu Li",
+        "Yikai Wang",
+        "Yanan Wu",
+        "Haotian Gan",
+        "Shihong Wang",
+        "Xiangyong Cao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-14T05:40:36+00:00",
+      "link": "https://arxiv.org/pdf/2608.13980v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "fine-grained mask representation for reasoning segmentation",
+      "llm_evidence_cn": "推理分割的细化掩码表示",
+      "llm_evidence": "推理分割的细化掩码表示",
+      "canonical_evidence": "推理分割的细化掩码表示",
+      "llm_tldr_en": "For reasoning segmentation with MLLMs, coarse token masks lose fine spatial structure. FIRM predicts r by r sub-cell mask codes per visual token, preserving intra-token structure and improving small-object boundaries in remote sensing segmentation.",
+      "llm_tldr_cn": "遥感推理分割要求多模态大模型将隐含指令转化为精细掩码，但图像token合并多个patch后，小目标和细结构在token内易被合并。FIRM为每个视觉token预测精细的r×r子单元掩码，保留token内部空间结构，避免邻近目标融合和边界粗糙。在遥感分割实验中，该方法有效提升小目标和细结构的分割精度，为基于MLLM的像素级分割提供了更精确的表示方案。",
+      "llm_tldr": "遥感推理分割要求多模态大模型将隐含指令转化为精细掩码，但图像token合并多个patch后，小目标和细结构在token内易被合并。FIRM为每个视觉token预测精细的r×r子单元掩码，保留token内部空间结构，避免邻近目标融合和边界粗糙。在遥感分割实验中，该方法有效提升小目标和细结构的分割精度，为基于MLLM的像素级分割提供了更精确的表示方案。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2608.13889v1",
+      "source": "arxiv",
+      "title": "Consensus-gated Multi-Agent Neural Architecture Search for Seismic Fault Segmentation",
+      "abstract": "Neural networks for seismic fault segmentation are often borrowed from computer vision and medical imaging domains where they train under relatively much larger labeled data resources. Optimizing their architecture under tight labeled data budgets as are common in geophysical applications is not a trivial problem. Manually designing data-optimal architectures is time-consuming while classical neural architecture search (NAS) is restricted to hand-crafted search spaces and large compute budgets. We present an agentic NAS system in which a panel of three large language models (Claude, GPT-5.1, and Gemini~2.5~Pro) debates each candidate architecture to unanimous consensus, authors the complete PyTorch implementation, cross-reviews it, and submits it to an automated validate-train-score loop with a hard 450K parameter budget, keep-or-revert lineage, and a memory of failed mechanisms. Operating on source code rather than a predefined operation menu, the search ran on a single consumer GPU and trained only eight candidates. It discovered \\ours{}: a 425K-parameter encoder-decoder with a strip-pooling bottleneck, squeeze-and-excitation gating, an asymmetric one-conv decoder, and a feature-pyramid fusion neck. Trained under a protocol identical to all baselines on sections derived from the Thebe fault dataset, it attains the highest F1 (0.578) and IoU of all models tested while being the smallest, outperforming a published-capacity U-Net (31M parameters, F1 0.484), DeepLabV3-ResNet50 (39.6M, 0.516), an Attention U-Net(1.83M, 0.502). The search cost 101 LLM calls ($\\sim$1.15M input / 0.39M output tokens) and roughly one GPU-day, making consensus-gated LLM panels a practical, low-cost route to domain-specific architecture discovery.",
+      "authors": [
+        "Shehram Baig",
+        "Ahmad Mustafa"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-14T02:41:37+00:00",
+      "link": "https://arxiv.org/pdf/2608.13889v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Seismic fault segmentation using deep neural networks and NAS",
+      "llm_evidence_cn": "面向地震断层分割的深度网络与架构搜索",
+      "llm_evidence": "面向地震断层分割的深度网络与架构搜索",
+      "canonical_evidence": "面向地震断层分割的深度网络与架构搜索",
+      "llm_tldr_en": "This paper presents an agentic NAS system in which LLMs debate and author architectures for seismic fault segmentation, optimizing under tight labeled-data budgets and limited compute.",
+      "llm_tldr_cn": "地震断层分割通常借用视觉和医学模型，但标注数据极少，人工设计架构耗时且传统NAS计算开销大。该文提出共识门控的多智能体NAS系统，由多个大语言模型对候选架构进行辩论并达成一致，自动生成PyTorch实现。实验表明该方法能够在有限标注和算力下找到数据最优的架构，为地质领域的深度分割模型设计提供了自动化方案。",
+      "llm_tldr": "地震断层分割通常借用视觉和医学模型，但标注数据极少，人工设计架构耗时且传统NAS计算开销大。该文提出共识门控的多智能体NAS系统，由多个大语言模型对候选架构进行辩论并达成一致，自动生成PyTorch实现。实验表明该方法能够在有限标注和算力下找到数据最优的架构，为地质领域的深度分割模型设计提供了自动化方案。",
+      "llm_tags": [
+        "query:image-seg:composite"
+      ],
+      "matched_query_tag": "query:image-seg:composite",
+      "matched_query_text": "Papers central to 帮我检索图像分割领域的论文，包括但不限于语义分割、实例分割、医学图像分割等, especially work that connects or combines: i; medical image segmentation using convolutional neural networks; semantic segmentation deep learning methods; deep learning based medical image segmentation; unsupervised segmentation clustering based methods; image segmentation survey; semantic segmentation using deep learning; medical image segmentation using deep learning.",
+      "matched_requirement_id": "req-composite-image-seg",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.14085v1",
+      "source": "arxiv",
+      "title": "CoDS: Robust Collaborative Perception via Expert-driven Detection and BEV Segmentation",
+      "abstract": "Collaborative perception breaks through single-view limitations via multi-agent information exchange. However, multi-source noise such as pose errors and communication delays degrades fusion feature quality, constraining perception performance. Joint training of detection and BEV segmentation provides a natural remedy, where segmented road regions help constrain target distributions and detection bounding boxes help recover ambiguous segmentation boundaries. To this end, we propose a robust Collaborative perception framework with expert-driven Detection and bev Segmentation (CoDS). To address spatial inconsistency in fusion quality, we first introduce the Collaborative Reliability Map (CoRM) to explicitly quantify feature quality distribution. Based on CoRM, we design the Semantic Mixture-of-Experts (S-MoE) module to extract differentiated features for inconsistent feature demands. Finally, to further mitigate feature noise degradation, the Bidirectional Task Complementary Interaction (BTCI) refines task-aware features through bidirectional injection. Extensive experiments on OPV2V and V2V4Real datasets show that our CoDS surpasses existing baselines on both tasks and maintains stable robustness under multi-source noise. Code: https://github.com/JinlongW128/CoDS and https://openi.pcl.ac.cn/OpenAIDriving/CoDS.",
+      "authors": [
+        "Jinlong Wang",
+        "Yuang Jia",
+        "Junhong Lin",
+        "Nannan Li",
+        "Wei Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-08-14T08:47:28+00:00",
+      "link": "https://arxiv.org/pdf/2608.14085v1",
+      "tags": [
+        "keyword:image-fusion",
+        "keyword:image-seg",
+        "query:image-fusion",
+        "query:image-seg"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "BEV semantic segmentation and collaborative feature fusion in deep learning",
+      "llm_evidence_cn": "深度学习中的BEV语义分割与协同特征融合",
+      "llm_evidence": "深度学习中的BEV语义分割与协同特征融合",
+      "canonical_evidence": "深度学习中的BEV语义分割与协同特征融合",
+      "llm_tldr_en": "CoDS jointly trains detection and BEV segmentation for collaborative perception, introducing Collaborative Reliability Map to quantify fusion feature quality and improve robustness to pose errors and communication delays.",
+      "llm_tldr_cn": "针对协同感知中多源噪声降低融合特征质量的问题，提出CoDS框架。它联合训练目标检测与BEV分割，利用分割约束目标分布、检测框恢复边界，并引入协同可靠性图显式量化特征质量分布。实验表明CoDS在存在位姿误差和通信延迟时仍能保持鲁棒感知性能。该工作为协同感知中的特征融合与语义分割提供了新思路。",
+      "llm_tldr": "针对协同感知中多源噪声降低融合特征质量的问题，提出CoDS框架。它联合训练目标检测与BEV分割，利用分割约束目标分布、检测框恢复边界，并引入协同可靠性图显式量化特征质量分布。实验表明CoDS在存在位姿误差和通信延迟时仍能保持鲁棒感知性能。该工作为协同感知中的特征融合与语义分割提供了新思路。",
+      "llm_tags": [
+        "query:image-seg"
+      ],
+      "matched_query_tag": "query:image-seg",
+      "matched_query_text": "semantic segmentation using deep learning",
+      "matched_requirement_id": "req-16",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    }
+  ]
+}
