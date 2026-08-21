@@ -1,0 +1,748 @@
+Title: S^3AM: A Single-Stream SAM with Reliability-Calibrated Frequency Adapter for Multi-modal Salient Object Detection
+
+URL Source: https://arxiv.org/pdf/2608.17475v1
+
+Published Time: Wed, 19 Aug 2026 00:40:02 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 1
+
+# S3AM: A Single-Stream SAM with Reliability-Calibrated Frequency Adapter for Multi-modal Salient Object Detection 
+
+Ruichao Hou, Boyue Xu, Tongwei Ren, Dongming Zhou, Gangshan Wu, and Jinde Cao, Fellow, IEEE 
+
+Abstract —Vision foundation models have recently advanced multi-modal salient object detection (MSOD) through parameter-efficient tuning and prompt learning. However, existing Segment Anything Model (SAM)-adapted MSOD methods often rely on dual-stream encoders or auxiliary prompt generators, leading to redundant computation. Although a single-stream alternative can reduce this cost, early fusion may also propagate noisy or misaligned auxiliary high-frequency cues through the backbone. In this paper, we propose a novel single-stream framework that integrates reliability-calibrated frequency adaptation into the adopted SAM backbone for MSOD. It avoids duplicated foundation backbones while explicitly controlling auxiliary frequency injection. Specifically, we design a mixture of frequency experts module, which uses the stationary wavelet transform to decompose each modality and aggregate cross-modal frequency information. We further introduce a reliability-calibrated frequency adapter with a dual-gate calibration mechanism, which selectively propagates the calibrated residual across transformer stages while jointly controlling its injection strength and cross-modal reliability. A hypernetwork-guided semantic-structural decoder then combines semantic mask features from the adopted backbone with Mamba-based structural detail recovery. Comprehensive experiments on RGB-D, RGB-T, and RGB-NIR salient object detection benchmarks validate that the proposed framework achieves competitive performance with only 12.20M trainable parameters, accounting for 5.4% of the total parameters. The code will be available at https://github.com/ xuboyue1999/SSSAM. 
+
+Index Terms —Salient object detection, multi-modal, frequency, segment anything model, stationary wavelet transform. 
+
+# MULTI-MODAL salient object detection (MSOD) aims to identify and highlight the most visually distinctive regions in an image by leveraging complementary information from multiple sensing modalities. By integrating inputs such as RGB, depth (RGB-D), thermal (RGB-T), or near-infrared 
+
+This work was supported by the National Natural Science Foundation of China (92582103, 62576098), the Fundamental and Interdisciplinary Disciplines Breakthrough Plan of the Ministry of Education of China (No. JYB2025XDXM118), the “111 Center” (No. B26023), and the Collaborative Innovation Center of Novel Software Technology and Industrialization. 
+
+(Corresponding authors: Tongwei Ren) 
+
+Ruichao Hou is with the School of Elite Biomedical Engineers and the Institute for Interdisciplinary Intelligent Pharmacy, China Pharmaceutical University, Nanjing 211198, China (e-mail: rchou@cpu.edu.cn). Boyue Xu, Tongwei Ren, and Gangshan Wu are with the State Key Laboratory for Novel Software Technology, Nanjing University, Nanjing 210008, China (e-mail: xuby@smail.nju.edu.cn; rentw@nju.edu.cn; gswu@nju.edu.cn). Dongming Zhou is with the School of Information Science and Engineering, Yunnan University, Kunming 650091, China (e-mail: zhoudm@ynu.edu.cn). Jinde Cao is with the School of Mathematics, Southeast University, Nanjing 211189, China, and also with the Purple Mountain Laboratories, Nanjing 211111, China (email: jdcao@seu.edu.cn). Manuscript received **** **, 2026; revised **** **, 2026. RGB Auxiliary  
+
+> SAM Encoder SAM Encoder
+> Saliency Map
+> Mask Decoder
+> Parameter redundancy & high computation
+> RGB Auxiliary
+> Frequency-Decomposition
+> Saliency Map
+> Frequency Adapter
+> Adapter Adapter
+> （a）Dual-stream SAM
+> （c）Ours ：S³AM
+> RGB Auxiliary
+> SAM Encoder
+> Saliency Map Extra Prompt Network
+> Mask Decoder
+> Additional prompt network overhead
+> （b）Prompt-driven SAM
+> Efficient frequency-guided SAM adaptation
+> Semantic-Structural Decoder
+> SAM Encoder
+
+Fig. 1. Comparison of SAM adaptation paradigms for multi-modal salient object detection. (a) Dual-stream SAM encodes RGB and auxiliary inputs with two separate SAM encoders, resulting in redundant foundation-backbone computation. (b) Prompt-driven SAM converts auxiliary cues into extra prompts through an additional prompt network. (c) Our S 3AM performs early frequency-aware fusion and adapts a single frozen SAM backbone with reliability-calibrated frequency adapters. 
+
+(RGB-NIR) data, MSOD enhances feature representation un-der challenging conditions like low illumination, background clutter, or visual camouflage. This enhanced robustness makes MSOD a crucial component in various downstream tasks, including object tracking and video object detection [1], [2], virtual reality rendering [3], and image retrieval [4]. The additional structural or semantic cues offered by multiple modalities enable more reliable saliency prediction in real-world scenarios. Most existing MSOD methods adopt dual-stream architec-tures, where two modality-specific backbones independently extract features that are later fused through specialized fusion modules. The goal of such designs is to exploit both the consistency and complementarity of different modalities to construct robust multi-modal representations. However, dual-stream processing inevitably duplicates a large portion of the visual backbone, and this redundancy becomes more pronounced when vision foundation models are introduced. Meanwhile, the limited size of publicly available multi-modal datasets, constrained by the cost of aligned data acquisition arXiv:2608.17475v1 [cs.CV] 18 Aug 2026 SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 2
+
+and labor-intensive annotation, poses a major challenge for training specialized architectures from scratch. To mitigate the data limitation, recent works have begun incorporating SAM [5] into the MSOD task, leveraging its strong zero-shot generalization under limited supervision. Two representative adaptation paradigms have emerged, as shown in Fig. 1. The first is parameter-efficient fine-tuning, where lightweight adapters, LoRA modules, or task-specific adaptation modules are inserted into the frozen encoder to inject task-specific knowledge [6]–[8]. The second is prompt learning, in which an auxiliary SOD network or prompt generator produces saliency-aware prompts that guide the unmodified SAM toward task-relevant segmentation results [9]. Despite their effectiveness, these paradigms often depend on duplicated modality-specific processing, additional prompt generation, or task-specific optimization, introducing computational overhead that limits deployment in real-time or resource-constrained environments. An appealing alternative is to adapt SAM in a single-stream manner, where RGB and auxiliary modalities are fused early and processed by a unified encoder. This design directly reduces architectural redundancy, but it also changes the reliability requirement of multi-modal fusion: once auxiliary cues are injected at an early stage, their errors can propagate through the entire foundation backbone. This issue is particularly evident for high-frequency information. Although high-frequency cues are crucial for preserving object boundaries, thin structures, and small salient regions, they are not uniformly trustworthy across modalities. Depth maps may contain holes or shifted boundaries, thermal images may be blurred, and NIR responses may emphasize modality-specific textures. Blindly injecting such high-frequency cues can therefore contaminate early features and sharpen wrong contours rather than improve saliency localization. Therefore, the key challenge is not only how to build an efficient single-stream SAM framework, but also how to make early frequency injection reliable. To this end, we propose S3AM, a novel and efficient single-stream SAM adaptation framework that introduces reliability-calibrated frequency adaptation for multi-modal SOD tasks. Unlike previous dual-stream or prompt-driven approaches, S3AM processes multi-modal inputs within aunified encoder to avoid redundant foundation backbones, and further controls the propagation of auxiliary high-frequency cues through reliability-calibrated frequency adaptation. Ac-cordingly, S 3AM is organized around three operations. First, the Mixture of Frequency Experts (MoFE) constructs image-conditioned frequency cues for early single-stream fusion. Second, the Reliability-Calibrated Frequency Adapter (RCFA) evaluates and calibrates them during stage-wise propagation, suppressing unreliable residuals through dual-gate control of contextual injection and RGB–auxiliary reliability. Third, the lightweight Hypernetwork-guided Semantic-Structural Decoder (HSSD) translates the calibrated features into saliency masks by coupling the adopted SAM backbone’s hypernetwork-based semantic prior with structural detail recovery under joint saliency-edge supervision. Extensive experiments on multiple MSOD benchmarks demonstrate that S3AM achieves competitive performance while maintaining parameter-efficient adaptation. In summary, our main contributions are as follows:  
+
+> •
+
+We propose a parameter-efficient single-stream SAM adaptation framework for multi-modal salient object de-tection that avoids duplicated foundation backbones while controlling noisy auxiliary frequency injection, thereby reducing architectural redundancy without sacrificing cross-modal interaction.  
+
+> •
+
+We propose a Mixture of Frequency Experts to construct image-conditioned frequency cues for early fusion, thereby supplying diverse structural information to the unified encoder.  
+
+> •
+
+We propose a Reliability-Calibrated Frequency Adapter that uses dual-gate calibration to selectively propagate useful frequency residuals and suppress unreliable ones across transformer stages, thereby preventing noisy auxiliary details from contaminating subsequent features.  
+
+> •
+
+We employ a Hypernetwork-guided Semantic-Structural Decoder that combines the adopted SAM backbone’s semantic mask prior with Mamba-based detail recovery under joint mask and edge supervision, thereby improving semantic completeness and boundary accuracy. I. R ELATED WORK 
+
+A. Multi-modal Salient Object Detection 
+
+MSOD enhances RGB-based SOD by integrating comple-mentary cues from modalities such as depth, thermal, or near-infrared (NIR), which provide richer spatial or semantic context for robust object perception. Recent MSOD methods are generally categorized into single-stream, dual-stream, and triple-stream architectures. Single-stream designs, e.g. ,OSRNet [10], emphasize efficiency by performing early fusion through simple operations like concatenation and element-wise addition. Dual-stream frameworks remain the most widely adopted due to their effectiveness in extracting and aligning modality-specific features. For instance, BTNet [11] leverages abiologically inspired two-branch design to process RGB and depth in parallel. DiMSOD [12] formulates multi-modal salient object detection as a conditional mask genera-tion problem and introduces a diffusion-based framework to progressively refine saliency predictions. Triple-stream models, such as MDBIFNet [13], introduce an interaction stream to further refine cross-modal feature integration. Despite the performance gains brought by various fusion strategies, the effectiveness of existing MSOD models remains constrained by the limited scale and diversity of available multi-modal datasets. Consequently, incorporating vision foundation models to boost generalization under limited supervision has become an increasingly promising direction. At the same time, single-stream architectures remain appealing for real-time or resource-constrained applications due to their lightweight design and lower computational cost. Motivated by these insights, we investigate how to combine a single-stream architecture with SAM while avoiding duplicated foundation-backbone computation. SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 3I. Input & Patch Embedding II. Mixture of Frequency Experts 
+
+> RGB image Auxiliary Image
+> Patch Embedding
+> RGB tokens Auxiliary tokens
+> SWT Decomposition (RGB tokens)
+> LL (Low-freq.) LH/HL/HH (High-freq.)
+> SWT Decomposition (Aux. tokens)
+> LL (Low-freq.) LH/HL/HH (High-freq.)
+
+… …               
+
+> Expert 1 Expert 2 Expert 3 Expert 4 Adaptive Router Weights (α ₁··· α ₄)Fused tokens
+> III. SAM Encoder with Reliability-Calibrated Frequency Adapter
+> FuseBlock Transformer Block Transformer Block Transformer Block RCFA RCFA RCFA Base Adapter Frequency Experts
+> Reliability-Calibrated Frequency Adapter (RCFA)
+> IV. Hypernetwork-guided Semantic-Structural Decoder
+> FPN Neck Mask Decoder
+> (semantic ）
+> Mamba Decoder
+> (structural)
+> Feature-level Fusion
+> Saliency Map Frequency prior propagation
+> Freq. prior P i-1
+> Calibrated residual R̂ᵢ Base residual
+> Frequency prior Multi-scale feature
+> Patch Embedding Frequency Adapter Context Gate Reliability-Calibrated Gate
+> SAM feature F i
+> Frequency residual
+> High Freq. cues
+> Frozen Trainable Main data Flow Control Flow Gating/routing modules Element-wise add Element-wise multiply
+
+Fig. 2. Framework of the proposed S 3AM. Given RGB and auxiliary features Frgb and Faux , MoFE performs SWT-based frequency decomposition and cross-modal expert aggregation to obtain Ffused , which is added to Frgb before the first block of the adopted SAM backbone, and the initial candidate frequency prior P0. At RCFA stage i, the current encoder feature Fi and incoming frequency prior Pi−1 produce a calibrated residual Fres  
+
+> i
+
+, which is injected to form Fout  
+
+> i
+
+and propagated as the calibrated frequency prior Pi. The resulting multi-scale encoder features are decoded by HSSD, which combines the adopted SAM backbone’s hypernetwork-guided semantic prediction with Mamba-based structural detail recovery. 
+
+B. SAM and Its Application 
+
+The adopted SAM backbone [5] is a foundation model for image and video segmentation that provides strong general-purpose visual representations and supports prompt-based segmentation from inputs such as points and bounding boxes. Owing to its versatility, SAM has been widely extended to various visual domains. For instance, the SAM-Adapter [6] incorporates lightweight adapters into the frozen SAM encoder, injecting domain-specific knowledge or visual priors for specialized tasks. Similarly, MedSAM [14] adapts SAM for medical image segmentation by fine-tuning on a curated large-scale medical dataset. In remote sensing, SAMRS [15] leverages SAM to construct a large-scale satellite image segmentation dataset and shows that SAM can generalize to overhead imagery with appropriate prompt strategies. Moreover, SAM has been adapted for multi-modal vision tasks. SAGE [16] introduces a multi-modality image fusion framework that distills semantic priors from SAM to improve visual quality and downstream task adaptability without requiring SAM during inference. For RGB-T SOD, SACNet [17] studies alignment-free cross-modal interaction through semantics-guided asymmetric correlation. HyPSAM [9] employs a dynamic fusion network to generate an initial saliency map and uses hybrid text, mask, and box prompts to guide SAM refinement. SAMSOD [8] further revisits SAM optimization for RGB-T salient object detection. Zhai et al. [18] further propose a SAM-guided label refinement framework for weakly supervised RGB-T salient object detection. SSFam [19] introduces a framework built on SAM for scribble-supervised salient object detection across various modality combinations, leveraging modal-aware modulation and a siamese decoder to unify sparse-label learning and modality-adaptive segmentation. These works demonstrate SAM’s strong generalization ability and its flexibility to serve as a backbone or a semantic prior extractor across diverse and complex vision applications. However, existing MSOD methods often rely on dual-stream architectures or additional prompt generators, limiting computational efficiency and failing to fully exploit frequency-aware cues, which motivates our design of a streamlined, frequency-modulated MSOD framework based on SAM. II. M ETHODOLOGY 
+
+A. Overview 
+
+We propose S3AM, a reliability-calibrated frequency adaptation framework tailored for single-stream MSOD and built upon the adopted SAM backbone [5]. As shown in Fig. 2, the design follows the causal motivation discussed above. To avoid duplicating foundation backbones, the unified encoder processes RGB and auxiliary modalities in a single stream. Since this requires early cross-modal fusion, MoFE constructs initial frequency cues before the transformer stages. Since these cues can contain unreliable local high-frequency responses, RCFA performs stage-wise calibration and propa-gation with dual-gate control over injection strength and RGB– auxiliary reliability. The lightweight Hypernetwork-guided Semantic-Structural Decoder then converts the calibrated features into saliency maps by preserving the adopted SAM backbone’s hypernetwork-based semantic prior and recovering structural details. Given a paired input of RGB and an auxiliary modality ( e.g. , depth, thermal, or NIR), features are first extracted through a shared patch embedding layer of the adopted SAM backbone, decomposed and aggregated via MoFE, selectively refined through a sequence of RCFAs, and decoded by HSSD into structure-preserving saliency maps. Fig. 3 provides an input-domain visualization of this motivation. High-frequency responses computed from raw RGB and depth images contain both cross-modally aligned SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 4RGB Depth RGB-HF Depth-HF Cross-modal HF  
+
+> Fig. 3. Motivation for reliability calibration. Raw RGB and depth inputs exhibit complementary yet locally inconsistent high-frequency responses. In the cross-modal relation map, cyan and magenta denote RGB-only and depth-only responses, respectively, and their coexistence reveals local disagreement.
+
+boundaries and modality-specific or spatially misaligned structures. In the cross-modal relation map, cyan and magenta denote RGB-only and depth-only responses, respectively. Cyan–magenta coexistence indicates conflict. 
+
+B. Mixture of Frequency Experts 
+
+Conventional early fusion methods often inadequately leverage modality-specific cues and overlook fine-grained details. To address this, MoFE focuses on the first step of our frequency-aware design: extracting and aggregating cross-modal frequency cues before subsequent adapters calibrate them. It utilizes the Stationary Wavelet Transform (SWT) [20] to perform multi-frequency decomposition and employs adaptive expert-driven aggregation to provide information-rich frequency cues. Given RGB and auxiliary modality features Frgb , Faux ∈
+
+RC×H×W , where the superscripts rgb and aux indicate the RGB and auxiliary modalities, and C, H, and W
+
+denote the channel number, height, and width of the token feature map, respectively, we apply SWT independently to both modalities to extract one low-frequency and three high-frequency subbands: 
+
+{C rgb  
+
+> L
+
+, Crgb  
+
+> LH
+
+, Crgb 
+
+> HL
+
+, Crgb  
+
+> HH
+
+} = SWT( Frgb ),
+
+{C aux  
+
+> L
+
+, Caux  
+
+> LH
+
+, Caux  
+
+> HL
+
+, Caux  
+
+> HH
+
+} = SWT( Faux ), (1) where SWT( ·) denotes the stationary wavelet transform, CL
+
+denotes the low-frequency subband, and CLH , CHL , CHH 
+
+correspond to vertical, horizontal, and diagonal high-frequency components, respectively. For compact notation, we concate-nate the three directional high-frequency subbands as: 
+
+CmH = Concat( CmLH , CmHL , CmHH ), m ∈ { rgb , aux }. (2) Here m indexes the modality and Concat( ·) denotes channel-wise concatenation. Subsequently, we construct four cross-modal frequency pairs by combining low- and high-frequency components across modalities: 
+
+
+
+C1 = Concat( Crgb  
+
+> L
+
+, Caux  
+
+> L
+
+),
+
+C2 = Concat( Crgb  
+
+> L
+
+, Caux  
+
+> H
+
+),
+
+C3 = Concat( Crgb  
+
+> H
+
+, Caux  
+
+> L
+
+),
+
+C4 = Concat( Crgb  
+
+> H
+
+, Caux  
+
+> H
+
+),
+
+(3) Here, C1 concatenates the low-frequency components of RGB and the auxiliary modality, providing a coarse cross-modal structural cue. C2 combines the RGB low-frequency component with the auxiliary high-frequency component, whereas C3 combines the RGB high-frequency component with the auxiliary low-frequency component. C4 concatenates the high-frequency components from both modalities and therefore captures their joint high-frequency cue. These four complementary frequency pairs are supplied to separate experts for adaptive enhancement. Each frequency pair Cn
+
+is then passed through a dedicated expert module En(·) for enhancement: 
+
+bCn = En(Cn), n ∈ { 1, 2, 3, 4}, (4) where n is the expert index, En(·) denotes the n-th frequency expert, and bCn is the corresponding enhanced frequency feature. To adaptively aggregate these enhanced features, alightweight router predicts normalized routing weights: 
+
+α = Softmax (Router([ C1, C2, C3, C4])) ,
+
+> 4
+
+X
+
+> n=1
+
+αn = 1 . (5) Here α = [ α1, α 2, α 3, α 4] denotes the routing-weight vector, 
+
+αn is the weight assigned to the n-th expert, [·] denotes feature concatenation for router input, and Softmax( ·) normalizes the expert weights. The final fused representation is then computed as a weighted sum: 
+
+Ffused =
+
+> 4
+
+X
+
+> n=1
+
+αn bCn. (6) The fused feature is added to the RGB feature before entering the first frozen transformer block: 
+
+Fin 1 = Frgb + Ffused , (7) where Ffused is the MoFE output and Fin 1 is the input to the first transformer block. In implementation, the weighted joint high-frequency expert output initializes the frequency prior P0
+
+for subsequent RCFAs: 
+
+P0 = α4 bC4, (8) where P0 denotes the initial candidate frequency prior and bC4
+
+is the enhanced joint high-frequency cross-modal frequency feature. The expert-driven frequency-aware design enables the model to dynamically emphasize relevant subband interactions across modalities and provides information-rich frequency cues. Because its routing weights aggregate image-level frequency evidence rather than explicitly evaluating local cross-modal consistency, MoFE does not itself guarantee that every high-frequency response is reliable. This reliability as-sessment is deferred to RCFA during stage-wise propagation. 
+
+C. Reliability-Calibrated Frequency Adapter 
+
+To mitigate the degradation of fine structures caused by token mixing and downsampling in transformer layers, RCFA focuses on the second step of our frequency-aware design: SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 5
+
+evaluating and selectively propagating MoFE’s candidate high-frequency residuals across transformer stages. Unlike conventional adapters that operate solely on local features, RCFA introduces cross-layer interaction, frequency-aware enhancement, and reliability calibration in a unified and lightweight design, as illustrated in Fig. 2. At each transformer stage i, RCFA receives the current encoder feature Fi and the incoming frequency prior Pi−1,aligning the latter to the spatial size and channel dimension of Fi when necessary. Here i indexes the RCFA insertion stage and Fi ∈ RCi×Hi×Wi . At the first RCFA, the incoming prior is the initial candidate frequency prior P0. Thereafter, it is the calibrated frequency prior from the preceding RCFA. After alignment, it is still denoted by Pi−1 for simplicity. RCFA then constructs a base residual from the encoder feature and a frequency residual from the incoming frequency prior. The high-frequency responses are obtained by average-pooling subtraction: 
+
+Rhf  
+
+> i
+
+= Fi − AvgPool 3×3(Fi), (9) 
+
+Dhf  
+
+> i
+
+= Pi−1 − AvgPool 3×3(Pi−1), (10) where Rhf  
+
+> i
+
+and Dhf  
+
+> i
+
+denote the high-frequency responses of the encoder feature and incoming frequency prior, respectively, and AvgPool 3×3(·) serves as a low-pass filter to isolate high-frequency details such as edges and textures. Both residual branches are implemented by lightweight bottleneck adapters composed of two 1 × 1 convolutional layers: 
+
+Ahf (X ) = W2
+
+ GELU  W1
+
+ X + X hf  , (11) where Ahf (·) denotes the high-frequency residual adapter, X
+
+is a generic input feature, X hf = X − AvgPool 3×3(X ) is its high-frequency residual, W1 ∈ RC/r ×C and W2 ∈ RC×C/r 
+
+are learnable 1×1 convolutions, C is the channel number of X ,and r is the channel reduction ratio. We thus obtain the base residual Bres  
+
+> i
+
+= Ahf (Fi) and the frequency residual Qres  
+
+> i
+
+=
+
+Ahf (Pi−1), generated from the encoder feature and incoming frequency prior, respectively. The initial candidate frequency prior can contain unreliable responses when auxiliary cues are noisy or spatially misaligned with RGB boundaries. RCFA therefore adopts a dual-gate calibration mechanism. The context gate estimates the overall injection strength from the current feature and incoming frequency prior, while the Reliability-Calibrated Gate (RCG) evaluates their high-frequency consistency to suppress unreliable residuals. Given the encoder high-frequency response Rhf  
+
+> i
+
+and prior response Dhf  
+
+> i
+
+, RCG first computes three bounded reliability cues: 
+
+Eenc  
+
+> i
+
+= Mean c(|R hf  
+
+> i
+
+|), (12) 
+
+Eprior  
+
+> i
+
+= Mean c(|D hf  
+
+> i
+
+|), (13) where Eenc  
+
+> i
+
+and Eprior  
+
+> i
+
+are channel-averaged high-frequency energy maps for the encoder and prior responses, respectively, 
+
+| · | denotes the element-wise absolute value, and Mean c(·)
+
+denotes channel-wise averaging. Based on these energies, RCG derives consistency, balance, and difference cues: 
+
+ρcon  
+
+> i
+
+= 12
+
+ 1 + CosSim c(Rhf  
+
+> i
+
+, Dhf  
+
+> i
+
+) , (14) 
+
+ρbal  
+
+> i
+
+= 1 −
+
+Eenc  
+
+> i
+
+− E prior 
+
+> i
+
+Eenc  
+
+> i
+
++ Eprior  
+
+> i
+
++ ϵ , (15) 
+
+ρdiff  
+
+> i
+
+= exp − Mean c
+
+  Rhf  
+
+> i
+
+− D hf 
+
+> i
+
+
+
+Eenc  
+
+> i
+
++ Eprior  
+
+> i
+
++ ϵ
+
+!
+
+, (16) where ρcon  
+
+> i
+
+, ρbal  
+
+> i
+
+, and ρdiff  
+
+> i
+
+denote the high-frequency consistency, energy-balance, and difference-suppression cues, respectively, CosSim c(·, ·) computes cosine similarity along the channel dimension, ϵ is a small constant for numerical stability, and exp( ·) is the exponential function. These cues are concatenated and transformed by a lightweight convolutional gate: 
+
+Grel  
+
+> i
+
+= 1 + η  2σ  ϕ([ ρcon  
+
+> i
+
+, ρ bal  
+
+> i
+
+, ρ diff  
+
+> i
+
+])  − 1 , (17) where Grel  
+
+> i
+
+is the reliability calibration weight, ϕ(·) denotes two lightweight convolutional layers, [·] denotes channel-wise concatenation of the three cue maps, σ(·) is the sigmoid function, and η is a learnable residual scale initialized to zero. The other part of the dual-gate mechanism is a lightweight context gate ψ(Fi + Pi−1), where ψ(·) is implemented by global average pooling followed by two 1×1 convolutions and a sigmoid activation. The final adapter residual is formulated as: 
+
+Fres  
+
+> i
+
+= Bres  
+
+> i
+
++ γi ψ(Fi + Pi−1) ⊙ G rel  
+
+> i
+
+⊙ Q res  
+
+> i
+
+, (18) where Fres  
+
+> i
+
+is the residual injected into the i-th transformer block, γi is a learnable frequency scale initialized to zero, 
+
+⊙ denotes element-wise multiplication with broadcasting when necessary, ψ(Fi + Pi−1) is the context gate, Grel  
+
+> i
+
+is the Reliability-Calibrated Gate, and Qres  
+
+> i
+
+is the frequency residual. The two gates jointly form the dual-gate calibration mechanism, enabling the model to learn both how strongly and how reliably the frequency residual should be injected. With γi initialized to zero, the frequency-residual branch is initially disabled and is gradually activated during training to enhance useful frequency residuals and suppress unreliable ones. Finally, the calibrated residual is injected before the original transformer block: 
+
+Fout  
+
+> i
+
+= Block i (Fi + Fres  
+
+> i
+
+) , (19) where Block i(·) denotes the frozen transformer block of the adopted SAM backbone at stage i, and Fout  
+
+> i
+
+is its output feature. The residual Fres  
+
+> i
+
+is propagated as the calibrated frequency prior Pi for the next RCFA. The process is repeated hierarchically across transformer stages. By leveraging current encoder features and reliability-calibrated frequency priors, RCFA preserves spatial precision and enhances boundary sensitivity. 
+
+D. Hypernetwork-guided Semantic-Structural Decoder 
+
+To produce accurate and structure-preserving saliency maps, we use a lightweight Hypernetwork-guided Semantic-Structural Decoder (HSSD) to convert reliability-calibrated SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 6
+
+encoder features into precise object masks. Rather than introducing another independent fusion objective, HSSD comprises two lightweight decoding paths: a semantic path preserves the adopted SAM backbone’s hypernetwork-based mask prior, and a structural path restores dense boundary details. The two embeddings are fused at the feature level inside the mask decoder. Let {F mix i }4 
+
+> i=1
+
+denote the four encoder-stage features collected for decoding. At stages equipped with RCFA, 
+
+Fmix i = Fout  
+
+> i
+
+. At the remaining stage, Fmix i is the output of the corresponding frozen block of the adopted SAM backbone. A lightweight multi-scale neck first aligns their resolutions and channels, producing { bFi}4
+
+> i=1
+
+. We denote the aligned feature levels used by the decoder as bF32 , bF64 , and bF128 
+
+according to their spatial resolutions. These aligned features are then directed into two complementary decoding paths. The semantic path employs an FPN-style aggregation and the mask decoder upscaling path of the adopted SAM backbone to produce mask embeddings: 
+
+FFPN = FPN( { bFi}), (20) 
+
+USAM = Upscale SAM (FFPN ). (21) where FFPN is the feature pyramid output, FPN( ·) denotes the SAM FPN neck, Upscale SAM (·) denotes the upscaling path in the SAM mask decoder, and USAM is the semantic mask embedding. The structural path is implemented with a lightweight Mamba-based decoder to recover dense boundary details that may be weakened by the semantic path. It takes three decoder feature levels at resolutions 32 × 32 , 64 × 64 , and 
+
+128 × 128 , and progressively projects and fuses them via top-down refinement: 
+
+O32 = ω( bF32 ), (22) 
+
+O64 = ω  bF64 + Up( O32 ), (23) 
+
+O128 = ω  bF128 + Up( O64 ). (24) where O32 , O64 , and O128 are progressively refined structural features at the corresponding resolutions, ω(·) is a 3 ×
+
+3 convolution followed by normalization and activation, and Up( ·) denotes bilinear upsampling to the next higher resolution. A final VSS block [21] is then applied to model long-range dependencies: 
+
+UMamba = VSS( O128 ). (25) where VSS( ·) denotes the visual state-space block used in the Mamba decoder, and UMamba is the structural embedding. Instead of directly adding two prediction logits, the mask decoder adaptively fuses the semantic embedding and the structural embedding through a lightweight gate: 
+
+Gdec = σ(φ([ USAM , UMamba ])) , (26) 
+
+Ufuse = Gdec ⊙ U SAM + (1 − G dec ) ⊙ U Mamba , (27) where Gdec is the decoder fusion gate, φ(·) is a lightweight 
+
+1 × 1 convolutional gate, σ(·) is the sigmoid activation, [·]
+
+denotes channel-wise concatenation, ⊙ denotes element-wise multiplication, and Ufuse is the fused semantic-structural em-bedding. This adaptive fusion allows the semantic embedding to dominate coherent object regions while retaining structural responses near local transitions, avoiding the fixed trade-off of direct feature addition. The final saliency map is then generated by applying the mask hypernetwork to the fused embedding: 
+
+S = Sigmoid ( Hmask (Ufuse )) . (28) where Hmask (·) denotes the SAM mask hypernetwork and 
+
+S is the predicted saliency map. Meanwhile, the mask hypernetwork weights are also applied to the Mamba structural embedding to produce an auxiliary edge prediction for boundary supervision. 
+
+E. Loss Function 
+
+To effectively train HSSD, distinct loss functions inde-pendently supervise semantic completeness and structural precision. Specifically, the Mamba-based structural path, tasked with capturing fine-grained spatial details and boundary precision, is supervised using Dice loss [22]. The edge target is generated from the boundary of the ground-truth saliency mask, and the Dice loss robustly addresses class imbalance, notably improving accuracy along object boundaries. For the semantic mask decoder inherited from the adopted SAM backbone, which emphasizes coarse but semantically coherent segmentation, a combined loss function incorporating both Dice and Intersection-over-Union (IoU) losses [23] is employed to simultaneously enforce region consistency and spatial overlap accuracy: 
+
+ℓmask = ℓdice + ℓiou . (29) where ℓmask is the semantic mask loss, and ℓdice and 
+
+ℓiou denote the Dice and IoU losses computed between the predicted saliency map and the ground-truth mask, respectively. Consequently, the overall training objective integrates these complementary losses: 
+
+L = ℓmask + ℓedge , (30) where L denotes the total training loss, ℓedge = ℓdice explicitly supervises the Mamba-based decoder’s edge predictions, while 
+
+ℓmask optimizes the semantic decoding path of the adopted SAM backbone. Through the complementary loss function, each decoder branch is guided to its specialized task, collectively contribut-ing to the generation of accurate, robust, and structurally coherent saliency predictions. III. E XPERIMENT 
+
+A. Experiment Setup 
+
+Datasets and Evaluation Metrics. We evaluate our pro-posed method across three categories of multi-modal salient object detection benchmarks: RGB-D, RGB-T, and RGB-NIR datasets. For RGB-D SOD, experiments are conducted on four widely used datasets in the final release, including SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 7
+
+NJU2K [24], NLPR [25], SSD [26], and STERE [27]. Following recent protocols [28], [29], we use 1,485 samples from NJU2K and 700 from NLPR for training. The remaining datasets are used exclusively for testing. For RGB-T SOD, we conduct experiments on three widely used benchmark datasets: VT821 [30], VT1000 [31], and VT5000 [32]. Following the common setting in these methods [33], [34], we use 2,500 image pairs from VT5000 for training, while the remaining 2,500, along with VT821 and VT1000, are used for testing. In addition, to assess cross-modal generalization, we directly apply the trained RGB-T weights to an RGB-NIR dataset [35] for inference, without any additional fine-tuning. For evaluation, we adopt four widely used metrics: F-measure (Fβ ), Mean Absolute Error ( M), E-measure (Em),S-measure (Sm).
+
+Implementation Details. The proposed framework is im-plemented using the PyTorch platform and trained on aworkstation equipped with an Intel Core Ultra 9 285K CPU and NVIDIA RTX 5090 GPU. We initialize the adopted SAM backbone from the officially released checkpoint [5] and retain it in a frozen state. All input images are resized to a resolution of 512 × 512 to align with the adopted SAM backbone. During training, data augmentation techniques such as random flipping, rotation, and cropping are employed to improve generalization and robustness. S 3AM is trained for 50 epochs with a batch size of 8 using the AdamW optimizer. The initial learning rate is set to 1×10 −4, with a weight decay of 5 × 10 −4 and betas set to (0 .9, 0.999) . Gradient clipping is applied with a threshold of 0.5 to stabilize optimization. 
+
+B. Quantitative Comparisons 
+
+RGB-D Comparisons. We compare S3AM against six RGB-D SOD methods, including BTNet [11], KAN-SAM [7], CAVER [36], CPNet [37], MAGNet [38], and LESOD [39]. As summarized in Table I, S 3AM obtains the highest Fβ and the lowest MAE on all four benchmarks. Compared with the strongest prior Fβ results, the relative improvements are 0.4%, 1.0%, 0.3%, and 0.4% on NJU2K, NLPR, SSD, and STERE, respectively. The corresponding MAE decreases are 0.003, 0.002, 0.002, and 0.001. Figure 4 further shows favorable precision at high recall, particularly on SSD and STERE. While individual PR curves may cross at particular thresholds, the consistently stronger Fβ and MAE results show that S 3AM maintains a more favorable overall precision-recall balance across varied depth quality and scene structures. 
+
+RGB-T Comparisons. We compare S 3AM with six RGB-T SOD methods, including CMDBIF [40], CAVER [36], SMR-Net [41], LAFB [42], UMINet [43], and LESOD [39]. Table II shows that S 3AM achieves the highest Fβ and Sm
+
+on all three benchmarks, with the lowest or tied-lowest MAE. Relative to the strongest competing Fβ scores, the gains are 4.5% on VT5000, 2.4% on VT1000, and 3.3% on VT821. Although the competing methods attain comparable Em on VT5000 and VT1000, the consistently stronger Fβ , Sm, and MAE results indicate more reliable overall saliency prediction in thermal scenarios. 
+
+RGB-NIR Comparisons. To assess cross-modal general-ization, we evaluate S 3AM under a zero-shot protocol on 
+
+TABLE I COMPARISON WITH DIFFERENT METHODS ON RGB-D DATASETS . B EST IN BOLD .
+
+Metric CAVER [36] CPNet [37] MAGNet [38] KAN-SAM [7] BTNet [11] LESOD [39] Ours NJU2K  Fβ ↑ 0.901 0.923 0.912 0.935 0.917 0.898 0.939 
+
+M ↓ 0.031 0.025 0.027 0.022 0.025 0.032 0.019 
+
+Em ↑ 0.923 0.935 0.928 0.942 0.932 0.925 0.939 
+
+Sm ↑ 0.921 0.935 0.929 0.939 0.932 0.922 0.939 
+
+> NLPR
+
+Fβ ↑ 0.895 0.918 0.910 0.925 0.917 0.897 0.934 
+
+M ↓ 0.020 0.016 0.017 0.017 0.016 0.020 0.014 
+
+Em ↑ 0.960 0.970 0.964 0.967 0.969 0.961 0.974 
+
+Sm ↑ 0.929 0.939 0.938 0.939 0.941 0.933 0.944 
+
+> SSD
+
+Fβ ↑ 0.824 0.857 0.837 0.889 - 0.819 0.892 
+
+M ↓ 0.042 0.035 0.043 0.026 - 0.048 0.024 
+
+Em ↑ 0.911 0.917 0.915 0.934 - 0.907 0.936 
+
+Sm ↑ 0.878 0.892 0.884 0.910 - 0.879 0.918 
+
+> STERE
+
+Fβ ↑ 0.881 0.895 0.893 0.911 0.902 0.878 0.915 
+
+M ↓ 0.033 0.029 0.030 0.025 0.028 0.038 0.024 
+
+Em ↑ 0.931 0.933 0.930 0.937 0.940 0.937 0.937 
+
+Sm ↑ 0.913 0.920 0.922 0.930 0.927 0.905 0.930 0.70 0.75 0.80 0.85 0.90 0.95 1.00 Recall 0.5 0.6 0.7 0.8 0.9 1.0 Precision                   
+
+> NJU2K
+> CAVER CPNet MAGNet KAN-SAM BTNet LESOD Ours 0.70 0.75 0.80 0.85 0.90 0.95 1.00 Recall 0.5 0.6 0.7 0.8 0.9 1.0 Precision
+> NLPR
+> CAVER CPNet MAGNet KAN-SAM BTNet LESOD Ours 0.70 0.75 0.80 0.85 0.90 0.95 1.00 Recall 0.5 0.6 0.7 0.8 0.9 1.0 Precision
+> SSD
+> CAVER CPNet MAGNet LESOD Ours 0.70 0.75 0.80 0.85 0.90 0.95 1.00 Recall 0.5 0.6 0.7 0.8 0.9 1.0 Precision
+> STERE
+> CAVER CPNet MAGNet BTNet LESOD Ours
+
+Fig. 4. Precision-recall curves of competitive RGB-D salient object detection methods on the NJU2K, NLPR, SSD, and STERE datasets. 
+
+the RGB–NIR dataset, without additional fine-tuning, against three representative RGB-NIR methods: RC [44], DCL [45], and SOD-8S+ [46]. Table III reports average F-measure (Favg ), maximum F-measure ( Fmax ), Fβ , MAE ( M), Em,and Sm. S 3AM attains the best result on every metric among the compared methods. In particular, it improves Fβ by 23.6% and reduces MAE from 0.061 to 0.020 over the strongest compared method, supporting the transferability of the proposed adaptation to NIR inputs. 
+
+C. Qualitative Comparisons 
+
+To further assess the effectiveness of the proposed method, we present qualitative comparisons against competitive RGB-D and RGB-T methods (Fig. 5 and Fig. 6) and representative RGB-NIR methods (Fig. 7). Across a variety of scenes, S3AM produces sharper boundaries and fewer visual artifacts. In RGB-D examples, it better preserves thin SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 8
+
+TABLE II COMPARISON WITH DIFFERENT METHODS ON RGB-T DATASETS . B EST IN BOLD .
+
+Metric CMDBIF [40] CAVER [36] SMR-Net [41] LAFB [42] UMINet [43] LESOD [39] Ours VT5000  Fβ ↑ 0.846 0.849 0.859 0.841 0.820 0.839 0.898 
+
+M ↓ 0.032 0.028 0.030 0.030 0.035 0.032 0.020 
+
+Em ↑ 0.933 0.935 0.935 0.931 0.915 0.926 0.950 
+
+Sm ↑ 0.886 0.899 0.891 0.893 0.882 0.893 0.921 
+
+> VT1000
+
+Fβ ↑ 0.909 0.912 0.899 0.905 0.896 0.897 0.934 
+
+M ↓ 0.019 0.016 0.020 0.018 0.021 0.020 0.013 
+
+Em ↑ 0.952 0.949 0.945 0.945 0.941 0.937 0.955 
+
+Sm ↑ 0.927 0.938 0.924 0.932 0.926 0.929 0.943 
+
+> VT821
+
+Fβ ↑ 0.837 0.846 0.844 0.817 0.782 0.827 0.874 
+
+M ↓ 0.032 0.026 0.030 0.034 0.054 0.033 0.025 
+
+Em ↑ 0.923 0.928 0.920 0.915 0.879 0.917 0.931 
+
+Sm ↑ 0.882 0.897 0.888 0.884 0.905 0.897 0.910 
+
+TABLE III COMPARISON WITH REPRESENTATIVE RGB-NIR METHODS . B EST IN BOLD .                                   
+
+> Methods Favg ↑Fmax ↑Fβ↑M ↓ Em↑Sm↑
+> RC [44] 0.664 0.736 0.442 0.148 0.810 0.724 DCL [45] 0.779 0.838 0.660 0.076 0.881 0.796 SOD8s+ [46] 0.803 0.850 0.745 0.061 0.894 0.828 Ours 0.928 0.941 0.921 0.020 0.964 0.930
+
+or disconnected target parts while avoiding depth-induced leakage into adjacent regions. In modality-degraded RGB-T scenes, it more accurately delineates targets despite limited or noisy RGB evidence. The RGB-NIR results further show fewer false-positive responses on visually distracting backgrounds. Together, these observations indicate that calibrated frequency cues improve local structural recovery without sacrificing region completeness. 
+
+D. Ablation Studies 
+
+Table IV reports the component ablations. The first row is the SAM baseline, where only the decoder and FPN neck are trainable and the encoder is frozen. When RCFA is evaluated without MoFE, we use the additive prior P0 = Frgb + Faux 
+
+to isolate expert-based frequency construction. Introducing MoFE raises Fβ from 0.919 to 0.931 on NJU2K and from 0.901 to 0.917 on NLPR, while reducing MAE by 0.005 and 0.003, respectively. Adding RCFA to MoFE further improves 
+
+Fβ to 0.932 and 0.923, showing that the initial frequency cues benefit from stage-wise calibration rather than direct propagation alone. The full configuration reaches 0.939 and 0.934, with the lowest MAE on both datasets. The comparison 
+
+TABLE IV COMPONENT ANALYSIS ON NJU2K AND NLPR. B EST IN BOLD .                                            
+
+> Base MoFE RCFA HSSD NJU2K NLPR
+> Fβ↑ M ↓ Em↑Sm↑Fβ↑ M ↓ Em↑Sm↑
+> ✓0.919 0.028 0.928 0.926 0.901 0.020 0.96 0.926
+> ✓✓0.931 0.023 0.929 0.935 0.917 0.017 0.967 0.936
+> ✓✓✓0.931 0.021 0.934 0.938 0.918 0.017 0.965 0.936
+> ✓✓✓0.932 0.022 0.937 0.937 0.923 0.016 0.970 0.938
+> ✓✓✓✓0.939 0.019 0.939 0.939 0.934 0.014 0.974 0.944 RGB Depth GT Ours LESOD MAGNet CPNet CAVER
+
+Fig. 5. Qualitative comparison with competitive methods on RGB-D datasets. RGB Thermal GT Ours UMINet SACNet CAVER LAFB 
+
+Fig. 6. Qualitative comparison with competitive methods on RGB-T datasets. RGB NIR GT Ours DCL RC SOD8s+ 
+
+Fig. 7. Qualitative comparison with representative RGB-NIR methods. 
+
+between the MoFE-free RCFA–HSSD configuration and the full model also shows that expert-based frequency construction remains beneficial after the decoder is introduced. To isolate the dual-gate calibration mechanism within RCFA, we remove the Context Gate and Reliability-Calibrated Gate separately or jointly while retaining all other components. As shown in Table V, removing either gate reduces Fβ
+
+from 0.939 to 0.938 on NJU2K and from 0.934 to 0.932 or 0.931 on NLPR. Removing both gates further decreases 
+
+Fβ to 0.937 and 0.931. The larger degradation on NLPR indicates that contextual injection control and encoder–prior reliability calibration provide complementary cues when auxiliary information is less stable. Figure 9 visualizes token features from a representative RGB-D sample using t-SNE. The baseline shows dispersed groups and local inter-class mixing. MoFE improves the initial separation, RCFA increases feature compactness, and the full model yields the clearest foreground-background separation. Figure 8 presents qualitative ablations. From left to right, the fourth through seventh prediction columns show the full model, the baseline, the model with MoFE, and the model SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 9
+
+TABLE V DUAL -GATE CALIBRATION ANALYSIS ON NJU2K AND NLPR.                         
+
+> Variant NJU2K NLPR
+> Fβ↑ M ↓ Em↑Sm↑Fβ↑ M ↓ Em↑Sm↑
+> w/o Context Gate 0.938 0.020 0.937 0.939 0.932 0.014 0.974 0.943 w/o Reliability Gate 0.938 0.019 0.935 0.939 0.931 0.014 0.973 0.943 w/o Both Gates 0.937 0.019 0.931 0.939 0.931 0.014 0.974 0.943 Full model 0.939 0.019 0.939 0.939 0.934 0.014 0.974 0.944
+
+TABLE VI COMPARISON OF FUSION STRATEGIES ON NJU2K AND NLPR.                             
+
+> Strategy NJU2K NLPR Params. (M) FLOPs (G) Fβ↑ M ↓ Em↑Sm↑Fβ↑ M ↓ Em↑Sm↑
+> Early 0.931 0.021 0.934 0.938 0.918 0.017 0.965 0.936 223.8 420.1 Middle 0.937 0.020 0.935 0.941 0.923 0.016 0.969 0.940 438.7 816.7 Late 0.937 0.019 0.939 0.941 0.920 0.016 0.966 0.937 438.6 816.7
+
+with MoFE and RCFA. The progressive refinement sharpens object boundaries while preserving semantic completeness. 
+
+E. Complexity Analysis 
+
+Table VII reports total and trainable parameters, FLOPs, and throughput at 512 × 512 resolution on an RTX 5090. The full model contains 224.36M total and 12.20M trainable parameters (5.4%), with 428.1G FLOPs and 45.8 FPS. It also runs at about 5 FPS on an NVIDIA Orin edge computing device. Compared with the baseline, MoFE, RCFA, and HSSD only add 0.30M, 4.87M, and 0.30M trainable parameters, respectively. KAN-SAM [7], a SAM-based adaptation method, reports 643.588M parameters, 1824G FLOPs, and 4 FPS, corresponding to about 2.9 × parameters and 4.3 × FLOPs of S 3AM. HyPSAM (SAMv2) [9], a two-stage Swin-B and ViT-H pipeline, reports 817.6M parameters, 3033.4G FLOPs, and 3 FPS. These costs illustrate the efficiency benefit of avoiding an additional prompt-generation and refinement stage. 
+
+F. Fusion Strategy Analysis 
+
+Table VI compares early, middle, and late fusion. Early fusion adds Frgb and Faux before the first transformer block of a shared SAM encoder, without MoFE, thereby isolating the fusion stage. Middle fusion uses two encoder branches with stage-wise interaction, whereas late fusion combines the two representations only at the final stage. Middle fusion improves 
+
+Fβ from 0.931 to 0.937 on NJU2K and from 0.918 to 0.923 on NLPR, but requires 438.7M parameters and 816.7G FLOPs. Late fusion has comparable overhead, with 438.6M parameters and 816.7G FLOPs, compared with 223.8M parameters and 
+
+TABLE VII COMPARISON OF MODEL COMPLEXITY AND INFERENCE EFFICIENCY .                            
+
+> Base MoFE RCFA HSSD Model Params. (M) Tunable Params. (M) FLOPs (G) FPS
+> ✓218.89 6.73 412.5 52.4
+> ✓✓219.19 7.03 420.6 49.2
+> ✓✓✓224.06 11.90 427.0 47.6
+> ✓✓✓✓224.36 12.20 428.1 45.8 RGB Depth GT Full(Ours) + MoFE Baseline + MoFE+RCFA
+
+Fig. 8. Qualitative ablation results of the proposed components. 
+
+(a) Baseline (b) MoFE (c) MoFE+RCFA (d) Full Fig. 9. t-SNE visualization of token features from a representative RGB-D sample. Red and green markers denote background and foreground token features, respectively. The proposed components progressively improve inter-class separation and intra-class compactness. 
+
+420.1G FLOPs for early fusion. Thus, early fusion offers a favorable efficiency-performance trade-off, while the gains from the dual-encoder alternatives remain modest relative to their nearly doubled cost. IV. C ONCLUSION 
+
+In this paper, we proposed S3AM, a single-stream framework for multi-modal salient object detection built upon the adopted SAM backbone. By coupling early cross-modal fusion with reliability-calibrated frequency adaptation, S 3AM retains informative structural details while limiting the propagation of unreliable auxiliary cues. To adaptively model multi-frequency and cross-modal interactions, MoFE constructs initial frequency cues at the early stage. RCFA then evaluates, calibrates, and selectively propagates the calibrated residual throughout the encoder through dual-gate control of injection strength and RGB–auxiliary high-frequency reliability. Finally, HSSD converts the reliability-calibrated features into saliency maps by combining the adopted SAM backbone’s hypernetwork-based semantic mask prior with structural detail recovery. Experiments on RGB-D, RGB-T, and RGB-NIR benchmarks demonstrate that S 3AM achieves competitive performance without duplicating foundation-backbone computation. REFERENCES [1] Xiao Wang, Xiujun Shu, Shiliang Zhang, Bo Jiang, Yaowei Wang, Yonghong Tian, and Feng Wu, “MFGNet: Dynamic modality-aware filter generation for RGB-T tracking,” IEEE Trans. Multimedia , vol. 25, pp. 4335–4348, 2022. [2] Qishun Wang, Zhengzheng Tu, Bo Jiang, Chenglong Li, Pingping Zhang, and Jin Tang, “Multi-graph cross diffusion attention network for alignment-free RGBT video object detection,” Int. J. Comput. Vis. ,vol. 134, no. 8, pp. 375, 2026. SUBMITTED TO IEEE JOURNALS/TRANSACTIONS 10 
+
+[3] Yang Gao, Wencan Li, Shiyu Liang, Aimin Hao, and Xiaohui Tan, “Saliency-aware foveated path tracing for virtual reality rendering,” 
+
+IEEE Trans. Vis. Comput. Graph. , 2025. [4] Zhou Lu, Guang-Hai Liu, Zuo-Yong Li, and Bo-Jian Zhang, “Image retrieval using deep saliency edge feature,” Eng. Appl. Artif. Intell. , vol. 149, pp. 110416, 2025. [5] Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Roman R¨ adle, Chloe Rolland, Laura Gustafson, et al., “SAM 2: Segment anything in images and videos,” 
+
+arXiv preprint arXiv:2408.00714 , 2024. [6] Tianrun Chen, Lanyun Zhu, Chaotao Deng, Runlong Cao, Yan Wang, Shangzhan Zhang, Zejian Li, Lingyun Sun, Ying Zang, and Papa Mao, “SAM-Adapter: Adapting segment anything in underperformed scenes,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. , 2023. [7] Xingyuan Li, Ruichao Hou, Tongwei Ren, and Gangshan Wu, “KAN-SAM: Kolmogorov-arnold network guided segment anything model for RGB-T salient object detection,” in Proc. IEEE Int. Conf. Multimedia Expo (ICME) , 2025. [8] Zhengyi Liu, Xinrui Wang, Xianyong Fang, Zhengzheng Tu, and Linbo Wang, “SAMSOD: Rethinking SAM optimization for RGB-T salient object detection,” IEEE Trans. Multimedia , 2026. [9] Ruichao Hou, Xingyuan Li, Tongwei Ren, Dongming Zhou, Gangshan Wu, and Jinde Cao, “HyPSAM: Hybrid prompt-driven segment anything model for RGB-Thermal salient object detection,” IEEE Trans. Circuits Syst. Video Technol. , vol. 36, no. 3, pp. 2697–2712, 2026. [10] Fushuo Huo, Xuegui Zhu, Qian Zhang, Ziming Liu, and Wenchao Yu, “Real-time one-stream semantic-guided refinement network for RGB-thermal salient object detection,” IEEE Trans. Instrum. Meas. , vol. 71, pp. 1–12, 2022. [11] Peng Ren, Tian Bai, and Fuming Sun, “Bio-inspired two-stage network for efficient RGB-D salient object detection,” Neural Netw. , vol. 185, pp. 107244, 2025. [12] Shuo Zhang, Jiaming Huang, Wenbing Tang, Yan Wu, Terrence Hu, Xiaogang Xu, and Jing Liu, “Dimsod: A diffusion-based framework for multi-modal salient object detection,” in Proc. AAAI Conf. Artif. Intell. ,2025. [13] Zhengxuan Xie, Feng Shao, Gang Chen, Hangwei Chen, Qiuping Jiang, Xiangchao Meng, and Yo-Sung Ho, “Cross-modality double bidirectional interaction and fusion network for RGB-T salient object detection,” IEEE Trans. Circuits Syst. Video Technol. , vol. 33, no. 8, pp. 4149–4163, 2023. [14] Jun Ma, Yuting He, Feifei Li, Lin Han, Chenyu You, and Bo Wang, “Segment anything in medical images,” Nat. Commun. , vol. 15, no. 1, pp. 654, 2024. [15] Di Wang, Jing Zhang, Bo Du, Minqiang Xu, Lin Liu, Dacheng Tao, and Liangpei Zhang, “SAMRS: Scaling-up remote sensing segmentation dataset with segment anything model,” Adv. Neural Inf. Process. Syst. ,vol. 36, pp. 8815–8827, 2023. [16] Guanyao Wu, Haoyu Liu, Hongming Fu, Yichuan Peng, Jinyuan Liu, Xin Fan, and Risheng Liu, “Every SAM drop counts: Embracing semantic priors for multi-modality image fusion and beyond,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. , 2025. [17] K. Wang, D. Lin, C. Li, Z. Tu, and B. Luo, “Alignment-free RGBT salient object detection: Semantics-guided asymmetric correlation network and a unified benchmark,” IEEE Trans. Multimedia , vol. 26, pp. 10692–10707, 2024. [18] Sulan Zhai, Chengzhuang Liu, Zhengzheng Tu, Chenglong Li, and Liuxuanqi Gao, “Weakly supervised RGBT salient object detection via SAM-guided label optimization and progressive cross-modal cross-scale fusion,” Inf. Fusion , vol. 120, pp. 103048, 2025. [19] Zhengyi Liu, Sheng Deng, Xinrui Wang, Linbo Wang, Xianyong Fang, and Bin Tang, “Ssfam: Scribble supervised salient object detection family,” IEEE Trans. Multimedia , vol. 27, pp. 1988–2000, 2025. [20] Hasan Demirel and Gholamreza Anbarjafari, “Image resolution enhancement by using discrete and stationary wavelet decomposition,” 
+
+IEEE Trans. Image Process. , vol. 20, no. 5, pp. 1458–1460, 2010. [21] Yue Liu, Yunjie Tian, Yuzhong Zhao, Hongtian Yu, Lingxi Xie, Yaowei Wang, Qixiang Ye, Jianbin Jiao, and Yunfan Liu, “VMamba: Visual state space model,” in Proc. Adv. Neural Inf. Process. Syst. , 2024. [22] Rongjian Zhao, Buyue Qian, Xianli Zhang, Yang Li, Rong Wei, Yang Liu, and Yinggang Pan, “Rethinking dice loss for medical image segmentation,” in Proc. IEEE Int. Conf. Data Mining (ICDM) , 2020. [23] Md Atiqur Rahman and Yang Wang, “Optimizing intersection-over-union in deep neural networks for image segmentation,” in Proc. Int. Symp. Vis. Comput. , 2016. [24] Ran Ju, Ling Ge, Wenjing Geng, Tongwei Ren, and Gangshan Wu, “Depth saliency based on anisotropic center-surround difference,” in 
+
+Proc. IEEE Int. Conf. Image Process. , 2014. [25] Houwen Peng, Bing Li, Weihua Xiong, Weiming Hu, and Rongrong Ji, “RGBD salient object detection: A benchmark and algorithms,” in Proc. Eur. Conf. Comput. Vis. , 2014. [26] Chunbiao Zhu and Ge Li, “A three-pathway psychobiological framework of salient object detection using stereoscopic technology,” in Proc. IEEE Int. Conf. Comput. Vis. Workshops , 2017. [27] Yuzhen Niu, Yujie Geng, Xueqing Li, and Feng Liu, “Leveraging stereopsis for saliency analysis,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. , 2012. [28] Deng-Ping Fan, Zheng Lin, Zhao Zhang, Menglong Zhu, and Ming-Ming Cheng, “Rethinking RGB-D salient object detection: Models, data sets, and large-scale benchmarks,” IEEE Trans. Neural Netw. Learn. Syst. , vol. 32, no. 5, pp. 2075–2089, 2020. [29] Shuhan Chen and Yun Fu, “Progressively guided alternate refinement network for RGB-D salient object detection,” in Proc. Eur. Conf. Comput. Vis. , 2020. [30] Guizhao Wang, Chenglong Li, Yunpeng Ma, Aihua Zheng, Jin Tang, and Bin Luo, “RGB-T saliency detection benchmark: Dataset, baselines, analysis and a novel approach,” in Proc. Chinese Conf. Image Graph. Technol. , 2018. [31] Zhengzheng Tu, Tian Xia, Chenglong Li, Xiaoxiao Wang, Yan Ma, and Jin Tang, “RGB-T image saliency detection via collaborative graph learning,” IEEE Trans. Multimedia , vol. 22, no. 1, pp. 160–173, 2019. [32] Zhengzheng Tu, Yan Ma, Zhun Li, Chenglong Li, Jieming Xu, and Yongtao Liu, “RGBT salient object detection: A large-scale dataset and benchmark,” IEEE Trans. Multimedia , vol. 25, pp. 4163–4176, 2022. [33] Yaqun Fang, Ruichao Hou, Jia Bei, Tongwei Ren, and Gangshan Wu, “ADNet: An asymmetric dual-stream network for RGB-T salient object detection,” in Proc. ACM Int. Conf. Multimedia Asia , 2023. [34] Hao Tang, Zechao Li, Dong Zhang, Shengfeng He, and Jinhui Tang, “Divide-and-conquer: Confluent triple-flow network for RGB-T salient object detection,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 47, no. 3, pp. 1958–1974, 2025. [35] Shaoyue Song, Zhenjiang Miao, Hongkai Yu, Jianwu Fang, Kang Zheng, Cong Ma, and Song Wang, “Deep domain adaptation based multi-spectral salient object detection,” IEEE Trans. Multimedia , vol. 24, pp. 128–140, 2020. [36] Youwei Pang, Xiaoqi Zhao, Lihe Zhang, and Huchuan Lu, “CAVER: Cross-modal view-mixed transformer for bi-modal salient object detection,” IEEE Trans. Image Process. , vol. 32, pp. 892–904, 2023. [37] Xihang Hu, Fuming Sun, Jing Sun, Fasheng Wang, and Haojie Li, “Cross-modal fusion and progressive decoding network for RGB-D salient object detection,” Int. J. Comput. Vis. , vol. 132, no. 8, pp. 3067–3085, 2024. [38] Mingyu Zhong, Jing Sun, Peng Ren, Fasheng Wang, and Fuming Sun, “MAGNet: Multi-scale awareness and global fusion network for RGB-D salient object detection,” Knowl.-Based Syst. , vol. 299, pp. 112126, 2024. [39] Mingyu Zhong, Jing Sun, Fasheng Wang, and Fuming Sun, “LESOD: Lightweight and efficient network for RGB-D salient object detection,” 
+
+Pattern Recognit. , p. 112103, 2025. [40] Z. Xie, F. Shao, G. Chen, H. Chen, Q. Jiang, X. Meng, and Y.-S. Ho, “Cross-modality double bidirectional interaction and fusion network for RGB-T salient object detection,” IEEE Trans. Circuits Syst. Video Technol. , vol. 33, no. 8, pp. 4149–4163, 2023. [41] Guobao Xiao, Xinyu Liu, Zebin Lin, and Rui Ming, “SMR-Net: Semantic-guided mutually reinforcing network for cross-modal image fusion and salient object detection,” in Proc. AAAI Conf. Artif. Intell. ,2025. [42] K. Wang, Z. Tu, C. Li, C. Zhang, and B. Luo, “Learning adaptive fusion bank for multi-modal salient object detection,” IEEE Trans. Circuits Syst. Video Technol. , vol. 34, pp. 7344–7358, 2024. [43] L. Gao, P. Fu, M. Xu, T. Wang, and B. Liu, “UMINet: A unified multi-modality interaction network for RGB-D and RGB-T salient object detection,” Vis. Comput. , vol. 40, no. 3, pp. 1565–1582, 2024. [44] M.-M. Cheng, N. J. Mitra, X. Huang, P. H. S. Torr, and S.-M. Hu, “Global contrast based salient region detection,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 37, no. 3, pp. 569–582, 2014. [45] G. Li and Y. Yu, “Deep contrast learning for salient object detection,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. , 2016. [46] S. Song, Z. Miao, H. Yu, J. Fang, K. Zheng, C. Ma, and S. Wang, “Deep domain adaptation based multi-spectral salient object detection,” IEEE Trans. Multimedia , vol. 24, pp. 128–140, 2022.
