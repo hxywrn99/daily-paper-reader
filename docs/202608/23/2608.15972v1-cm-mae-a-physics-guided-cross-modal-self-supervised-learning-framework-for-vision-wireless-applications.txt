@@ -1,0 +1,531 @@
+Title: CM-MAE: A Physics-Guided Cross-Modal Self-Supervised Learning Framework for Vision-Wireless Applications
+
+URL Source: https://arxiv.org/pdf/2608.15972v1
+
+Published Time: Tue, 18 Aug 2026 01:26:04 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# CM-MAE: A Physics-Guided Cross-Modal Self-Supervised Learning Framework for Vision-Wireless Applications 
+
+Yubo Zhang, Yiyao Liu 
+
+Abstract —Synchronized camera and wireless measurements observe the same scene through different physical channels. The central difficulty is that a representation learned in one deployment can fail when viewpoint, traffic, illumination, and propagation geometry change. This paper presents CM-MAE, a self-supervised vision–wireless pretraining framework for cross-scenario representation transfer. The evaluated real-data model uses only RGB frames and the measured 64-beam received-power vector available in DeepSense 6G; it does not use ray-traced paths, calibrated depth, or beam-index labels during pretraining. Its central pretraining term is a soft contrastive alignment loss . Instead of making the synchronized image–wireless pair the only positive pair, this loss builds a target distribution from similarities between measured beam-power profiles, so nonidentical samples with similar directional responses are not forced apart as false negatives. A masked joint decoder provides the complementary local objective by reconstructing hidden visual patches and wireless angular clusters under modality dropout. After pretraining, a differential-rate fine-tuning rule lets a new fusion head adapt quickly while the encoders move slowly. Under a sequence-disjoint DeepSense 6G protocol, adding the soft alignment loss improves a matched linear-probe transfer average from 24.88% to 29.49%. Mild fusion fine-tuning reaches 77.38% Top-1 accuracy on unseen Scenarios 6–8, and optional transductive normalization adaptation reaches 78.69%. Since the fusion setting uses the contemporaneous 64-beam power vector at inference, these results should be read as representation-transfer diagnostics, not as proactive beam-prediction or reduced-sweeping claims. 
+
+Index Terms —multimodal ISAC, cross-modal self-supervised learning, masked autoencoder, domain generalization, mmWave beam classification, test-time adaptation 
+
+I. I NTRODUCTION 
+
+Vision-assisted wireless learning is attractive because the camera observes geometry and occlusion while the wireless receiver observes the directional response induced by the same scene. In a vehicle-to-infrastructure deployment, however, the relation between image pixels and a selected beam is not fixed. It changes with camera placement, street layout, traffic composition, reflectors, blockers, and array response. A model that fits one measured scenario can therefore lose useful structure when moved to another. This paper focuses on the part of the problem that can be studied with real synchronized measurements: learning transferable vision–wireless representations without using discrete beam-index labels during pretraining. Each training sample contains an RGB image and a 64-dimensional received-power vector obtained from a beam sweep. The downstream task is to classify the strongest measured beam index, but that index is withheld during self-supervised pretraining. Two design choices are needed. First, masked reconstruction should not be purely unimodal. If the image branch reconstructs only image patches and the wireless branch reconstructs only wireless features, the model can learn useful local statistics while leaving the two global representations weakly related. Second, cross-modal alignment should not be a hard instance-matching loss. CLIP-style alignment treats every nonpaired sample in the batch as a negative [6], even when two wireless power profiles have nearly the same dominant angular response. For beam-sweep data, this creates false negatives: samples that are different frames but physically similar from the array’s perspective. CM-MAE addresses these two issues directly. Its global objective is a soft contrastive alignment loss : the target for a visual query is not a one-hot sample identity, but a probability distribution over wireless samples computed from measured beam-profile similarity. Its local objective is masked conditional reconstruction through a joint decoder. The evaluated model implements these ideas with camera-ray-indexed image patches and sparse one-dimensional angular clusters extracted from the 64-beam power vector. A geometry-privileged extension would require calibrated wideband CFR and ray-traced correspondence labels; because those signals are not used in the reported experiments, the extension is discussed only as a limitation and future direction. The main contributions are as follows.  
+
+> •
+
+We formulate real-data CM-MAE pretraining using only synchronized RGB frames and measured beam-power vectors, with a clear separation between pretraining inputs and downstream beam-index labels.  
+
+> •
+
+We introduce a beam-profile-guided soft contrastive align-ment loss that matches learned cross-modal retrieval distri-butions to measured wireless-response neighborhoods.  
+
+> •
+
+We combine this global soft alignment with masked condi-tional reconstruction in a dual-stream Transformer architec-ture whose masking, decoder, and modality-dropout rules are explicitly gated by the available modalities.  
+
+> •
+
+Matched ablations show a 4.61-point average transfer gain from soft alignment. Differential-rate adaptation raises the unseen-scenario average from 51.36% to 77.38%; optional transductive adaptation reaches 78.69%. arXiv:2608.15972v1 [cs.CV] 16 Aug 2026 II. B ACKGROUND AND RELATED WORK 
+
+Contrastive and masked self-supervision. Contrastive learning builds representations by making related views close and unrelated views far apart. In cross-modal learning, CLIP-style training uses the paired sample as the positive and all other samples in the batch as negatives [6]. This objective is simple and effective when the correct relation is sample identity, but it can be too rigid for directional wireless measurements, where multiple frames can have similar beam responses. Masked autoencoding instead hides input tokens and trains a decoder to reconstruct them [3]. MultiMAE and CAV-MAE show that masked reconstruction can be extended to multiple modalities and combined with alignment losses [4], [5]. CM-MAE follows this general family but changes the alignment target from hard identity to a wireless-response neighborhood. 
+
+Wireless and vision–wireless representation learning. 
+
+DeepSense 6G provides real measured sensory and wireless data for multimodal communication tasks [1]. Vision-position beam prediction demonstrates the usefulness of side informa-tion under supervised training [2]. Recent self-supervised or foundation-style wireless models include LWM [7], ContraW-iMAE [8], WMFM [9], WiFo-M 2 [10], and WiFo-MiSAC [11]. These works motivate masked and multimodal learning for wireless systems. CM-MAE is narrower in input scope but sharper in target construction: for real DeepSense data, it aligns camera and wireless features using the measured 64-beam power-profile geometry available in each synchronized sample. 
+
+Adaptation across scenarios. Cross-scenario evaluation is essential because source validation accuracy can overstate transfer performance. Test-time adaptation methods such as Tent update normalization parameters on unlabeled target data by minimizing prediction entropy [12]. Domain-adversarial training seeks scenario-invariant features through gradient reversal [13]. CM-MAE differs from these adaptation-only approaches in two ways: it first builds a cross-modal represen-tation through beam-profile-guided pretraining, and then uses a conservative supervised adaptation rule in which new fusion layers learn quickly while pretrained encoders move slowly. In our experiments, Tent-style normalization adaptation is kept as an optional transductive stage, while the adversarial objective was numerically unstable and is not part of the final method. III. P ROBLEM SETUP 
+
+A. Synchronized Image and Beam-Power Measurements 
+
+Consider a base station equipped with a beam codebook 
+
+W = {wb}Nb 
+
+> b=1
+
+and a co-located RGB camera. A synchronized sample is denoted 
+
+(Ii, ρi) , Ii ∈ R3×H×W ,
+
+ρi = [ ρi, 1, . . . , ρ i,N b ]⊤ ∈ RNb 
+
+> +
+
+. (1) Here Ii is the RGB frame and ρi,b is the measured received power when beam b is used in the sweep. DeepSense provides 
+
+Nb = 64 . If hi,k is the effective channel on subcarrier k, the sweep measurement can be written as 
+
+ρi,b = 1
+
+K
+
+> K
+
+X
+
+> k=1
+
+wHb hi,k  
+
+> 2
+
++ ξi,b , b = 1 , . . . , N b, (2) where ξi,b includes noise and measurement perturbations. The downstream class label is the strongest measured beam index 
+
+b⋆i = arg max  
+
+> b∈{ 1,...,N b}
+
+ρi,b . (3) Equation (3) is used for downstream supervised training and evaluation only. CM-MAE pretraining does not consume b⋆i
+
+as a label. It does consume the full measured power vector 
+
+ρi, which is task-relevant because it contains the maximizer in (3). The image is divided into P = ( H/S )( W/S ) nonover-lapping patches of size S × S. Let eqp be the homogeneous image coordinate of patch center p and let Kcam be the camera intrinsic matrix. The normalized camera ray used by the tokenizer is 
+
+dp = K−1cam eqp
+
+∥K−1cam eqp∥2
+
+. (4) In the evaluated DeepSense implementation, Kcam is an approximate pinhole camera with a 90 ◦ field of view. Therefore 
+
+dp is only a stable image-plane direction coordinate. It is not a depth estimate and it is not a propagation-path label. 
+
+B. Learning Objective 
+
+The unlabeled pretraining set is 
+
+Du = {(Ii, ρi)}nu
+
+> i=1
+
+, (5) and the labeled downstream set is 
+
+Dl = {(Ii, ρi, b ⋆i )}nl
+
+> i=1
+
+. (6) Let Ev and Ew denote the vision and wireless encoders. Each encoder prepends a learned CLS token to its token sequence; after the final Transformer layer, the output at this CLS position is used as the global modality representation. We denote these CLS embeddings by zvi , zwi ∈ Rd. CM-MAE pretraining has two objectives: 1) Beam-profile soft alignment : if two samples have similar normalized beam-power profiles, the model should assign them similar cross-modal retrieval probabilities. 2) Masked conditional reconstruction : hidden visual patches and hidden wireless cluster features should be reconstructed from the visible tokens of the available modality or modalities. For downstream beam-index classification, a task head gϕ is fitted on labeled source data: 
+
+(θ⋆, ϕ ⋆) = arg min  
+
+> θ,ϕ
+
+E(I, ρ,b ⋆)∼D l ℓcls (gϕ(Eθ (I, ρ)) , b ⋆) . (7) The fusion setting in this paper gives the classifier both the image and the contemporaneous 64-beam power vector at inference. This protocol evaluates cross-scenario multimodal representation transfer. It does not demonstrate proactive prediction before a sweep, nor does it show reduced beam-training overhead. The vision-only ablation is the corresponding camera-only setting. IV. E VALUATED CM-MAE A RCHITECTURE 
+
+A. Tokenization 
+
+We use superscripts v and w for visual and wireless quantities. Patch indices are p = 1 , . . . , P ; wireless cluster indices are q = 1 , . . . , Q i with Qi ≤ Qmax .
+
+Vision tokens. A convolutional patch embedder fv maps image patch Ii,p to width d. The token entering the vision encoder is 
+
+xvi,p = fv (Ii,p ) + Wr dp + ep, (8) where ep is a learned patch-position embedding and Wr dp
+
+injects the approximate camera-ray coordinate from (4). This gives the model a consistent notion of image direction while avoiding unsupported depth or path claims. 
+
+Wireless normalization and scale. The raw received-power vector is converted to dB and normalized per sample: 
+
+ri,b = 10 log 10 (ρi,b + ϵ), pi,b = ri,b − mi
+
+Mi − mi + ϵ , (9) where mi = min b ri,b and Mi = max b ri,b . The normalized vector pi = [pi, 1, . . . , p i,N b ]⊤ captures angular shape in 
+
+[0 , 1] Nb . Since this normalization removes absolute power, the scalar Mi is also embedded as a wireless scale token 
+
+xwi, 0 = WsMi. (10) 
+
+Sparse angular clusters. Millimeter-wave power is often concentrated around a small number of angular lobes [14]. The evaluated tokenizer therefore converts the dense 64-beam profile into a short cluster sequence. Local maxima of pi above 
+
+η = 0 .15 are detected, the strongest Qi ≤ Qmax = 10 peaks are retained, and the global maximum is used as a fallback if no local peak passes the threshold. For a retained peak at beam 
+
+bi,q , define energy ei,q = pi,b i,q and a local power-weighted angular centroid 
+
+¯θi,q =
+
+Pbi,q +∆ b  
+
+> b=bi,q −∆b
+
+pi,b θb
+
+Pbi,q +∆ b  
+
+> b=bi,q −∆b
+
+pi,b + ϵ , θb ∈ [−1, 1] , ∆b = 2 . (11) The local wireless feature ai,q ∈ R6 stores the normalized powers at bi,q − 1, b i,q , b i,q + 1 together with a zero imaginary channel, matching the real/imaginary feature shape used by the implementation. The cluster token is 
+
+xwi,q = fw(ai,q ) + We[log( ei,q + ϵ), κ i,q ]⊤ + γ(¯θi,q ), (12) where κi,q is a peak-quality indicator and γ(·) is a Fourier angular encoding [15]. Padded cluster slots are excluded by the attention mask. This tokenizer records angular location, local lobe shape, relative energy, and absolute scale, but it does not infer physical propagation paths. 
+
+B. Dual Transformer Encoders and Joint Decoder 
+
+The visual sequence is 
+
+Xvi = [ cv , xvi, 1, . . . , xvi,P ], (13) where cv is the learned visual CLS token. The wireless sequence is 
+
+Xwi = [ cw, xwi, 0, xwi, 1, . . . , xwi,Q i ], (14) where cw is the wireless CLS token and xwi, 0 is the scale token from (10). Invalid padded cluster slots are masked out of attention. The two streams use separate Vision Transformer encoders rather than shared weights. Each encoder is a pre-LayerNorm Transformer stack. For either modality, layer ℓ applies 
+
+Hℓ+ 12 = Hℓ + MHSA(LN( Hℓ)) ,
+
+Hℓ+1 = Hℓ+ 12 + FFN(LN( Hℓ+ 12 )) . (15) The final CLS outputs are 
+
+zvi = Hv,L i, 0 , zwi = Hw,L i, 0 , (16) where position zero denotes the CLS token. The evaluated Base configuration uses width d = 768 , 12 encoder layers, 12 attention heads, and MLP ratio 4 in each encoder. This is a large model, roughly 232M parameters including the decoder and task head. During pretraining, the joint decoder receives the concate-nated encoded sequence 
+
+[zv
+
+> CLS
+
+, zv 
+
+> 1: P
+
+, zw
+
+> CLS
+
+, zw 
+
+> 0
+
+, zw
+
+> 1: Q
+
+] (17) with modality-type embeddings. The decoder has eight Trans-former layers, width 768, and 12 attention heads. Separate prediction heads map decoder outputs back to denormalized RGB patch vectors and six-dimensional local wireless features. The decoder is used only for self-supervised pretraining; downstream classification uses the unmasked encoders and a separate fusion head. 
+
+C. Soft Contrastive Alignment Loss 
+
+Why hard instance matching is insufficient. This is the soft contrastive alignment function referred to in the abstract. It is contrastive because it compares visual and wireless CLS embeddings through a batch retrieval distribution, and it is 
+
+soft because its target is a probability distribution rather than a one-hot identity label. For a visual query i, hard instance matching would minimize − log πv→wii and treat every j̸ = i
+
+as a negative. This is inappropriate when two different samples have similar measured beam-power shapes. CM-MAE instead uses the wireless response itself to define how strongly sample 
+
+i should be associated with other samples in the batch. 
+
+Wireless-derived soft targets. For batch size B, normalize each power profile as epi = pi/∥pi∥2 and define 
+
+dij = 1 − ep⊤ 
+
+> i
+
+epj , qij = 1[j̸ = i] exp( −d2 
+
+> ij
+
+/(2 σ2
+
+> h
+
+)) 
+
+P  
+
+> k̸=i
+
+exp( −d2
+
+> ik
+
+/(2 σ2
+
+> h
+
+)) , (18) RGB image       
+
+> 224 ×224
+> patch + ray tokens
+> P= 196
+> vision ViT mask ratio 0.75
+> 64-beam power vector + scale angular clusters
+> Q≤10
+> wireless ViT mask ratio 0.50
+> beam-profile soft alignment
+> Lctr
+> joint decoder masked completion patch/cluster reconstruction differential-rate mild fine-tuning optional norm-only target adaptation Fig. 1. Evaluated CM-MAE pipeline. Image patches and wireless angular clusters are encoded by separate Transformers, decoded jointly for masked reconstruction, and aligned globally by a beam-profile-guided soft contrastive loss.
+
+where σh = 0 .5. Since pi is nonnegative and normalized, 
+
+dij measures angular-pattern discrepancy. The diagonal is set to zero in the evaluated implementation: Lctr is used for non-self neighborhood learning, while the synchronized pair is still coupled through joint reconstruction. Smaller σh
+
+concentrates probability on the nearest non-self profiles; larger 
+
+σh approaches a uniform distribution over j̸ = i.
+
+Learned cross-modal distributions. Let uvi and uwi be ℓ2-normalized projections of the two CLS tokens and let sv→wij =(uvi )⊤uwj /τ . The visual-to-wireless retrieval distribution is 
+
+πv→wij = exp( sv→wij )
+
+PBk=1 exp( sv→wik ) , (19) with τ = 0 .07 ; πw→vi is defined analogously. The symmetric soft alignment loss is 
+
+Lctr = − 12B
+
+> B
+
+X
+
+> i=1
+> B
+
+X
+
+> j=1
+
+qij 
+
+ log πv→wij + log πw→vij 
+
+ . (20) 
+
+What the function optimizes. For one direction, differenti-ation with respect to the similarity logit gives 
+
+∂H (qi, πv→wi )
+
+∂s v→wij 
+
+= πv→wij − qij . (21) Thus a nonpaired sample with large qij is pulled closer until the learned probability matches the measured beam-profile affinity, while a distant sample with qij ≈ 0 remains a negative. The loss is therefore not a many-positive binary contrastive loss; it is distribution matching. The distribution-matching interpretation follows from 
+
+Lctr = Cq + 12B
+
+> B
+
+X
+
+> i=1
+
+ KL( qi∥πv→wi )+ KL( qi∥πw→vi ), (22) where Cq = B−1 P 
+
+> i
+
+H(qi) is independent of network pa-rameters. Hence minimizing (20) matches learned cross-modal retrieval neighborhoods to the wireless-response neighborhood. If all embeddings collapse, πi becomes uniform; whenever qi is nonuniform, the excess KL term is strictly positive. In this paper, “physics-grounded” means only that the target distribution is computed from measured propagation responses. It does not claim path recovery or universal electromagnetic invariance. 
+
+D. Masking, Modality Dropout, and Reconstruction 
+
+Masking follows the information density of the two modali-ties. Images are dense and spatially redundant, so vision uses a high mask ratio rv = 0 .75 with contiguous row-major blocks of four patches. Wireless clusters are already sparse, so wireless uses a lower mask ratio rw = 0 .5 over valid angular-cluster tokens. Let mvi,p , m wi,q ∈ { 0, 1} indicate whether a token’s content is visible. Masked positions are not removed. Their content embedding is replaced by a learned mask token while their coordinate embedding remains: 
+
+exvi,p = mvi,p xvi,p + (1 − mvi,p )( mv + ep + Wr dp), (23) 
+
+exwi,q = mwi,q xwi,q + (1 − mwi,q )( mw + γ(¯θi,q )) . (24) Thus the model knows where a hidden image patch or angular cluster lies, but not its content. Keeping position information is important for the wireless stream: a position-free mask token would turn two missing clusters at different beam angles into the same decoder input. Let Ωvi and Ωwi denote masked visual patches and masked valid wireless clusters. The two reconstruction losses are 
+
+Lrec ,v = 1
+
+P 
+
+> i
+
+|Ωvi |
+
+X
+
+> i
+
+X
+
+> p∈Ωvi
+
+∥btvi,p − tvi,p ∥22,
+
+Lrec ,w = 1
+
+P 
+
+> i
+
+|Ωwi |
+
+X
+
+> i
+
+X
+
+> q∈Ωwi
+
+∥bai,q − ai,q ∥22. (25) The joint decoder is used to make reconstruction conditional on both streams when both are present, so hidden visual patches or wireless clusters must be predicted from the visible context rather than from an isolated unimodal branch. This is a pretraining task design, not a claim that reconstruction loss alone guarantees transfer. Modality dropout prevents the decoder from assuming that both modalities are always present. With probability pmd = 0 .1
+
+the vision branch is dropped, and with another 0.1 the wireless branch is dropped. Let av , a w ∈ { 0, 1} denote branch presence. The implemented pretraining loss is 
+
+Lpre = av Lrec ,v + awβwLrec ,w + av awλctr Lctr ,βw = 1 , λctr = 0 .2. (26) The product gate removes the alignment term whenever either CLS embedding is absent; reconstruction remains active for whichever branch is present. V. L EARNING AND ADAPTATION PROCEDURE 
+
+A. Stage 1: Self-Supervised Pretraining 
+
+Pretraining uses paired but unlabeled samples (Ii, ρi) from the source scenarios. For each mini-batch, the tokenizer builds visual patch tokens, the scale token, and wireless angular-cluster tokens; independent masks and modality-dropout indicators are sampled; the two encoders and joint decoder are optimized with Lpre in (26). The beam-index label b⋆i is not used in this stage. The soft contrastive loss is active only when both modality branches are present, and reconstruction is active for every available branch. Checkpoint selection is performed on the source validation scenario after downstream adaptation, not by target-scenario labels. 
+
+B. Stage 2: Source-Supervised Adaptation 
+
+After pretraining, no reconstruction mask is applied. The unmasked encoders produce zvi and zwi . In fusion mode, a projection of the full normalized power vector gp(pi) is added to the wireless CLS feature. A two-layer bidirectional residual attention module exchanges information between the visual and wireless global features, and an MLP predicts one of the 
+
+Nb = 64 beam indices. Uniform learning rates caused large representation drift in our cross-scenario runs. The final adaptation rule therefore uses two optimizer groups. If θe denotes pretrained encoder parameters and θh denotes newly initialized fusion and classifier parameters, the updates are 
+
+θt+1  
+
+> e
+
+= θte − ηe∇θe Lcls , θt+1  
+
+> h
+
+= θth − ηh∇θh Lcls , (27) with ηe = 3 × 10 −6 and ηh = 10 −3. AdamW uses cosine decay, five-epoch warmup, weight decay 0.1, label smoothing 0.05, head dropout 0.15, gradient clipping at 1, and 80 epochs with effective batch size 512. The peak head rate is about 333 times the encoder rate. The intended two-timescale behavior is simple: adapt the task-specific head quickly while limiting movement away from the pretrained encoder. 
+
+C. Stage 3: Optional Test-Time Adaptation 
+
+For optional transductive adaptation, only affine parameters of normalization layers are updated on unlabeled target-scenario batches by minimizing 
+
+LTTA = − 1
+
+B
+
+> B
+
+X
+
+> i=1
+> Nb
+
+X
+
+> b=1
+
+bpi,b log bpi,b . (28) Adam uses learning rate 5 × 10 −4 for 30 steps. Adaptation is performed separately for each target scenario and the source weights are restored before moving to another scenario. This stage is transductive: it assumes access to unlabeled target-scenario batches, and labels are used only after adaptation to report accuracy. We therefore report the source-only mild-FT result and the mild-FT+TTA result separately. 
+
+D. Out-of-Scope Privileged Geometry 
+
+We reserve the name CM-MAE-W for a possible geometry-privileged extension with complex wideband CFR, 3-D angle– delay clusters, geometry-guided masks, and a supervised correspondence head. That version is not part of the evaluated method because the reported DeepSense experiments do not use ray-traced path labels, calibrated depth, or patch–path association. A future dataset with such labels could add entropic optimal-transport correspondence with dustbins [16], but that would be a different supervision regime. The results below therefore evaluate only the real-data RGB-plus-measured-power setting defined in Sections III–V. VI. E XPERIMENTS 
+
+A. Setup 
+
+Dataset and protocol. DeepSense 6G Scenarios 1–8 contain real-world vehicle-to-infrastructure (V2I) measurements at 60 GHz with synchronized RGB images ( 224 ×224 ) and 64-beam power vectors. Each scenario corresponds to a different geographic location. We split each scenario 70/15/15 by 
+
+seq_index to avoid leakage from consecutive frames of the same vehicle. Pretraining uses unlabeled pairs from Sc1– 5; fine-tuning uses labeled data from Sc1–4; Sc5 serves as validation; Sc6–8 are held out as the unseen test set. All non-TTA accuracies use the test split of each scenario without target labels during training or model selection. The TTA row additionally uses unlabeled target-scenario batches for entropy minimization and is marked separately as transductive. The test sets contain 488 samples (Sc5), 254 (Sc6), 159 (Sc7), and 652 (Sc8). 
+
+Implementation. We use ViT-Base encoders (two streams, 
+
+∼232 M parameters total). The vision stream is initialized from ImageNet-pretrained ViT-B/16; the CSI stream is trained from scratch. Pretraining uses AdamW (peak LR 1.2×10 −4, weight decay 0.05 , batch size 192, cosine schedule with 10-epoch warmup) on a single A100 GPU with automatic mixed precision. 
+
+All models in this paper—the main model and every ablation variant—are pretrained for 160 epochs under the identical protocol, so that differences reflect the design choices rather than training duration. The best checkpoint is selected by validation linear probe. Fine-tuning runs on one A100. Images use ImageNet mean/std normalization; beam angles are mapped to [−1, 1] .
+
+Baselines. We compare with the official ASU ResNet-18 vision-only baseline [2] evaluated under the same cross-scenario proto-col. To position CM-MAE among mainstream SSL paradigms, we further pretrain three representative baselines under the identical protocol: CLIP-style hard InfoNCE alignment without TABLE I CROSS -SCENARIO TOP -1 ACCURACY (%) ON DEEP SENSE 6G. L ABELS ON    
+
+> SC1–4; S C5VALIDATION ; S C6–8 UNSEEN TEST . CM-MAE VARIANTS USE FUSION UNLESS NOTED .
+
+Method Sc5 Sc6 Sc7 Sc8 Avg6–8 
+
+ASU ResNet-18 [2] 58.27 41.67 43.90 71.92 52.50 Linear probe 65.57 21.65 30.82 62.58 38.35 Full FT 85.66 28.74 38.99 86.35 51.36 Vision-only (mild) 43.03 26.77 21.38 40.64 29.60 CSI-only (mild) 81.35 18.90 22.64 63.65 35.06 
+
+Mild-FT (ours) 94.26 64.17 75.47 92.48 77.38 Mild-FT + TTA 93.44 66.54 76.73 92.79 78.69 
+
+masking (CLS-InfoNCE), soft-contrastive alignment without masking (CLS-SoftCtr), and masked reconstruction without alignment (MAE). We also report several CM-MAE variants that isolate the contribution of each component: linear probe (frozen encoder), full fine-tuning (uniform LR 10 −5), single-modality mild fine-tuning (vision-only and CSI-only), and mild fine-tuning with and without TTA. 
+
+B. Main Results 
+
+Table I reports cross-scenario Top-1 accuracy. CM-MAE mild fine-tuning reaches 77.4% on Sc6–8, outperforming the ASU baseline by +24 .9 pp. TTA adds another +1 .3 pp to reach 78.7%. The gain is largest on the hardest scenarios: Sc6 (low-light residential, +22 .5 pp) and Sc7 (dense urban blockage, +31 .6 pp). Key observations: (i) Fusion is essential under the diagnostic protocol. Neither single modality generalizes across scenarios: vision-only mild-FT reaches only 29.6% on Sc6–8 (below the ASU vision baseline), and CSI-only reaches 35.1%. Their fusion reaches 77.4%, showing that the learned visual representation and contemporaneous power-vector representation are complemen-tary in this representation-transfer setting. Because the fusion classifier receives the full 64-beam power vector at inference, this row should not be read as a camera-only proactive beam-prediction result. (ii) Full fine-tuning destroys generalization. Despite a high Sc5 accuracy of 85.7%, full FT collapses to 51.4% on Sc6–8— at the level of the ASU baseline—because a uniform learning rate overwrites the cross-modal features with scenario-specific cues from Sc1–4. The high Sc5 accuracy is misleading because Sc5 shares the visual domain of the training scenarios. (iii) TTA helps where it matters, when target batches are available. Adaptation improves the hardest scenarios Sc6/Sc7 by +2 .4/+1 .3 pp while leaving the already-easy Sc8 nearly unchanged, consistent with the entropy-minimization objective targeting uncertain predictions. This gain is not source-only; it uses unlabeled target data and is therefore reported as an optional transductive result.    
+
+> TABLE II FROZEN LINEAR PROBE VS .MILD FINE -TUNING (A VG 6–8 T OP -1, FUSION )
+> FOR THE TWO STRONGEST PRETRAINING VARIANTS . M ASKED PRETRAINING TRAILS WHEN FROZEN BUT LEADS AFTER ADAPTATION .
+
+Pretraining Linear probe Mild FT 
+
+CLS-SoftCtr (no mask) 38.14 37.34 
+
+CM-MAE-U (mask + soft) 31.71 45.04 
+
+C. Ablation Studies 
+
+We isolate the three most decisive design choices: the pretraining objective, the fine-tuning strategy, and the masking design. 
+
+(A) Pretraining objectives. We compare six pretraining variants under an identical protocol: ImageNet initialization, Sc1–5 unlabeled data, 160 epochs, batch size 192, evaluated by the same linear-probe procedure (a linear classifier trained on Sc1–4 features and tested on the held-out test split of each scenario; final epoch-159 checkpoint). The variants factorize along two axes— masking (none vs. block masking with reconstruction) and alignment (none, hard InfoNCE [6], or our soft beam-correlation targets)—and include the mainstream SSL paradigms as baselines. Table III yields several findings. First, reconstruction alone (MAE rows) underperforms any alignment-based objective, and block masking without alignment collapses entirely—the contrastive term is the primary representation-learning signal. Second, soft targets beat hard targets at every masking setting :CLS-SoftCtr > CLS-InfoNCE ( +2 .6 pp) and CM-MAE-U >
+
+MAE+InfoNCE ( +5 .9 pp), confirming that physics-grounded partial credit matters because many samples share similar propagation patterns. Third, and most instructive, the ranking reverses between frozen evaluation and fine-tuning. Under a linear probe, CLS-SoftCtr (38.1%) leads our full model (31.7%) because global CLS alignment produces readily separable features. But once the encoder is unfrozen during mild fine-tuning, masked pretraining pulls decisively ahead (Table II): CM-MAE-U reaches 45.0% on Sc6–8 versus 37.3% for CLS-SoftCtr, a 
+
++7 .7 pp gain concentrated in the hardest unseen scenario (Sc8: 80.1% vs 61.3%). Masked completion forces the encoder to model within-image spatial structure —which patches belong to the same vehicle, which are occluded—and these local features are exactly what mild fine-tuning exploits when adapting to a new scenario. Pure CLS alignment, lacking this local grounding, overfits the global statistics of the training scenarios and transfers poorly. Masked completion is therefore best understood as a regularizer whose benefit materializes at adaptation time, not at the frozen-feature level. 
+
+(B) Fine-tuning strategy. Starting from the same pretrained encoder, we compare three adaptation strategies, all evaluated test-only on Sc6–8 (Table IV): linear probing (frozen encoder, head only), full fine-tuning (uniform LR 10 −5 across all parameters), and mild fine-tuning (differential LR). The trend is striking: linear probing is stable but weak (38.4%); full fine-TABLE III ABLATION ON PRETRAINING OBJECTIVES . A LL VARIANTS PRETRAINED                                                  
+
+> 160 EPOCHS (I MAGE NET INIT , S C1–5, BATCH 192), LINEAR PROBE ON THE TEST SPLIT (FUSION FEATURES ).
+> Variant Mask. Align. Sc6 Sc7 Sc8 Avg
+> CLS-InfoNCE none hard 21.26 32.08 53.37 35.57 CLS-SoftCtr none soft 27.56 27.67 59.20 38.14
+> MAE block –11.02 11.32 52.30 24.88 MAE rand. –12.20 16.98 60.43 29.87 MAE + InfoNCE block hard 11.02 14.47 51.84 25.78
+> CM-MAE-U block soft 14.17 17.61 63.34 31.71 TABLE IV ABLATION ON THE FINE -TUNING STRATEGY (SAME PRETRAINED ENCODER ,
+> FUSION ).
+
+Strategy Sc5 Sc6 Sc7 Sc8 Avg6–8 
+
+Linear probe (frozen) 65.57 21.65 30.82 62.58 38.35 Full FT (uniform LR) 85.66 28.74 38.99 86.35 51.36 
+
+Mild FT (ours) 94.26 64.17 75.47 92.48 77.38 
+
+tuning fits the source scenarios well but forgets pretrained knowledge and fails to transfer (51.4%); mild fine-tuning preserves the cross-modal features and reaches 77.4%, a 
+
++26 .0 pp jump over full FT. This validates our central claim that how the pretrained model is adapted matters as much as the pretraining itself. 
+
+(C) Masking design. All masking variants share the full objective ( λctr =0 .2) and the protocol of (A), changing one design factor at a time from the base configuration ( rv =0 .75 
+
+block, rc=0 .5, modality dropout p=0 .1). Table V varies the vision mask ratio rv , the CSI cluster mask ratio rc, the vision masking type (contiguous 4×1 blocks vs. uniform random), and modality dropout. Vision masking follows an inverted-U pattern: the base ratio 
+
+rv =0 .75 (31.7%) outperforms both lighter ( rv =0 .5: 28.8%) and heavier ( rv =0 .9: 27.4%) masking, because too-few visible tokens prevent the model from inferring scene geometry while too-many make the reconstruction task trivially easy. CSI masking shows a similar pattern, with rc=0 .75 hurting most (−6.3 pp) since aggressive masking destroys the few salient beam clusters. Block masking beats uniform random masking by +2 .5 pp: contiguous blocks force the model to fill in larger semantic regions (e.g., an occluded vehicle) from cross-modal context, whereas random tokens can be solved by local interpolation. The no-dropout row is higher in this frozen linear-probe table (34.02% vs. 31.71%), so Table V does not by itself prove a transfer-accuracy gain from modality dropout. We keep dropout in the reported model as a conservative robustness-oriented choice for missing or unreliable modalities, and leave explicit corruption tests as future validation. 
+
+What did not work. A domain-adversarial scenario-classification head with a gradient-reversal layer [13] was added to the fused CLS features to encourage scenario-invariant representations. However, the adversarial loss spiked repeatedly during pretraining, causing gradient explosion and                                                 
+
+> TABLE V ABLATION ON THE MASKING DESIGN (FULL OBJECTIVE , 160 EPOCHS ,
+> BATCH 192), LINEAR PROBE ON THE TEST SPLIT (FUSION FEATURES ).
+> Variant Sc6 Sc7 Sc8 Avg6–8
+> Base ( rv=.75 ,rc=.5,pmd =.1)14.17 17.61 63.34 31.71
+> rv=0 .50 10.24 15.72 60.43 28.80
+> rv=0 .90 15.35 19.50 47.24 27.36
+> rc=0 .25 12.60 15.72 67.64 31.99
+> rc=0 .75 8.27 6.29 61.81 25.46 Random masking (no blocks) 12.20 14.47 60.89 29.19 No modality dropout ( pmd =0 )17.32 16.35 68.40 34.02
+> TABLE VI POSITIONING AGAINST PUBLISHED METHODS . C ROSS -SCENARIO :LABELS ON SC1–4, TEST ON SC6–8; IN -DISTRIBUTION :SAME -SCENARIO TRAIN /TEST .
+
+Method Setting Metric Result 
+
+ASU ResNet [2] Cross-scenario Top1 Avg6–8 52.5% BeamLLM [18] In-distribution Top1 61.0% Semantic BF [17] Scenario-specific Top1 –Occlusion-Aware [19] In-distribution Top1 50.9% 
+
+CM-MAE Mild-FT Cross-scenario Top1 Avg6–8 77.4% CM-MAE + TTA Cross-scenario Top1 Avg6–8 78.7% 
+
+NaN; disabling it ( λda =0 ) consistently gave the best result. We also found that continuing SSL pretraining on all eight scenarios with a freshly reset optimizer degraded Sc6–8 accuracy (to 
+
+∼49%), presumably because resetting Adam momentum and the learning-rate schedule disrupted the already-converged features. 
+
+D. Comparison with Published Methods 
+
+Table VI places CM-MAE among recent published methods. The table is a positioning summary, not a protocol-matched leaderboard: most prior numbers are in-distribution (same-scenario train/test), whereas our main protocol requires gen-eralization to unseen geographic locations. The only directly matched comparison in this table is the ASU ResNet cross-scenario reference. VII. A NALYSIS AND DISCUSSION 
+
+A. Per-Scenario Analysis 
+
+Sc8 (highway/urban canyon; 652 test samples) is the easiest scenario at 92.5%, reflecting its larger dataset and more structured propagation environment. Sc6 (254 test samples, low-light residential) and Sc7 (159 samples, dense urban with blockage) are harder but still improve by +22 .5 and +31 .6 pp respectively over the ASU baseline. The Sc5 validation accuracy of 94.3% is high because Sc5 shares the visual domain of Sc1–4 (similar lighting and architecture); we caution that Sc5 accuracy is not a reliable proxy for cross-scenario generalization, and the true measure is Sc6–8. The single-modality results reveal an interesting asymmetry: CSI-only mild-FT achieves high Sc5 accuracy (81.4%) but poor Sc6/7 transfer (18.9% / 22.6%), while vision-only is weak everywhere (Sc5 only 43.0%). This suggests that the raw power vector carries strong scenario-specific information that does not transfer, while the pretrained vision stream needs the CSI alignment target to learn transferable features—their combination is what enables generalization. 
+
+B. Effect of the Soft Contrastive Targets 
+
+The choice of beam-power correlation as the source of soft targets is important. Unlike self-supervised contrastive learning that uses image augmentations to define positives (irrelevant for CSI), our targets are grounded in the physical signal: two samples with similar beam-power profiles genuinely share propagation characteristics. The Gaussian kernel with σh=0 .5
+
+provides a smooth similarity landscape that tolerates the noise in real power measurements. Our ablation (Table III) confirms that this signal is necessary: reconstruction alone leads to vision-stream collapse, while adding the contrastive term yields a representation that continues improving throughout pretraining. 
+
+C. Limitations and Future Work  
+
+> •
+
+Path-resolved correspondence. Our current alignment op-erates at the sample level (CLS tokens). A finer objective— optimal-transport matching between image patches and beam clusters with asymmetric geometry-guided masking (the CM-MAE-W variant in our formulation)—requires ray-traced path labels (AoA/AoD, path powers) that are only available from simulators such as Wireless InSite. Evaluating it on synthetic data and transferring the representation to real measurements is ongoing work.  
+
+> •
+
+Temporal modeling. Predictions are single-frame; incor-porating short image–CSI sequences (as in the DeepSense challenge task) could add robustness against transient occlu-sions.  
+
+> •
+
+Pretraining scale and evaluation. Our negative result on all-scenario continued pretraining suggests that optimizer-state handling and learning-rate scheduling for continued SSL deserve further study. Evaluation on the hidden DeepSense challenge test set would also provide an unbiased external comparison.  
+
+> •
+
+Computational cost. The dual-stream ViT-Base architecture is large ( ∼232 M parameters); distillation into a smaller model would aid deployment. VIII. C ONCLUSION 
+
+We presented CM-MAE, a physics-guided cross-modal masked autoencoder for vision–wireless representation transfer in 6G beam classification. Self-supervised alignment via beam-power soft contrastive learning improves matched transfer abla-tions, and a mild differential-LR fine-tuning strategy preserves pretrained cross-modal features better than uniform full fine-tuning. Under our DeepSense 6G cross-scenario protocol, CM-MAE reaches 77.4% Top-1 on Sc6–8, a +24 .9 pp gain over the protocol-matched ASU ResNet reference; optional transductive normalization adaptation reaches 78.7%. Because the fusion setting uses the contemporaneous 64-beam power vector, these results support cross-scenario representation transfer rather than proactive reduced-sweep beam prediction. REFERENCES [1] A. Alkhateeb et al. , “DeepSense 6G: A large-scale real-world multi-modal sensing and communication dataset,” IEEE Commun. Mag. , vol. 61, no. 9, pp. 122–128, 2023. [2] G. Charan, T. Osman, A. Hredzak, N. Thawdar, and A. Alkhateeb, “Vision-position multi-modal beam prediction using real millimeter wave datasets,” in Proc. IEEE WCNC , 2022. [3] K. He et al. , “Masked autoencoders are scalable vision learners,” in Proc. IEEE/CVF CVPR , 2022. [4] R. Bachmann, D. Mizrahi, A. Atanov, and A. Zamir, “MultiMAE: Multi-modal multi-task masked autoencoders,” in Proc. ECCV , 2022. [5] Y. Gong et al. , “Contrastive audio-visual masked autoencoder,” in Proc. ICLR , 2023. [6] A. Radford et al. , “Learning transferable visual models from natural language supervision,” in Proc. ICML , 2021. [7] S. Alikhani, G. Charan, and A. Alkhateeb, “Large Wireless Model (LWM): A foundation model for wireless channels,” arXiv:2411.08872 ,2024. [8] B. Guler, G. Geraci, and H. Jafarkhani, “A multi-task foundation model for wireless channel representation using contrastive and masked autoencoder learning,” arXiv:2505.09160 , 2025. [9] M. Farzanullah et al. , “Wireless Multimodal Foundation Model (WMFM): Integrating vision and communication modalities for 6G ISAC systems,” 
+
+arXiv:2512.23897 , 2025. [10] H. Zhang, S. Gao, and X. Cheng, “WiFo-M 2: Plug-and-play multi-modal sensing via foundation model to empower wireless communications,” 
+
+arXiv:2601.09179 , 2026. [11] X. Liu et al. , “WiFo-MiSAC: A wireless foundation model for multimodal sensing and communication integration via synesthesia of machines,” 
+
+arXiv:2604.18255 , 2026. [12] D. Wang, E. Shelhamer, S. Liu, B. Olshausen, and T. Darrell, “Tent: Fully test-time adaptation by entropy minimization,” in Proc. ICLR , 2021. [13] Y. Ganin et al. , “Domain-adversarial training of neural networks,” J. Mach. Learn. Res. , vol. 17, no. 59, pp. 1–35, 2016. [14] R. W. Heath Jr. et al. , “An overview of signal processing techniques for millimeter wave MIMO systems,” IEEE J. Sel. Topics Signal Process. ,vol. 10, no. 3, pp. 436–453, 2016. [15] M. Tancik et al. , “Fourier features let networks learn high frequency functions in low dimensional domains,” in Proc. NeurIPS , 2020. [16] M. Cuturi, “Sinkhorn distances: Lightspeed computation of optimal transport,” in Proc. NeurIPS , 2013. [17] A. D. Raha, K. Kim, A. Adhikary, M. Gain, and C. S. Hong, “Advancing ultra-reliable 6G: Transformer and semantic localization empowered robust beamforming in mmWave communications,” arXiv preprint arXiv:2406.02000 , 2024. [18] C. Zheng, J. He, G. Cai, Z. Yu, and C. G. Kang, “BeamLLM: Vision-empowered mmWave beam prediction with large language models,” arXiv preprint arXiv:2503.10432 , 2025. [19] A. Orimogunje, H. Park, K.-J. Cha, I. Orikumhi, S. Kim, and D. Vukobra-tovic, “Occlusion-aware multimodal beam prediction and pose estimation for mmWave V2I,” arXiv preprint arXiv:2603.25799 , 2026.

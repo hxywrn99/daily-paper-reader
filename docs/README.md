@@ -6,38 +6,43 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-22
-- 运行时间：2026-08-22 20:39:37 UTC
+- 最新运行日期：2026-08-23
+- 运行时间：2026-08-23 20:38:51 UTC
 - 运行状态：成功
-- 本次总论文数：6
-- 精读区：4
-- 速读区：2
+- 本次总论文数：7
+- 精读区：3
+- 速读区：4
 
 ### 今日简报（AI）
-今日精读4篇、速读2篇，聚焦图像分割前沿；最推荐遥感语义分割的9.0分高作与模型无关分割的8.0分创新；建议优先精读这两篇，快速把握零样本分割与遥感场景的落地思路。
-- 详情：[/202608/22/README](/202608/22/README)
+今日推荐7篇论文，精读2篇、速读3篇，聚焦医学影像、分割与多模态感知。  
+最值得关注医疗影像基础模型CoM$^3$eT（9.0分）与无模型分割SOS！Transformer（8.0分），两者均为精读高价值方向。  
+建议优先精读上述两篇，速读论文可作背景拓展，重点理解跨模态与长时分割思路。
+- 详情：[/202608/23/README](/202608/23/README)
 
 ### 精读区论文标签
-1. [Frequency and Edge-Guided Segment Anything Model for Remote Sensing Image Semantic Segmentation](/202608/22/2608.15054v1-frequency-and-edge-guided-segment-anything-model-for-remote-sensing-image-semantic-segmentation)  
+1. [CoM$^3$eT: A foundation model for medical image analysis through federated, multidimensional context integration](/202608/23/2608.16268v1-com3et-a-foundation-model-for-medical-image-analysis-through-federated-multidimensional-context-integration)  
    标签：评分：9.0/10、query:image-seg
-   evidence：用于遥感图像的SAM语义分割，结合频率与边缘引导
-2. [SOS! : A Streamlined Object-Conditional Transformer for Model-free Segmentation](/202608/22/2608.15295v1-sos--a-streamlined-object-conditional-transformer-for-model-free-segmentation)  
+   evidence：统一影像与病理的医学基础模型，含分割
+2. [SOS! : A Streamlined Object-Conditional Transformer for Model-free Segmentation](/202608/23/2608.15295v1-sos--a-streamlined-object-conditional-transformer-for-model-free-segmentation)  
    标签：评分：8.0/10、query:image-seg
-   evidence：使用对象条件Transformer进行图像分割
-3. [Emergent 3D Instance Segmentation from Self-Supervised Point Transformers](/202608/22/2608.15796v1-emergent-3d-instance-segmentation-from-self-supervised-point-transformers)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：基于自监督点云Transformer的无监督三维实例分割
-4. [Beyond Similarity Matching: Structured Reasoning for Open-Vocabulary Referring Segmentation in 3DGS](/202608/22/2608.16103v1-beyond-similarity-matching-structured-reasoning-for-open-vocabulary-referring-segmentation-in-3dgs)  
-   标签：评分：8.0/10、query:image-seg
-   evidence：3DGS开放词汇指称分割，基于查询自适应推理
+   evidence：使用单张参考图像和目标条件Transformer实现无模型目标分割
+3. [Depth-guided Multi-view Exposure Bracketing for HDR Robot Vision](/202608/23/2608.16014v1-depth-guided-multi-view-exposure-bracketing-for-hdr-robot-vision)  
+   标签：评分：8.0/10、query:image-fusion
+   evidence：深度引导的多视角曝光融合用于HDR成像
 
 ### 速读区论文标签
-1. [SAM2Dual: Training-Free, Dual Memory for Long-Term Video Object Segmentation](/202608/22/2608.18640v1-sam2dual-training-free-dual-memory-for-long-term-video-object-segmentation)  
+1. [CM-MAE: A Physics-Guided Cross-Modal Self-Supervised Learning Framework for Vision-Wireless Applications](/202608/23/2608.15972v1-cm-mae-a-physics-guided-cross-modal-self-supervised-learning-framework-for-vision-wireless-applications)  
+   标签：评分：7.0/10、query:image-fusion
+   evidence：图像与无线信号的跨模态自监督特征对齐为深度学习的特征级融合提供了可迁移方法
+2. [SAM2Dual: Training-Free, Dual Memory for Long-Term Video Object Segmentation](/202608/23/2608.18640v1-sam2dual-training-free-dual-memory-for-long-term-video-object-segmentation)  
    标签：评分：7.0/10、query:image-seg
-   evidence：视频目标分割，属于实例级分割，纳入图像分割主题
-2. [A Multi-Annotator Study of Segmentation Noise and Uncertainty in Turbid Underwater Images](/202608/22/2608.15363v1-a-multi-annotator-study-of-segmentation-noise-and-uncertainty-in-turbid-underwater-images)  
-   标签：评分：6.0/10、query:image-seg
-   evidence：水下图像分割噪声与不确定性研究
+   evidence：通过双记忆增强进行长期视频目标分割
+3. [Multi-scale Decomposed Convolution Refinement Network for Visible-Infrared Person Re-Identification](/202608/23/2608.16015v1-multi-scale-decomposed-convolution-refinement-network-for-visible-infrared-person-re-identification)  
+   标签：评分：6.0/10、query:image-fusion
+   evidence：可见光-红外行人重识别中的跨模态特征融合与多尺度注意力
+4. [When More Foundation Models Means Less: Diagnosing and Addressing Multi-View Fusion Failure](/202608/23/2608.17490v1-when-more-foundation-models-means-less-diagnosing-and-addressing-multi-view-fusion-failure)  
+   标签：评分：6.0/10、query:image-fusion
+   evidence：多视角编码器的视角集合选择与核对齐贪心融合
 
 
 <div class="dpr-home-promo-card">
